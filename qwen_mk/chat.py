@@ -38,7 +38,7 @@ def main():
                     help="int8 (default): 1.6x faster, +0.1%% WikiText perplexity; bf16: exact weights")
     args = ap.parse_args()
 
-    print("loading model + compiling kernel (first run takes ~30 s)...", file=sys.stderr)
+    print("loading model (the first run also compiles the kernel, ~1 min)...", file=sys.stderr)
     s = ChatSession(args.model, max_seq=args.max_seq, quant=args.quant)
     show_stats = True
     messages = [{"role": "system", "content": args.system}] if args.system else []

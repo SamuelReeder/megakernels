@@ -29,6 +29,16 @@ def test_hf_prefill_matches_megakernel_prefill(s):
     assert match >= 16, (s.tok.decode(got), s.tok.decode(want))
 
 
+def test_state_known_after_natural_stop(s):
+    s.fed, s.snapshots = None, []
+    msgs = [{"role": "user", "content": "Reply with just the word: yes"}]
+    out = greedy(s, msgs, 64)
+    assert len(out) < 64, "expected the reply to end with a stop token"
+    prompt = s.encode(s.render(msgs))
+    assert s.fed == prompt + out  # the stop id itself is not fed
+    assert s.stats["decode_tokens"] == len(out) + 1
+
+
 def test_multi_turn_reuses_snapshot(s):
     s.fed, s.snapshots = None, []
     msgs = [{"role": "user", "content": "Name three primary colors."}]

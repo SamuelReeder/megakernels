@@ -149,10 +149,10 @@ class Handler(BaseHTTPRequestHandler):
             sent_r = sent_c = 0         # characters of reasoning / content already sent
             body_start = None if think else 0
             finish = "length"
-            for t in gen:
+            for t in gen:  # a stop id is always the last token; don't break, so `gen` records its state
                 if t in s.stop_ids:
                     finish = "stop"
-                    break
+                    continue
                 text += out.push(t)
                 if body_start is None:  # still inside the thinking block
                     reasoning = text.split("</think>")[0].replace("<think>", "")
@@ -193,7 +193,7 @@ def main():
     ap.add_argument("--quant", choices=["int8", "bf16"], default="int8",
                     help="int8 (default): 1.6x faster, +0.1%% WikiText perplexity; bf16: exact weights")
     args = ap.parse_args()
-    print("loading model + compiling kernel (first run takes ~30 s)...", file=sys.stderr)
+    print("loading model (the first run also compiles the kernel, ~1 min)...", file=sys.stderr)
     Handler.session = ChatSession(args.model, max_seq=args.max_seq, quant=args.quant)
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"serving {MODEL_ID} on http://{args.host}:{args.port}/v1", file=sys.stderr)

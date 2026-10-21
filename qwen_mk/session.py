@@ -161,7 +161,6 @@ class ChatSession:
     def chat(self, messages, enable_thinking=False, tools=None, **kw):
         """Yield generated ids for a chat (stop ids excluded)."""
         ids = self.encode(self.render(messages, enable_thinking=enable_thinking, tools=tools))
-        for t in self.stream(ids, **kw):
-            if t in self.stop_ids:
-                return
-            yield t
+        for t in self.stream(ids, **kw):  # run `stream` to completion so it records the fed state
+            if t not in self.stop_ids:
+                yield t
