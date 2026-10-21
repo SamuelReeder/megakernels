@@ -140,7 +140,8 @@ __device__ __forceinline__ void prefetch_l2(const void* src, uint32_t bytes) {
 // Two cursors over the same stream: `pf` issues L2 prefetches up to A.pf_bytes ahead of
 // `ld`, which fills the shared-memory ring. The ring is only ~70 KB, but L2 is 64 MB, so
 // DRAM keeps streaming through grid barriers and the non-GEMV ops.
-__device__ void producer(const Args& A, char* ring, uint64_t* full, uint64_t* empty) {
+__device__ void producer(const Args& A, char* ring, uint64_t* full, uint64_t* empty, volatile int* stop,
+                         volatile int* issued) {
     uint64_t policy;
     asm volatile("createpolicy.fractional.L2::evict_first.b64 %0, 1.0;" : "=l"(policy));
     Cursor ld, pf;
@@ -157,7 +158,8 @@ __device__ void producer(const Args& A, char* ring, uint64_t* full, uint64_t* em
     run_prefetch();
     unsigned long long stall = 0;
     int cur_step = 0;
-    for (int c = 0; ld.valid(A); c++) {
+    int c = 0;
+    for (; ld.valid(A); c++) {
         if (ld.s != cur_step) {
             if (A.prof && cur_step == A.prof_step)
                 A.prof[((size_t)gridDim.x * PROF_MAX_OPS + blockIdx.x) * PROF_FIELDS] = stall;
@@ -169,7 +171,12 @@ __device__ void producer(const Args& A, char* ring, uint64_t* full, uint64_t* em
             const uint32_t par = ((c / STAGES) - 1) & 1;
             if (!mbar_try_wait(&empty[slot], par)) {
                 unsigned long long t0 = globaltimer();
-                mbar_wait(&empty[slot], par);
+                while (!mbar_try_wait(&empty[slot], par)) {
+                    if (*stop) {  // consumers hit a stop token: report what is in flight and quit
+                        *issued = c;
+                        return;
+                    }
+                }
                 stall += globaltimer() - t0;
             }
         }
@@ -180,6 +187,7 @@ __device__ void producer(const Args& A, char* ring, uint64_t* full, uint64_t* em
         ld.advance(A);
         run_prefetch();
     }
+    *issued = c;
 }
 
 // ------------------------------------------------------------------ consumer GEMV
@@ -623,14 +631,18 @@ __global__ void __launch_bounds__(N_THREADS, 1) decode_kernel(Args A) {
     uint64_t* empty = full + STAGES;
     const int t = threadIdx.x, warp = t >> 5, lane = t & 31;
 
+    volatile int* stop = (volatile int*)(red + 36);    // consumers -> producer
+    volatile int* issued = (volatile int*)(red + 37);  // producer -> consumers: chunks issued
     if (t == 0) {
         for (int s = 0; s < STAGES; s++) { mbar_init(&full[s], 1); mbar_init(&empty[s], N_CONSUMER_WARPS); }
         asm volatile("fence.mbarrier_init.release.cluster;" ::: "memory");
+        *stop = 0;
+        *issued = -1;
     }
     __syncthreads();
 
     if (warp == N_CONSUMER_WARPS) {
-        if (lane == 0) producer(A, ring, full, empty);
+        if (lane == 0) producer(A, ring, full, empty, stop, issued);
         return;
     }
 
@@ -661,6 +673,7 @@ __global__ void __launch_bounds__(N_THREADS, 1) decode_kernel(Args A) {
     };
 
     int last_lm = -1;
+    int steps_done = A.n_steps;
     for (int s = 0; s < A.n_steps; s++) {
         const int pos = A.start_pos + s;
         prof = A.prof && s == A.prof_step;
@@ -669,12 +682,25 @@ __global__ void __launch_bounds__(N_THREADS, 1) decode_kernel(Args A) {
             if (t == 0) prow[(PROF_MAX_OPS - 1) * PROF_FIELDS + 3] = globaltimer();  // step start
         }
         op = 0;
+        if (A.step_ts && blockIdx.x == 0 && t == 0) A.step_ts[s] = globaltimer();
         int token;
         if (s < A.n_forced) token = A.forced[s];
         else {
             const unsigned long long key = reduce_lm_slots(e - 1, sk);
             if (blockIdx.x == 0 && t == 0) A.tokens_out[s - 1] = key;
             token = unpack_index(key);
+            bool is_stop = false;
+            for (int i = 0; i < A.n_stop; i++) is_stop |= (token == A.stop_ids[i]);
+            if (is_stop) {  // every CTA sees the same token, so all stop at this step
+                if (t == 0) {
+                    *stop = 1;
+                    while (*issued < 0) {}
+                    for (int c = R.c; c < *issued; c++) mbar_wait(&full[c % STAGES], (c / STAGES) & 1);
+                }
+                consumer_sync();
+                steps_done = s;
+                break;
+            }
         }
         const bf16* emb = P.embed + (size_t)token * HID;
 
@@ -753,9 +779,14 @@ __global__ void __launch_bounds__(N_THREADS, 1) decode_kernel(Args A) {
             last_lm = s;
         }
     }
-    if (blockIdx.x == 0 && last_lm == A.n_steps - 1) {
+    if (blockIdx.x == 0 && steps_done == A.n_steps && last_lm == A.n_steps - 1) {
         const unsigned long long key = reduce_lm_slots(e - 1, sk);
         if (t == 0) A.tokens_out[A.n_steps - 1] = key;
+    }
+    if (blockIdx.x == 0 && t == 0) {
+        if (A.step_ts) A.step_ts[steps_done] = globaltimer();
+        A.out_info[0] = steps_done;
+        A.out_info[1] = (int)e;
     }
 }
 

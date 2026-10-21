@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qwen-megakernel"
+version = "0.1.0"
+description = "Single-kernel batch-1 decoding of Qwen3.5-0.8B on RTX 50-series GPUs"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.8",
+    "transformers>=5.0",
+    "safetensors",
+    "huggingface_hub",
+    "ninja",
+    "numpy",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "matplotlib"]
+
+[project.scripts]
+qwen-mk-chat = "qwen_mk.chat:main"
+qwen-mk-serve = "qwen_mk.server:main"
+
+[tool.setuptools]
+packages = ["qwen_mk"]
+
+[tool.setuptools.package-data]
+qwen_mk = []

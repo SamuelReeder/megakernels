@@ -106,6 +106,10 @@ struct Args {
     unsigned long long* prof;   // optional [grid][PROF_MAX_OPS][PROF_FIELDS] + producer stall
     float inv_temperature;      // 0 => greedy
     long long pf_bytes;         // L2 prefetch distance ahead of the smem ring, per CTA
+    const int* stop_ids;        // stop when one of these is predicted (it is not fed)
+    int n_stop;
+    int* out_info;              // [steps executed, epoch after the last op]
+    unsigned long long* step_ts;  // optional [n_steps + 1] globaltimer at each step boundary
     unsigned seed;
 };
 

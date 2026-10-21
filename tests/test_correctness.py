@@ -68,3 +68,30 @@ def test_greedy_continuation(models):
     print("reference: ", repr(tok.decode(want)))
     match = next((i for i, (x, y) in enumerate(zip(got, want)) if x != y), len(want))
     assert match >= 40, f"diverged at token {match}"
+
+
+def test_stop_token_leaves_exact_state(models):
+    """Stopping on a token, then feeding it back in, must continue exactly like an uninterrupted run."""
+    tok, mk, _ = models
+    ids = tok(PROMPT).input_ids
+    mk.reset()
+    full = mk.run(ids, n_generate=40)
+    stop = full[12]
+    k = full.index(stop)
+    mk.reset()
+    head = mk.run(ids, n_generate=40, stop_ids=[stop])
+    assert head == full[: k + 1]
+    assert mk.pos == len(ids) + k
+    tail = mk.run([stop], n_generate=40 - k - 1)
+    assert head + tail == full
+
+
+def test_sampling_is_seeded(models):
+    tok, mk, _ = models
+    ids = tok(PROMPT).input_ids
+    outs = []
+    for seed in (1, 1, 2):
+        mk.reset()
+        outs.append(mk.run(ids, n_generate=32, temperature=0.8, seed=seed))
+    assert outs[0] == outs[1]
+    assert outs[0] != outs[2]

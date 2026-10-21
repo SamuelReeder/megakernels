@@ -107,48 +107,70 @@ class Megakernel:
         self.pos = 0
 
     @torch.no_grad()
-    def run(self, tokens, n_generate=0, temperature=0.0, seed=0, return_logits=False, prof=None, prof_step=0):
-        """Feed `tokens` (prompt) then generate `n_generate` more tokens in one launch.
+    def run(self, tokens, n_generate=1, temperature=0.0, seed=0, stop_ids=(), return_logits=False, prof=None,
+            prof_step=0, timing=False):
+        """Feed `tokens`, then let the model continue for up to `n_generate` predicted tokens.
 
-        Returns the generated token ids (the first one predicted after the last prompt token,
-        so `n_generate` ids), and optionally the logits for each produced token.
+        One kernel launch: the prompt tokens are fed one per step (no LM head except on the
+        last), and each predicted token is fed back in on the GPU. Returns the predicted ids
+        (ending early with a stop id, which is *not* fed into the state), plus their logits if
+        `return_logits`. With `timing`, `self.last_step_ns` holds GPU time per step.
         """
         tokens = list(tokens)
         assert tokens, "need at least one input token"
+        assert n_generate >= 1
         n_forced = len(tokens)
-        n_steps = n_forced + max(n_generate, 1) - 1
+        n_steps = n_forced + n_generate - 1
         if self.pos + n_steps > self.max_seq:
             raise ValueError(f"sequence would exceed max_seq={self.max_seq}")
-        forced = torch.tensor(tokens, dtype=torch.int32, device=self.device)
-        out = torch.zeros(n_steps, dtype=torch.int64, device=self.device)
-        logits = torch.empty(n_steps, self.cfg.vocab, device=self.device) if return_logits else None
-        self.ext.launch(forced.data_ptr(), n_forced, n_steps, self.pos, self.epoch, out.data_ptr(),
-                        logits.data_ptr() if logits is not None else 0, prof.data_ptr() if prof is not None else 0,
-                        prof_step, 1.0 / temperature if temperature > 0 else 0.0, seed, self.grid, self.pf_bytes)
-        n_lm = n_steps - (n_forced - 1)
-        self.epoch += n_steps * self.cfg.n_layers * self.ext.OPS_PER_LAYER + n_lm
+        dev = self.device
+        forced = torch.tensor(tokens, dtype=torch.int32, device=dev)
+        stops = torch.tensor(list(stop_ids) or [-1], dtype=torch.int32, device=dev)
+        out = torch.zeros(n_steps, dtype=torch.int64, device=dev)
+        info = torch.zeros(2, dtype=torch.int32, device=dev)
+        ts = torch.zeros(n_steps + 1, dtype=torch.int64, device=dev) if timing else None
+        logits = torch.empty(n_steps, self.cfg.vocab, device=dev) if return_logits else None
+        ptr = lambda t: t.data_ptr() if t is not None else 0
+        self.ext.launch(forced.data_ptr(), n_forced, n_steps, self.pos, self.epoch, out.data_ptr(), ptr(logits),
+                        ptr(prof), prof_step, 1.0 / temperature if temperature > 0 else 0.0, seed, self.grid,
+                        self.pf_bytes, stops.data_ptr(), len(stop_ids), info.data_ptr(), ptr(ts))
+        done, epoch = info.tolist()
+        self.pos += done
+        self.epoch = epoch & 0xFFFFFFFF
         if self.epoch > 0xFFFF0000:
             raise RuntimeError("epoch counter exhausted; call reset()")
-        self.pos += n_steps
-        ids = (0xFFFFFFFF - (out[n_forced - 1:] & 0xFFFFFFFF)).tolist()
+        if timing:
+            t = ts[: done + 1].cpu()
+            self.last_step_ns = (t[1:] - t[:-1]).tolist()
+        ids = (0xFFFFFFFF - (out[n_forced - 1: done] & 0xFFFFFFFF)).tolist()
         if return_logits:
-            return ids, logits[n_forced - 1:]
+            return ids, logits[n_forced - 1: done]
         return ids
+
+    def prefill(self, tokens, chunk=512):
+        """Feed all but the last token (in launches short enough for the GPU watchdog)."""
+        tokens = list(tokens)
+        for i in range(0, len(tokens) - 1, chunk):
+            self.run(tokens[i: min(i + chunk, len(tokens) - 1)])
+        return tokens[-1]
 
     def prof_buffer(self):
         n = self.grid * self.ext.PROF_MAX_OPS * self.ext.PROF_FIELDS + self.grid * self.ext.PROF_FIELDS
         return torch.zeros(n, dtype=torch.int64, device=self.device)
 
     def generate(self, prompt_ids, max_new_tokens=256, temperature=0.0, seed=0, stop_ids=(), chunk=16):
-        """Yield generated token ids, launching `chunk` decode steps at a time."""
+        """Yield generated ids. The state ends exactly after the last fed token, so a
+        conversation can continue by passing the next prompt (starting with the stop id)."""
+        last = self.prefill(prompt_ids)
         produced = 0
-        ids = self.run(prompt_ids, n_generate=min(chunk, max_new_tokens), temperature=temperature, seed=seed)
-        while True:
+        while produced < max_new_tokens:
+            n = min(chunk, max_new_tokens - produced, MAX_STEPS_PER_LAUNCH)
+            ids = self.run([last], n_generate=n, temperature=temperature, seed=seed, stop_ids=stop_ids)
             for t in ids:
                 yield t
                 produced += 1
-                if t in stop_ids or produced >= max_new_tokens:
-                    return
-            n = min(chunk, max_new_tokens - produced, MAX_STEPS_PER_LAUNCH)
-            # The last id was predicted but not yet fed; feed it and keep going.
-            ids = self.run([ids[-1]], n_generate=n, temperature=temperature, seed=seed)
+            if ids and ids[-1] in stop_ids:
+                return
+            last = ids[-1]
+        # max_new_tokens reached: the final predicted id has not been fed yet
+        self.pending = last

@@ -58,7 +58,8 @@ void set_params(std::vector<int64_t> layer, std::vector<int64_t> g, int64_t max_
 
 void launch(int64_t forced, int64_t n_forced, int64_t n_steps, int64_t start_pos, int64_t epoch_base,
             int64_t tokens_out, int64_t logits_out, int64_t prof, int64_t prof_step, double inv_temperature,
-            int64_t seed, int64_t grid, int64_t pf_bytes) {
+            int64_t seed, int64_t grid, int64_t pf_bytes, int64_t stop_ids, int64_t n_stop, int64_t out_info,
+            int64_t step_ts) {
     mk::Args a{};
     a.forced = ptr<const int*>(forced);
     a.n_forced = (int)n_forced;
@@ -72,6 +73,10 @@ void launch(int64_t forced, int64_t n_forced, int64_t n_steps, int64_t start_pos
     a.inv_temperature = (float)inv_temperature;
     a.seed = (unsigned)seed;
     a.pf_bytes = pf_bytes;
+    a.stop_ids = ptr<const int*>(stop_ids);
+    a.n_stop = (int)n_stop;
+    a.out_info = ptr<int*>(out_info);
+    a.step_ts = ptr<unsigned long long*>(step_ts);
     C10_CUDA_CHECK(mk::launch(a, (int)grid, c10::cuda::getCurrentCUDAStream()));
 }
 
