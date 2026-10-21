@@ -5,7 +5,7 @@ Each CTA's consumer thread 0 records, for every op, when its inputs became ready
 waited for weights to land in the ring, and the producer records how long it stalled
 on a full ring. Nsight sees the megakernel as one opaque kernel; this shows the inside.
 
-    python tools/profile.py --ctx 512 --png docs/timeline.png --json results/profile.json
+    python tools/timeline.py --ctx 512 --png docs/timeline.png --json results/profile.json
 """
 
 import argparse
@@ -125,8 +125,9 @@ def main():
     ap.add_argument("--ctx", type=int, default=512)
     ap.add_argument("--png", default=None)
     ap.add_argument("--json", default=None)
+    ap.add_argument("--quant", choices=["bf16", "int8"], default="bf16")
     args = ap.parse_args()
-    mk = Megakernel(max_seq=args.ctx + 64)
+    mk = Megakernel(max_seq=args.ctx + 64, quant=args.quant)
     d = collect(mk, args.ctx)
     s = summarize(mk, d)
     print(f"step {s['step_us']:.1f} us over {s['ops']} ops; dependency wait {s['total_dep_wait_us']:.1f} us/step "

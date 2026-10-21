@@ -38,12 +38,25 @@ constexpr int PART_STRIDE = HD + 2;                     // acc[256], m, l
 
 constexpr int PROJ_MAX = GDN_IN_ROWS;
 
+// ---- weight formats ----
+// bf16: plain row-major. int8: each row is K bytes of (q + 128) followed by K/32 bf16 scales,
+// so w = (byte - 128) * scale[k / 32] and every row is still one contiguous TMA-able span.
+constexpr int Q8_GROUP = 32;
+__host__ __device__ constexpr int row_bytes(int K, bool q8) { return q8 ? K + K / Q8_GROUP * 2 : 2 * K; }
+
 // ---- execution shape ----
 constexpr int N_CONSUMER_WARPS = 16;
 constexpr int N_CONSUMERS = N_CONSUMER_WARPS * 32;
 constexpr int N_THREADS = N_CONSUMERS + 32;             // + one producer warp
-constexpr int STAGES = 5;
-constexpr int CHUNK = 14336;                            // bytes per ring slot (2 rows of K=3584)
+// Tunables (overridable at build time with QWEN_MK_DEFINES="-DMK_STAGES=6 ..." for A/B runs)
+#ifndef MK_STAGES
+#define MK_STAGES 5
+#endif
+#ifndef MK_CHUNK
+#define MK_CHUNK 15232  // bytes per ring slot: exactly 14 / 7 / 4 int8 rows of K = 1024 / 2048 / 3584
+#endif
+constexpr int STAGES = MK_STAGES;
+constexpr int CHUNK = MK_CHUNK;
 constexpr int VEC_BYTES = 16384;                        // GEMV input vector / op scratch
 constexpr int RED_FLOATS = 64;
 constexpr int SMEM_BYTES = STAGES * CHUNK + VEC_BYTES + RED_FLOATS * 4 + 2 * STAGES * 8;
@@ -78,7 +91,8 @@ struct LayerPtrs {
 
 struct Params {
     LayerPtrs layer[N_LAYERS];
-    const bf16* embed;      // [VOCAB,1024], tied LM head
+    const bf16* embed;      // [VOCAB,1024] bf16 token embeddings (input lookup)
+    const void* lm_head;    // tied LM head in the kernel's weight format (== embed for bf16)
     const bf16* final_norm; // [1024]
     const float* rope_cos;  // [max_seq,32]
     const float* rope_sin;
@@ -97,6 +111,7 @@ struct Params {
 struct Args {
     const int* forced;          // tokens fed at steps [0, n_forced)
     int n_forced;
+    int lm_from;                // first step that runs the LM head (n_forced - 1, or 0 for all logits)
     int n_steps;
     int start_pos;
     int prof_step;              // which step to record into prof (if prof != nullptr)
@@ -106,6 +121,7 @@ struct Args {
     unsigned long long* prof;   // optional [grid][PROF_MAX_OPS][PROF_FIELDS] + producer stall
     float inv_temperature;      // 0 => greedy
     long long pf_bytes;         // L2 prefetch distance ahead of the smem ring, per CTA
+    int q8;                     // weights are int8 (selects the kernel instantiation)
     const int* stop_ids;        // stop when one of these is predicted (it is not fed)
     int n_stop;
     int* out_info;              // [steps executed, epoch after the last op]

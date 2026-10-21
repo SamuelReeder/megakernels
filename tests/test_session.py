@@ -10,7 +10,7 @@ LONG = " ".join(f"Item {i}: the quick brown fox number {i} jumps over lazy dog {
 
 @pytest.fixture(scope="module")
 def s():
-    return ChatSession(max_seq=4096)
+    return ChatSession(max_seq=4096, quant="bf16")
 
 
 def greedy(s, messages, n=24):

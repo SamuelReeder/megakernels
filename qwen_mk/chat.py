@@ -1,6 +1,6 @@
 """Interactive chat with Qwen3.5-0.8B running on the megakernel.
 
-    qwen-mk-chat [--temperature 0.7] [--system "You are ..."] [--think]
+    qwen-mk-chat [--temperature 0.7] [--system "You are ..."] [--think] [--quant int8|bf16]
 
 Commands: /reset clears the conversation, /stats toggles speed stats, /quit exits.
 """
@@ -34,10 +34,12 @@ def main():
     ap.add_argument("--system", default=None)
     ap.add_argument("--think", action="store_true", help="enable the model's thinking mode")
     ap.add_argument("--max-seq", type=int, default=32768)
+    ap.add_argument("--quant", choices=["int8", "bf16"], default="int8",
+                    help="int8 (default): 1.6x faster, +0.1%% WikiText perplexity; bf16: exact weights")
     args = ap.parse_args()
 
     print("loading model + compiling kernel (first run takes ~30 s)...", file=sys.stderr)
-    s = ChatSession(args.model, max_seq=args.max_seq)
+    s = ChatSession(args.model, max_seq=args.max_seq, quant=args.quant)
     show_stats = True
     messages = [{"role": "system", "content": args.system}] if args.system else []
     print("ready. /reset, /stats, /quit", file=sys.stderr)

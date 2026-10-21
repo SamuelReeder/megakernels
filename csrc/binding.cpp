@@ -16,7 +16,7 @@ static T ptr(int64_t v) { return reinterpret_cast<T>(static_cast<uintptr_t>(v));
 
 void set_params(std::vector<int64_t> layer, std::vector<int64_t> g, int64_t max_seq) {
     TORCH_CHECK(layer.size() == (size_t)mk::N_LAYERS * LAYER_FIELDS, "bad layer pointer count");
-    TORCH_CHECK(g.size() == 12, "bad global pointer count");
+    TORCH_CHECK(g.size() == 13, "bad global pointer count");
     mk::Params p{};
     for (int l = 0; l < mk::N_LAYERS; l++) {
         const int64_t* f = &layer[l * LAYER_FIELDS];
@@ -51,6 +51,7 @@ void set_params(std::vector<int64_t> layer, std::vector<int64_t> g, int64_t max_
     p.lml = ptr<unsigned long long*>(g[9]);
     p.attn_part = ptr<float*>(g[10]);
     p.attn_cnt = ptr<unsigned*>(g[11]);
+    p.lm_head = ptr<const void*>(g[12]);
     p.max_seq = max_seq;
     mk::set_params(p);
     C10_CUDA_CHECK(cudaGetLastError());
@@ -59,7 +60,7 @@ void set_params(std::vector<int64_t> layer, std::vector<int64_t> g, int64_t max_
 void launch(int64_t forced, int64_t n_forced, int64_t n_steps, int64_t start_pos, int64_t epoch_base,
             int64_t tokens_out, int64_t logits_out, int64_t prof, int64_t prof_step, double inv_temperature,
             int64_t seed, int64_t grid, int64_t pf_bytes, int64_t stop_ids, int64_t n_stop, int64_t out_info,
-            int64_t step_ts) {
+            int64_t step_ts, int64_t q8, int64_t lm_from) {
     mk::Args a{};
     a.forced = ptr<const int*>(forced);
     a.n_forced = (int)n_forced;
@@ -77,6 +78,8 @@ void launch(int64_t forced, int64_t n_forced, int64_t n_steps, int64_t start_pos
     a.n_stop = (int)n_stop;
     a.out_info = ptr<int*>(out_info);
     a.step_ts = ptr<unsigned long long*>(step_ts);
+    a.q8 = (int)q8;
+    a.lm_from = (int)lm_from;
     C10_CUDA_CHECK(mk::launch(a, (int)grid, c10::cuda::getCurrentCUDAStream()));
 }
 

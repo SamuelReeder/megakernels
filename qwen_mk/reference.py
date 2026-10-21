@@ -124,4 +124,4 @@ class ReferenceModel:
             x = x + self._lin(m + "down_proj.weight", act)
         self.pos += 1
         h = rmsnorm(x, self.w["norm.weight"], c.eps)
-        return self.w["embed_tokens.weight"].float() @ h
+        return self.w.get("lm_head.weight", self.w["embed_tokens.weight"]).float() @ h

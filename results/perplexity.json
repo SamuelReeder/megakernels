@@ -1,0 +1,19 @@
+{
+ "dataset": "wikitext-2-raw-v1 test",
+ "ctx": 1024,
+ "windows": 16,
+ "results": {
+  "mk-bf16": {
+   "ppl": 17.140799547500876,
+   "tokens": 16368
+  },
+  "mk-int8": {
+   "ppl": 17.16087553673413,
+   "tokens": 16368
+  },
+  "hf-bf16": {
+   "ppl": 17.14018586063005,
+   "tokens": 16368
+  }
+ }
+}

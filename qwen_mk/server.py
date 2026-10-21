@@ -190,9 +190,11 @@ def main():
     ap.add_argument("--host", default="127.0.0.1")
     ap.add_argument("--port", type=int, default=8000)
     ap.add_argument("--max-seq", type=int, default=32768)
+    ap.add_argument("--quant", choices=["int8", "bf16"], default="int8",
+                    help="int8 (default): 1.6x faster, +0.1%% WikiText perplexity; bf16: exact weights")
     args = ap.parse_args()
     print("loading model + compiling kernel (first run takes ~30 s)...", file=sys.stderr)
-    Handler.session = ChatSession(args.model, max_seq=args.max_seq)
+    Handler.session = ChatSession(args.model, max_seq=args.max_seq, quant=args.quant)
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"serving {MODEL_ID} on http://{args.host}:{args.port}/v1", file=sys.stderr)
     try:

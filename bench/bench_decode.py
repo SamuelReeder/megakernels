@@ -13,7 +13,7 @@ import torch
 
 from qwen_mk.engine import Megakernel
 
-ROOFLINE_GBPS = 780.0  # measured with bench/bw.cu on an RTX 5080
+ROOFLINE_GBPS = 915.0  # measured with bench/bw.cu on an idle RTX 5080 (spec: 960)
 
 
 def bench(mk, ctx, n_tokens, steps_per_launch, reps=3):
@@ -47,10 +47,11 @@ def main():
     ap.add_argument("--tokens", type=int, default=256)
     ap.add_argument("--steps-per-launch", type=int, default=128)
     ap.add_argument("--json", type=str, default=None)
+    ap.add_argument("--quant", choices=["bf16", "int8"], default="bf16")
     ap.add_argument("--pf-kb", type=int, nargs="+", default=None, help="sweep L2 prefetch distance (KB per SM)")
     args = ap.parse_args()
 
-    mk = Megakernel(max_seq=max(args.ctx) + args.tokens + 8)
+    mk = Megakernel(max_seq=max(args.ctx) + args.tokens + 8, quant=args.quant)
     if args.pf_kb:
         for kb in args.pf_kb:
             mk.pf_bytes = kb * 1024
@@ -71,7 +72,7 @@ def main():
     print(f"bytes/token: weights {body / 1e6:.0f} MB + LM head {head / 1e6:.0f} MB + GDN state {state / 1e6:.0f} MB")
     if args.json:
         with open(args.json, "w") as f:
-            json.dump(rows, f, indent=1)
+            json.dump(dict(quant=args.quant, gpu=torch.cuda.get_device_name(), rows=rows), f, indent=1)
 
 
 if __name__ == "__main__":

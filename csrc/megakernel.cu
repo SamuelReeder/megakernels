@@ -98,6 +98,7 @@ __device__ __forceinline__ void block_slice(int units, int& u0, int& u1) {
 // ------------------------------------------------------------------ producer
 // Walks this CTA's weight stream: for every step, the slices of each layer's four GEMVs
 // in execution order, then the LM head slice when that step's logits are needed.
+template <bool Q8>
 struct Cursor {
     int s, l, op;          // op 0..3 = in, out, gate/up, down; l == N_LAYERS is the LM head
     int u, u1, ub, upc;
@@ -105,7 +106,7 @@ struct Cursor {
 
     __device__ void setup() {
         int rows, K, G = 1;
-        if (l == N_LAYERS) { W = (const char*)P.embed; rows = VOCAB; K = HID; }
+        if (l == N_LAYERS) { W = (const char*)P.lm_head; rows = VOCAB; K = HID; }
         else {
             const LayerPtrs& L = P.layer[l];
             switch (op) {
@@ -116,13 +117,13 @@ struct Cursor {
             }
         }
         block_slice(rows / G, u, u1);
-        ub = G * K * 2;
+        ub = G * row_bytes(K, Q8);
         upc = CHUNK / ub;
     }
     __device__ void next_op(const Args& A) {
         if (l < N_LAYERS && ++op == 4) { op = 0; l++; }
         else if (l == N_LAYERS) { l = 0; op = 0; s++; }
-        if (l == N_LAYERS && s < A.n_forced - 1) { l = 0; op = 0; s++; }
+        if (l == N_LAYERS && s < A.lm_from) { l = 0; op = 0; s++; }
         if (s < A.n_steps) setup();
     }
     __device__ void skip_empty(const Args& A) { while (s < A.n_steps && u >= u1) next_op(A); }
@@ -140,11 +141,12 @@ __device__ __forceinline__ void prefetch_l2(const void* src, uint32_t bytes) {
 // Two cursors over the same stream: `pf` issues L2 prefetches up to A.pf_bytes ahead of
 // `ld`, which fills the shared-memory ring. The ring is only ~70 KB, but L2 is 64 MB, so
 // DRAM keeps streaming through grid barriers and the non-GEMV ops.
+template <bool Q8>
 __device__ void producer(const Args& A, char* ring, uint64_t* full, uint64_t* empty, volatile int* stop,
                          volatile int* issued) {
     uint64_t policy;
     asm volatile("createpolicy.fractional.L2::evict_first.b64 %0, 1.0;" : "=l"(policy));
-    Cursor ld, pf;
+    Cursor<Q8> ld, pf;
     ld.init(A);
     pf.init(A);
     long long ahead = 0;
@@ -192,7 +194,7 @@ __device__ void producer(const Args& A, char* ring, uint64_t* full, uint64_t* em
 
 // ------------------------------------------------------------------ consumer GEMV
 template <int K>
-__device__ __forceinline__ float dot_row(const char* row, const float* vec, int lane) {
+__device__ __forceinline__ float dot_row_bf16(const char* row, const float* vec, int lane) {
     const uint4* w = (const uint4*)row;
     constexpr int NV = K / 8;
     float a = 0.f;
@@ -212,6 +214,41 @@ __device__ __forceinline__ float dot_row(const char* row, const float* vec, int 
     return warp_sum(a);
 }
 
+// Four (q + 128) bytes times four inputs. PRMT builds the float 2^23 + byte, and one FADD
+// of (2^23 + 128) recovers q exactly, which is cheaper than an int->float convert.
+__device__ __forceinline__ float dot4_u8(uint32_t w, float4 x) {
+    constexpr float BIAS = 8388608.f + 128.f;
+    float a = (__uint_as_float(__byte_perm(w, 0x4B000000u, 0x7440)) - BIAS) * x.x;
+    a = fmaf(__uint_as_float(__byte_perm(w, 0x4B000000u, 0x7441)) - BIAS, x.y, a);
+    a = fmaf(__uint_as_float(__byte_perm(w, 0x4B000000u, 0x7442)) - BIAS, x.z, a);
+    return fmaf(__uint_as_float(__byte_perm(w, 0x4B000000u, 0x7443)) - BIAS, x.w, a);
+}
+
+template <int K>
+__device__ __forceinline__ float dot_row_q8(const char* row, const float* vec, int lane) {
+    const uint4* w = (const uint4*)row;
+    const bf16* scale = (const bf16*)(row + K);
+    constexpr int NV = K / 16;  // 16 weights per 16-byte vector, two vectors per scale group
+    float a = 0.f;
+#pragma unroll
+    for (int i = 0; i < (NV + 31) / 32; i++) {
+        const int v = lane + 32 * i;
+        if (NV % 32 == 0 || v < NV) {
+            const uint4 q = w[v];
+            const float4* x = (const float4*)(vec + v * 16);
+            const float p = dot4_u8(q.x, x[0]) + dot4_u8(q.y, x[1]) + dot4_u8(q.z, x[2]) + dot4_u8(q.w, x[3]);
+            a = fmaf(p, bf2f(scale[v >> 1]), a);
+        }
+    }
+    return warp_sum(a);
+}
+
+template <int K, bool Q8>
+__device__ __forceinline__ float dot_row(const char* row, const float* vec, int lane) {
+    if constexpr (Q8) return dot_row_q8<K>(row, vec, lane);
+    else return dot_row_bf16<K>(row, vec, lane);
+}
+
 struct Ring {
     char* buf;
     uint64_t* full;
@@ -223,13 +260,13 @@ struct Ring {
 // Consume this CTA's slice of a [rows, K] GEMV from the ring. Units are dealt to
 // warps round-robin; warps run independently and only meet at the op boundary.
 // epi(unit, acc[G]) runs on every lane of the owning warp.
-template <int K, int G, class Epi>
+template <int K, int G, bool Q8, class Epi>
 __device__ __forceinline__ void gemv(int rows, Ring& R, const float* vec, bool timed, Epi epi) {
     const int warp = threadIdx.x >> 5, lane = threadIdx.x & 31;
     int u0, u1;
     block_slice(rows / G, u0, u1);
-    constexpr int UB = G * K * 2;
-    constexpr int UPC = CHUNK / UB;
+    constexpr int RB = row_bytes(K, Q8);
+    constexpr int UPC = CHUNK / (G * RB);
     for (int u = u0; u < u1; u += UPC, R.c++) {
         const int slot = R.c % STAGES;
         const uint32_t par = (R.c / STAGES) & 1;
@@ -246,7 +283,7 @@ __device__ __forceinline__ void gemv(int rows, Ring& R, const float* vec, bool t
              j += N_CONSUMER_WARPS) {
             float acc[G];
 #pragma unroll
-            for (int g = 0; g < G; g++) acc[g] = dot_row<K>(tile + (j * G + g) * K * 2, vec, lane);
+            for (int g = 0; g < G; g++) acc[g] = dot_row<K, Q8>(tile + (j * G + g) * RB, vec, lane);
             epi(u + j, acc);
         }
         __syncwarp();
@@ -507,7 +544,6 @@ __device__ void attn_op(const LayerPtrs& L, int pos, uint32_t e, float* sm, floa
 #pragma unroll
             for (int j = 0; j < 8; j++) skv[HD + lane * 8 + j] = ll_wait(raw[j], P.projl + ATT_V_OFF + g * HD + lane * 8 + j, e - 1);
         }
-        for (int i = t; i < Q_PER_KV * HD; i += N_CONSUMERS) sacc[i] = 0.f;
         consumer_sync();
         if (ready_ts && t == 0) *ready_ts = globaltimer();
         if (t < (Q_PER_KV + 1) * 32) {  // RoPE on the first 64 dims (half-split pairs i, i+32)
@@ -567,17 +603,14 @@ __device__ void attn_op(const LayerPtrs& L, int pos, uint32_t e, float* sm, floa
 #pragma unroll
             for (int h = 0; h < Q_PER_KV; h++) { sml[(warp * Q_PER_KV + h) * 2] = m[h]; sml[(warp * Q_PER_KV + h) * 2 + 1] = l[h]; }
         consumer_sync();
+        float sc[Q_PER_KV];
 #pragma unroll
         for (int h = 0; h < Q_PER_KV; h++) {
             float M = -1e30f;
             for (int w = 0; w < N_CONSUMER_WARPS; w++) M = fmaxf(M, sml[(w * Q_PER_KV + h) * 2]);
-            const float sc = __expf(m[h] - M);
-#pragma unroll
-            for (int j = 0; j < 8; j++) atomicAdd(&sacc[h * HD + lane * 8 + j], acc[h][j] * sc);
+            sc[h] = __expf(m[h] - M);
         }
-        consumer_sync();
         float* part = P.attn_part + ((size_t)g * MAX_SPLITS + sp) * Q_PER_KV * PART_STRIDE;
-        for (int i = t; i < Q_PER_KV * HD; i += N_CONSUMERS) __stcg(part + (i / HD) * PART_STRIDE + i % HD, sacc[i]);
         if (t < Q_PER_KV) {
             float M = -1e30f, Ls = 0.f;
             for (int w = 0; w < N_CONSUMER_WARPS; w++) M = fmaxf(M, sml[(w * Q_PER_KV + t) * 2]);
@@ -587,6 +620,21 @@ __device__ void attn_op(const LayerPtrs& L, int pos, uint32_t e, float* sm, floa
             __stcg(part + t * PART_STRIDE + HD + 1, Ls);
         }
         consumer_sync();
+        // Sum the warps' outputs in a fixed order (atomics would make results run-to-run
+        // nondeterministic). q / k / v scratch is dead now, so all of `sm` is the buffer.
+        float* wbuf = sm;  // [16 warps][256]
+#pragma unroll
+        for (int h = 0; h < Q_PER_KV; h++) {
+#pragma unroll
+            for (int j = 0; j < 8; j++) wbuf[warp * HD + lane * 8 + j] = acc[h][j] * sc[h];
+            consumer_sync();
+            if (t < HD) {
+                float a = 0.f;
+                for (int w = 0; w < N_CONSUMER_WARPS; w++) a += wbuf[w * HD + t];
+                __stcg(part + h * PART_STRIDE + t, a);
+            }
+            consumer_sync();
+        }
         if (t == 0) {
             __threadfence();
             *sflag = atomicAdd(&P.attn_cnt[g], 1u) == (unsigned)(splits - 1);
@@ -622,6 +670,7 @@ __device__ void attn_op(const LayerPtrs& L, int pos, uint32_t e, float* sm, floa
 }
 
 // ------------------------------------------------------------------ kernel
+template <bool Q8>
 __global__ void __launch_bounds__(N_THREADS, 1) decode_kernel(Args A) {
     extern __shared__ __align__(1024) char smem[];
     char* ring = smem;
@@ -642,7 +691,7 @@ __global__ void __launch_bounds__(N_THREADS, 1) decode_kernel(Args A) {
     __syncthreads();
 
     if (warp == N_CONSUMER_WARPS) {
-        if (lane == 0) producer(A, ring, full, empty, stop, issued);
+        if (lane == 0) producer<Q8>(A, ring, full, empty, stop, issued);
         return;
     }
 
@@ -710,8 +759,8 @@ __global__ void __launch_bounds__(N_THREADS, 1) decode_kernel(Args A) {
             prologue_rmsnorm(vec, red, e - 1, l == 0 ? emb : nullptr, L.in_norm);
             op_ready();
             auto store = [&](int r, const float* a) { if (lane == 0) st_ll(P.projl + r, a[0], e); };
-            if (L.is_attn) gemv<HID, 1>(ATT_IN_ROWS, R, vec, prof, store);
-            else gemv<HID, 1>(GDN_IN_ROWS, R, vec, prof, store);
+            if (L.is_attn) gemv<HID, 1, Q8>(ATT_IN_ROWS, R, vec, prof, store);
+            else gemv<HID, 1, Q8>(GDN_IN_ROWS, R, vec, prof, store);
             op_end();
             // token mixer core
             unsigned long long* rts = (prof && t == 0) ? prow + op * PROF_FIELDS : nullptr;
@@ -723,7 +772,7 @@ __global__ void __launch_bounds__(N_THREADS, 1) decode_kernel(Args A) {
             if (L.is_attn) prologue_attn_gate(vec, e);
             else prologue_gated_norm(vec, L, e);
             op_ready();
-            gemv<2048, 1>(HID, R, vec, prof, [&](int r, const float* a) {
+            gemv<2048, 1, Q8>(HID, R, vec, prof, [&](int r, const float* a) {
                 if (lane == 0) {
                     const float xn = (l == 0 ? bf2f(emb[r]) : xs[r - xr0]) + a[0];
                     xs[r - xr0] = xn;
@@ -734,14 +783,14 @@ __global__ void __launch_bounds__(N_THREADS, 1) decode_kernel(Args A) {
             // MLP gate/up with SwiGLU epilogue
             prologue_rmsnorm(vec, red, e - 1, nullptr, L.post_norm);
             op_ready();
-            gemv<HID, 2>(2 * INTER, R, vec, prof, [&](int u, const float* a) {
+            gemv<HID, 2, Q8>(2 * INTER, R, vec, prof, [&](int u, const float* a) {
                 if (lane == 0) st_ll(P.actl + u, silu(a[0]) * a[1], e);
             });
             op_end();
             // MLP down + residual
             prologue_act(vec, e);
             op_ready();
-            gemv<INTER, 1>(HID, R, vec, prof, [&](int r, const float* a) {
+            gemv<INTER, 1, Q8>(HID, R, vec, prof, [&](int r, const float* a) {
                 if (lane == 0) {
                     const float xn = xs[r - xr0] + a[0];
                     xs[r - xr0] = xn;
@@ -753,12 +802,12 @@ __global__ void __launch_bounds__(N_THREADS, 1) decode_kernel(Args A) {
         // Publish this step's side data (conv history, KV) before anything of the next step.
         __threadfence();
 
-        if (s >= A.n_forced - 1) {  // LM head + greedy / Gumbel-max sampling
+        if (s >= A.lm_from) {  // LM head + greedy / Gumbel-max sampling
             prologue_rmsnorm(vec, red, e - 1, nullptr, P.final_norm);
             op_ready();
             unsigned long long best = 0;
             float* lg = A.logits_out ? A.logits_out + (size_t)s * VOCAB : nullptr;
-            gemv<HID, 1>(VOCAB, R, vec, prof, [&](int r, const float* a) {
+            gemv<HID, 1, Q8>(VOCAB, R, vec, prof, [&](int r, const float* a) {
                 float score = a[0];
                 if (lg && lane == 0) lg[r] = score;
                 if (A.inv_temperature > 0.f) {
@@ -798,13 +847,16 @@ void set_params(const Params& p) {
 cudaError_t launch(const Args& a, int grid, cudaStream_t stream) {
     static bool attr = false;
     if (!attr) {
-        cudaError_t e = cudaFuncSetAttribute(decode_kernel, cudaFuncAttributeMaxDynamicSharedMemorySize, SMEM_BYTES);
-        if (e != cudaSuccess) return e;
+        for (const void* f : {(const void*)decode_kernel<false>, (const void*)decode_kernel<true>}) {
+            cudaError_t e = cudaFuncSetAttribute(f, cudaFuncAttributeMaxDynamicSharedMemorySize, SMEM_BYTES);
+            if (e != cudaSuccess) return e;
+        }
         attr = true;
     }
     Args args = a;
     void* kargs[] = {&args};
-    return cudaLaunchCooperativeKernel((void*)decode_kernel, dim3(grid), dim3(N_THREADS), kargs, SMEM_BYTES, stream);
+    const void* f = a.q8 ? (const void*)decode_kernel<true> : (const void*)decode_kernel<false>;
+    return cudaLaunchCooperativeKernel(f, dim3(grid), dim3(N_THREADS), kargs, SMEM_BYTES, stream);
 }
 
 }  // namespace mk

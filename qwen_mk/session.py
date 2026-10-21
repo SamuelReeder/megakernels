@@ -57,12 +57,12 @@ class HFPrefill:
 
 
 class ChatSession:
-    def __init__(self, model=weights.DEFAULT_MODEL, max_seq=32768, hf_prefill=True, device="cuda"):
+    def __init__(self, model=weights.DEFAULT_MODEL, max_seq=32768, hf_prefill=True, device="cuda", quant="int8"):
         from transformers import AutoTokenizer
 
         self.path = weights.snapshot_path(model)
         self.tok = AutoTokenizer.from_pretrained(self.path)
-        self.mk = Megakernel(self.path, max_seq=max_seq, device=device)
+        self.mk = Megakernel(self.path, max_seq=max_seq, device=device, quant=quant)
         self.stop_ids = [self.tok.convert_tokens_to_ids("<|im_end|>"), self.tok.convert_tokens_to_ids("<|endoftext|>")]
         self.header = self.tok.encode("<|im_start|>assistant\n", add_special_tokens=False)
         self._hf = None
