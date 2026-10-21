@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest", "matplotlib"]
+dev = ["pytest", "matplotlib", "pyarrow"]
 
 [project.scripts]
 qwen-mk-chat = "qwen_mk.chat:main"

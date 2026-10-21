@@ -83,7 +83,7 @@ def summarize(mk, d):
     )
 
 
-def plot(mk, d, path, title):
+def plot(mk, d, path, title, xlim=None):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -101,7 +101,7 @@ def plot(mk, d, path, title):
                                        0.84, color=WAIT_COLOR, lw=0))
             ax.add_patch(plt.Rectangle((d["start"][b, i], b + 0.08), d["end"][b, i] - d["start"][b, i], 0.84,
                                        color=c, lw=0))
-    ax.set_xlim(0, d["end"].max() * 1.005)
+    ax.set_xlim(*(xlim or (0, d["end"].max() * 1.005)))
     ax.set_ylim(g, 0)
     ax.set_xlabel("time since step start (µs)", color="#52514e")
     ax.set_ylabel("SM (one persistent CTA each)", color="#52514e")
@@ -126,17 +126,25 @@ def main():
     ap.add_argument("--png", default=None)
     ap.add_argument("--json", default=None)
     ap.add_argument("--quant", choices=["bf16", "int8"], default="bf16")
+    ap.add_argument("--reps", type=int, default=5, help="profile this many steps and keep the fastest "
+                    "(other GPU clients can preempt a step)")
+    ap.add_argument("--zoom", type=float, nargs=2, default=None, metavar=("T0", "T1"),
+                    help="also write <png>_zoom.png covering this time window (us)")
     args = ap.parse_args()
     mk = Megakernel(max_seq=args.ctx + 64, quant=args.quant)
-    d = collect(mk, args.ctx)
-    s = summarize(mk, d)
+    runs = [collect(mk, args.ctx) for _ in range(args.reps)]
+    d, s = min(((d, summarize(mk, d)) for d in runs), key=lambda x: x[1]["step_us"])
     print(f"step {s['step_us']:.1f} us over {s['ops']} ops; dependency wait {s['total_dep_wait_us']:.1f} us/step "
           f"(mean {s['mean_dep_wait_us']:.2f} us/op); weight wait {s['total_weight_wait_us']:.1f} us/step")
     print(f"{'op':16s} {'n':>3s} {'busy us':>9s} {'dep-wait us':>12s} {'weight-wait us':>15s}")
     for k, v in s["by_kind"].items():
         print(f"{k:16s} {v['count']:3d} {v['busy_us']:9.1f} {v['dep_wait_us']:12.1f} {v['weight_wait_us']:15.1f}")
     if args.png:
-        plot(mk, d, args.png, f"One decode step, ctx={args.ctx}: {s['step_us']:.0f} µs across {mk.grid} SMs")
+        title = f"One decode step ({args.quant}, ctx={args.ctx}): {s['step_us']:.0f} µs across {mk.grid} SMs"
+        plot(mk, d, args.png, title)
+        if args.zoom:
+            plot(mk, d, args.png.replace(".png", "_zoom.png"), title + f" — {args.zoom[0]:.0f}–{args.zoom[1]:.0f} µs",
+                 xlim=args.zoom)
     if args.json:
         with open(args.json, "w") as f:
             json.dump(s, f, indent=1)
