@@ -43,34 +43,35 @@ void set_params(std::vector<int64_t> layer, std::vector<int64_t> g, int64_t max_
     p.final_norm = ptr<const mk::bf16*>(g[1]);
     p.rope_cos = ptr<const float*>(g[2]);
     p.rope_sin = ptr<const float*>(g[3]);
-    p.x = ptr<float*>(g[4]);
-    p.proj = ptr<float*>(g[5]);
-    p.core = ptr<float*>(g[6]);
-    p.attn = ptr<float*>(g[7]);
-    p.act = ptr<float*>(g[8]);
-    p.attn_part = ptr<float*>(g[9]);
-    p.attn_cnt = ptr<unsigned*>(g[10]);
-    p.bar = ptr<unsigned long long*>(g[11]);
+    p.xl = ptr<unsigned long long*>(g[4]);
+    p.projl = ptr<unsigned long long*>(g[5]);
+    p.corel = ptr<unsigned long long*>(g[6]);
+    p.attnl = ptr<unsigned long long*>(g[7]);
+    p.actl = ptr<unsigned long long*>(g[8]);
+    p.lml = ptr<unsigned long long*>(g[9]);
+    p.attn_part = ptr<float*>(g[10]);
+    p.attn_cnt = ptr<unsigned*>(g[11]);
     p.max_seq = max_seq;
     mk::set_params(p);
     C10_CUDA_CHECK(cudaGetLastError());
 }
 
-void launch(int64_t forced, int64_t n_forced, int64_t n_steps, int64_t start_pos, int64_t bar_base,
+void launch(int64_t forced, int64_t n_forced, int64_t n_steps, int64_t start_pos, int64_t epoch_base,
             int64_t tokens_out, int64_t logits_out, int64_t prof, int64_t prof_step, double inv_temperature,
-            int64_t seed, int64_t grid) {
+            int64_t seed, int64_t grid, int64_t pf_bytes) {
     mk::Args a{};
     a.forced = ptr<const int*>(forced);
     a.n_forced = (int)n_forced;
     a.n_steps = (int)n_steps;
     a.start_pos = (int)start_pos;
     a.prof_step = (int)prof_step;
-    a.bar_base = (unsigned long long)bar_base;
+    a.epoch_base = (unsigned)epoch_base;
     a.tokens_out = ptr<unsigned long long*>(tokens_out);
     a.logits_out = ptr<float*>(logits_out);
     a.prof = ptr<unsigned long long*>(prof);
     a.inv_temperature = (float)inv_temperature;
     a.seed = (unsigned)seed;
+    a.pf_bytes = pf_bytes;
     C10_CUDA_CHECK(mk::launch(a, (int)grid, c10::cuda::getCurrentCUDAStream()));
 }
 

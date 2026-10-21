@@ -9,10 +9,13 @@ LAYER_FIELDS = 17
 # Steps per launch. Windows' GPU watchdog (TDR) resets kernels that run ~2 s; at ~2 ms/step
 # this keeps each launch well under it.
 MAX_STEPS_PER_LAUNCH = 256
+# How far (bytes per SM) the producer prefetches weights into L2 ahead of its smem ring.
+PF_BYTES = 256 * 1024
 
 
 class Megakernel:
-    def __init__(self, model=weights.DEFAULT_MODEL, max_seq=8192, device="cuda"):
+    def __init__(self, model=weights.DEFAULT_MODEL, max_seq=8192, device="cuda", pf_bytes=PF_BYTES):
+        self.pf_bytes = pf_bytes
         device = torch.device(device)
         if device.index is None:
             device = torch.device(device.type, torch.cuda.current_device())
@@ -71,14 +74,13 @@ class Megakernel:
         assert len(layer_ptrs) == LAYER_FIELDS * cfg.n_layers
 
         cos, sin = rope_tables(cfg, max_seq, device)
-        self.x = torch.zeros(cfg.hidden, **f32)
+        i64 = dict(device=device, dtype=torch.int64)
+        # LL activation buffers (see csrc/megakernel.cu): (epoch << 32) | fp32 bits
+        self.ll = [torch.zeros(n, **i64) for n in (cfg.hidden, 8224, 2048, 2048, cfg.intermediate, 2 * self.grid)]
         self.attn_cnt = torch.zeros(cfg.n_kv_heads, device=device, dtype=torch.int32)
-        self.bar = torch.zeros(1, device=device, dtype=torch.int64)
-        self.bar_base = 0
         part = torch.zeros(cfg.n_kv_heads * self.ext.MAX_SPLITS * 4 * self.ext.PART_STRIDE, **f32)
-        g = [keep(w["embed_tokens.weight"]), keep(w["norm.weight"]), keep(cos), keep(sin), keep(self.x),
-             keep(torch.zeros(8224, **f32)), keep(torch.zeros(2048, **f32)), keep(torch.zeros(2048, **f32)),
-             keep(torch.zeros(cfg.intermediate, **f32)), keep(part), keep(self.attn_cnt), keep(self.bar)]
+        g = [keep(w["embed_tokens.weight"]), keep(w["norm.weight"]), keep(cos), keep(sin),
+             *[keep(t) for t in self.ll], keep(part), keep(self.attn_cnt)]
         self.embed = w["embed_tokens.weight"]
         del w
         self.ext.set_params(layer_ptrs, g, max_seq)
@@ -98,8 +100,10 @@ class Megakernel:
 
     def reset(self):
         """Start a new sequence (the KV cache does not need clearing: positions are rewritten)."""
-        for t in self.conv_hist + self.state:
+        for t in self.conv_hist + self.state + self.ll:
             t.zero_()
+        self.attn_cnt.zero_()
+        self.epoch = 1  # LL buffers are zeroed, so epoch 0 never looks ready
         self.pos = 0
 
     @torch.no_grad()
@@ -118,11 +122,13 @@ class Megakernel:
         forced = torch.tensor(tokens, dtype=torch.int32, device=self.device)
         out = torch.zeros(n_steps, dtype=torch.int64, device=self.device)
         logits = torch.empty(n_steps, self.cfg.vocab, device=self.device) if return_logits else None
-        self.ext.launch(forced.data_ptr(), n_forced, n_steps, self.pos, self.bar_base, out.data_ptr(),
+        self.ext.launch(forced.data_ptr(), n_forced, n_steps, self.pos, self.epoch, out.data_ptr(),
                         logits.data_ptr() if logits is not None else 0, prof.data_ptr() if prof is not None else 0,
-                        prof_step, 1.0 / temperature if temperature > 0 else 0.0, seed, self.grid)
+                        prof_step, 1.0 / temperature if temperature > 0 else 0.0, seed, self.grid, self.pf_bytes)
         n_lm = n_steps - (n_forced - 1)
-        self.bar_base += self.grid * (n_steps * self.cfg.n_layers * self.ext.OPS_PER_LAYER + n_lm)
+        self.epoch += n_steps * self.cfg.n_layers * self.ext.OPS_PER_LAYER + n_lm
+        if self.epoch > 0xFFFF0000:
+            raise RuntimeError("epoch counter exhausted; call reset()")
         self.pos += n_steps
         ids = (0xFFFFFFFF - (out[n_forced - 1:] & 0xFFFFFFFF)).tolist()
         if return_logits:

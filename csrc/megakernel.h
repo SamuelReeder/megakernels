@@ -25,7 +25,7 @@ constexpr int GDN_IN_ROWS = CONV_DIM + LIN_V + 2 * LIN_H;  // qkv | z | b | a = 
 constexpr int GDN_Z_OFF = CONV_DIM;                     // 6144
 constexpr int GDN_B_OFF = CONV_DIM + LIN_V;             // 8192
 constexpr int GDN_A_OFF = GDN_B_OFF + LIN_H;            // 8208
-constexpr int GDN_SLICE = 16;                           // value columns per recurrence task
+constexpr int GDN_SLICE = 32;                           // value columns per recurrence task
 
 // Gated full-attention layers
 constexpr int NQ = 8, NKV = 2, HD = 256, ROT = 64;
@@ -49,8 +49,9 @@ constexpr int RED_FLOATS = 64;
 constexpr int SMEM_BYTES = STAGES * CHUNK + VEC_BYTES + RED_FLOATS * 4 + 2 * STAGES * 8;
 
 // Ops per decode step: 5 per layer (+1 for the LM head when its output is needed).
+// Every op stamps its outputs with the next epoch.
 constexpr int OPS_PER_LAYER = 5;
-constexpr int PROF_FIELDS = 4;                           // t_arrive, t_release, full_wait_ns, unused
+constexpr int PROF_FIELDS = 4;                           // t_ready, t_done, full_wait_ns, (step start)
 constexpr int PROF_MAX_OPS = N_LAYERS * OPS_PER_LAYER + 1;
 
 struct LayerPtrs {
@@ -81,14 +82,15 @@ struct Params {
     const bf16* final_norm; // [1024]
     const float* rope_cos;  // [max_seq,32]
     const float* rope_sin;
-    float* x;               // residual stream [1024]
-    float* proj;            // input-projection output [8224]
-    float* core;            // GDN recurrence output [2048]
-    float* attn;            // attention output [2048]
-    float* act;             // MLP activation [3584]
-    float* attn_part;       // [NKV][MAX_SPLITS][4][PART_STRIDE]
-    unsigned* attn_cnt;     // [NKV]
-    unsigned long long* bar;
+    // LL activation buffers: each word is (epoch << 32) | fp32 bits
+    unsigned long long* xl;     // residual stream [1024]
+    unsigned long long* projl;  // input-projection output [8224]
+    unsigned long long* corel;  // GDN recurrence output [2048]
+    unsigned long long* attnl;  // attention output [2048]
+    unsigned long long* actl;   // MLP activation [3584]
+    unsigned long long* lml;    // per-CTA LM-head winner [grid][2] (key hi, key lo)
+    float* attn_part;           // [NKV][MAX_SPLITS][4][PART_STRIDE]
+    unsigned* attn_cnt;         // [NKV]
     long long max_seq;
 };
 
@@ -98,11 +100,12 @@ struct Args {
     int n_steps;
     int start_pos;
     int prof_step;              // which step to record into prof (if prof != nullptr)
-    unsigned long long bar_base;
+    unsigned epoch_base;        // epoch of the launch's first op; advanced by the host
     unsigned long long* tokens_out;  // [n_steps] packed (score, ~index); zeroed by host
     float* logits_out;          // optional [n_steps][VOCAB]
     unsigned long long* prof;   // optional [grid][PROF_MAX_OPS][PROF_FIELDS] + producer stall
     float inv_temperature;      // 0 => greedy
+    long long pf_bytes;         // L2 prefetch distance ahead of the smem ring, per CTA
     unsigned seed;
 };
 

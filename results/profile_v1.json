@@ -1,0 +1,52 @@
+{
+ "step_us": 2380.928,
+ "barriers": 121,
+ "mean_barrier_wait_us": 5.3774765840220375,
+ "mean_release_latency_us": 2.964077134986224,
+ "total_barrier_wait_us": 650.6746666666667,
+ "producer_stall_us_mean": 2173.9470476190477,
+ "by_kind": {
+  "in_proj": {
+   "busy_us": 329.4716190476192,
+   "barrier_us": 129.82323809523814,
+   "weight_wait_us": 221.27771428571432,
+   "count": 24
+  },
+  "mixer:gdn": {
+   "busy_us": 38.73790476190474,
+   "barrier_us": 27.801523809523843,
+   "weight_wait_us": 0.0,
+   "count": 18
+  },
+  "out_proj": {
+   "busy_us": 67.83123809523818,
+   "barrier_us": 155.4506666666664,
+   "weight_wait_us": 0.0,
+   "count": 24
+  },
+  "mlp_gate_up": {
+   "busy_us": 553.2685714285715,
+   "barrier_us": 149.27542857142865,
+   "weight_wait_us": 414.08228571428566,
+   "count": 24
+  },
+  "mlp_down": {
+   "busy_us": 170.9413333333331,
+   "barrier_us": 101.13066666666661,
+   "weight_wait_us": 26.949333333333325,
+   "count": 24
+  },
+  "mixer:attn": {
+   "busy_us": 17.396190476190405,
+   "barrier_us": 78.0476190476191,
+   "weight_wait_us": 0.0,
+   "count": 6
+  },
+  "lm_head": {
+   "busy_us": 552.3184761904762,
+   "barrier_us": 9.145523809523839,
+   "weight_wait_us": 447.2674285714286,
+   "count": 1
+  }
+ }
+}
