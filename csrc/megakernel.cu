@@ -504,12 +504,39 @@ __device__ void gdn_op(const LayerPtrs& L, int pos, uint32_t e, float* sm, unsig
 // ------------------------------------------------------------------ gated full attention
 // Split-K decode attention. Task = (kv head, chunk of positions); it handles the 4 query
 // heads sharing that KV head. Partials are merged by whichever task finishes last.
+// Cached positions each warp loads per memory round trip in attention. 1 is fastest: larger
+// batches need registers the kernel doesn't have (17 warps/SM cap it at 96 per thread) and spill.
+#ifndef MK_KV_BATCH
+#define MK_KV_BATCH 1
+#endif
+constexpr int KV_BATCH = MK_KV_BATCH;
+
+// Split-K over cached positions: task = kv_head * splits + split, at most one per CTA.
+__device__ __forceinline__ void attn_split(int n, int& splits, int& chunk) {
+    splits = min(MAX_SPLITS, (n + 31) / 32);
+    chunk = (n + splits - 1) / splits;
+    splits = (n + chunk - 1) / chunk;
+}
+
+// Pull this CTA's slice of the KV cache into L2 while the QKV projection runs, so the
+// attention scan reads L2 instead of waiting on DRAM one position at a time.
+__device__ __forceinline__ void prefetch_kv(const LayerPtrs& L, int pos) {
+    int splits, chunk;
+    attn_split(pos + 1, splits, chunk);
+    const int task = blockIdx.x;
+    if (task >= NKV * splits) return;
+    const int g = task / splits, t0 = (task % splits) * chunk, t1 = min(pos, t0 + chunk);  // pos itself is new
+    if (t1 <= t0) return;
+    const size_t off = ((size_t)g * P.max_seq + t0) * HD;
+    prefetch_l2(L.k_cache + off, (uint32_t)(t1 - t0) * HD * 2);
+    prefetch_l2(L.v_cache + off, (uint32_t)(t1 - t0) * HD * 2);
+}
+
 __device__ void attn_op(const LayerPtrs& L, int pos, uint32_t e, float* sm, float* red, unsigned long long* ready_ts) {
     const int t = threadIdx.x, warp = t >> 5, lane = t & 31;
     const int n = pos + 1;
-    int splits = min(MAX_SPLITS, (n + 31) / 32);
-    const int chunk = (n + splits - 1) / splits;
-    splits = (n + chunk - 1) / chunk;
+    int splits, chunk;
+    attn_split(n, splits, chunk);
     float* sq = sm;              // [4][256]
     float* sacc = sm + 1024;     // [4][256]; reused by the merge for per-split weights
     float* sml = sm + 2048;      // [16 warps][4 heads][m,l]
@@ -520,6 +547,17 @@ __device__ void attn_op(const LayerPtrs& L, int pos, uint32_t e, float* sm, floa
         const int g = task / splits, sp = task % splits;
         const int t0 = sp * chunk, t1 = min(n, t0 + chunk);
         const bool has_new = (t1 == n);
+        const bf16* Kc = L.k_cache + (size_t)g * ms * HD + lane * 8;
+        const bf16* Vc = L.v_cache + (size_t)g * ms * HD + lane * 8;
+        uint4 kq[KV_BATCH], vq[KV_BATCH];
+#pragma unroll
+        for (int b = 0; b < KV_BATCH; b++) {  // first batch of cached positions, before q is ready
+            const int tt = t0 + warp + b * N_CONSUMER_WARPS;
+            if (tt < min(t1, pos)) {
+                kq[b] = __ldcg((const uint4*)(Kc + (size_t)tt * HD));
+                vq[b] = __ldcg((const uint4*)(Vc + (size_t)tt * HD));
+            }
+        }
         // q (and the new k) get per-head RMSNorm, written to smem before RoPE
         if (warp < Q_PER_KV + 1) {
             const bool isq = warp < Q_PER_KV;
@@ -563,40 +601,65 @@ __device__ void attn_op(const LayerPtrs& L, int pos, uint32_t e, float* sm, floa
             cache[((size_t)g * ms + pos) * HD + d] = __float2bfloat16(skv[t]);
             consumer_sync();
         }
-        // each warp scans positions t0+warp, t0+warp+16, ... with an online softmax
-        float q[Q_PER_KV][8], m[Q_PER_KV], l[Q_PER_KV], acc[Q_PER_KV][8];
+        // q stays in smem (registers are tight: 17 warps/SM leave ~96 per thread)
+        float m[Q_PER_KV], l[Q_PER_KV], acc[Q_PER_KV][8];
 #pragma unroll
         for (int h = 0; h < Q_PER_KV; h++) {
             m[h] = -1e30f;
             l[h] = 0.f;
 #pragma unroll
-            for (int j = 0; j < 8; j++) { q[h][j] = sq[h * HD + lane * 8 + j] * 0.0625f; acc[h][j] = 0.f; }
+            for (int j = 0; j < 8; j++) acc[h][j] = 0.f;
         }
-        const bf16* Kc = L.k_cache + (size_t)g * ms * HD + lane * 8;
-        const bf16* Vc = L.v_cache + (size_t)g * ms * HD + lane * 8;
-        for (int tt = t0 + warp; tt < t1; tt += N_CONSUMER_WARPS) {
-            float kf[8], vf[8], sc[Q_PER_KV];
-            unpack8(__ldcg((const uint4*)(Kc + (size_t)tt * HD)), kf);
-            unpack8(__ldcg((const uint4*)(Vc + (size_t)tt * HD)), vf);
+        // Each warp scans positions t0+warp, t0+warp+16, ... with an online softmax, loading
+        // KV_BATCH positions per memory round trip (DRAM is saturated by the weight stream, so
+        // each trip on this critical path costs ~1 us). The first batch was issued before
+        // waiting on q; the new token's K/V (written above) is re-read.
+        for (int base = t0 + warp, b0 = 0; base < t1; base += KV_BATCH * N_CONSUMER_WARPS, b0++) {
+            if (b0 > 0) {
 #pragma unroll
-            for (int h = 0; h < Q_PER_KV; h++) {
-                float d = 0.f;
-#pragma unroll
-                for (int j = 0; j < 8; j++) d = fmaf(q[h][j], kf[j], d);
-                sc[h] = d;
+                for (int b = 0; b < KV_BATCH; b++) {
+                    const int tt = base + b * N_CONSUMER_WARPS;
+                    if (tt < t1) {
+                        kq[b] = __ldcg((const uint4*)(Kc + (size_t)tt * HD));
+                        vq[b] = __ldcg((const uint4*)(Vc + (size_t)tt * HD));
+                    }
+                }
             }
 #pragma unroll
-            for (int o = 16; o; o >>= 1)
+            for (int b = 0; b < KV_BATCH; b++) {
+                const int tt = base + b * N_CONSUMER_WARPS;
+                if (tt >= t1) break;
+                if (tt == pos) {
+                    kq[b] = __ldcg((const uint4*)(Kc + (size_t)tt * HD));
+                    vq[b] = __ldcg((const uint4*)(Vc + (size_t)tt * HD));
+                }
+                float kf[8], vf[8], sc[Q_PER_KV];
+                unpack8(kq[b], kf);
+                unpack8(vq[b], vf);
 #pragma unroll
-                for (int h = 0; h < Q_PER_KV; h++) sc[h] += __shfl_xor_sync(~0u, sc[h], o);
+                for (int h = 0; h < Q_PER_KV; h++) {
+                    const float4 q0 = *(const float4*)(sq + h * HD + lane * 8);
+                    const float4 q1 = *(const float4*)(sq + h * HD + lane * 8 + 4);
+                    float d = q0.x * kf[0];
+                    d = fmaf(q0.y, kf[1], d); d = fmaf(q0.z, kf[2], d); d = fmaf(q0.w, kf[3], d);
+                    d = fmaf(q1.x, kf[4], d); d = fmaf(q1.y, kf[5], d); d = fmaf(q1.z, kf[6], d); d = fmaf(q1.w, kf[7], d);
+                    sc[h] = d;
+                }
 #pragma unroll
-            for (int h = 0; h < Q_PER_KV; h++) {
-                const float mn = fmaxf(m[h], sc[h]);
-                const float corr = __expf(m[h] - mn), p = __expf(sc[h] - mn);
-                l[h] = l[h] * corr + p;
+                for (int o = 16; o; o >>= 1)
 #pragma unroll
-                for (int j = 0; j < 8; j++) acc[h][j] = fmaf(p, vf[j], acc[h][j] * corr);
-                m[h] = mn;
+                    for (int h = 0; h < Q_PER_KV; h++) sc[h] += __shfl_xor_sync(~0u, sc[h], o);
+#pragma unroll
+                for (int h = 0; h < Q_PER_KV; h++) sc[h] *= 0.0625f;  // 1 / sqrt(head_dim)
+#pragma unroll
+                for (int h = 0; h < Q_PER_KV; h++) {
+                    const float mn = fmaxf(m[h], sc[h]);
+                    const float corr = __expf(m[h] - mn), p = __expf(sc[h] - mn);
+                    l[h] = l[h] * corr + p;
+#pragma unroll
+                    for (int j = 0; j < 8; j++) acc[h][j] = fmaf(p, vf[j], acc[h][j] * corr);
+                    m[h] = mn;
+                }
             }
         }
         if (lane == 0)
@@ -656,11 +719,17 @@ __device__ void attn_op(const LayerPtrs& L, int pos, uint32_t e, float* sm, floa
                 for (int p = 0; p < splits; p++) sw[p * Q_PER_KV + t] = __expf(sw[p * Q_PER_KV + t] - M) / den;
             }
             consumer_sync();
+            // Issue every split's load before summing: one L2 round trip per output, not one
+            // per split (the merge is on the critical path of the whole layer).
             for (int i = t; i < Q_PER_KV * HD; i += N_CONSUMERS) {
                 const int h = i / HD, d = i % HD;
+                float v[MAX_SPLITS];
+#pragma unroll
+                for (int p = 0; p < MAX_SPLITS; p++)
+                    v[p] = p < splits ? __ldcg(pg + (p * Q_PER_KV + h) * PART_STRIDE + d) : 0.f;
                 float num = 0.f;
-#pragma unroll 8
-                for (int p = 0; p < splits; p++) num += sw[p * Q_PER_KV + h] * __ldcg(pg + (p * Q_PER_KV + h) * PART_STRIDE + d);
+#pragma unroll
+                for (int p = 0; p < MAX_SPLITS; p++) num = fmaf(p < splits ? sw[p * Q_PER_KV + h] : 0.f, v[p], num);
                 st_ll(P.attnl + (g * Q_PER_KV + h) * HD + d, num, e);
             }
             if (t == 0) atomicExch(&P.attn_cnt[g], 0u);
@@ -756,6 +825,7 @@ __global__ void __launch_bounds__(N_THREADS, 1) decode_kernel(Args A) {
         for (int l = 0; l < N_LAYERS; l++) {
             const LayerPtrs& L = P.layer[l];
             // token mixer input projection (RMSNorm fused)
+            if (L.is_attn && t == 0) prefetch_kv(L, pos);
             prologue_rmsnorm(vec, red, e - 1, l == 0 ? emb : nullptr, L.in_norm);
             op_ready();
             auto store = [&](int r, const float* a) { if (lane == 0) st_ll(P.projl + r, a[0], e); };
