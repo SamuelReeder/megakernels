@@ -1,0 +1,14 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Byte-compile Python (CUDA tests need a GPU and are run locally)
+        run: python -m compileall -q qwen3.5-0.8b
+      - name: Syntax-check shell scripts
+        run: for f in $(git ls-files '*.sh'); do bash -n "$f"; done

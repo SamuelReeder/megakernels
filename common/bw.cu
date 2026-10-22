@@ -1,6 +1,6 @@
 // Memory-bandwidth roofline for this GPU: plain vectorized loads vs. a
 // persistent TMA bulk-copy ring (the streaming pattern the megakernel uses).
-// Build: nvcc -O3 -arch=sm_120a -o build/bw bench/bw.cu
+// Build: nvcc -O3 -arch=sm_120a -o build/bw common/bw.cu
 #include <cstdio>
 #include <cstdint>
 #include <cuda_runtime.h>

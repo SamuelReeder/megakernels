@@ -13,7 +13,7 @@ import torch
 
 from qwen_mk.engine import Megakernel
 
-ROOFLINE_GBPS = 915.0  # measured with bench/bw.cu on an idle RTX 5080 (spec: 960)
+ROOFLINE_GBPS = 915.0  # measured with ../common/bw.cu on an idle RTX 5080 (spec: 960)
 
 
 def bench(mk, ctx, n_tokens, steps_per_launch, reps=3):

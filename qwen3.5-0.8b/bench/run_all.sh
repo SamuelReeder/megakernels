@@ -4,7 +4,7 @@
 #   LLAMA_BENCH=~/src/llama.cpp-latest/build/bin/llama-bench GGUF_DIR=~/models/qwen35 bench/run_all.sh
 #
 # Other GPU clients (including Windows-side apps under WSL) can steal bandwidth mid-run,
-# so every segment is bracketed by a raw DRAM bandwidth check (bench/bw.cu) and redone if
+# so every segment is bracketed by a raw DRAM bandwidth check (../common/bw.cu) and redone if
 # either check falls below MIN_GBPS.
 set -euo pipefail
 cd "$(dirname "$0")/.."
@@ -13,7 +13,7 @@ GGUF_DIR=${GGUF_DIR:-$HOME/models/qwen35}
 MIN_GBPS=${MIN_GBPS:-880}
 TRIES=${TRIES:-6}
 mkdir -p build results
-[ -x build/bw ] || nvcc -O3 -std=c++17 -gencode=arch=compute_120a,code=sm_120a bench/bw.cu -o build/bw
+[ -x build/bw ] || nvcc -O3 -std=c++17 -gencode=arch=compute_120a,code=sm_120a ../common/bw.cu -o build/bw
 
 bw() { ./build/bw | awk '/tma ring  stages=4 chunk=16384B/ {print int($(NF-1))}'; }
 
