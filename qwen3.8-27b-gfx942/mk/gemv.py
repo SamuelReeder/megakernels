@@ -20,6 +20,7 @@ Weights "mx": mk4 tiles (mk/fp4.py), fp8 MFMA, x fp8 with a pow2 scale per
 """
 from __future__ import annotations
 
+import os
 from dataclasses import dataclass
 
 import flydsl.expr as fx
@@ -30,6 +31,7 @@ from . import dev as D
 from . import fp4
 
 H4 = fp4.device_helpers()
+DBG_MODE = int(os.environ.get("MK_GEMV_MODE", "0"))   # debug: 1 = loads only (wrong results)
 
 
 @dataclass(frozen=True)
@@ -94,24 +96,27 @@ class Gemv:
         """LDS x-scale floats per token row."""
         return self.slots * self.KSc
 
-    @property
-    def per_wave(self):
-        return self.U / self.NW
+    # ---- unit split: wave gw streams [gw U / NW, (gw + 1) U / NW). (Weighting the
+    # waves of a CTA differently was measured: no gain; see docs/DESIGN.md.)
+    def wave_lo(self, gw):
+        return (gw * self.U) // self.NW
+
+    def wave_of(self, u):
+        """Global wave whose range holds unit u."""
+        return ((u + 1) * self.NW - 1) // self.U
 
     @property
     def SEGMAX(self):
         import math
-        return math.ceil(self.KSc / max(math.floor(self.per_wave), 1)) + 1
+        return math.ceil(self.KSc / max(math.floor(self.U / self.NW), 1)) + 1
 
     def nseg_host(self, p):
-        wf = ((p * self.KSc + 1) * self.NW - 1) // self.U
-        wl = (((p + 1) * self.KSc) * self.NW - 1) // self.U
-        return wl - wf + 1
+        return self.wave_of((p + 1) * self.KSc - 1) - self.wave_of(p * self.KSc) + 1
 
     def check(self):
         assert self.N % 16 == 0 and self.K % 128 == 0 and self.KS % self.C == 0
         assert self.KSc >= self.P, "a pipeline block may cross at most one piece end"
-        assert self.U * self.NW < 2 ** 31
+        assert (self.U + 1) * self.NW < 2 ** 31
         assert self.G % self.gpc == 0
         assert max(self.nseg_host(p) for p in range(self.C * self.G)) <= self.SEGMAX
         return self
@@ -121,17 +126,34 @@ class Gemv:
 
     # ------------------------------------------------------------ device
     def cta_range(self, bid):
-        return (bid * self.waves * self.U) // self.NW, ((bid + 1) * self.waves * self.U) // self.NW
+        return (bid * self.U) // self.cus, ((bid + 1) * self.U) // self.cus
 
     def chunk0(self, bid):
         return self.cta_range(bid)[0] // (self.G * self.KSc)
 
-    def load(self, w, u):
-        """Unit u's weight data for this lane (clamped to the last unit)."""
-        uu = fx.min(u, self.U - 1)
-        p = uu // self.KSc
-        s = uu % self.KSc
-        ti = (p % self.G) * self.KS + (p // self.G) * self.KSc + s
+    # ---- unit cursors. A cursor (s, g, c) is unit u = (c G + g) KSc + s; streams step
+    # it by one unit with a few scalar ops (dividing u per unit made the loop bound by
+    # the CU's single scalar unit).
+    def cursor(self, u):
+        p = u // self.KSc
+        return (u % self.KSc, p % self.G, p // self.G)
+
+    def adv(self, cur):
+        s, g, c = cur
+        s1 = s + 1
+        ws = s1 == self.KSc
+        g1 = ws.select(g + 1, g)
+        wg = g1 == self.G
+        return (ws.select(fx.Int32(0), s1), wg.select(fx.Int32(0), g1), wg.select(c + 1, c))
+
+    def tile_of(self, cur):
+        """Tile index of the cursor's unit (clamped: cursors run past the last unit)."""
+        s, g, c = cur
+        return fx.min(g * self.KS + c * self.KSc + s, self.G * self.KS - 1)
+
+    def load(self, w, cur):
+        """The cursor unit's weight data for this lane."""
+        ti = self.tile_of(cur)
         if const_expr(self.kind == "mx"):
             tile = D.ld(w["rt"], (ti * 64 + w["lane"]) * 4, 4, cm=D.CM_NT)
             sw = D.ld(w["rs"], ti * 16 + w["col"])
@@ -140,16 +162,17 @@ class Gemv:
         rt = D.rsrc(w["tbase"] + fx.Int64(ti) * 4096)
         return [D.ld(rt, (q * 64 + w["lane"]) * 4, 4, cm=D.CM_NT) for q in range(4)]
 
-    def compute(self, w, u, ops):
-        """Unit u's contribution (4 floats: tokens 4 gl + r, column col of its group).
-        u is clamped like load(): units past the stream end read valid x (their result
-        is discarded with a select; a multiply by 0 would keep NaN/inf)."""
-        u = fx.min(u, self.U - 1)
-        p = u // self.KSc
-        s = u % self.KSc
-        slot = p // self.G - w["ch0"]
-        arow = w["arow"] + slot * (self.Kc * self.esize) + s * (128 * self.esize)
+    def compute(self, w, cur, ops):
+        """The cursor unit's contribution (4 floats: tokens 4 gl + r, column col of its
+        group). Units past the stream end read valid (clamped) x; their result is
+        discarded with a select (a multiply by 0 would keep NaN/inf)."""
+        s, g, c = cur
+        xo = fx.min((c - w["ch0"]) * self.KSc + s, self.slots * self.KSc - 1)   # x superstep in LDS
+        arow = w["arow"] + xo * (128 * self.esize)
         z4 = fx.Vector.filled(4, 0.0, fx.Float32)
+        if const_expr(self.kind == "mx" and DBG_MODE == 1):     # debug: loads only
+            tile, sw = ops
+            return fx.Vector.from_elements([(tile[r] ^ sw).bitcast(fx.Float32) for r in range(4)], fx.Float32)
         if const_expr(self.kind == "mx"):
             tile, sw = ops
             tacc = z4
@@ -159,7 +182,7 @@ class Gemv:
                 t = H4["mfma"](a, H4["dec_dword"](tile[d]), z4)
                 tacc = D.fma4(t, fx.Vector.filled(4, H4["e8m0_f32"]((sw >> (8 * d)) & 0xFF), fx.Float32), tacc)
             xs = fx.Vector.from_elements(
-                [fx.ptr_load(w["xs"] + ((4 * w["gl"] + r) * self.XSR + slot * self.KSc + s)) for r in range(4)],
+                [fx.ptr_load(w["xs"] + ((4 * w["gl"] + r) * self.XSR + xo)) for r in range(4)],
                 fx.Float32)
             return tacc * xs
         acc = z4
@@ -187,12 +210,18 @@ class Gemv:
         w["ch0"] = self.chunk0(bid)
         gw = bid * self.waves + c["wave"]
         w["gw"] = gw
-        w["u0"] = (gw * self.U) // self.NW
-        w["u1"] = ((gw + 1) * self.U) // self.NW
+        w["u0"] = self.wave_lo(gw)
+        w["u1"] = self.wave_lo(gw + 1)
         return w
 
     def first_loads(self, w):
-        return [self.load(w, w["u0"] + p) for p in range(self.P)]
+        """The first P units' loads; returns (buffers, load cursor after them)."""
+        cur = self.cursor(w["u0"])
+        buf = []
+        for p in range(self.P):
+            buf.append(self.load(w, cur))
+            cur = self.adv(cur)
+        return buf, cur
 
     @D.traced
     def run(self, c, w, buf, part, cnt, epilogue):
@@ -200,40 +229,52 @@ class Gemv:
         the partial slots and the group counters. epilogue(cg, [acc4] * gpc) runs in the
         last arriver of counter group cg (groups cg * gpc ...), acc4 per lane: tokens
         4 gl + r of the group's column `col`."""
-        P, KSc = self.P, self.KSc
+        P, KSc, G = self.P, self.KSc, self.G
         u0, u1 = w["u0"], w["u1"]
         z4 = fx.Vector.filled(4, 0.0, fx.Float32)
         rp = D.rsrc(part)
 
-        @D.traced
-        def block(ub, ops, acc_a, acc_b):
-            bnd = (ub // KSc + 1) * KSc           # first unit of the next piece
+        def loads(lc):
+            out = []
             for p in range_constexpr(P):
-                u = ub + p
-                t = self.compute(w, u, ops[p])
-                live = u < u1
-                ia = live & (u < bnd)
-                ib = live & (u >= bnd)
+                out.append(self.load(w, lc))
+                lc = self.adv(lc)
+            return out, lc
+
+        @D.traced
+        def block(ub, cc, ops, acc_a, acc_b):
+            """P units from unit ub (compute cursor cc). acc_a: the piece of ub; acc_b:
+            the next piece (a block crosses at most one piece end)."""
+            nb = KSc - cc[0]                       # units of the block before the piece end
+            pa = cc[2] * G + cc[1]                 # piece of acc_a
+            for p in range_constexpr(P):
+                t = self.compute(w, cc, ops[p])
+                live = ub + p < u1
+                ia = live & (nb > p)
+                ib = live & (nb <= p)
                 acc_a = fx.Vector.from_elements([ia.select(acc_a[r] + t[r], acc_a[r]) for r in range(4)], fx.Float32)
                 acc_b = fx.Vector.from_elements([ib.select(acc_b[r] + t[r], acc_b[r]) for r in range(4)], fx.Float32)
-            if (bnd <= ub + P) | (u1 <= ub + P):
-                self.store_part(w, ub // KSc, acc_a, rp)
+                cc = self.adv(cc)
+            if (nb <= P) | (u1 <= ub + P):
+                self.store_part(w, pa, acc_a, rp)
                 acc_a = acc_b
                 acc_b = z4
-            return acc_a, acc_b
+            return cc, acc_a, acc_b
 
+        D.PROBE["on"] = D.PROBE.get("stage") == self.name
         D.probe(c, 0)
         nblk = (u1 - u0 + P - 1) // P
-        buf_a = buf
+        buf_a, lc = buf
+        cc = self.cursor(u0)
         acc_a = z4
         acc_b = z4
         for i in range(0, (nblk + 1) // 2):
             ub = u0 + 2 * i * P
-            buf_b = [self.load(w, ub + P + p) for p in range(P)]
-            acc_a, acc_b = block(ub, buf_a, acc_a, acc_b)
-            buf_a = [self.load(w, ub + 2 * P + p) for p in range(P)]
+            buf_b, lc = loads(lc)
+            cc, acc_a, acc_b = block(ub, cc, buf_a, acc_a, acc_b)
+            buf_a, lc = loads(lc)
             if 2 * i + 1 < nblk:
-                acc_a, acc_b = block(ub + P, buf_b, acc_a, acc_b)
+                cc, acc_a, acc_b = block(ub + P, cc, buf_b, acc_a, acc_b)
         D.probe(c, 1)
         last = u1 - 1
         if ((last // KSc) != ((u0 + (nblk - 1) * P) // KSc)) & (nblk > 0):
@@ -245,9 +286,8 @@ class Gemv:
         D.probe(c, 2)
 
     def nseg(self, p):
-        wf = ((p * self.KSc + 1) * self.NW - 1) // self.U
-        wl = (((p + 1) * self.KSc) * self.NW - 1) // self.U
-        return wf, wl - wf + 1
+        wf = self.wave_of(p * self.KSc)
+        return wf, self.wave_of((p + 1) * self.KSc - 1) - wf + 1
 
     @D.traced
     def store_part(self, w, p, acc, rp):

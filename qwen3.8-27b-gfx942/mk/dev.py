@@ -48,6 +48,19 @@ def st(v, r, i, cm=0):
     bo.buffer_store(v, r, i, cache_modifier=cm)
 
 
+def opaque_s(v):
+    """v (wave-uniform i32) through an asm s_mov with side effects: the compiler cannot
+    hoist what depends on the result out of the enclosing loop."""
+    return fx.Int32(llvm.InlineAsmOp(T.i32, [fx.Int32(v).ir_value()], "s_mov_b32 $0, $1", "=s,s",
+                                     has_side_effects=True).result)
+
+
+def opaque_v(v):
+    """Per-lane i32 version of opaque_s (v_mov)."""
+    return fx.Int32(llvm.InlineAsmOp(T.i32, [fx.Int32(v).ir_value()], "v_mov_b32 $0, $1", "=v,v",
+                                     has_side_effects=True).result)
+
+
 def uniform(v):
     return fx.Int32(rocdl.readfirstlane(T.i32, fx.Int32(v).ir_value()))
 
@@ -162,7 +175,8 @@ def poll_ge(r, slot, val):
 def grid_arrive(rf, epoch, tid, bid):
     """Barrier arrival: drain this CTA's memory ops (its stores become visible), then
     store epoch to the CTA's flag line. Issue prefetch loads after this, not before:
-    s_waitcnt vmcnt(0) also waits for loads."""
+    s_waitcnt vmcnt(0) also waits for loads (measured: prefetching before the arrival
+    is slower)."""
     rocdl.s_waitcnt(vmcnt=0)
     gpu.barrier()
     if tid == 0:

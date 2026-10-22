@@ -33,6 +33,7 @@ from .dims import (A_OFF, B_OFF, CONV_DIM, DK, HD, K_OFF, NKV, NQ, NVH, Q_OFF, R
                    Z_OFF, INP_N, QKV_N, EPS)
 
 CH = 64                 # attention positions per task
+PVB = 16                # P V: positions per load batch
 REC = 2 * 8 + 6 * HD    # partial record floats (max[6] sum[6] padded to 16, o[6][256])
 GQ = NQ // NKV          # 6 q heads per kv head
 
@@ -223,19 +224,12 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
     live = p <= pos
     isnew = p == pos
     pc = fx.min(p, pos)
+    # runtime loops over load batches: unrolled, the compiler issues every batch's loads
+    # at once and spills them
     sc = [fx.Float32(0.0)] * GQ
-    for b in range_constexpr(HD // 32):                # 8 batches of 32 dims (4 x 16 B)
+    for b in range(0, HD // 32):                       # 8 batches of 32 dims (4 x 16 B)
         kr = [D.ld(rk, (cache + pc * HD + 32 * b + 8 * u) // 2, 4) for u in range(4)]
-        kl = [_load_i32x4(wl, GQ * HD + (32 * b + 8 * u) // 2) for u in range(4)]
-        for u in range_constexpr(4):
-            for e in range_constexpr(4):
-                w = isnew.select(kl[u][e], kr[u][e])
-                k0, k1 = D.bf_lo(w), D.bf_hi(w)
-                dd = 32 * b + 8 * u + 2 * e
-                for hh in range_constexpr(GQ):
-                    q0 = fx.ptr_load(wl + (hh * HD + dd))
-                    q1 = fx.ptr_load(wl + (hh * HD + dd + 1))
-                    sc[hh] = sc[hh] + q0 * k0 + q1 * k1
+        sc = _qk_batch(wl, b, isnew, kr, sc)
     scale = 1.0 / math.sqrt(HD)
     mx, sm, pr = [], [], []
     for hh in range_constexpr(GQ):
@@ -249,20 +243,13 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
     for hh in range_constexpr(GQ):
         fx.ptr_store(pr[hh], wl + (hh * CH + lane))
     # ---- P V: lane -> dims d0..d0+3
-    o = [[fx.Float32(0.0)] * 4 for _ in range(GQ)]
-    npos = fx.min(pos - p0 + 1, CH)
-    for pp in range(0, npos):
-        pa = p0 + pp
-        vr_ = D.ld(rv, (cache + pa * HD + d0) // 2, 2)
-        vl_ = _load_i32x2(wl, GQ * HD + HD // 2 + d0 // 2)
-        nw = pa == pos
-        w0 = nw.select(vl_[0], vr_[0])
-        w1 = nw.select(vl_[1], vr_[1])
-        vf = [D.bf_lo(w0), D.bf_hi(w0), D.bf_lo(w1), D.bf_hi(w1)]
-        for hh in range_constexpr(GQ):
-            ph = fx.ptr_load(wl + (hh * CH + pp))
-            for e in range_constexpr(4):
-                o[hh][e] = o[hh][e] + ph * vf[e]
+    # positions past pos have p = 0 (their address is clamped to pos); loads go out in
+    # batches of PVB so their latencies overlap
+    o = [fx.Vector.filled(4, 0.0, fx.Float32) for _ in range(GQ)]
+    vl_ = _load_i32x2(wl, GQ * HD + HD // 2 + d0 // 2)
+    for b in range(0, CH // PVB):
+        vrs = [D.ld(rv, (cache + fx.min(p0 + b * PVB + k, pos) * HD + d0) // 2, 2) for k in range(PVB)]
+        o = _pv_batch(wl, b, p0, pos, vl_, vrs, o)
     # ---- partial record
     rr = D.rsrc(rec)
     rbase = ((m * NKV + j) * ncmax + ci) * REC
@@ -270,7 +257,7 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
         D.st(_sel6(lane, mx), rr, rbase + lane, D.CM_DEV)
         D.st(_sel6(lane, sm), rr, rbase + 8 + lane, D.CM_DEV)
     for hh in range_constexpr(GQ):
-        D.st(fx.Vector.from_elements(o[hh], fx.Float32), rr, rbase + 16 + hh * HD + d0, D.CM_DEV)
+        D.st(o[hh], rr, rbase + 16 + hh * HD + d0, D.CM_DEV)
     # ---- last arriver of (m, j) merges the chunks
     rocm_wait()
     nchunk = pos // CH + 1
@@ -280,6 +267,40 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
     old = D.uniform(old)
     if (old + 1) % nchunk == 0:
         _attn_merge(lane, m, j, nchunk, ncmax, ry, ybase, rr, og)
+
+
+@D.traced
+def _qk_batch(wl, b, isnew, kr, sc):
+    """Scores of the lane's position over dims 32 b .. 32 b + 31 (q from LDS)."""
+    sc = list(sc)
+    for u in range_constexpr(4):
+        dd = 32 * b + 8 * u
+        kl = _load_i32x4(wl, GQ * HD + dd // 2)
+        qs = [[_load_f4(wl, hh * HD + dd), _load_f4(wl, hh * HD + dd + 4)] for hh in range(GQ)]
+        for e in range_constexpr(4):
+            w = isnew.select(kl[e], kr[u][e])
+            k0, k1 = D.bf_lo(w), D.bf_hi(w)
+            for hh in range_constexpr(GQ):
+                qv = qs[hh][e // 2]
+                sc[hh] = sc[hh] + qv[2 * (e % 2)] * k0 + qv[2 * (e % 2) + 1] * k1
+    return sc
+
+
+@D.traced
+def _pv_batch(wl, b, p0, pos, vl_, vrs, o):
+    """o += p V over positions p0 + PVB b + k (p = 0 past pos)."""
+    o = [[o[hh][e] for e in range(4)] for hh in range(GQ)]
+    for k in range_constexpr(PVB):
+        pp = b * PVB + k
+        nw = (p0 + pp) == pos
+        w0 = nw.select(vl_[0], vrs[k][0])
+        w1 = nw.select(vl_[1], vrs[k][1])
+        vf = [D.bf_lo(w0), D.bf_hi(w0), D.bf_lo(w1), D.bf_hi(w1)]
+        for hh in range_constexpr(GQ):
+            ph = fx.ptr_load(wl + (hh * CH + pp))
+            for e in range_constexpr(4):
+                o[hh][e] = o[hh][e] + ph * vf[e]
+    return [fx.Vector.from_elements(o[hh], fx.Float32) for hh in range(GQ)]
 
 
 def rocm_wait():
@@ -303,11 +324,15 @@ def _load_i32x2(base_f32, idx):
     return fx.Vector(fx.ptr_load(base_f32 + idx, result_type=fx.Vector.make_type(2, fx.Float32))).bitcast(fx.Int32)
 
 
+def _load_f4(base_f32, idx):
+    return fx.Vector(fx.ptr_load(base_f32 + idx, result_type=fx.Vector.make_type(4, fx.Float32)))
+
+
 def _load_i32x4(base_f32, idx):
     return fx.Vector(fx.ptr_load(base_f32 + idx, result_type=fx.Vector.make_type(4, fx.Float32))).bitcast(fx.Int32)
 
 
-MERGE_B = 8   # chunks per merge batch
+MERGE_B = 2   # chunks per merge batch
 
 
 @D.traced
