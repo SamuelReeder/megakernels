@@ -17,7 +17,7 @@ import torch
 from qwen_mk.engine import Megakernel
 
 OP_KINDS = ["in_proj", "mixer", "out_proj", "mlp_gate_up", "mlp_down"]
-# Reference categorical palette, slots 1-6 in fixed order (validated adjacent-pair order).
+# Reference categorical palette, slots 1-8 in fixed order (validated adjacent-pair order).
 COLORS = {
     "in_proj": "#2a78d6",
     "mixer": "#eb6834",
@@ -25,48 +25,62 @@ COLORS = {
     "mlp_gate_up": "#eda100",
     "mlp_down": "#e87ba4",
     "lm_head": "#008300",
+    "mtp_fc": "#6250d6",
+    "draft_head": "#e34948",
 }
 WAIT_COLOR = "#e1e0d9"
 
 
-def op_names(cfg):
+def op_names(cfg, spec=False):
+    """(layer, kind, mixer) per op; the MTP head's decoder layer counts as layer n_layers."""
     names = []
     for l, t in enumerate(cfg.layer_types):
         mixer = "gdn" if t == "linear_attention" else "attn"
         for k in OP_KINDS:
             names.append((l, k, mixer))
     names.append((-1, "lm_head", ""))
+    if spec:
+        names.append((-1, "mtp_fc", ""))
+        names += [(len(cfg.layer_types), k, "attn") for k in OP_KINDS]
+        names.append((-1, "draft_head", ""))
     return names
 
 
-def collect(mk, ctx, step=4):
+def collect(mk, ctx, step=4, spec=False):
     mk.reset()
     prompt = [(i * 7919) % 50000 + 1000 for i in range(ctx)]
     last = mk.run(prompt, n_generate=1)[-1]
     buf = mk.prof_buffer()
-    mk.run([last], n_generate=step + 4, prof=buf, prof_step=step)
+    if spec:  # the drafts don't change the work a cycle does
+        mk.run_spec(last, last, step + 4, prof=buf, prof_step=step)
+    else:
+        mk.run([last], n_generate=step + 4, prof=buf, prof_step=step)
     torch.cuda.synchronize()
-    g, n_ops, F = mk.grid, mk.ext.PROF_MAX_OPS, mk.ext.PROF_FIELDS
+    g, n_max, F = mk.grid, mk.ext.PROF_MAX_OPS, mk.ext.PROF_FIELDS
     raw = buf.cpu().numpy().astype(np.int64)
-    ops = raw[: g * n_ops * F].reshape(g, n_ops, F)
-    producer_stall = raw[g * n_ops * F:].reshape(g, F)[:, 0]
-    t0 = ops[:, n_ops - 1, 3].min()
+    ops = raw[: g * n_max * F].reshape(g, n_max, F)
+    producer_stall = raw[g * n_max * F:].reshape(g, F)[:, 0]
+    step_start = ops[:, n_max - 1, 3:4]
+    ops = ops[:, : len(op_names(mk.cfg, spec))]
+    t0 = step_start.min()
     ready = (ops[:, :, 0] - t0) / 1e3  # inputs observed, compute starts (us)
     done = (ops[:, :, 1] - t0) / 1e3   # outputs published
     full_wait = ops[:, :, 2] / 1e3
-    prev_done = np.concatenate([(ops[:, n_ops - 1, 3:4] - t0) / 1e3, done[:, :-1]], axis=1)
+    prev_done = np.concatenate([(step_start - t0) / 1e3, done[:, :-1]], axis=1)
     return dict(wait_start=prev_done, start=ready, end=done, full_wait=full_wait,
-                producer_stall=producer_stall / 1e3)
+                producer_stall=producer_stall / 1e3, spec=spec)
 
 
 def summarize(mk, d):
-    names = op_names(mk.cfg)
+    names = op_names(mk.cfg, d["spec"])
     step_us = d["end"][:, -1].max()
     busy = d["end"] - d["start"]
     wait = d["start"] - d["wait_start"]
     by_kind = {}
     for i, (l, k, mixer) in enumerate(names):
         key = f"{k}:{mixer}" if k == "mixer" else k
+        if l == mk.cfg.n_layers:
+            key = "mtp " + key
         e = by_kind.setdefault(key, dict(busy_us=0.0, dep_wait_us=0.0, weight_wait_us=0.0, count=0))
         e["busy_us"] += busy[:, i].mean()
         e["dep_wait_us"] += wait[:, i].mean()
@@ -89,7 +103,7 @@ def plot(mk, d, path, title, xlim=None):
     import matplotlib.pyplot as plt
     from matplotlib.patches import Patch
 
-    names = op_names(mk.cfg)
+    names = op_names(mk.cfg, d["spec"])
     g = d["start"].shape[0]
     fig, ax = plt.subplots(figsize=(14, 6.2), dpi=150)
     fig.patch.set_facecolor("#fcfcfb")
@@ -111,7 +125,8 @@ def plot(mk, d, path, title, xlim=None):
     for s in ["left", "bottom"]:
         ax.spines[s].set_color("#c3c2b7")
     ax.tick_params(colors="#898781")
-    handles = [Patch(color=COLORS[k], label=k.replace("_", " ")) for k in COLORS]
+    kinds = {k for _, k, _ in names}
+    handles = [Patch(color=COLORS[k], label=k.replace("_", " ")) for k in COLORS if k in kinds]
     handles.append(Patch(color=WAIT_COLOR, label="waiting on inputs"))
     ax.legend(handles=handles, ncol=7, loc="upper left", bbox_to_anchor=(0, -0.09), frameon=False,
               labelcolor="#52514e", fontsize=9)
@@ -130,9 +145,10 @@ def main():
                     "(other GPU clients can preempt a step)")
     ap.add_argument("--zoom", type=float, nargs=2, default=None, metavar=("T0", "T1"),
                     help="also write <png>_zoom.png covering this time window (us)")
+    ap.add_argument("--spec", action="store_true", help="profile a speculative cycle instead of a plain step")
     args = ap.parse_args()
-    mk = Megakernel(max_seq=args.ctx + 64, quant=args.quant)
-    runs = [collect(mk, args.ctx) for _ in range(args.reps)]
+    mk = Megakernel(max_seq=args.ctx + 64, quant=args.quant, mtp=args.spec)
+    runs = [collect(mk, args.ctx, spec=args.spec) for _ in range(args.reps)]
     d, s = min(((d, summarize(mk, d)) for d in runs), key=lambda x: x[1]["step_us"])
     print(f"step {s['step_us']:.1f} us over {s['ops']} ops; dependency wait {s['total_dep_wait_us']:.1f} us/step "
           f"(mean {s['mean_dep_wait_us']:.2f} us/op); weight wait {s['total_weight_wait_us']:.1f} us/step")
@@ -140,7 +156,8 @@ def main():
     for k, v in s["by_kind"].items():
         print(f"{k:16s} {v['count']:3d} {v['busy_us']:9.1f} {v['dep_wait_us']:12.1f} {v['weight_wait_us']:15.1f}")
     if args.png:
-        title = f"One decode step ({args.quant}, ctx={args.ctx}): {s['step_us']:.0f} µs across {mk.grid} SMs"
+        what = "speculative cycle" if args.spec else "decode step"
+        title = f"One {what} ({args.quant}, ctx={args.ctx}): {s['step_us']:.0f} µs across {mk.grid} SMs"
         plot(mk, d, args.png, title)
         if args.zoom:
             plot(mk, d, args.png.replace(".png", "_zoom.png"), title + f" — {args.zoom[0]:.0f}–{args.zoom[1]:.0f} µs",

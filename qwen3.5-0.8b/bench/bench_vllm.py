@@ -15,7 +15,7 @@ import time
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", default="Qwen/Qwen3.5-0.8B")
-    ap.add_argument("--ctx", type=int, nargs="+", default=[1, 512, 2048, 4096])
+    ap.add_argument("--ctx", type=int, nargs="+", default=[1, 512, 1024, 2048, 4096, 8192, 16384, 32768])
     ap.add_argument("--tokens", type=int, default=256)
     ap.add_argument("--reps", type=int, default=3)
     ap.add_argument("--mem", type=float, default=0.25, help="gpu_memory_utilization")

@@ -10,7 +10,8 @@ overwritten.
 
 Long prefills from scratch run through Hugging Face transformers in one batched forward
 pass and the resulting conv / recurrent / KV state is copied into the kernel's buffers;
-short ones go through the megakernel one token per step.
+short ones go through the megakernel one token per step. Either way the MTP head's cache is
+filled for the prompt, and replies are decoded speculatively with it.
 """
 
 import threading
@@ -36,7 +37,12 @@ class HFPrefill:
         """Reset `mk` and leave it in the state after feeding `tokens`."""
         n = len(tokens)
         ids = torch.tensor([tokens], device=mk.device)
-        cache = self.model(ids, use_cache=True, logits_to_keep=1).past_key_values
+        final = {}  # the final norm's output: the hidden states the LM head (and MTP head) see
+        hook = self.model.model.norm.register_forward_hook(lambda m, i, o: final.update(h=o))
+        try:
+            cache = self.model(ids, use_cache=True, logits_to_keep=1).past_key_values
+        finally:
+            hook.remove()
         mk.reset()
         g = a = 0
         for i, kind in enumerate(mk.cfg.layer_types):
@@ -46,7 +52,7 @@ class HFPrefill:
                 for j in range(conv.shape[1]):
                     p = n - conv.shape[1] + j
                     if p >= 0:
-                        mk.conv_hist[g][:, p % 4] = conv[:, j]
+                        mk.conv_hist[g][:, p % mk.ext.CONV_RING] = conv[:, j]
                 mk.state[g].copy_(layer.recurrent_states[0][0].transpose(-1, -2))
                 g += 1
             else:
@@ -54,15 +60,18 @@ class HFPrefill:
                 mk.v_cache[a][:, :n] = layer.values[0]
                 a += 1
         mk.pos = n
+        mk.mtp_fed(0, final["h"][0].float(), tokens)
 
 
 class ChatSession:
-    def __init__(self, model=weights.DEFAULT_MODEL, max_seq=32768, hf_prefill=True, device="cuda", quant="int8"):
+    def __init__(self, model=weights.DEFAULT_MODEL, max_seq=32768, hf_prefill=True, device="cuda", quant="int8",
+                 spec=True):
         from transformers import AutoTokenizer
 
         self.path = weights.snapshot_path(model)
         self.tok = AutoTokenizer.from_pretrained(self.path)
-        self.mk = Megakernel(self.path, max_seq=max_seq, device=device, quant=quant)
+        self.spec = spec  # speculative decoding with the MTP head (identical output, faster)
+        self.mk = Megakernel(self.path, max_seq=max_seq, device=device, quant=quant, mtp=spec)
         self.stop_ids = [self.tok.convert_tokens_to_ids("<|im_end|>"), self.tok.convert_tokens_to_ids("<|endoftext|>")]
         self.header = self.tok.encode("<|im_start|>assistant\n", add_special_tokens=False)
         self._hf = None
@@ -83,14 +92,16 @@ class ChatSession:
     def _snapshot(self):
         mk = self.mk  # called only while self.fed is known
         self.snapshots = [s for s in self.snapshots if s[0] != self.fed][-(MAX_SNAPSHOTS - 1):]
-        self.snapshots.append((list(self.fed), [h.clone() for h in mk.conv_hist], [s.clone() for s in mk.state]))
+        self.snapshots.append((list(self.fed), [h.clone() for h in mk.conv_hist], [s.clone() for s in mk.state],
+                               mk.mtp_h))  # (pos, h) is never modified in place, so no clone
 
     def _restore(self, snap):
-        prefix, hist, state = snap
+        prefix, hist, state, mtp_h = snap
         mk = self.mk
         for dst, src in zip(mk.conv_hist + mk.state, hist + state):
             dst.copy_(src)
         mk.pos = len(prefix)
+        mk.mtp_h = mtp_h
         self.fed = list(prefix)
 
     def _feed(self, tokens):
@@ -147,7 +158,7 @@ class ChatSession:
             out = []
             self.fed = None  # unknown until generation finishes cleanly
             for t in self.mk.generate([prompt_ids[-1]], max_new_tokens=max_new_tokens, temperature=temperature,
-                                      seed=seed, stop_ids=self.stop_ids, chunk=16):
+                                      seed=seed, stop_ids=self.stop_ids, chunk=16, spec=self.spec):
                 out.append(t)
                 yield t
             # Everything but the final prediction has been fed (a stop id, or the token

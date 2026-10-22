@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# Final comparison: megakernel (bf16, int8) vs llama.cpp (BF16, Q8_0) and vLLM (bf16) decode throughput.
+# Final comparison: megakernel (bf16, int8; plain and speculative) vs llama.cpp (BF16, Q8_0) and vLLM (bf16)
+# decode throughput.
 #
 #   LLAMA_BENCH=~/src/llama.cpp-latest/build/bin/llama-bench GGUF_DIR=~/models/qwen35 bench/run_all.sh
 #
 # VLLM_PY points at a separate environment with vLLM installed (skipped if missing); ONLY="vllm" runs
-# just that engine (megakernel, llamacpp, vllm).
+# just that engine (megakernel, spec, llamacpp, vllm).
 #
 # Other GPU clients (including Windows-side apps under WSL) can steal bandwidth mid-run,
 # so every segment is bracketed by a raw DRAM bandwidth check (../common/bw.cu) and redone if
@@ -14,7 +15,7 @@ cd "$(dirname "$0")/.."
 LLAMA_BENCH=${LLAMA_BENCH:-$HOME/src/llama.cpp-latest/build/bin/llama-bench}
 GGUF_DIR=${GGUF_DIR:-$HOME/models/qwen35}
 VLLM_PY=${VLLM_PY:-$HOME/venvs/vllm/bin/python}
-ONLY=${ONLY:-megakernel llamacpp vllm}
+ONLY=${ONLY:-megakernel spec llamacpp vllm}
 MIN_GBPS=${MIN_GBPS:-880}
 TRIES=${TRIES:-6}
 mkdir -p build results
@@ -45,9 +46,12 @@ want() { [[ " $ONLY " == *" $1 "* ]]; }
 if want megakernel; then for q in bf16 int8; do
     segment "megakernel $q" python bench/bench_decode.py --quant "$q" --json "results/decode_$q.json"
 done; fi
+if want spec; then for q in bf16 int8; do
+    segment "megakernel spec $q" python bench/bench_spec.py --quant "$q" --json "results/spec_$q.json"
+done; fi
 if want llamacpp; then for m in BF16 Q8_0; do
     segment "llama.cpp $m" bash -c "'$LLAMA_BENCH' -m '$GGUF_DIR/Qwen3.5-0.8B-$m.gguf' -p 0 -n 256 \
-        -d 0,512,2048,4096 -fa on -ngl 99 -r 3 -o json 2>/dev/null > results/llamacpp_$m.json"
+        -d 0,512,1024,2048,4096,8192,16384,32768 -fa on -ngl 99 -r 3 -o json 2>/dev/null > results/llamacpp_$m.json"
 done; fi
 if want vllm && [ -x "$VLLM_PY" ]; then
     # vLLM JIT-compiles kernels, so it needs its environment's ninja on PATH

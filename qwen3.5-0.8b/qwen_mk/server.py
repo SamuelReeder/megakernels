@@ -192,9 +192,11 @@ def main():
     ap.add_argument("--max-seq", type=int, default=32768)
     ap.add_argument("--quant", choices=["int8", "bf16"], default="int8",
                     help="int8 (default): 1.6x faster, +0.1%% WikiText perplexity; bf16: exact weights")
+    ap.add_argument("--no-spec", action="store_true",
+                    help="decode one token per step instead of speculatively with the MTP head (same output)")
     args = ap.parse_args()
     print("loading model (the first run also compiles the kernel, ~1 min)...", file=sys.stderr)
-    Handler.session = ChatSession(args.model, max_seq=args.max_seq, quant=args.quant)
+    Handler.session = ChatSession(args.model, max_seq=args.max_seq, quant=args.quant, spec=not args.no_spec)
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"serving {MODEL_ID} on http://{args.host}:{args.port}/v1", file=sys.stderr)
     try:

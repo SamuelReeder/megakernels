@@ -19,8 +19,11 @@ def load(verbose=False):
     return _load(
         name=name,
         sources=[os.path.join(CSRC, "binding.cpp"), os.path.join(CSRC, "megakernel.cu")],
+        # --fmad=false: every FMA is written out (fmaf), so the compiler can't fuse the one- and two-token
+        # instantiations of the same expression differently. Speculative decoding relies on them rounding
+        # identically to reproduce plain decoding bit for bit.
         extra_cuda_cflags=["-O3", "-std=c++17", f"-gencode=arch=compute_{arch},code=sm_{arch}", "--expt-relaxed-constexpr",
-                           *defines],
+                           "--fmad=false", *defines],
         extra_cflags=["-O3"],
         extra_include_paths=[CSRC],
         verbose=verbose,

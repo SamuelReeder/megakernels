@@ -16,7 +16,37 @@ from qwen_mk.engine import Megakernel
 ROOFLINE_GBPS = 915.0  # measured with ../common/bw.cu on an idle RTX 5080 (spec: 960)
 
 
-def bench(mk, ctx, n_tokens, steps_per_launch, reps=3):
+def prompt_ids(n):
+    return [(i * 7919) % 50000 + 1000 for i in range(n)]
+
+
+class Context:
+    """The synthetic prompt fed up to a given length, restorable for every repetition.
+
+    Contexts are entered in increasing order and each prefill only feeds the new tokens (fed one
+    per step, 32K tokens take about a minute). Generation never rewrites the KV cache below the
+    restore point, so restoring the recurrent state and the position is exact.
+    """
+
+    def __init__(self, mk):
+        self.mk, self.n, self.snap = mk, 0, None
+        mk.reset()
+
+    def enter(self, ctx):
+        assert ctx >= self.n, "enter contexts in increasing order"
+        self.restore()
+        self.mk.prefill(prompt_ids(ctx)[self.n:] + [1000])
+        self.n = ctx
+        self.snap = [t.clone() for t in self.mk.conv_hist + self.mk.state]
+
+    def restore(self):
+        if self.snap is not None:
+            for dst, src in zip(self.mk.conv_hist + self.mk.state, self.snap):
+                dst.copy_(src)
+        self.mk.pos = self.n
+
+
+def bench(mk, context, n_tokens, steps_per_launch, reps=3):
     """Returns (median GPU ms/step, best wall-clock tokens/s) for steady-state decoding.
 
     The median of per-step GPU timestamps is robust to other processes time-slicing the
@@ -24,9 +54,8 @@ def bench(mk, ctx, n_tokens, steps_per_launch, reps=3):
     """
     steps, best_wall = [], 0.0
     for _ in range(reps):
-        mk.reset()
-        prompt = [(i * 7919) % 50000 + 1000 for i in range(ctx)]
-        last = mk.prefill(prompt + [1000])
+        context.restore()
+        last = 1000
         torch.cuda.synchronize()
         t0 = time.perf_counter()
         done = 0
@@ -43,7 +72,7 @@ def bench(mk, ctx, n_tokens, steps_per_launch, reps=3):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--ctx", type=int, nargs="+", default=[1, 512, 2048, 4096])
+    ap.add_argument("--ctx", type=int, nargs="+", default=[1, 512, 1024, 2048, 4096, 8192, 16384, 32768])
     ap.add_argument("--tokens", type=int, default=256)
     ap.add_argument("--steps-per-launch", type=int, default=128)
     ap.add_argument("--json", type=str, default=None)
@@ -51,18 +80,21 @@ def main():
     ap.add_argument("--pf-kb", type=int, nargs="+", default=None, help="sweep L2 prefetch distance (KB per SM)")
     args = ap.parse_args()
 
-    mk = Megakernel(max_seq=max(args.ctx) + args.tokens + 8, quant=args.quant)
+    mk = Megakernel(max_seq=max(args.ctx) + args.tokens + 8, quant=args.quant, mtp=False)
+    context = Context(mk)
     if args.pf_kb:
+        context.enter(args.ctx[0])
         for kb in args.pf_kb:
             mk.pf_bytes = kb * 1024
-            ms, wall = bench(mk, args.ctx[0], args.tokens, args.steps_per_launch)
+            ms, wall = bench(mk, context, args.tokens, args.steps_per_launch)
             print(f"pf {kb:5d} KB/SM: {1e3 / ms:7.1f} tok/s (median step)  {wall:7.1f} tok/s (wall)")
         return
     body, head = mk.weight_bytes
     state = 18 * 2 * 16 * 128 * 128 * 4  # GDN state read + write
     rows = []
-    for ctx in args.ctx:
-        ms, wall = bench(mk, ctx, args.tokens, args.steps_per_launch)
+    for ctx in sorted(args.ctx):
+        context.enter(ctx)
+        ms, wall = bench(mk, context, args.tokens, args.steps_per_launch)
         kv = 6 * 2 * 2 * 256 * 2 * (ctx + args.tokens // 2)
         gbps = (body + head + state + kv) / ms / 1e6
         rows.append(dict(ctx=ctx, ms_per_tok=ms, tok_s=1e3 / ms, wall_tok_s=wall, GBps=gbps,

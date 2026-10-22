@@ -28,4 +28,4 @@ qwen-mk-serve = "qwen_mk.server:main"
 packages = ["qwen_mk"]
 
 [tool.setuptools.package-data]
-qwen_mk = []
+qwen_mk = ["draft_vocab.npy"]
