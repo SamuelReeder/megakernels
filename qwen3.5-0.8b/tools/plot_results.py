@@ -15,7 +15,7 @@ from matplotlib.patches import FancyBboxPatch
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SURFACE, INK, INK2, MUTED, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#898781", "#e1e0d9"
-ENGINE = {"megakernel": "#2a78d6", "llama.cpp": "#eb6834"}  # categorical slots 1, 2
+ENGINE = {"megakernel": "#2a78d6", "llama.cpp": "#eb6834", "vLLM": "#1baf7a"}  # categorical slots 1-3
 
 
 def load():
@@ -26,6 +26,9 @@ def load():
         series[("megakernel", q)] = {row["ctx"] if row["ctx"] > 1 else 0: row["wall_tok_s"] for row in rows}
     for m, q in (("Q8_0", "int8"), ("BF16", "bf16")):
         series[("llama.cpp", q)] = {x["n_depth"]: max(x["samples_ts"]) for x in r(f"llamacpp_{m}.json")}
+    if os.path.exists(os.path.join(ROOT, "results", "vllm_bf16.json")):
+        series[("vLLM", "bf16")] = {x["ctx"] if x["ctx"] > 1 else 0: x["tok_s"]
+                                    for x in r("vllm_bf16.json")["rows"]}
     return series
 
 
@@ -52,7 +55,9 @@ def main():
     # Left: bars at a 512-token context
     rows = [("megakernel", "int8", "megakernel int8"), ("llama.cpp", "int8", "llama.cpp Q8_0"),
             ("megakernel", "bf16", "megakernel bf16"), ("llama.cpp", "bf16", "llama.cpp BF16")]
-    ys = [0, 1, 2.6, 3.6]
+    if ("vLLM", "bf16") in s:
+        rows.append(("vLLM", "bf16", "vLLM bf16"))
+    ys = [0, 1, 2.6, 3.6, 4.6][:len(rows)]
     vmax = max(s[(e, q)][512] for e, q, _ in rows)
     for y, (e, q, label) in zip(ys, rows):
         v = s[(e, q)][512]
@@ -63,7 +68,7 @@ def main():
         a.text(vmax * 1.2, ys[i] + 0.5, f"{sp:.2f}×", va="center", ha="right", color=INK2, fontsize=11,
                fontweight="bold")
     a.set_yticks(ys, [r[2] for r in rows], color=INK2, fontsize=10)
-    a.set_ylim(4.2, -0.6)
+    a.set_ylim(ys[-1] + 0.6, -0.6)
     a.set_xlim(0, vmax * 1.22)
     a.set_xlabel("tokens / s", color=INK2)
     a.tick_params(axis="y", length=0)
@@ -76,7 +81,7 @@ def main():
         xs = sorted(d)
         b.plot(xs, [d[x] for x in xs], color=ENGINE[e], lw=2, ls="-" if q == "int8" else (0, (5, 3)),
                marker="o", ms=5, solid_capstyle="round")
-        label = {"int8": "int8" if e == "megakernel" else "Q8_0", "bf16": "bf16" if e == "megakernel" else "BF16"}[q]
+        label = {"int8": "int8" if e == "megakernel" else "Q8_0", "bf16": "BF16" if e == "llama.cpp" else "bf16"}[q]
         # these two end close together: pull their labels apart with leader lines
         dy = {("megakernel", "bf16"): 14, ("llama.cpp", "int8"): -14}.get((e, q), 0)
         b.annotate(f"{e} {label}", (xs[-1], d[xs[-1]]), xytext=(14, dy), textcoords="offset points", va="center",
@@ -89,7 +94,7 @@ def main():
     b.set_xlabel("context length (tokens already in the cache)", color=INK2)
     b.set_ylabel("tokens / s", color=INK2)
     b.set_title("Throughput vs. context length", loc="left", color=INK, fontsize=12)
-    handles = [plt.Line2D([], [], color=ENGINE[k], lw=2, label=k) for k in ENGINE]
+    handles = [plt.Line2D([], [], color=ENGINE[k], lw=2, label=k) for k in ENGINE if any(e == k for e, _ in s)]
     handles += [plt.Line2D([], [], color=MUTED, lw=2, label="int8 / Q8_0"),
                 plt.Line2D([], [], color=MUTED, lw=2, ls=(0, (5, 3)), label="bf16")]
     b.legend(handles=handles, loc="lower left", frameon=False, ncol=2, fontsize=9, labelcolor=INK2)

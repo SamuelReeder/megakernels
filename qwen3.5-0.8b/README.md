@@ -18,6 +18,11 @@ On an RTX 5080 at batch size 1:
 
 ![Decode throughput vs llama.cpp](docs/throughput.png)
 
+![Megakernel and llama.cpp generating the same story, replayed at 0.2x speed](docs/demo.gif)
+
+The clip replays a real recording (`tools/demo_record.py`) of both engines streaming the same prompt
+through their own streaming paths, slowed to 0.2× so it is watchable; the counters use real time.
+
 ## Quick start
 
 Requirements: an RTX 50-series GPU (sm_120; developed and measured on an RTX 5080), a CUDA
@@ -128,6 +133,8 @@ recurrence, attention for a single query) are pure latency.
 
 ### One kernel, one CTA per SM
 
+![Architecture: ops per layer, one SM's producer/consumer ring, and the flag-in-data handoff](docs/architecture.svg)
+
 The kernel runs one 544-thread CTA per SM for the whole generation:
 
 - **A producer warp streams weights.** It walks the exact sequence of weight rows this SM will need
@@ -156,6 +163,16 @@ reset. Single buffering is safe because every op consumes all of its predecessor
 anyone can overwrite it. Ops that only need part of their input, such as a DeltaNet head waiting on
 its own q/k/v rows, start as soon as that part lands. Sampling works the same way: each CTA
 publishes its local best `(score, index)` and every CTA reduces all 84 to agree on the next token.
+
+![Per-SM timelines of layers 0-23: grid barriers (first commit) vs flags in the data (now)](docs/before_after.png)
+
+Both timelines are one bf16 decode step at ctx 512 (`tools/before_after.py` profiles the first
+commit from git history). Barrier removal changes the shape of the work: with barriers, every SM
+sits idle at the end of every op and then all of them restart together; with flags, SMs start an op
+as soon as their own inputs land and the ops overlap. How much that buys is in the optimization log
+(+7%, together with the L2 prefetch cursor). The time spent inside the 24 layers hardly moved
+between these two versions. The rest of the speedup since the first commit came from tuning around
+them (prefetch distance, int8, attention).
 
 ### The token mixers
 
@@ -235,7 +252,7 @@ qwen_mk/chat.py        qwen-mk-chat
 qwen_mk/server.py      qwen-mk-serve (OpenAI-compatible, stdlib only)
 qwen_mk/reference.py   fp32 PyTorch reference decoder (matches HF)
 bench/                 decode benchmark, bandwidth roofline, barrier microbenchmark, run_all.sh
-tools/                 per-SM timeline profiler, perplexity, plots
+tools/                 per-SM timeline profiler, before/after comparison, demo recorder, perplexity, plots
 tests/                 kernel vs reference (bf16, int8), determinism, sessions
 ```
 
@@ -245,7 +262,9 @@ tests/                 kernel vs reference (bf16, int8), determinism, sessions
 pytest tests/                                   # 11 tests, ~1 min
 python bench/bench_decode.py --quant int8       # tok/s and GB/s at several context lengths
 python tools/timeline.py --quant int8 --ctx 512 --png docs/timeline_int8.png --zoom 80 200
+python tools/before_after.py                    # grid barriers (first commit) vs flags, per-SM timelines
 python tools/perplexity.py                      # WikiText-2, megakernel bf16 / int8 vs HF
+python tools/demo_record.py && python tools/demo_render.py   # the side-by-side GIF
 bench/run_all.sh && python tools/plot_results.py
 ```
 
