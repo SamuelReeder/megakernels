@@ -47,3 +47,12 @@ Shared code goes in `common/` only once a second model needs it.
   bandwidth; trust only runs bracketed by a clean bandwidth check.
 - **Shapes are compile-time constants.** Put them in one header and assert them against the
   checkpoint config at load time.
+- **Shared-memory bank conflicts hide behind DRAM.** A lane that reads its consecutive GEMV inputs
+  as `float4`s 64 bytes from its neighbour's puts four lanes of each quarter-warp on the same
+  banks. That costs nothing while the op waits on DRAM, and becomes the limit as soon as each
+  weight does more work (two tokens per row in a speculative cycle). Store the input vectors
+  swizzled; the profiler's "weight wait" column dropping to zero is the tell.
+- **Bitwise identity across instantiations needs explicit FMAs.** NVCC contracts `a * b + c`
+  differently in different template instantiations of the same expression, so two code paths
+  that must agree to the bit (speculative verify vs plain decode) can differ by an ulp. Build with
+  `--fmad=false` and write the FMAs you want with `fmaf`.

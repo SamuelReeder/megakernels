@@ -18,6 +18,13 @@ SURFACE, INK, INK2, MUTED, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#898781", "#
 ENGINE = {"megakernel": "#2a78d6", "llama.cpp": "#eb6834", "vLLM": "#1baf7a"}  # categorical slots 1-3
 
 
+def best_sample(samples):
+    """Best of llama-bench's repetitions. It occasionally reports a corrupt one (12,000 tok/s, or
+    ~0), so samples more than 2x off the median are dropped first."""
+    med = sorted(samples)[len(samples) // 2]
+    return max(s for s in samples if med / 2 <= s <= 2 * med)
+
+
 def load():
     r = lambda f: json.load(open(os.path.join(ROOT, "results", f)))
     series = {}
@@ -25,7 +32,7 @@ def load():
         rows = r(f"decode_{q}.json")["rows"]
         series[("megakernel", q)] = {row["ctx"] if row["ctx"] > 1 else 0: row["wall_tok_s"] for row in rows}
     for m, q in (("Q8_0", "int8"), ("BF16", "bf16")):
-        series[("llama.cpp", q)] = {x["n_depth"]: max(x["samples_ts"]) for x in r(f"llamacpp_{m}.json")}
+        series[("llama.cpp", q)] = {x["n_depth"]: best_sample(x["samples_ts"]) for x in r(f"llamacpp_{m}.json")}
     if os.path.exists(os.path.join(ROOT, "results", "vllm_bf16.json")):
         series[("vLLM", "bf16")] = {x["ctx"] if x["ctx"] > 1 else 0: x["tok_s"]
                                     for x in r("vllm_bf16.json")["rows"]}
@@ -42,7 +49,7 @@ def rounded_hbar(ax, y, w, h, color):
 
 def main():
     s = load()
-    fig, (a, b) = plt.subplots(1, 2, figsize=(13, 4.6), dpi=160, gridspec_kw=dict(width_ratios=[1, 1.15], wspace=0.28))
+    fig, (a, b) = plt.subplots(1, 2, figsize=(13.5, 4.6), dpi=160, gridspec_kw=dict(width_ratios=[1, 1.3], wspace=0.28))
     fig.patch.set_facecolor(SURFACE)
     for ax in (a, b):
         ax.set_facecolor(SURFACE)
@@ -77,23 +84,36 @@ def main():
     a.set_axisbelow(True)
     a.set_title("Decode throughput, 512-token context", loc="left", color=INK, fontsize=12)
 
-    # Right: throughput vs context length
+    # Right: throughput vs context length, on doublings from 512 (a 1-token context is the table's)
+    ends = []
     for (e, q), d in s.items():
-        xs = sorted(d)
+        xs = sorted(x for x in d if x >= 512)
         b.plot(xs, [d[x] for x in xs], color=ENGINE[e], lw=2, ls="-" if q == "int8" else (0, (5, 3)),
                marker="o", ms=5, solid_capstyle="round")
         label = {"int8": "int8" if e == "megakernel" else "Q8_0", "bf16": "BF16" if e == "llama.cpp" else "bf16"}[q]
-        # these two end close together: pull their labels apart with leader lines
-        dy = {("megakernel", "bf16"): 18, ("llama.cpp", "int8"): -2, ("vLLM", "bf16"): 4,
-              ("llama.cpp", "bf16"): -10}.get((e, q), 0)
-        b.annotate(f"{e} {label}", (xs[-1], d[xs[-1]]), xytext=(14, dy), textcoords="offset points", va="center",
-                   color=INK2, fontsize=9, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8) if dy else None)
-    b.set_xticks([0, 512, 2048, 4096], ["1", "512", "2048", "4096"])
-    b.set_xlim(-150, 5400)
-    b.set_ylim(0, 1000)
+        ends.append([d[xs[-1]], xs[-1], f"{e} {label}"])
+    # end labels at least `gap` apart, nudged as little as possible, with leader lines when moved
+    ymax, gap = 1050, 1050 * 0.045
+    ends.sort()
+    ys = [v for v, _, _ in ends]
+    for _ in range(50):
+        for i in range(1, len(ys)):
+            if ys[i] - ys[i - 1] < gap:
+                mid = (ys[i] + ys[i - 1]) / 2
+                ys[i - 1], ys[i] = mid - gap / 2, mid + gap / 2
+    for (v, x, text), y in zip(ends, ys):
+        moved = abs(y - v) > 1
+        b.annotate(text, (x, v), xytext=(x * 1.35, y), textcoords="data", va="center", color=INK2, fontsize=9,
+                   arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8, shrinkA=0, shrinkB=3) if moved else None)
+    b.set_xscale("log", base=2)
+    ticks = [512, 1024, 2048, 4096, 8192, 16384, 32768]
+    b.set_xticks(ticks, ["512", "1K", "2K", "4K", "8K", "16K", "32K"])
+    b.minorticks_off()
+    b.set_xlim(420, 32768 * 3.4)
+    b.set_ylim(0, ymax)
     b.yaxis.grid(True, color=GRID, lw=0.8)
     b.set_axisbelow(True)
-    b.set_xlabel("context length (tokens already in the cache)", color=INK2)
+    b.set_xlabel("context length (tokens already in the cache, log scale)", color=INK2)
     b.set_ylabel("tokens / s", color=INK2)
     b.set_title("Throughput vs. context length", loc="left", color=INK, fontsize=12)
     handles = [plt.Line2D([], [], color=ENGINE[k], lw=2, label=k) for k in ENGINE if any(e == k for e, _ in s)]
@@ -101,9 +121,10 @@ def main():
                 plt.Line2D([], [], color=MUTED, lw=2, ls=(0, (5, 3)), label="bf16")]
     b.legend(handles=handles, loc="lower left", frameon=False, ncol=2, fontsize=9, labelcolor=INK2)
 
-    fig.text(0.01, -0.02, "Qwen3.5-0.8B, batch 1, RTX 5080. Best of 3 runs of wall-clock generation for every engine; "
-             f"llama.cpp build {json.load(open(os.path.join(ROOT, 'results', 'llamacpp_BF16.json')))[0]['build_commit']}"
-             ", flash attention on, all layers on GPU.", color=MUTED, fontsize=8.5)
+    fig.text(0.01, -0.02, "Qwen3.5-0.8B, batch 1, RTX 5080, plain decoding (no speculation). Best of 3 runs of wall-clock "
+             "generation for every engine; llama.cpp build "
+             f"{json.load(open(os.path.join(ROOT, 'results', 'llamacpp_BF16.json')))[0]['build_commit']}, flash attention "
+             "on, all layers on GPU (llama-bench samples > 2x off their median dropped).", color=MUTED, fontsize=8.5)
     out = os.path.join(ROOT, "docs", "throughput.png")
     fig.savefig(out, facecolor=SURFACE, bbox_inches="tight")
     print("wrote", out)

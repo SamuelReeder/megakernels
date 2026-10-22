@@ -6,7 +6,7 @@ Each model gets its own directory with the kernel, a Python runtime, tests and b
 
 | Model | Hardware | Result | Directory |
 |---|---|---|---|
-| Qwen3.5-0.8B (Gated DeltaNet + attention hybrid) | RTX 5080 (sm_120) | **908 tok/s** int8, **542 tok/s** bf16; 1.9× / 1.6× llama.cpp Q8_0 / BF16, 1.35× vLLM bf16 | [`qwen3.5-0.8b/`](qwen3.5-0.8b/) |
+| Qwen3.5-0.8B (Gated DeltaNet + attention hybrid) | RTX 5080 (sm_120) | **955 tok/s** int8, **555 tok/s** bf16; 2.1× / 1.6× llama.cpp Q8_0 / BF16, 1.33× vLLM bf16; **1205 tok/s** int8 with MTP speculative decoding | [`qwen3.5-0.8b/`](qwen3.5-0.8b/) |
 
 ![Decode throughput vs llama.cpp](qwen3.5-0.8b/docs/throughput.png)
 
@@ -16,7 +16,7 @@ Batch-1 decoding reads every weight once per token and does almost no arithmetic
 speed limit is DRAM bandwidth. A conventional engine launches hundreds of small kernels per token,
 and each boundary drains the GPU and refills it. A megakernel keeps one CTA resident on every SM
 for the whole step, streams weights through a TMA ring owned by a producer warp, and hands results
-from one op to the next through flags embedded in the data itself. The Qwen kernel sustains 91% of
+from one op to the next through flags embedded in the data itself. The Qwen kernel sustains 94% of
 the bandwidth the card can actually deliver.
 
 Start with [`qwen3.5-0.8b/README.md`](qwen3.5-0.8b/README.md) for the design, measurements and an

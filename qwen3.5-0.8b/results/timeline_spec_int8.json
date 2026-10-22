@@ -1,0 +1,93 @@
+{
+ "step_us": 1399.456,
+ "ops": 128,
+ "mean_dep_wait_us": 5.129464285714285,
+ "total_dep_wait_us": 656.5714285714284,
+ "total_weight_wait_us": 205.6182857142857,
+ "by_kind": {
+  "in_proj": {
+   "busy_us": 100.7664761904762,
+   "dep_wait_us": 153.2537142857143,
+   "weight_wait_us": 5.84647619047619,
+   "count": 24
+  },
+  "mixer:gdn": {
+   "busy_us": 32.48304761904764,
+   "dep_wait_us": 77.19657142857143,
+   "weight_wait_us": 0.0,
+   "count": 18
+  },
+  "out_proj": {
+   "busy_us": 59.67352380952382,
+   "dep_wait_us": 154.09676190476188,
+   "weight_wait_us": 0.0,
+   "count": 24
+  },
+  "mlp_gate_up": {
+   "busy_us": 95.79619047619052,
+   "dep_wait_us": 102.43961904761903,
+   "weight_wait_us": 3.2960000000000003,
+   "count": 24
+  },
+  "mlp_down": {
+   "busy_us": 77.45752380952385,
+   "dep_wait_us": 100.81676190476186,
+   "weight_wait_us": 0.008380952380952381,
+   "count": 24
+  },
+  "mixer:attn": {
+   "busy_us": 26.171428571428553,
+   "dep_wait_us": 22.817142857142862,
+   "weight_wait_us": 0.0,
+   "count": 6
+  },
+  "lm_head": {
+   "busy_us": 289.5958095238096,
+   "dep_wait_us": 3.715809523809527,
+   "weight_wait_us": 172.4670476190476,
+   "count": 1
+  },
+  "mtp_fc": {
+   "busy_us": 1.3001904761904344,
+   "dep_wait_us": 11.814857142857146,
+   "weight_wait_us": 0.0,
+   "count": 1
+  },
+  "mtp in_proj": {
+   "busy_us": 3.3908571428571412,
+   "dep_wait_us": 4.05333333333336,
+   "weight_wait_us": 0.0,
+   "count": 1
+  },
+  "mtp mixer:attn": {
+   "busy_us": 4.830857142857147,
+   "dep_wait_us": 5.506285714285734,
+   "weight_wait_us": 0.0,
+   "count": 1
+  },
+  "mtp out_proj": {
+   "busy_us": 1.2300952380952108,
+   "dep_wait_us": 9.00952380952381,
+   "weight_wait_us": 0.0,
+   "count": 1
+  },
+  "mtp mlp_gate_up": {
+   "busy_us": 4.144761904761938,
+   "dep_wait_us": 3.9367619047619007,
+   "weight_wait_us": 0.3394285714285714,
+   "count": 1
+  },
+  "mtp mlp_down": {
+   "busy_us": 4.1672380952381065,
+   "dep_wait_us": 3.839619047619037,
+   "weight_wait_us": 0.0,
+   "count": 1
+  },
+  "draft_head": {
+   "busy_us": 34.18857142857145,
+   "dep_wait_us": 4.074666666666642,
+   "weight_wait_us": 23.66095238095238,
+   "count": 1
+  }
+ }
+}

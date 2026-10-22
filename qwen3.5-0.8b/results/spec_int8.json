@@ -1,0 +1,30 @@
+{
+ "quant": "int8",
+ "gpu": "NVIDIA GeForce RTX 5080",
+ "prompts": 16,
+ "max_tokens": 256,
+ "rows": [
+  {
+   "draft_vocab": 32768,
+   "tokens": 3552,
+   "cycles": 2101,
+   "tokens_per_cycle": 1.6906235126130413,
+   "plain_tok_s": 966.700124361181,
+   "spec_tok_s": 1205.3014369310552,
+   "speedup": 1.2468204012361614,
+   "median_step_ms": 1.028512,
+   "median_cycle_ms": 1.397664
+  },
+  {
+   "draft_vocab": 248320,
+   "tokens": 3552,
+   "cycles": 2069,
+   "tokens_per_cycle": 1.7167713871435477,
+   "plain_tok_s": 960.6765406155478,
+   "spec_tok_s": 1028.7303249069569,
+   "speedup": 1.070839435974781,
+   "median_step_ms": 1.03544,
+   "median_cycle_ms": 1.661696
+  }
+ ]
+}

@@ -4,6 +4,7 @@
   {"commit": "247df97", "change": "persistent TMA-ring megakernel, 121 grid barriers per token", "bf16": 447.2},
   {"commit": "78bc2b8", "change": "flag-in-data (LL) dataflow replaces grid barriers; L2 prefetch cursor", "bf16": 479.4},
   {"commit": "d8da027", "change": "L2 prefetch 256 -> 32 KB/SM, ring chunk sized for int8 rows; int8 mode", "bf16": 504.0, "int8": 820.1},
-  {"commit": "3ce3eed", "change": "attention: KV L2 prefetch, early KV load, q from smem (fewer register spills)", "bf16": 512.3, "int8": 841.1}
+  {"commit": "3ce3eed", "change": "attention: KV L2 prefetch, early KV load, q from smem (fewer register spills)", "bf16": 512.3, "int8": 841.1},
+  {"commit": "9a01f3b", "change": "GEMV inputs swizzled in shared memory (bank-conflict-free); speculative decoding (MTP)", "bf16": 521.0, "int8": 883.1, "note": "measured in a later session, back to back with 3ce3eed's kernel (518.1 / 868.9 that day); plain decoding"}
  ]
 }

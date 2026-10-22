@@ -1,50 +1,50 @@
 {
- "step_us": 1120.64,
+ "step_us": 1050.144,
  "ops": 121,
- "mean_dep_wait_us": 3.6399086973632433,
- "total_dep_wait_us": 440.42895238095235,
- "total_weight_wait_us": 136.0754285714286,
+ "mean_dep_wait_us": 3.2367445887445876,
+ "total_dep_wait_us": 391.6460952380951,
+ "total_weight_wait_us": 207.97790476190474,
  "by_kind": {
   "in_proj": {
-   "busy_us": 132.33638095238098,
-   "dep_wait_us": 88.30361904761905,
-   "weight_wait_us": 0.0,
+   "busy_us": 68.96647619047619,
+   "dep_wait_us": 107.71542857142855,
+   "weight_wait_us": 0.10057142857142856,
    "count": 24
   },
   "mixer:gdn": {
-   "busy_us": 19.972571428571406,
-   "dep_wait_us": 38.82971428571429,
+   "busy_us": 42.76914285714287,
+   "dep_wait_us": 47.59885714285715,
    "weight_wait_us": 0.0,
    "count": 18
   },
   "out_proj": {
-   "busy_us": 41.75885714285715,
-   "dep_wait_us": 129.99885714285716,
+   "busy_us": 35.924190476190475,
+   "dep_wait_us": 134.1302857142857,
    "weight_wait_us": 0.0,
    "count": 24
   },
   "mlp_gate_up": {
-   "busy_us": 90.22095238095234,
-   "dep_wait_us": 67.48990476190481,
-   "weight_wait_us": 0.0034285714285714284,
+   "busy_us": 62.038095238095295,
+   "dep_wait_us": 58.25599999999996,
+   "weight_wait_us": 0.16914285714285712,
    "count": 24
   },
   "mlp_down": {
-   "busy_us": 72.16838095238093,
-   "dep_wait_us": 103.85333333333331,
+   "busy_us": 133.56076190476196,
+   "dep_wait_us": 27.084190476190425,
    "weight_wait_us": 0.0,
    "count": 24
   },
   "mixer:attn": {
-   "busy_us": 11.816000000000017,
-   "dep_wait_us": 8.243428571428579,
+   "busy_us": 11.878857142857154,
+   "dep_wait_us": 11.918857142857116,
    "weight_wait_us": 0.0,
    "count": 6
   },
   "lm_head": {
-   "busy_us": 293.92038095238104,
-   "dep_wait_us": 3.71009523809524,
-   "weight_wait_us": 136.072,
+   "busy_us": 288.9158095238095,
+   "dep_wait_us": 4.942476190476195,
+   "weight_wait_us": 207.70819047619048,
    "count": 1
   }
  }
