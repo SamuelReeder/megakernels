@@ -10,7 +10,8 @@ On an RTX 5080 at batch size 1:
   actually sustains in a pure bandwidth test.
 - **int8 (Q8_0-style): 908 tok/s.** WikiText-2 perplexity rises from 17.140 to 17.161 (+0.12%).
 - **1.6× and 1.9× faster than llama.cpp** BF16 and Q8_0 (current master, flash attention, every
-  layer on the GPU), comparing wall-clock against wall-clock.
+  layer on the GPU), and **1.35× faster than vLLM 0.32** in bf16 (CUDA graphs), comparing wall-clock
+  against wall-clock.
 - **Bitwise deterministic**, and it matches Hugging Face transformers (perplexity 17.1408 against
   17.1402).
 - It runs as an interactive chat CLI or as an OpenAI-compatible server, with tool calling, streaming
@@ -69,14 +70,18 @@ brackets every segment with a raw-bandwidth check and reruns it if anything else
 
 ### Decode throughput
 
-| context | megakernel int8 | llama.cpp Q8_0 | | megakernel bf16 | llama.cpp BF16 | |
-|---:|---:|---:|---:|---:|---:|---:|
-| 1    | 838 | 423 | 1.98× | 512 | 329 | 1.56× |
-| 512  | 855 | 444 | 1.93× | 509 | 323 | 1.58× |
-| 2048 | 793 | 446 | 1.78× | 485 | 326 | 1.49× |
-| 4096 | 738 | 445 | 1.66× | 464 | 329 | 1.41× |
+| context | megakernel int8 | llama.cpp Q8_0 | | megakernel bf16 | llama.cpp BF16 | | vLLM 0.32 bf16 | |
+|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1    | 838 | 423 | 1.98× | 512 | 329 | 1.56× | 389 | 1.32× |
+| 512  | 855 | 444 | 1.93× | 509 | 323 | 1.58× | 378 | 1.35× |
+| 2048 | 793 | 446 | 1.78× | 485 | 326 | 1.49× | 375 | 1.29× |
+| 4096 | 738 | 445 | 1.66× | 464 | 329 | 1.41× | 361 | 1.29× |
 
-Each figure is tokens/s, best of 3 timed runs of wall-clock generation for both engines.
+The speedup columns compare the megakernel with the engine to their left (the bf16 megakernel for
+vLLM, since vLLM runs bf16 here).
+
+Each figure is tokens/s, best of 3 timed runs of wall-clock generation for every engine. vLLM runs
+with CUDA graphs, batch 1 and prefill excluded (`bench/bench_vllm.py`, in its own environment).
 Megakernel numbers include the launch gaps and host round trips between 128-token launches.
 For reference, Hugging Face transformers manages 26 tok/s on the same GPU (bf16, eager, without the
 optional flash-linear-attention kernels).

@@ -6,7 +6,7 @@ Each model gets its own directory with the kernel, a Python runtime, tests and b
 
 | Model | Hardware | Result | Directory |
 |---|---|---|---|
-| Qwen3.5-0.8B (Gated DeltaNet + attention hybrid) | RTX 5080 (sm_120) | **908 tok/s** int8, **542 tok/s** bf16; 1.9× / 1.6× llama.cpp Q8_0 / BF16 | [`qwen3.5-0.8b/`](qwen3.5-0.8b/) |
+| Qwen3.5-0.8B (Gated DeltaNet + attention hybrid) | RTX 5080 (sm_120) | **908 tok/s** int8, **542 tok/s** bf16; 1.9× / 1.6× llama.cpp Q8_0 / BF16, 1.35× vLLM bf16 | [`qwen3.5-0.8b/`](qwen3.5-0.8b/) |
 
 ![Decode throughput vs llama.cpp](qwen3.5-0.8b/docs/throughput.png)
 

@@ -1,6 +1,6 @@
 """Render docs/throughput.png from results/{decode,llamacpp}_*.json (written by bench/run_all.sh).
 
-Both engines are compared on the same footing: best of 3 timed repetitions of wall-clock
+Every engine is compared on the same footing: best of 3 timed repetitions of wall-clock
 generation, so megakernel numbers include launch gaps and host round trips.
 """
 
@@ -63,10 +63,11 @@ def main():
         v = s[(e, q)][512]
         rounded_hbar(a, y, v, 0.5, ENGINE[e])
         a.text(v + vmax * 0.015, y, f"{v:.0f}", va="center", ha="left", color=INK, fontsize=10)
-    for i in (0, 2):  # speedup of each megakernel bar over the llama.cpp bar below it
-        sp = s[rows[i][:2]][512] / s[rows[i + 1][:2]][512]
-        a.text(vmax * 1.2, ys[i] + 0.5, f"{sp:.2f}×", va="center", ha="right", color=INK2, fontsize=11,
-               fontweight="bold")
+    # speedup label of the megakernel bar over another engine's bar: (megakernel row, other row, label y)
+    pairs = [(0, 1, ys[0] + 0.5), (2, 3, ys[2] + 0.5)] + ([(2, 4, ys[4])] if len(rows) > 4 else [])
+    for i, j, y in pairs:
+        sp = s[rows[i][:2]][512] / s[rows[j][:2]][512]
+        a.text(vmax * 1.2, y, f"{sp:.2f}×", va="center", ha="right", color=INK2, fontsize=11, fontweight="bold")
     a.set_yticks(ys, [r[2] for r in rows], color=INK2, fontsize=10)
     a.set_ylim(ys[-1] + 0.6, -0.6)
     a.set_xlim(0, vmax * 1.22)
@@ -83,7 +84,8 @@ def main():
                marker="o", ms=5, solid_capstyle="round")
         label = {"int8": "int8" if e == "megakernel" else "Q8_0", "bf16": "BF16" if e == "llama.cpp" else "bf16"}[q]
         # these two end close together: pull their labels apart with leader lines
-        dy = {("megakernel", "bf16"): 14, ("llama.cpp", "int8"): -14}.get((e, q), 0)
+        dy = {("megakernel", "bf16"): 18, ("llama.cpp", "int8"): -2, ("vLLM", "bf16"): 4,
+              ("llama.cpp", "bf16"): -10}.get((e, q), 0)
         b.annotate(f"{e} {label}", (xs[-1], d[xs[-1]]), xytext=(14, dy), textcoords="offset points", va="center",
                    color=INK2, fontsize=9, arrowprops=dict(arrowstyle="-", color=MUTED, lw=0.8) if dy else None)
     b.set_xticks([0, 512, 2048, 4096], ["1", "512", "2048", "4096"])
@@ -99,7 +101,7 @@ def main():
                 plt.Line2D([], [], color=MUTED, lw=2, ls=(0, (5, 3)), label="bf16")]
     b.legend(handles=handles, loc="lower left", frameon=False, ncol=2, fontsize=9, labelcolor=INK2)
 
-    fig.text(0.01, -0.02, "Qwen3.5-0.8B, batch 1, RTX 5080. Best of 3 runs of wall-clock generation for both engines; "
+    fig.text(0.01, -0.02, "Qwen3.5-0.8B, batch 1, RTX 5080. Best of 3 runs of wall-clock generation for every engine; "
              f"llama.cpp build {json.load(open(os.path.join(ROOT, 'results', 'llamacpp_BF16.json')))[0]['build_commit']}"
              ", flash attention on, all layers on GPU.", color=MUTED, fontsize=8.5)
     out = os.path.join(ROOT, "docs", "throughput.png")
