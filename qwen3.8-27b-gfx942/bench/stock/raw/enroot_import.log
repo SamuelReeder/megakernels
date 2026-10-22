@@ -1,0 +1,40 @@
+[INFO] Querying registry for permission grant
+[INFO] Authenticating with user: <anonymous>
+[INFO] Authentication succeeded
+[INFO] Fetching image manifest list
+[INFO] Fetching image manifest
+[INFO] Downloading 33 missing layers...
+[INFO] Extracting image layers...
+[INFO] Converting whiteouts...
+[INFO] Creating squashfs filesystem...
+Parallel mksquashfs: Using 32 processors
+Creating 4.0 filesystem on /home/AMD/sareeder/mk/images/rocm+vllm+rocm10.1.0_vllm-0.29.0.sqsh, block size 1048576.
+
+Exportable Squashfs 4.0 filesystem, zstd compressed, data block size 1048576
+	compressed data, compressed metadata, compressed fragments,
+	compressed xattrs, compressed ids
+	duplicates are removed
+Filesystem size 24311641.03 Kbytes (23741.84 Mbytes)
+	36.43% of uncompressed filesystem size (66738816.56 Kbytes)
+Inode table size 2274037 bytes (2220.74 Kbytes)
+	26.14% of uncompressed inode table size (8698200 bytes)
+Directory table size 2651947 bytes (2589.79 Kbytes)
+	31.12% of uncompressed directory table size (8520326 bytes)
+Xattr table size 25 bytes (0.02 Kbytes)
+	119.05% of uncompressed xattr table size (21 bytes)
+Number of duplicate files found 61109
+Number of inodes 254246
+Number of files 214461
+Number of fragments 5189
+Number of symbolic links 2977
+Number of device nodes 0
+Number of fifo nodes 0
+Number of socket nodes 0
+Number of directories 36808
+Number of hard-links 3779
+Number of ids (unique uids + gids) 1
+Number of uids 1
+	root (0)
+Number of gids 1
+	root (0)
+EXIT 0

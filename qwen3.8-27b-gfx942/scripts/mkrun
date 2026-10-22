@@ -1,0 +1,16 @@
+#!/bin/bash
+# Sync this repo to Alola and run a command in the held gfx942 allocation.
+# Usage: scripts/mkrun [-j JOBID] '<shell command run in ~/mk/src>'
+# JOBID defaults to $MK_JOB or the running job named mkdev.
+set -euo pipefail
+here=$(cd "$(dirname "$0")/.." && pwd)
+job=${MK_JOB:-}
+if [ "${1:-}" = "-j" ]; then job=$2; shift 2; fi
+if [ -z "$job" ]; then job=$(ssh -o BatchMode=yes alola 'squeue -h -u $USER -n mkdev -t R -o %i | head -1'); fi
+[ -n "$job" ] || { echo "no mkdev allocation" >&2; exit 2; }
+rsync -a --delete --exclude .git --exclude __pycache__ "$here/" alola:mk/src/
+cmd="$*"
+ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=${MK_TIME:-20} \
+  --container-image=/cluster/images/hipdnn/hipdnn_latest_gfx942.sqsh \
+  --container-mounts=/cluster:/cluster,/home/AMD/sareeder:/home/AMD/sareeder \
+  --container-name=mk bash -lc 'export PIP_CACHE_DIR=/tmp/pipcache FLYDSL_RUNTIME_ENABLE_CACHE=0; [ -f \$HOME/mk/venv/bin/activate ] && . \$HOME/mk/venv/bin/activate; cd \$HOME/mk/src && $cmd' 2>&1"

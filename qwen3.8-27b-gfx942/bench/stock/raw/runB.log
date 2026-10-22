@@ -1,0 +1,98 @@
+srun: job 68149167 queued and waiting for resources
+srun: job 68149167 has been allocated resources
+===== Qwen3.8-27B 2026-10-22T17:59:28-04:00
+date: 2026-10-22T17:59:28-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.22.post2.dev0+gb4d9154d1.d20261002;rocm 10.1.0;rocm-bootstrap 0.3.0;rocm-sdk-core 10.1.0;rocm-sdk-devel 10.1.0;rocm-sdk-device-gfx1010 10.1.0;rocm-sdk-device-gfx1011 10.1.0;rocm-sdk-device-gfx1012 10.1.0;rocm-sdk-device-gfx1030 10.1.0;rocm-sdk-device-gfx1031 10.1.0;rocm-sdk-device-gfx1032 10.1.0;rocm-sdk-device-gfx1033 10.1.0;rocm-sdk-device-gfx1034 10.1.0;rocm-sdk-device-gfx1035 10.1.0;rocm-sdk-device-gfx1036 10.1.0;rocm-sdk-device-gfx1100 10.1.0;rocm-sdk-device-gfx1101 10.1.0;rocm-sdk-device-gfx1102 10.1.0;rocm-sdk-device-gfx1103 10.1.0;rocm-sdk-device-gfx1150 10.1.0;rocm-sdk-device-gfx1151 10.1.0;rocm-sdk-device-gfx1152 10.1.0;rocm-sdk-device-gfx1153 10.1.0;rocm-sdk-device-gfx1200 10.1.0;rocm-sdk-device-gfx1201 10.1.0;rocm-sdk-device-gfx1250 10.1.0;rocm-sdk-device-gfx908 10.1.0;rocm-sdk-device-gfx90a 10.1.0;rocm-sdk-device-gfx942 10.1.0;rocm-sdk-device-gfx950 10.1.0;rocm-sdk-libraries 10.1.0;triton 3.8.0+git669b31ac.rocm10.1.0
+vllm 0.29.1.dev0+g98dff2a81.d20261002
+torch 2.13.0+rocm10.1.0 hip 7.16.26385
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_NO_SCRATCH_RECLAIM=1
+VLLM_ROCM_USE_AITER=1
+serve args: 
+server ready 2026-10-22T18:03:34-04:00
+[warmup] Output token throughput (tok/s):         330.03    
+[warmup] Median TTFT (ms):                        546.94    
+[warmup] Median TPOT (ms):                        21.58     
+[warmup] Median ITL (ms):                         21.57     
+[c1] Output token throughput (tok/s):         60.42     
+[c1] Median TTFT (ms):                        95.16     
+[c1] Median TPOT (ms):                        16.25     
+[c1] Median ITL (ms):                         16.26     
+[c2] Output token throughput (tok/s):         107.13    
+[c2] Median TTFT (ms):                        163.81    
+[c2] Median TPOT (ms):                        18.05     
+[c2] Median ITL (ms):                         18.05     
+[c4] Output token throughput (tok/s):         186.17    
+[c4] Median TTFT (ms):                        267.14    
+[c4] Median TPOT (ms):                        20.54     
+[c4] Median ITL (ms):                         20.52     
+[c8] Output token throughput (tok/s):         339.67    
+[c8] Median TTFT (ms):                        486.02    
+[c8] Median TPOT (ms):                        21.74     
+[c8] Median ITL (ms):                         21.74     
+[c1_rep2] Output token throughput (tok/s):         60.04     
+[c1_rep2] Median TTFT (ms):                        94.67     
+[c1_rep2] Median TPOT (ms):                        16.35     
+[c1_rep2] Median ITL (ms):                         16.35     
+[c1_rep3] Output token throughput (tok/s):         59.85     
+[c1_rep3] Median TTFT (ms):                        102.64    
+[c1_rep3] Median TPOT (ms):                        16.38     
+[c1_rep3] Median ITL (ms):                         16.39     
+done /home/AMD/sareeder/mk/models/Qwen3.8-27B 2026-10-22T18:08:44-04:00
+===== Qwen3.8-27B-FP8 2026-10-22T18:08:44-04:00
+date: 2026-10-22T18:08:44-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.22.post2.dev0+gb4d9154d1.d20261002;rocm 10.1.0;rocm-bootstrap 0.3.0;rocm-sdk-core 10.1.0;rocm-sdk-devel 10.1.0;rocm-sdk-device-gfx1010 10.1.0;rocm-sdk-device-gfx1011 10.1.0;rocm-sdk-device-gfx1012 10.1.0;rocm-sdk-device-gfx1030 10.1.0;rocm-sdk-device-gfx1031 10.1.0;rocm-sdk-device-gfx1032 10.1.0;rocm-sdk-device-gfx1033 10.1.0;rocm-sdk-device-gfx1034 10.1.0;rocm-sdk-device-gfx1035 10.1.0;rocm-sdk-device-gfx1036 10.1.0;rocm-sdk-device-gfx1100 10.1.0;rocm-sdk-device-gfx1101 10.1.0;rocm-sdk-device-gfx1102 10.1.0;rocm-sdk-device-gfx1103 10.1.0;rocm-sdk-device-gfx1150 10.1.0;rocm-sdk-device-gfx1151 10.1.0;rocm-sdk-device-gfx1152 10.1.0;rocm-sdk-device-gfx1153 10.1.0;rocm-sdk-device-gfx1200 10.1.0;rocm-sdk-device-gfx1201 10.1.0;rocm-sdk-device-gfx1250 10.1.0;rocm-sdk-device-gfx908 10.1.0;rocm-sdk-device-gfx90a 10.1.0;rocm-sdk-device-gfx942 10.1.0;rocm-sdk-device-gfx950 10.1.0;rocm-sdk-libraries 10.1.0;triton 3.8.0+git669b31ac.rocm10.1.0
+vllm 0.29.1.dev0+g98dff2a81.d20261002
+torch 2.13.0+rocm10.1.0 hip 7.16.26385
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_NO_SCRATCH_RECLAIM=1
+VLLM_ROCM_USE_AITER=1
+serve args: 
+server ready 2026-10-22T18:12:55-04:00
+[warmup] Output token throughput (tok/s):         388.39    
+[warmup] Median TTFT (ms):                        770.13    
+[warmup] Median TPOT (ms):                        17.12     
+[warmup] Median ITL (ms):                         17.09     
+[c1] Output token throughput (tok/s):         62.62     
+[c1] Median TTFT (ms):                        121.27    
+[c1] Median TPOT (ms):                        15.56     
+[c1] Median ITL (ms):                         15.56     
+[c2] Output token throughput (tok/s):         114.65    
+[c2] Median TTFT (ms):                        204.41    
+[c2] Median TPOT (ms):                        16.71     
+[c2] Median ITL (ms):                         16.66     
+[c4] Output token throughput (tok/s):         212.67    
+[c4] Median TTFT (ms):                        403.37    
+[c4] Median TPOT (ms):                        17.30     
+[c4] Median ITL (ms):                         17.31     
+[c8] Output token throughput (tok/s):         397.34    
+[c8] Median TTFT (ms):                        778.07    
+[c8] Median TPOT (ms):                        17.15     
+[c8] Median ITL (ms):                         17.18     
+[c1_rep2] Output token throughput (tok/s):         62.57     
+[c1_rep2] Median TTFT (ms):                        116.41    
+[c1_rep2] Median TPOT (ms):                        15.58     
+[c1_rep2] Median ITL (ms):                         15.58     
+[c1_rep3] Output token throughput (tok/s):         62.54     
+[c1_rep3] Median TTFT (ms):                        119.28    
+[c1_rep3] Median TPOT (ms):                        15.58     
+[c1_rep3] Median ITL (ms):                         15.58     
+done /home/AMD/sareeder/mk/models/Qwen3.8-27B-FP8 2026-10-22T18:17:48-04:00
