@@ -14,7 +14,7 @@ from flydsl.expr import const_expr, gpu, range_constexpr
 from flydsl.expr.typing import T
 
 from . import dev as D
-from .dims import H
+from .dims import CONV_DIM, H, INP_N
 
 NT = 512   # threads per CTA (set by the kernel builder before tracing)
 
@@ -54,6 +54,8 @@ def prologue_norm(c, g, xq, xs, red, h, ssq, lnw, eps):
     M, K = g.M, g.K
     assert K == H and g.kind == "mx"
     tid = c["tid"]
+    D.PROBE["on"] = D.PROBE.get("stage") == g.name
+    D.probe(c, 5)
     zero_xs_tail(c, g, xs)
     rh, rw = D.rsrc(h), D.rsrc(lnw)
     ch0 = g.chunk0(c["bid"])
@@ -68,7 +70,9 @@ def prologue_norm(c, g, xq, xs, red, h, ssq, lnw, eps):
             k0 = cb + kc
             raw.append((sl, i, t, kc, D.ld(rh, t * K + k0, 4, T.f32, D.CM_DEV),
                         D.ld(rh, t * K + k0 + 4, 4, T.f32, D.CM_DEV), D.ld(rw, k0 // 2, 4)))
+    D.probe(c, 6)
     rstd_from_ssq(c, M, ssq, red, eps)
+    D.probe(c, 7)
     for sl, i, t, kc, a, b, wv in raw:
         rs = fx.ptr_load(red + t)
         f = []
@@ -77,6 +81,7 @@ def prologue_norm(c, g, xq, xs, red, h, ssq, lnw, eps):
         hv = [a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3]]
         x = [hv[e] * rs * (fx.Float32(1.0) + f[e]) for e in range(8)]
         store_quant8(c, g, xq, xs, x, t, sl * g.Kc + kc, tid + NT * i < nch)
+    D.probe(c, 8)
     gpu.barrier()
 
 
@@ -186,6 +191,47 @@ def _epi_res(c, M, grp, tot, hin, h_out, ssq_out):
                 D.st(s, rq, tt * ng + grp, D.CM_DEV)
 
 
+class EpiConv:
+    """in_proj epilogue: y[:, n] = tot for the z / b / a columns; for the q / k / v
+    channels (n < CONV_DIM) the causal depthwise conv (4 taps over the 3 stored inputs
+    and this one) + SiLU, and the conv state [M][CONV_DIM][4] (3 used) shifts by one.
+    Each channel has one last arriver, so its state is read and written by one thread.
+    pre(grp) loads the state and the taps with the GEMV's partial loads."""
+
+    def __init__(self, c, M, y, conv, convw):
+        self.c, self.M, self.y, self.conv, self.convw = c, M, y, conv, convw
+
+    def pre(self, grp):
+        n = fx.min(grp * 16 + self.c["col"], CONV_DIM - 1)
+        rs = D.rsrc(self.conv)
+        st = [D.ld(rs, (fx.min(4 * self.c["gl"] + r, self.M - 1) * CONV_DIM + n) * 4, 4, T.f32)
+              for r in range(4)]
+        return st, D.ld(D.rsrc(self.convw), n * 2, 2)
+
+    def __call__(self, grp, tots, pre):
+        _epi_conv(self.c, self.M, grp, tots[0], pre, self.y, self.conv)
+
+
+@D.traced
+def _epi_conv(c, M, grp, tot, pre, y, conv):
+    st, wv = pre
+    col = c["col"]
+    n = grp * 16 + col
+    isconv = grp < CONV_DIM // 16
+    taps = [D.bf_lo(wv[0]), D.bf_hi(wv[0]), D.bf_lo(wv[1]), D.bf_hi(wv[1])]
+    ry, rs = D.rsrc(y), D.rsrc(conv)
+    for r in range_constexpr(4):
+        t = 4 * c["gl"] + r
+        v = tot[r]
+        acc = st[r][0] * taps[0] + st[r][1] * taps[1] + st[r][2] * taps[2] + v * taps[3]
+        out = isconv.select(D.silu(acc), v)
+        if t < M:
+            D.st(out, ry, t * INP_N + n, D.CM_DEV)
+            if isconv:
+                D.st(fx.Vector.from_elements([st[r][1], st[r][2], v, fx.Float32(0.0)], fx.Float32), rs,
+                     (t * CONV_DIM + n) * 4)
+
+
 @D.traced
 def epi_raw(c, M, N, grp, tot, out):
     """out[:, 16 grp + col] = tot (fp32 [M][N])."""
@@ -278,7 +324,9 @@ def prologue_norm_bf16(c, g, xq, red, h, ssq, lnw, eps):
             k0 = cb + kc
             raw.append((sl, i, t, kc, D.ld(rh, t * K + k0, 4, T.f32, D.CM_DEV),
                         D.ld(rh, t * K + k0 + 4, 4, T.f32, D.CM_DEV), D.ld(rw, k0 // 2, 4)))
+    D.probe(c, 6)
     rstd_from_ssq(c, M, ssq, red, eps)
+    D.probe(c, 7)
     for sl, i, t, kc, a, b, wv in raw:
         rs = fx.ptr_load(red + t)
         f = []

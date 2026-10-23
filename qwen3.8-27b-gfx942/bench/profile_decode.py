@@ -65,7 +65,13 @@ for k, v in rows.items():
     print(f"{k:6} {len(v):3d} {sp:8.1f} {stt.median(r[1] for r in v):8.1f} {stt.median(r[2] for r in v):10.2f} "
           f"{sum(r[0] for r in v):11.1f}")
 print(f"sum of spans + barriers {acc:.1f} us")
-if PSTAGE == "attn":
+if PSTAGE == "gdn":
+    pr = probes.double().cpu() / 100.0 - t0
+    act = pr[:, 4] > pr[:, 4].max() - 200      # waves that ran a task in the last GDN layer
+    for k, nm in ((4, "task start"), (5, "inputs+conv"), (6, "state loaded"), (7, "task end")):
+        v = pr[act, k]
+        print(f"gdn {nm:13}: min {v.min():.1f} med {v.median():.1f} max {v.max():.1f} us (n {int(act.sum())})")
+elif PSTAGE == "attn":
     pr = probes.double().cpu() / 100.0 - t0
     act = pr[:, 4] > 0
     names = ["start", "q/k prep", "QK", "softmax+PV", "record+atomic", "merge"]
@@ -78,7 +84,8 @@ elif PSTAGE:
     b = max(i for i, n in enumerate(names) if n == PSTAGE)      # the probed (last) instance
     print(f"{PSTAGE} timeline (us from its barrier's last release): ")
     rel = p[b, :, 1].max().item()
-    for nm, v in (("first release", p[b, :, 1].min()), ("stream start", pr[:, 0]), ("stream end", pr[:, 1]),
+    for nm, v in (("first release", p[b, :, 1].min()), ("prologue", pr[:, 5]), ("loads issued", pr[:, 6]),
+                  ("rstd done", pr[:, 7]), ("quantized", pr[:, 8]), ("stream start", pr[:, 0]), ("stream end", pr[:, 1]),
                   ("hand-off end", pr[:, 2]), ("next arrival", p[b + 1, :, 0]), ("next release", p[b + 1, :, 1])):
         v = torch.as_tensor(v)
         print(f"  {nm:14} med {v.median().item() - rel:6.1f} max {v.max().item() - rel:6.1f}")

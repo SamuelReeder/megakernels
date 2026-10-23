@@ -1,17 +1,16 @@
 """Token mixers of the megakernel: the Gated DeltaNet core and full attention.
 
-Both run as wave tasks between two grid barriers (inputs: the raw fp32 output of
-the in_proj / qkv GEMV; outputs: an fp32 vector the next GEMV prologue quantizes).
+Both run as wave tasks between two grid barriers (inputs: the fp32 output of the
+in_proj / qkv GEMV; outputs: an fp32 vector the next GEMV prologue quantizes).
 
-GDN task (row m, value head h, chunk c of 16 value rows), one wave:
-  lanes 0..31: conv + silu + l2norm of q_j (j = h // 3), 4 channels a lane;
-  lanes 32..63: the same for k_j. q, k -> wave LDS.
-  lanes 0..15: conv + silu of value channel 16 c + lane; lanes 16..31: z.
+GDN task (row m, value head h, chunk c of 16 value rows), one wave. The in_proj
+epilogue (stages.EpiConv) has already applied the causal conv + SiLU to the q/k/v
+channels and shifted the conv state.
+  lanes 0..31: l2norm of q_j (j = h // 3), 4 channels a lane; lanes 32..63: k_j.
+  q, k -> wave LDS. lanes 0..15: value channel 16 c + lane; lanes 16..31: z.
   recurrence: lane l -> value row r = l // 4, k quarter l % 4 (32 fp32 of the state).
   y[m][128 h + 16 c + r] = o * norm_w * silu(z) (not yet divided by the head RMS);
   ssq[m][h][c] = sum of o^2 over the 16 rows (the out_proj prologue finishes the norm).
-Conv state: double buffered by step parity (read buffer s % 2, write the other); the
-task with h % 3 == 0, c == 0 writes the q_j, k_j channels, every task its 16 v channels.
 
 Attention task (row m, kv head j, chunk ci of CH positions), one wave:
   q (6 heads) and k_new: zero-centred RMSNorm over 256, NeoX RoPE on dims 0..63.
@@ -40,56 +39,35 @@ GQ = NQ // NKV          # 6 q heads per kv head
 
 # ------------------------------------------------------------------ GDN
 @D.traced
-def gdn_task(c, M, task, y_in, cw, conv_r, conv_w, a_log, dt_bias, norm_w, ssm, y_out, ssq_out,
-             wl):
-    """One (m, h, chunk) task. wl: this wave's LDS (256 floats: q[128] k[128])."""
+def gdn_task(c, M, task, y_in, a_log, dt_bias, norm_w, ssm, y_out, ssq_out, wl):
+    """One (m, h, chunk) task. y_in: the in_proj output with the causal conv + SiLU
+    already applied to the q/k/v channels (S.EpiConv). wl: this wave's LDS (256
+    floats: q[128] k[128])."""
     lane = c["lane"]
+    D.PROBE["on"] = D.PROBE.get("stage") == "gdn"
+    D.probe(c, 4)
     m = task // (NVH * 8)
     h = task % (NVH * 8) // 8
     ch = task % 8
     j = h // 3
-    ry, rc, rcr, rcw = D.rsrc(y_in), D.rsrc(cw), D.rsrc(conv_r), D.rsrc(conv_w)
+    ry = D.rsrc(y_in)
     ybase = m * INP_N
-    cbase = m * CONV_DIM * 3
     # ---- q_j / k_j: lane l < 32 -> q channels 4l..4l+3, l >= 32 -> k channels 4(l-32)..
     isk = lane >= 32
     ci = (lane % 32) * 4
-    chan = isk.select(K_OFF + j * DK + ci, Q_OFF + j * DK + ci)   # conv channel = in_proj col
-    xin = D.ld(ry, ybase + chan, 4, T.f32, D.CM_DEV)
-    sv = []
-    for e in range_constexpr(4):
-        sv.append([D.ldf(rcr, cbase + (chan + e) * 3 + t) for t in range(3)])
-    wv = [D.ld(rc, (chan + e) * 2, 2) for e in range(4)]            # 4 bf16 taps = 2 dwords
-    yv = []
-    for e in range_constexpr(4):
-        taps = [D.bf_lo(wv[e][0]), D.bf_hi(wv[e][0]), D.bf_lo(wv[e][1]), D.bf_hi(wv[e][1])]
-        acc = sv[e][0] * taps[0] + sv[e][1] * taps[1] + sv[e][2] * taps[2] + xin[e] * taps[3]
-        yv.append(D.silu(acc))
+    chan = isk.select(K_OFF + j * DK + ci, Q_OFF + j * DK + ci)
+    yq = D.ld(ry, ybase + chan, 4, T.f32, D.CM_DEV)
+    yv = [yq[e] for e in range(4)]
     ss = yv[0] * yv[0] + yv[1] * yv[1] + yv[2] * yv[2] + yv[3] * yv[3]
     ss = D.xor_sum(ss, lane, (1, 2, 4, 8, 16))
     rn = D.rsq(ss + fx.Float32(1e-6))
     qs = isk.select(fx.Float32(1.0), fx.Float32(1.0 / math.sqrt(DK)))
     for e in range_constexpr(4):
         fx.ptr_store(yv[e] * rn * qs, wl + (isk.select(DK, 0) + ci + e))
-    # conv state of the q_j / k_j channels: written once per k head
-    if (h % 3 == 0) & (ch == 0):
-        nv = []
-        for e in range_constexpr(4):
-            nv += [sv[e][1], sv[e][2], xin[e]]
-        for q in range_constexpr(3):
-            D.st(fx.Vector.from_elements(nv[4 * q:4 * q + 4], fx.Float32), rcw, cbase + chan * 3 + 4 * q)
     # ---- v / z of this chunk: lane < 16 -> v channel, 16..31 -> z
     vr = lane % 16
     vch = V_OFF + h * 128 + ch * 16 + vr
-    vx = D.ldf(ry, ybase + vch, cm=D.CM_DEV)
-    vs = [D.ldf(rcr, cbase + vch * 3 + t) for t in range(3)]
-    vw = D.ld(rc, vch * 2, 2)
-    vacc = vs[0] * D.bf_lo(vw[0]) + vs[1] * D.bf_hi(vw[0]) + vs[2] * D.bf_lo(vw[1]) + vx * D.bf_hi(vw[1])
-    vval = D.silu(vacc)
-    if lane < 16:
-        D.st(vs[1], rcw, cbase + vch * 3)
-        D.st(vs[2], rcw, cbase + vch * 3 + 1)
-        D.st(vx, rcw, cbase + vch * 3 + 2)
+    vval = D.ldf(ry, ybase + vch, cm=D.CM_DEV)
     zval = D.ldf(ry, ybase + Z_OFF + h * 128 + ch * 16 + vr, cm=D.CM_DEV)
     bval = D.ldf(ry, ybase + B_OFF + h, cm=D.CM_DEV)
     aval = D.ldf(ry, ybase + A_OFF + h, cm=D.CM_DEV)
@@ -100,6 +78,7 @@ def gdn_task(c, M, task, y_in, cw, conv_r, conv_w, a_log, dt_bias, norm_w, ssm, 
     decay = D.expf(-D.expf(alog) * sp)
     beta = D.sigmoid(bval)
     # q/k reach the other lanes through this wave's LDS: a wave's LDS ops run in order
+    D.probe(c, 5)
     # ---- recurrence: lane -> row r = lane // 4, k quarter kq = lane % 4
     r = lane // 4
     kq = lane % 4
@@ -108,6 +87,7 @@ def gdn_task(c, M, task, y_in, cw, conv_r, conv_w, a_log, dt_bias, norm_w, ssm, 
     S = [D.ld(rs, sbase + 4 * i, 4, T.f32, D.CM_NT) for i in range(8)]
     kk = [fx.ptr_load(wl + (DK + kq * 32 + e)) for e in range(32)]
     qq = [fx.ptr_load(wl + (kq * 32 + e)) for e in range(32)]
+    D.probe(c, 6)
     kv = fx.Float32(0.0)
     for i in range_constexpr(8):
         for e in range_constexpr(4):
@@ -135,6 +115,7 @@ def gdn_task(c, M, task, y_in, cw, conv_r, conv_w, a_log, dt_bias, norm_w, ssm, 
         D.st(y, D.rsrc(y_out), m * NVH * 128 + h * 128 + ch * 16 + r, D.CM_DEV)
     if lane == 0:
         D.st(s2, D.rsrc(ssq_out), (m * NVH + h) * 8 + ch, D.CM_DEV)
+    D.probe(c, 7)
 
 
 # ------------------------------------------------------------------ attention

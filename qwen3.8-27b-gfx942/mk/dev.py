@@ -74,16 +74,38 @@ def gather_f(v, src_lane):
     return gather(fx.Float32(v).bitcast(fx.Int32), src_lane).bitcast(fx.Float32)
 
 
-def xor_sum(v, lane, offs):
+# Butterfly steps inside a 16-lane row as DPP (no LDS round trip). Steps 1 and 2 are
+# exact xor partners; 4 and 8 use the row mirrors, which pair the right lanes once the
+# smaller steps are done (so only a prefix 1, 2, 4, 8 of a full reduction uses DPP).
+_DPP = ((1, "quad_perm:[1,0,3,2]"), (2, "quad_perm:[2,3,0,1]"), (4, "row_half_mirror"), (8, "row_mirror"))
+
+
+def _dpp(op, v, ctrl):
+    # s_nop 1: a DPP read of a VGPR that a VALU op just wrote needs 2 wait states
+    return fx.Float32(llvm.InlineAsmOp(
+        T.f32, [fx.Float32(v).ir_value()],
+        f"s_nop 1\n{op}_dpp $0, $1, $1 {ctrl} row_mask:0xf bank_mask:0xf", "=v,v").result)
+
+
+def _reduce(v, lane, offs, op, comb):
+    offs = list(offs)
+    for o, ctrl in _DPP:
+        if not offs or offs[0] != o:
+            break
+        v = _dpp(op, v, ctrl)
+        offs.pop(0)
     for o in offs:
-        v = v + gather_f(v, lane ^ o)
+        v = comb(v, gather_f(v, lane ^ o))
     return v
+
+
+def xor_sum(v, lane, offs):
+    """Sum over the lanes lane ^ (any subset sum of offs); every lane gets it."""
+    return _reduce(v, lane, offs, "v_add_f32", lambda a, b: a + b)
 
 
 def xor_max(v, lane, offs):
-    for o in offs:
-        v = fx.max(v, gather_f(v, lane ^ o))
-    return v
+    return _reduce(v, lane, offs, "v_max_f32", fx.max)
 
 
 def absf(v):

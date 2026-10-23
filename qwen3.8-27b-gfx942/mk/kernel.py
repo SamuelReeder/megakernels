@@ -85,7 +85,6 @@ def build(cfg: Cfg):
     GDN_W = 256
     NTASK_G = M * NVH * 8
     NTASK_A = M * NKV * cfg.ncmax
-    CONV_TOT = (NL * 3 // 4) * M * CONV_DIM * 3 * 4    # bytes of one conv-state parity buffer
 
     @fx.struct
     class GemvLds:
@@ -110,7 +109,7 @@ def build(cfg: Cfg):
         return (fx.Int64(D.uniform(v[1])) << 32) | fx.Int64(fx.Uint32(D.uniform(v[0])))
 
     @flyc.kernel(name=f"qwen38_decode_m{M}_l{cfg.maxlen}", known_block_size=[NT, 1, 1])
-    def kdec(tab: Int64, glob: Int64, epoch: Int32, parity: Int32, nlayers: Int32):
+    def kdec(tab: Int64, glob: Int64, epoch: Int32, nlayers: Int32):
         tid = fx.thread_idx.x
         bid = fx.block_idx.x
         lane = tid % 64
@@ -184,7 +183,7 @@ def build(cfg: Cfg):
                             gw_l, NTASK_A, cfg)
             else:
                 _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, barrier_then,
-                           gw_l, NTASK_G, parity, CONV_TOT)
+                           gw_l, NTASK_G)
             if const_expr(STOP[0] >= 4):
                 _mlp(c, SP, T, e0 + 3, xq, xs, red, hb0, hb1, q0, q1, part, cnt, barrier_then, G)
         c.clear()
@@ -199,9 +198,9 @@ def build(cfg: Cfg):
             stamp(((nlayers * 5 + 1) * CUS + bid) * 2)
 
     @flyc.jit
-    def launch(tab: Int64, glob: Int64, epoch: Int32, parity: Int32, nlayers: Int32,
+    def launch(tab: Int64, glob: Int64, epoch: Int32, nlayers: Int32,
                stream: fx.Stream = fx.Stream(None)):
-        kdec(tab, glob, epoch, parity, nlayers).launch(grid=(CUS,), block=(NT,), stream=stream)
+        kdec(tab, glob, epoch, nlayers).launch(grid=(CUS,), block=(NT,), stream=stream)
 
     return launch
 
@@ -212,7 +211,7 @@ def barriers_per_step(nlayers):
 
 @D.traced
 def _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, barrier_then, gw,
-               ntask, parity, conv_tot):
+               ntask):
     M = c_M(SP)
     inp, out = SP["inp"], SP["out"]
     y, y2, hssq = G[G_Y], G[G_Y2], G[G_HSSQ]
@@ -220,17 +219,13 @@ def _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, ba
     w, buf = barrier_then(inp, T(T_MIX_T), T(T_MIX_S), e0)
     S.prologue_norm(c, inp, xq, xs, red, hb0, q0, T(T_IN_LN), EPS)
     if const_expr(inp.name not in SKIP):
-        inp.run(c, w, buf, part, cnt("inp"), lambda cg, tots: S.epi_raw(c, M, INP_N, cg, tots[0], y))
+        inp.run(c, w, buf, part, cnt("inp"), S.EpiConv(c, M, y, T(T_CONV), T(T_CONVW)))
     if const_expr(STOP[0] < 2):
         return
     # GDN core
     barrier_then(None, None, None, e0 + 1)
-    conv = T(T_CONV)
-    conv_r = conv + fx.Int64(parity) * conv_tot
-    conv_w = conv + fx.Int64(1 - parity) * conv_tot
     for t in range(gw, (ntask, 0)["gdn" in SKIP], c["cus"] * WAVES):
-        X.gdn_task(c, M, t, y, T(T_CONVW), conv_r, conv_w, T(T_ALOG), T(T_DTB), T(T_NORMW), T(T_SSM),
-                   y2, hssq, wl)
+        X.gdn_task(c, M, t, y, T(T_ALOG), T(T_DTB), T(T_NORMW), T(T_SSM), y2, hssq, wl)
     if const_expr(STOP[0] < 3):
         return
     # out_proj (+ residual)

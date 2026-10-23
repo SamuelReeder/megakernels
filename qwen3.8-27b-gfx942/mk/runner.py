@@ -37,11 +37,10 @@ class Engine:
         self.logits = z(M, VOCAB)
         cos, sin = rope_cos_sin(torch.arange(maxlen, device=device))
         self.rope = torch.cat([cos[:, :32], sin[:, :32]], 1).contiguous()
-        self.conv = z(2, ng, M, CONV_DIM, 3)
+        self.conv = z(ng, M, CONV_DIM, 4)       # 3 stored conv inputs per channel (+1 pad)
         self.ssm = z(ng, M, NVH, DV, DK)
         self.kc = z(na, M, NKV, maxlen, HD, dt=torch.bfloat16)
         self.vc = z(na, M, NKV, maxlen, HD, dt=torch.bfloat16)
-        self.conv_tot = self.conv[0].numel() * 4
         g = [0] * KK.NGLOB
         g[KK.G_EMBED], g[KK.G_LM], g[KK.G_FNORM] = PK.embed.data_ptr(), PK.lm_head.data_ptr(), PK.final_norm.data_ptr()
         g[KK.G_ROPE], g[KK.G_HB], g[KK.G_SSQ] = self.rope.data_ptr(), self.hb.data_ptr(), self.ssq.data_ptr()
@@ -65,7 +64,7 @@ class Engine:
                 ot, os_ = PK.mats[(i, "out")]
                 tab[i, KK.T_ALOG], tab[i, KK.T_DTB] = sm("linear_attn.A_log"), sm("linear_attn.dt_bias")
                 tab[i, KK.T_CONVW], tab[i, KK.T_NORMW] = sm("linear_attn.conv1d.weight"), sm("linear_attn.norm.weight")
-                tab[i, KK.T_CONV], tab[i, KK.T_SSM] = self.conv[0, gi].data_ptr(), self.ssm[gi].data_ptr()
+                tab[i, KK.T_CONV], tab[i, KK.T_SSM] = self.conv[gi].data_ptr(), self.ssm[gi].data_ptr()
                 gi += 1
             gt, gs = PK.mats[(i, "gu")]
             dt, ds = PK.mats[(i, "down")]
@@ -86,7 +85,7 @@ class Engine:
         """One decode step for all M rows. tok: [M] int. Returns fp32 logits [M, VOCAB]
         (a view, overwritten by the next step)."""
         self.tok.copy_(tok.to(torch.int32))
-        self.launch(self.tab.data_ptr(), self.glob.data_ptr(), self.epoch, self.step_no % 2, self.layers,
+        self.launch(self.tab.data_ptr(), self.glob.data_ptr(), self.epoch, self.layers,
                     stream=stream or torch.cuda.current_stream())
         self.epoch += KK.barriers_per_step(self.layers) + 1
         self.step_no += 1
