@@ -7,14 +7,16 @@ Per layer the GEMVs are:
               o    = o_proj                                           (5120 x 6144)
   every layer gu   = [gate_proj | up_proj]                            (34816 x 5120)
               down = down_proj                                        (5120 x 17408)
-MXFP4 GEMVs use the mk4 layout of mk/fp4.py. The LM head stays bf16, packed for
-v_mfma_f32_16x16x16_bf16 (see pack_bf16). Small tensors stay as in the checkpoint.
+MXFP4 GEMVs use the mk4 tiles of mk/fp4.py. The LM head stays bf16, packed for
+v_mfma_f32_16x16x16_bf16 (see pack_bf16). Tiles are stored in the GEMV stream's unit
+order (unit_order). Small tensors stay as in the checkpoint.
 """
 from __future__ import annotations
 
 import torch
 
 from . import fp4
+from .gemv import CHUNKS, PAD_TILES
 from .dims import NL, is_attn
 
 L = "model.language_model.layers.{}."
@@ -41,6 +43,15 @@ GEMVS = {
              "o": ["self_attn.o_proj"]},
     "mlp": {"gu": ["mlp.gate_proj", "mlp.up_proj"], "down": ["mlp.down_proj"]},
 }
+
+
+def unit_order(t: torch.Tensor, C: int) -> torch.Tensor:
+    """[G, KS, ...] per-(group, superstep) tiles -> the GEMV stream's unit order (chunk,
+    group, superstep), flat [C G KSc, ...], plus PAD_TILES zero tiles (loads run ahead)."""
+    G, KS = t.shape[:2]
+    u = t.reshape(G, C, KS // C, *t.shape[2:]).transpose(0, 1).reshape(G * KS, *t.shape[2:])
+    pad = torch.zeros(PAD_TILES, *t.shape[2:], dtype=t.dtype, device=t.device)
+    return torch.cat([u, pad]).contiguous()
 
 
 def pack_bf16(w: torch.Tensor) -> torch.Tensor:
@@ -70,9 +81,11 @@ class Packed:
                     if name == "gu":
                         w, s = gu_order(w), gu_order(s)
                     tiles, scales = fp4.repack(w.to(device), s.to(device))
+                    C = CHUNKS.get(name, 1)
+                    tiles, scales = unit_order(tiles, C), unit_order(scales, C)
                     self.mats[(i, name)] = (tiles, scales)
                     self.keep += [tiles, scales]
-        self.lm_head = pack_bf16(W["lm_head.weight"].to(device))
+        self.lm_head = unit_order(pack_bf16(W["lm_head.weight"].to(device)), CHUNKS["lm"])
         self.embed = W["model.language_model.embed_tokens.weight"].to(device)
         self.final_norm = W["model.language_model.norm.weight"].to(device)
         self.keep += [self.lm_head, self.embed, self.final_norm]

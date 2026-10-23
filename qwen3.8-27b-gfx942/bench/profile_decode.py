@@ -75,6 +75,13 @@ if PSTAGE == "attn":
             print(f"attn {names[k - 4]:14} end: min {v.min():.1f} med {v.median():.1f} max {v.max():.1f} us (n {len(v)})")
 elif PSTAGE:
     pr = probes.double().cpu() / 100.0 - t0
+    b = max(i for i, n in enumerate(names) if n == PSTAGE)      # the probed (last) instance
+    print(f"{PSTAGE} timeline (us from its barrier's last release): ")
+    rel = p[b, :, 1].max().item()
+    for nm, v in (("first release", p[b, :, 1].min()), ("stream start", pr[:, 0]), ("stream end", pr[:, 1]),
+                  ("hand-off end", pr[:, 2]), ("next arrival", p[b + 1, :, 0]), ("next release", p[b + 1, :, 1])):
+        v = torch.as_tensor(v)
+        print(f"  {nm:14} med {v.median().item() - rel:6.1f} max {v.max().item() - rel:6.1f}")
     for k, nm in ((0, "stream start"), (1, "stream end"), (2, "hand-off end")):
         v = pr[:, k]
         print(f"{PSTAGE} {nm:13}: min {v.min():.1f} med {v.median():.1f} max {v.max():.1f} us")

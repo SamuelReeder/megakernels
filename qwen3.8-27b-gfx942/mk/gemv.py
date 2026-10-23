@@ -32,6 +32,9 @@ from . import fp4
 
 H4 = fp4.device_helpers()
 DBG_MODE = int(os.environ.get("MK_GEMV_MODE", "0"))   # debug: 1 = loads only (wrong results)
+CHUNKS = dict(out=2, o=2, down=4, lm=8)    # K chunks of the GEMVs (default 1); the packer follows
+CHUNKS.update({k: int(v) for k, v in (kv.split("=") for kv in os.environ.get("MK_CHUNKS", "").split(",") if kv)})
+PAD_TILES = 16                             # spare tiles after a packed matrix (>= 3 P - 1)
 
 
 @dataclass(frozen=True)
@@ -116,6 +119,7 @@ class Gemv:
     def check(self):
         assert self.N % 16 == 0 and self.K % 128 == 0 and self.KS % self.C == 0
         assert self.KSc >= self.P, "a pipeline block may cross at most one piece end"
+        assert PAD_TILES >= 3 * self.P - 1, "loads run up to 3 P - 1 units past the stream"
         assert (self.U + 1) * self.NW < 2 ** 31
         assert self.G % self.gpc == 0
         assert max(self.nseg_host(p) for p in range(self.C * self.G)) <= self.SEGMAX
@@ -131,43 +135,22 @@ class Gemv:
     def chunk0(self, bid):
         return self.cta_range(bid)[0] // (self.G * self.KSc)
 
-    # ---- unit cursors. A cursor (s, g, c) is unit u = (c G + g) KSc + s; streams step
-    # it by one unit with a few scalar ops (dividing u per unit made the loop bound by
-    # the CU's single scalar unit).
-    def cursor(self, u):
-        p = u // self.KSc
-        return (u % self.KSc, p % self.G, p // self.G)
-
-    def adv(self, cur):
-        s, g, c = cur
-        s1 = s + 1
-        ws = s1 == self.KSc
-        g1 = ws.select(g + 1, g)
-        wg = g1 == self.G
-        return (ws.select(fx.Int32(0), s1), wg.select(fx.Int32(0), g1), wg.select(c + 1, c))
-
-    def tile_of(self, cur):
-        """Tile index of the cursor's unit (clamped: cursors run past the last unit)."""
-        s, g, c = cur
-        return fx.min(g * self.KS + c * self.KSc + s, self.G * self.KS - 1)
-
-    def load(self, w, cur):
-        """The cursor unit's weight data for this lane."""
-        ti = self.tile_of(cur)
+    # ---- the stream. Tiles are packed in unit order (chunk, group, superstep), plus
+    # PAD_TILES spare tiles: unit u's data is tile u, so a load needs no index math.
+    def load(self, w, u):
+        """Unit u's weight data for this lane."""
         if const_expr(self.kind == "mx"):
-            tile = D.ld(w["rt"], (ti * 64 + w["lane"]) * 4, 4, cm=D.CM_NT)
-            sw = D.ld(w["rs"], ti * 16 + w["col"])
+            tile = D.ld(w["rt"], (u * 64 + w["lane"]) * 4, 4, cm=D.CM_NT)
+            sw = D.ld(w["rs"], u * 16 + w["col"])
             return tile, sw
         # bf16 (LM head, > 2 GiB): a 64-bit tile base per unit (wave-uniform)
-        rt = D.rsrc(w["tbase"] + fx.Int64(ti) * 4096)
+        rt = D.rsrc(w["tbase"] + fx.Int64(u) * 4096)
         return [D.ld(rt, (q * 64 + w["lane"]) * 4, 4, cm=D.CM_NT) for q in range(4)]
 
-    def compute(self, w, cur, ops):
-        """The cursor unit's contribution (4 floats: tokens 4 gl + r, column col of its
-        group). Units past the stream end read valid (clamped) x; their result is
-        discarded with a select (a multiply by 0 would keep NaN/inf)."""
-        s, g, c = cur
-        xo = fx.min((c - w["ch0"]) * self.KSc + s, self.slots * self.KSc - 1)   # x superstep in LDS
+    def compute(self, w, xo, ops):
+        """One unit's contribution (4 floats: tokens 4 gl + r, column col of its group).
+        xo: the unit's x superstep in LDS (always valid: dead units read real x, and
+        their result is dropped with a select; a multiply by 0 would keep NaN/inf)."""
         arow = w["arow"] + xo * (128 * self.esize)
         z4 = fx.Vector.filled(4, 0.0, fx.Float32)
         if const_expr(self.kind == "mx" and DBG_MODE == 1):     # debug: loads only
@@ -215,66 +198,72 @@ class Gemv:
         return w
 
     def first_loads(self, w):
-        """The first P units' loads; returns (buffers, load cursor after them)."""
-        cur = self.cursor(w["u0"])
-        buf = []
-        for p in range(self.P):
-            buf.append(self.load(w, cur))
-            cur = self.adv(cur)
-        return buf, cur
+        return [self.load(w, w["u0"] + p) for p in range(self.P)]
 
     @D.traced
     def run(self, c, w, buf, part, cnt, epilogue):
         """Stream this wave's units. buf: first_loads(). part/cnt: global addresses of
-        the partial slots and the group counters. epilogue(cg, [acc4] * gpc) runs in the
+        the partial slots and the group counters. epilogue(cg, [acc4] * gpc[, pre]) runs in the
         last arriver of counter group cg (groups cg * gpc ...), acc4 per lane: tokens
         4 gl + r of the group's column `col`."""
         P, KSc, G = self.P, self.KSc, self.G
         u0, u1 = w["u0"], w["u1"]
+        ch0 = w["ch0"]
+        XOMAX = self.slots * KSc - 1
         z4 = fx.Vector.filled(4, 0.0, fx.Float32)
         rp = D.rsrc(part)
 
-        def loads(lc):
-            out = []
-            for p in range_constexpr(P):
-                out.append(self.load(w, lc))
-                lc = self.adv(lc)
-            return out, lc
+        def add(acc, t, ok):
+            return fx.Vector.from_elements([ok.select(acc[r] + t[r], acc[r]) for r in range(4)], fx.Float32)
 
         @D.traced
-        def block(ub, cc, ops, acc_a, acc_b):
-            """P units from unit ub (compute cursor cc). acc_a: the piece of ub; acc_b:
-            the next piece (a block crosses at most one piece end)."""
-            nb = KSc - cc[0]                       # units of the block before the piece end
-            pa = cc[2] * G + cc[1]                 # piece of acc_a
-            for p in range_constexpr(P):
-                t = self.compute(w, cc, ops[p])
-                live = ub + p < u1
-                ia = live & (nb > p)
-                ib = live & (nb <= p)
-                acc_a = fx.Vector.from_elements([ia.select(acc_a[r] + t[r], acc_a[r]) for r in range(4)], fx.Float32)
-                acc_b = fx.Vector.from_elements([ib.select(acc_b[r] + t[r], acc_b[r]) for r in range(4)], fx.Float32)
-                cc = self.adv(cc)
-            if (nb <= P) | (u1 <= ub + P):
-                self.store_part(w, pa, acc_a, rp)
-                acc_a = acc_b
-                acc_b = z4
-            return cc, acc_a, acc_b
+        def block(ub, st, ops, acc_a, acc_b):
+            """P units from unit ub = ((c G + g) KSc + s), st = (s, g, c). acc_a: the piece
+            of ub; acc_b: the next piece (a block crosses at most one piece end). Blocks
+            inside one piece and inside the stream (most) take the select-free path."""
+            s0, g0, c0 = st
+            xo0 = (c0 - ch0) * KSc + s0
+            pa = c0 * G + g0
+            if (s0 + P <= KSc) & (ub + P < u1):          # (the stream's last block stores)
+                for p in range_constexpr(P):
+                    acc_a = acc_a + self.compute(w, xo0 + p, ops[p])
+                if s0 + P == KSc:
+                    self.store_part(w, pa, acc_a, rp)
+                    acc_a = z4
+            else:
+                nb = KSc - s0                          # units before the piece end
+                xob = ((g0 + 1 == G).select(c0 + 1, c0) - ch0) * KSc    # next piece's x
+                for p in range_constexpr(P):
+                    xo = fx.min((nb > p).select(xo0 + p, xob + (p - nb)), XOMAX)
+                    t = self.compute(w, xo, ops[p])
+                    live = ub + p < u1
+                    acc_a = add(acc_a, t, live & (nb > p))
+                    acc_b = add(acc_b, t, live & (nb <= p))
+                if (nb <= P) | (u1 <= ub + P):
+                    self.store_part(w, pa, acc_a, rp)
+                    acc_a = acc_b
+                    acc_b = z4
+            s1 = s0 + P
+            ws = s1 >= KSc
+            g1 = ws.select(g0 + 1, g0)
+            wg = g1 == G
+            return (ws.select(s1 - KSc, s1), wg.select(fx.Int32(0), g1), wg.select(c0 + 1, c0)), acc_a, acc_b
 
         D.PROBE["on"] = D.PROBE.get("stage") == self.name
         D.probe(c, 0)
         nblk = (u1 - u0 + P - 1) // P
-        buf_a, lc = buf
-        cc = self.cursor(u0)
+        buf_a = buf
+        pc0 = u0 // KSc
+        st = (u0 % KSc, pc0 % G, pc0 // G)
         acc_a = z4
         acc_b = z4
         for i in range(0, (nblk + 1) // 2):
             ub = u0 + 2 * i * P
-            buf_b, lc = loads(lc)
-            cc, acc_a, acc_b = block(ub, cc, buf_a, acc_a, acc_b)
-            buf_a, lc = loads(lc)
+            buf_b = [self.load(w, ub + P + p) for p in range_constexpr(P)]
+            st, acc_a, acc_b = block(ub, st, buf_a, acc_a, acc_b)
+            buf_a = [self.load(w, ub + 2 * P + p) for p in range_constexpr(P)]
             if 2 * i + 1 < nblk:
-                cc, acc_a, acc_b = block(ub + P, cc, buf_b, acc_a, acc_b)
+                st, acc_a, acc_b = block(ub + P, st, buf_b, acc_a, acc_b)
         D.probe(c, 1)
         last = u1 - 1
         if ((last // KSc) != ((u0 + (nblk - 1) * P) // KSc)) & (nblk > 0):
@@ -329,6 +318,8 @@ class Gemv:
     def la_reduce(self, lane, cg, rp, epilogue, c=None):
         """Sum every segment of the counter group's pieces (fixed order) -> epilogue.
         A batch of groups' segment loads goes out together (dead segments masked)."""
+        # the epilogue's own input loads (if any) go out with the partial loads
+        pre = epilogue.pre(cg) if hasattr(epilogue, "pre") else None
         tots = []
         nb = 4
         for j0 in range_constexpr(0, self.gpc, nb):
@@ -349,4 +340,7 @@ class Gemv:
                 for v, ok in lj:
                     tot = fx.Vector.from_elements([ok.select(tot[r] + v[r], tot[r]) for r in range(4)], fx.Float32)
                 tots.append(tot)
-        epilogue(cg, tots)
+        if pre is None:
+            epilogue(cg, tots)
+        else:
+            epilogue(cg, tots, pre)

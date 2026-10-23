@@ -24,7 +24,7 @@ from . import dev as D
 from . import mixer as X
 from . import stages as S
 from .dims import (CONV_DIM, EPS, FFN, H, HD, INP_N, NKV, NL, NQ, NVH, QKV_N, VAL_DIM, VOCAB)
-from .gemv import Gemv
+from .gemv import CHUNKS, Gemv
 
 NTAB = 16      # pointer-table slots per layer
 NGLOB = 16     # global pointer-table slots
@@ -39,6 +39,7 @@ T_MIX_T, T_MIX_S, T_OUT_T, T_OUT_S, T_GU_T, T_GU_S, T_DN_T, T_DN_S, T_IN_LN, T_P
 T_ALOG, T_DTB, T_CONVW, T_NORMW, T_CONV, T_SSM = range(10, 16)        # GDN layers
 T_QN, T_KN, T_KC, T_VC = range(10, 14)                                # attention layers
 
+GEMV_P = int(os.environ.get("MK_P", "2"))    # units per GEMV pipeline block
 CNT_STRIDE = 65536   # i32 counters per counter region
 
 
@@ -55,10 +56,11 @@ class Cfg:
 
     def specs(self):
         M, cus = self.M, self.cus
-        g = lambda name, n, k, C=1, kind="mx": Gemv(name, n, k, M, cus, WAVES, C, kind).check()  # noqa: E731
-        return dict(inp=g("inp", INP_N, H), out=g("out", H, VAL_DIM, C=8), qkv=g("qkv", QKV_N, H),
-                    o=g("o", H, NQ * HD, C=8), gu=g("gu", 2 * FFN, H), down=g("down", H, FFN, C=8),
-                    lm=g("lm", VOCAB, H, C=8, kind="bf16"))
+        g = lambda name, n, k, kind="mx": Gemv(name, n, k, M, cus, WAVES, CHUNKS.get(name, 1),  # noqa: E731
+                                               kind, P=GEMV_P).check()
+        return dict(inp=g("inp", INP_N, H), out=g("out", H, VAL_DIM), qkv=g("qkv", QKV_N, H),
+                    o=g("o", H, NQ * HD), gu=g("gu", 2 * FFN, H), down=g("down", H, FFN),
+                    lm=g("lm", VOCAB, H, kind="bf16"))
 
     def part_floats(self):
         return max(s.part_floats() for s in self.specs().values())
@@ -235,7 +237,7 @@ def _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, ba
     w, buf = barrier_then(out, T(T_OUT_T), T(T_OUT_S), e0 + 2)
     S.prologue_scaled(c, out, xq, xs, y2, hssq, EPS, 128)
     if const_expr(out.name not in SKIP):
-        out.run(c, w, buf, part, cnt("out"), lambda cg, tots: S.epi_res(c, M, cg, tots[0], hb0, hb1, q1))
+        out.run(c, w, buf, part, cnt("out"), S.EpiRes(c, M, hb0, hb1, q1))
 
 
 @D.traced
@@ -255,7 +257,7 @@ def _attn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, b
     w, buf = barrier_then(o, T(T_OUT_T), T(T_OUT_S), e0 + 2)
     S.prologue_scaled(c, o, xq, xs, y2, y2, EPS, 0)
     if const_expr(o.name not in SKIP):
-        o.run(c, w, buf, part, cnt("o"), lambda cg, tots: S.epi_res(c, M, cg, tots[0], hb0, hb1, q1))
+        o.run(c, w, buf, part, cnt("o"), S.EpiRes(c, M, hb0, hb1, q1))
 
 
 @D.traced
@@ -272,7 +274,7 @@ def _mlp(c, SP, T, e0, xq, xs, red, hb0, hb1, q0, q1, part, cnt, barrier_then, G
     w, buf = barrier_then(dn, T(T_DN_T), T(T_DN_S), e0 + 1)
     S.prologue_act(c, dn, xq, xs, y)
     if const_expr(dn.name not in SKIP):
-        dn.run(c, w, buf, part, cnt("down"), lambda cg, tots: S.epi_res(c, M, cg, tots[0], hb1, hb0, q0))
+        dn.run(c, w, buf, part, cnt("down"), S.EpiRes(c, M, hb1, hb0, q0))
 
 
 def c_M(SP):

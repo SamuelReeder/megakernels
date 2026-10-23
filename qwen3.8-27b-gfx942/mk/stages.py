@@ -153,17 +153,32 @@ def prologue_copy(c, g, xq, xs, srcq, srcs):
 
 
 # ---------------------------------------------------------------- epilogues
+class EpiRes:
+    """Residual epilogue: h_out[:, 16 grp + col] = h_in + tot; ssq_out[t][grp] = sum
+    over the 16 columns. pre(grp) loads h_in; the GEMV issues it with its partial loads."""
+
+    def __init__(self, c, M, h_in, h_out, ssq_out):
+        self.c, self.M, self.h_in, self.h_out, self.ssq_out = c, M, h_in, h_out, ssq_out
+
+    def pre(self, grp):
+        ri = D.rsrc(self.h_in)
+        return [D.ldf(ri, fx.min(4 * self.c["gl"] + r, self.M - 1) * H + grp * 16 + self.c["col"], cm=D.CM_DEV)
+                for r in range(4)]
+
+    def __call__(self, grp, tots, pre):
+        _epi_res(self.c, self.M, grp, tots[0], pre, self.h_out, self.ssq_out)
+
+
 @D.traced
-def epi_res(c, M, grp, tot, h_in, h_out, ssq_out):
-    """h_out[:, 16 grp + col] = h_in + tot; ssq_out[t][grp] = sum over the 16 columns."""
+def _epi_res(c, M, grp, tot, hin, h_out, ssq_out):
     lane, col = c["lane"], c["col"]
-    ri, ro, rq = D.rsrc(h_in), D.rsrc(h_out), D.rsrc(ssq_out)
+    ro, rq = D.rsrc(h_out), D.rsrc(ssq_out)
     ng = H // 16
     for r in range_constexpr(4):
         t = 4 * c["gl"] + r
         live = t < M
         tt = fx.min(t, M - 1)
-        v = D.ldf(ri, tt * H + grp * 16 + col, cm=D.CM_DEV) + tot[r]
+        v = hin[r] + tot[r]
         s = D.xor_sum(v * v, lane, (1, 2, 4, 8))
         if live:
             D.st(v, ro, tt * H + grp * 16 + col, D.CM_DEV)
