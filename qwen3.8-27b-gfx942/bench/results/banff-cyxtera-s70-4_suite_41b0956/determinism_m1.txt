@@ -1,0 +1,2 @@
+M=1 steps=64: 3 runs bitwise equal: True
+PASS

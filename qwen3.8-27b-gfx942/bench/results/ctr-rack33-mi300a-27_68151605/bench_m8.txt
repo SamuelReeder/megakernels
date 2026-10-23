@@ -1,0 +1,5 @@
+load+pack+build 12s
+rep 0: TPOT 9.596 ms (104.2 tok/s/user), kernel median 9.691 ms
+rep 1: TPOT 9.590 ms (104.3 tok/s/user), kernel median 9.680 ms
+rep 2: TPOT 9.607 ms (104.1 tok/s/user), kernel median 9.684 ms
+{"M": 8, "ctx": 512, "steps": 64, "node": "ctr-rack33-mi300a-27.adc.amd.com", "gpu": "AMD Instinct MI300A", "date": "2026-10-22 22:40:49", "runs": [{"tpot_ms": 9.595791816711426, "kernel_ms_median": 9.691019058227539, "kernel_ms_min": 9.60513687133789}, {"tpot_ms": 9.58988094329834, "kernel_ms_median": 9.67952823638916, "kernel_ms_min": 9.612096786499023}, {"tpot_ms": 9.607364654541016, "kernel_ms_median": 9.683688163757324, "kernel_ms_min": 9.625296592712402}]}
