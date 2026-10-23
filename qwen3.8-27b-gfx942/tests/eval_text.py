@@ -7,8 +7,8 @@ The same token sequence is fed one token per decode step to three systems:
           transformers by tests/ref_vs_hf.py)
 For each, the next-token NLL gives a perplexity; the kernel is also compared with
 w4 and bf16 per position (top-1 agreement, KL). A second pass checks batch
-invariance: each passage decoded alone (M = 1) and inside a batch (M = len(TEXTS))
-must give bitwise-equal kernel logits.
+invariance: each passage decoded alone (M = 1) and inside a batch (M = len(TEXTS),
+first min-length tokens) must give bitwise-equal kernel logits.
 
 Usage: python tests/eval_text.py MXFP4_DIR BF16_DIR
 """
@@ -38,6 +38,15 @@ TEXTS = [
     "def fibonacci(n):\n    \"\"\"Return the n-th Fibonacci number.\"\"\"\n    a, b = 0, 1\n    for _ in "
     "range(n):\n        a, b = b, a + b\n    return a\n\n\nif __name__ == \"__main__\":\n    for i in "
     "range(10):\n        print(i, fibonacci(i))\n",
+    "It is a truth universally acknowledged, that a single man in possession of a good fortune, must "
+    "be in want of a wife. However little known the feelings or views of such a man may be on his first "
+    "entering a neighbourhood, this truth is so well fixed in the minds of the surrounding families, that "
+    "he is considered the rightful property of some one or other of their daughters. \"My dear Mr. "
+    "Bennet,\" said his lady to him one day, \"have you heard that Netherfield Park is let at last?\" Mr. "
+    "Bennet replied that he had not. \"But it is,\" returned she; \"for Mrs. Long has just been here, and "
+    "she told me all about it.\" Mr. Bennet made no answer. \"Do you not want to know who has taken it?\" "
+    "cried his wife impatiently. \"You want to tell me, and I have no objection to hearing it.\" This was "
+    "invitation enough.",
     "The mitochondrion is the site of aerobic respiration in eukaryotic cells. Pyruvate from "
     "glycolysis enters the matrix, where the citric acid cycle oxidizes it to carbon dioxide and "
     "transfers electrons to NADH and FADH2. The electron transport chain in the inner membrane then "
@@ -74,18 +83,18 @@ def main():
     from transformers import AutoTokenizer
     tok = AutoTokenizer.from_pretrained(bf_dir)
     seqs = [torch.tensor(tok(t).input_ids) for t in TEXTS]
-    L = min(len(s) for s in seqs)
-    seqs = [s[:L] for s in seqs]
-    print(f"{len(seqs)} passages x {L} tokens")
+    L = min(len(s) for s in seqs)                     # the batch-invariance run's length
+    Lmax = max(len(s) for s in seqs)
+    print(f"{len(seqs)} passages, {[len(s) for s in seqs]} tokens")
 
     t0 = time.time()
     W = R.Weights(mx_dir, "mxfp4", keep_raw=True)
     ref_w4 = [ref_logits(W, s) for s in seqs]
-    eng1 = Engine(Packed(W), 1, maxlen=L + 64)
+    eng1 = Engine(Packed(W), 1, maxlen=Lmax + 64)
     ker1 = [kernel_logits(eng1, s[None])[0] for s in seqs]
     del eng1
-    engM = Engine(Packed(W), len(seqs), maxlen=L + 64)
-    kerM = kernel_logits(engM, torch.stack(seqs))
+    engM = Engine(Packed(W), len(seqs), maxlen=Lmax + 64)
+    kerM = kernel_logits(engM, torch.stack([s[:L] for s in seqs]))
     del engM, W
     torch.cuda.empty_cache()
     print(f"mxfp4 runs {time.time() - t0:.0f}s")
@@ -109,7 +118,7 @@ def main():
         kl_w4 = torch.nn.functional.kl_div(torch.log_softmax(ref_w4[i].double(), -1),
                                            torch.log_softmax(ref_bf[i].double(), -1),
                                            log_target=True, reduction="none").sum(-1).mean().item()
-        same = torch.equal(kerM[i], ker1[i])
+        same = torch.equal(kerM[i], ker1[i][:L])
         ok &= same
         print(f"passage {i}: ppl kernel {n['kernel'].mean().exp():.3f} w4 {n['w4'].mean().exp():.3f} "
               f"bf16 {n['bf16'].mean().exp():.3f} | top1 kernel=w4 {agree_w4:.3f} kernel=bf16 {agree_bf:.3f} "
