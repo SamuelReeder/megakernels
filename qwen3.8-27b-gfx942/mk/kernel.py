@@ -173,7 +173,7 @@ def build(cfg: Cfg):
             bid_l = D.opaque_s(bid)
             lane_l, wave_l = tid_l % 64, D.uniform(tid_l // 64)
             c.update(tid=tid_l, bid=bid_l, lane=lane_l, wave=wave_l, gl=lane_l // 16, col=lane_l % 16)
-            gw_l = bid_l * WAVES + wave_l
+            gw_l = wave_l * CUS + bid_l       # task rank: consecutive tasks go to different CUs
             e0 = epoch + 1 + i * 5
             ri = i * NTAB
             T = lambda k: tab64(rt, ri + k)  # noqa: E731
