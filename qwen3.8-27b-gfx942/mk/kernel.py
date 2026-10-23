@@ -263,7 +263,7 @@ def _mlp(c, SP, T, e0, xq, xs, red, hb0, hb1, q0, q1, part, cnt, barrier_then, G
     w, buf = barrier_then(gu, T(T_GU_T), T(T_GU_S), e0)
     S.prologue_norm(c, gu, xq, xs, red, hb1, q1, T(T_POST_LN), EPS)
     if const_expr(gu.name not in SKIP):
-        gu.run(c, w, buf, part, cnt("gu"), lambda cg, tots: S.epi_raw(c, M, 2 * FFN, cg, tots[0], y))
+        gu.run(c, w, buf, part, cnt("gu"), lambda cg, tots: S.epi_act(c, M, cg, tots[0], y))
     if const_expr(STOP[0] < 5):
         return
     w, buf = barrier_then(dn, T(T_DN_T), T(T_DN_S), e0 + 1)

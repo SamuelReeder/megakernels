@@ -28,10 +28,11 @@ def _cat(W, i, names):
 
 
 def gu_order(t: torch.Tensor) -> torch.Tensor:
-    """[gate; up] rows -> per 128-column block b: gate rows 128b.., then up rows 128b..
-    (16 groups: 0..7 gate, 8..15 up; the gate_up epilogue relies on it)."""
+    """[gate; up] rows -> per 8 columns c: gate rows 8 c .. 8 c + 7, then up rows 8 c ..
+    8 c + 7. One 16-row group holds both halves of 8 act columns (the gate_up
+    epilogue stages.EpiAct relies on it)."""
     n = t.shape[0] // 2
-    g, u = t[:n].reshape(n // 128, 128, -1), t[n:].reshape(n // 128, 128, -1)
+    g, u = t[:n].reshape(n // 8, 8, -1), t[n:].reshape(n // 8, 8, -1)
     return torch.cat([g, u], 1).reshape(2 * n, -1)
 
 

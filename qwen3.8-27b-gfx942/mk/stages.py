@@ -14,7 +14,7 @@ from flydsl.expr import const_expr, gpu, range_constexpr
 from flydsl.expr.typing import T
 
 from . import dev as D
-from .dims import CONV_DIM, H, INP_N
+from .dims import CONV_DIM, FFN, H, INP_N
 
 NT = 512   # threads per CTA (set by the kernel builder before tracing)
 
@@ -103,14 +103,13 @@ def store_quant8(c, g, xq, xs, x, t, k0, live):
 
 
 @D.traced
-def prologue_act(c, g, xq, xs, y):
-    """LDS x <- act = silu(gate) * up, quantized, for the CTA's chunk slots. y: fp32
-    gate_up output [M][2 FFN] in gu_order (per 128 block: 128 gate, then 128 up).
-    All loads go out first."""
+def prologue_act(c, g, xq, xs, act):
+    """LDS x <- act (fp32 [M][FFN], written by EpiAct) for the CTA's chunk slots,
+    quantized. All loads go out first."""
     M = g.M
     tid = c["tid"]
     zero_xs_tail(c, g, xs)
-    ry = D.rsrc(y)
+    ra = D.rsrc(act)
     ch0 = g.chunk0(c["bid"])
     nch = M * g.Kc // 8
     raw = []
@@ -120,44 +119,14 @@ def prologue_act(c, g, xq, xs, y):
             j = fx.min(tid + NT * i, nch - 1)
             t = j // (g.Kc // 8)
             kc = j % (g.Kc // 8) * 8                 # column within the chunk
-            k = ch * g.Kc + kc                        # intermediate column
-            n = t * 2 * g.K + (k // 128) * 256 + k % 128
-            raw.append((sl, i, t, kc, [D.ld(ry, n + o, 4, T.f32, D.CM_DEV) for o in (0, 4, 128, 132)]))
+            k = t * g.K + ch * g.Kc + kc
+            raw.append((sl, i, t, kc, [D.ld(ra, k + o, 4, T.f32, D.CM_DEV) for o in (0, 4)]))
     for sl, i, t, kc, v in raw:
-        gv = [v[0][0], v[0][1], v[0][2], v[0][3], v[1][0], v[1][1], v[1][2], v[1][3]]
-        uv = [v[2][0], v[2][1], v[2][2], v[2][3], v[3][0], v[3][1], v[3][2], v[3][3]]
-        x = [D.silu(gv[e]) * uv[e] for e in range(8)]
+        x = [v[0][0], v[0][1], v[0][2], v[0][3], v[1][0], v[1][1], v[1][2], v[1][3]]
         store_quant8(c, g, xq, xs, x, t, sl * g.Kc + kc, tid + NT * i < nch)
     gpu.barrier()
 
 
-@D.traced
-def prologue_copy(c, g, xq, xs, srcq, srcs):
-    """LDS x <- fp8 [M][K] + scales [M][K/128] from global, the CTA's chunk slots only."""
-    M = g.M
-    tid = c["tid"]
-    zero_xs_tail(c, g, xs)
-    rq, rsc = D.rsrc(srcq), D.rsrc(srcs)
-    ch0 = g.chunk0(c["bid"])
-    for sl in range_constexpr(g.slots):
-        ch = fx.min(ch0 + sl, g.C - 1)
-        nd = M * g.Kc // 16                      # dwordx4 per slot
-        for i in range_constexpr((nd + NT - 1) // NT):
-            j = fx.min(tid + NT * i, nd - 1)
-            t = j // (g.Kc // 16)
-            o = j % (g.Kc // 16) * 16              # byte offset in the chunk
-            v = D.ld(rq, (t * g.K + ch * g.Kc + o) // 4, 4, cm=D.CM_DEV)
-            if tid + NT * i < nd:
-                fx.ptr_store(v, xq + (t * g.XR + sl * g.Kc + o) // 4)
-        ns = M * g.KSc
-        if tid < ns:
-            t = tid // g.KSc
-            s = tid % g.KSc
-            fx.ptr_store(D.ldf(rsc, t * g.KS + ch * g.KSc + s, cm=D.CM_DEV), xs + (t * g.XSR + sl * g.KSc + s))
-    gpu.barrier()
-
-
-# ---------------------------------------------------------------- epilogues
 class EpiRes:
     """Residual epilogue: h_out[:, 16 grp + col] = h_in + tot; ssq_out[t][grp] = sum
     over the 16 columns. pre(grp) loads h_in; the GEMV issues it with its partial loads."""
@@ -233,6 +202,19 @@ def _epi_conv(c, M, grp, tot, pre, y, conv):
 
 
 @D.traced
+def epi_act(c, M, grp, tot, act):
+    """gate_up epilogue: group grp = gate rows then up rows of act columns 8 grp .. + 7
+    (pack.gu_order): act[:, 8 grp + col] = silu(gate) * up for lanes col < 8."""
+    col, lane = c["col"], c["lane"]
+    ra = D.rsrc(act)
+    for r in range_constexpr(4):
+        t = 4 * c["gl"] + r
+        up = D.gather_f(tot[r], lane + 8)            # lane col + 8 holds the up row
+        if (t < M) & (col < 8):
+            D.st(D.silu(tot[r]) * up, ra, t * FFN + grp * 8 + col, D.CM_DEV)
+
+
+@D.traced
 def epi_raw(c, M, N, grp, tot, out):
     """out[:, 16 grp + col] = tot (fp32 [M][N])."""
     ro = D.rsrc(out)
@@ -240,32 +222,6 @@ def epi_raw(c, M, N, grp, tot, out):
         t = 4 * c["gl"] + r
         if t < M:
             D.st(tot[r], ro, t * N + grp * 16 + c["col"], D.CM_DEV)
-
-
-@D.traced
-def epi_act(c, M, blk, tots, act_q, act_s, kact):
-    """gate_up block blk: groups 0..7 gate, 8..15 up of intermediate columns
-    128 blk + 16 j + col. act = silu(gate) * up -> fp8 + one pow2 scale per (token,
-    block) -> act_q [M][kact] bytes, act_s [M][kact / 128]."""
-    lane, col = c["lane"], c["col"]
-    rq, rs = D.rsrc(act_q), D.rsrc(act_s)
-    for r in range_constexpr(4):
-        t = 4 * c["gl"] + r
-        tt = fx.min(t, M - 1)
-        a = [D.silu(tots[j][r]) * tots[8 + j][r] for j in range(8)]
-        am = fx.Float32(0.0)
-        for j in range_constexpr(8):
-            am = fx.max(am, D.absf(a[j]))
-        am = D.xor_max(am, lane, (1, 2, 4, 8))
-        qi, sc = D.pow2_scale(fx.max(am, fx.Float32(1e-30)))
-        for j in range_constexpr(8):
-            # lane col % 4 == 0 packs columns col .. col + 3 of sub-block j
-            v = [D.gather_f(a[j], lane + e) * qi for e in range(4)]
-            w = D.fp8_pack4(v[0], v[1], v[2], v[3])
-            if (t < M) & (col % 4 == 0):
-                D.st(w, rq, (tt * kact + blk * 128 + 16 * j + col) // 4, D.CM_DEV)
-        if (t < M) & (col == 0):
-            D.st(sc, rs, tt * (kact // 128) + blk, D.CM_DEV)
 
 
 @D.traced
