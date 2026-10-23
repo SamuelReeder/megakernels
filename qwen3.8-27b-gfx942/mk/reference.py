@@ -11,15 +11,14 @@ The same module runs prefill by calling `step` once per prompt token.
 from __future__ import annotations
 
 import json
-import math
 import os
 from dataclasses import dataclass
 
 import torch
 from safetensors import safe_open
 
-from .dims import (A_OFF, B_OFF, CONV_DIM, CONV_K, DK, DV, EPS, FFN, H, HD, KEY_DIM, NKH, NKV,
-                   NL, NQ, NVH, ROT, THETA, VAL_DIM, VOCAB, is_attn)
+from .dims import (CONV_DIM, CONV_K, DK, DV, EPS, HD, KEY_DIM, NKH, NKV, NL, NQ, NVH, ROT, THETA,
+                   VAL_DIM, is_attn)
 
 E2M1 = torch.tensor([0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0,
                      -0.0, -0.5, -1.0, -1.5, -2.0, -3.0, -4.0, -6.0])

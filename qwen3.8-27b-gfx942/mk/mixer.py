@@ -24,12 +24,12 @@ from __future__ import annotations
 import math
 
 import flydsl.expr as fx
-from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
+from flydsl.expr import range_constexpr, rocdl
 from flydsl.expr.typing import T
 
 from . import dev as D
-from .dims import (A_OFF, B_OFF, CONV_DIM, DK, HD, K_OFF, NKV, NQ, NVH, Q_OFF, ROT, THETA, V_OFF,
-                   Z_OFF, INP_N, QKV_N, EPS)
+from .dims import (A_OFF, B_OFF, DK, HD, K_OFF, NKV, NQ, NVH, Q_OFF, V_OFF, Z_OFF, INP_N, QKV_N,
+                   EPS)
 
 CH = 64                 # attention positions per task
 PVB = 16                # P V: positions per load batch

@@ -6,7 +6,6 @@ TPOT = wall time of the decode steps / STEPS (CUDA events), and the kernel-only 
 of single launches. Usage: python bench/bench_decode.py MODEL_DIR M CTX STEPS [REPEATS]
 """
 import json
-import os
 import platform
 import sys
 import time

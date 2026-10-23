@@ -15,11 +15,10 @@ LAYER = "model.language_model.layers.{}."
 class Engine:
     """Decode engine for M rows (independent sequences)."""
 
-    def __init__(self, PK: Packed, M: int, maxlen: int = 4096, layers: int = NL, device="cuda",
-                 stop: int = 99):
+    def __init__(self, PK: Packed, M: int, maxlen: int = 4096, layers: int = NL, device="cuda"):
         self.PK, self.M, self.maxlen, self.layers = PK, M, maxlen, layers
         cus = torch.cuda.get_device_properties(0).multi_processor_count
-        self.cfg = KK.Cfg(M, cus, maxlen, stop)
+        self.cfg = KK.Cfg(M, cus, maxlen)
         self.launch = KK.build(self.cfg)
         z = lambda *s, dt=torch.float32: torch.zeros(*s, dtype=dt, device=device)  # noqa: E731
         ng, na = NL * 3 // 4, NL // 4

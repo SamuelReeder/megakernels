@@ -20,7 +20,6 @@ Weights "mx": mk4 tiles (mk/fp4.py), fp8 MFMA, x fp8 with a pow2 scale per
 """
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 
 import flydsl.expr as fx
@@ -31,9 +30,7 @@ from . import dev as D
 from . import fp4
 
 H4 = fp4.device_helpers()
-DBG_MODE = int(os.environ.get("MK_GEMV_MODE", "0"))   # debug: 1 = loads only (wrong results)
 CHUNKS = dict(out=2, o=2, down=4, lm=8)    # K chunks of the GEMVs (default 1); the packer follows
-CHUNKS.update({k: int(v) for k, v in (kv.split("=") for kv in os.environ.get("MK_CHUNKS", "").split(",") if kv)})
 PAD_TILES = 16                             # spare tiles after a packed matrix (>= 3 P - 1)
 
 
@@ -153,9 +150,6 @@ class Gemv:
         their result is dropped with a select; a multiply by 0 would keep NaN/inf)."""
         arow = w["arow"] + xo * (128 * self.esize)
         z4 = fx.Vector.filled(4, 0.0, fx.Float32)
-        if const_expr(self.kind == "mx" and DBG_MODE == 1):     # debug: loads only
-            tile, sw = ops
-            return fx.Vector.from_elements([(tile[r] ^ sw).bitcast(fx.Float32) for r in range(4)], fx.Float32)
         if const_expr(self.kind == "mx"):
             tile, sw = ops
             tacc = z4

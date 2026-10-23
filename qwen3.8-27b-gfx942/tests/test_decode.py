@@ -4,7 +4,6 @@ emulating (fp8 activations, as the kernel) and exact (bf16 activations) modes.
 Feeds a prompt token by token (both sides), then decodes greedily, comparing the
 logits of every step. Usage: python tests/test_decode.py MODEL_DIR [M] [LAYERS] [STEPS]
 """
-import os
 import sys
 import time
 

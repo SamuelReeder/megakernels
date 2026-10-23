@@ -12,7 +12,6 @@ Residual stream: h0 at a layer start, h1 after the mixer (both fp32 [M][H], with
 their 16-column sums of squares ssq0 / ssq1). See docs/DESIGN.md.
 """
 
-import os
 from dataclasses import dataclass
 
 import flydsl.compiler as flyc
@@ -23,7 +22,7 @@ from flydsl.expr.typing import Int32, Int64
 from . import dev as D
 from . import mixer as X
 from . import stages as S
-from .dims import (CONV_DIM, EPS, FFN, H, HD, INP_N, NKV, NL, NQ, NVH, QKV_N, VAL_DIM, VOCAB)
+from .dims import (EPS, FFN, H, HD, INP_N, NKV, NQ, NVH, QKV_N, VAL_DIM, VOCAB)
 from .gemv import CHUNKS, Gemv
 
 NTAB = 16      # pointer-table slots per layer
@@ -39,7 +38,6 @@ T_MIX_T, T_MIX_S, T_OUT_T, T_OUT_S, T_GU_T, T_GU_S, T_DN_T, T_DN_S, T_IN_LN, T_P
 T_ALOG, T_DTB, T_CONVW, T_NORMW, T_CONV, T_SSM = range(10, 16)        # GDN layers
 T_QN, T_KN, T_KC, T_VC = range(10, 14)                                # attention layers
 
-GEMV_P = int(os.environ.get("MK_P", "2"))    # units per GEMV pipeline block
 CNT_STRIDE = 65536   # i32 counters per counter region
 
 
@@ -48,7 +46,6 @@ class Cfg:
     M: int
     cus: int
     maxlen: int
-    stop: int = 99      # debug: run only the first `stop` stages of each layer (1..5)
 
     @property
     def ncmax(self):
@@ -57,7 +54,7 @@ class Cfg:
     def specs(self):
         M, cus = self.M, self.cus
         g = lambda name, n, k, kind="mx": Gemv(name, n, k, M, cus, WAVES, CHUNKS.get(name, 1),  # noqa: E731
-                                               kind, P=GEMV_P).check()
+                                               kind).check()
         return dict(inp=g("inp", INP_N, H), out=g("out", H, VAL_DIM), qkv=g("qkv", QKV_N, H),
                     o=g("o", H, NQ * HD), gu=g("gu", 2 * FFN, H), down=g("down", H, FFN),
                     lm=g("lm", VOCAB, H, kind="bf16"))
@@ -69,20 +66,16 @@ class Cfg:
 CNT_REGION = dict(inp=0, out=1, qkv=2, o=3, gu=4, down=5, lm=6, attn=7)
 
 
-STOP = [99]
-SKIP = set(os.environ.get("MK_SKIP", "").split(","))   # debug: stage code left out (ISA bisection)
 PROFILE = {"addr": None}   # debug: i64 [barriers][CUS][2] = (arrive, wait end) per CTA, 100 MHz
 
 
 def build(cfg: Cfg):
     M, CUS = cfg.M, cfg.cus
-    STOP[0] = cfg.stop
     SP = cfg.specs()
     S.NT = NT
     XQB = max(s.XR for s in SP.values()) * M
     XSF = 16 * max(s.XSR for s in SP.values())
     ATT_W = X.GQ * HD + HD          # floats per wave (q / p, then k_new v_new bf16 pairs)
-    GDN_W = 256
     NTASK_G = M * NVH * 8
     NTASK_A = M * NKV * cfg.ncmax
 
@@ -130,8 +123,6 @@ def build(cfg: Cfg):
         q0, q1 = G[G_SSQ], G[G_SSQ] + fx.Int64(M * (H // 16) * 4)
         cnt = lambda k: G[G_CNT] + fx.Int64(CNT_REGION[k] * CNT_STRIDE * 4)  # noqa: E731
         part = G[G_PART]
-        gw = bid * WAVES + wave
-        ep = [0]
 
         def stamp(slot):
             t = D.memrealtime()
@@ -185,16 +176,14 @@ def build(cfg: Cfg):
             else:
                 _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, barrier_then,
                            gw_l, NTASK_G)
-            if const_expr(STOP[0] >= 4):
-                _mlp(c, SP, T, e0 + 3, xq, xs, red, hb0, hb1, q0, q1, part, cnt, barrier_then, G)
+            _mlp(c, SP, T, e0 + 3, xq, xs, red, hb0, hb1, q0, q1, part, cnt, barrier_then, G)
         c.clear()
         c.update(c0)
         # ---- final norm + LM head
         lm = SP["lm"]
         w, buf = barrier_then(lm, G[G_LM], G[G_LM], epoch + 1 + nlayers * 5)
         S.prologue_norm_bf16(c, lm, xq, red, hf0, q0, G[G_FNORM], EPS)
-        if const_expr(lm.name not in SKIP):
-            lm.run(c, w, buf, part, cnt("lm"), lambda cg, tots: S.epi_raw(c, M, VOCAB, cg, tots[0], G[G_LOGITS]))
+        lm.run(c, w, buf, part, cnt("lm"), lambda cg, tots: S.epi_raw(c, M, VOCAB, cg, tots[0], G[G_LOGITS]))
         if const_expr(PROFILE["addr"] is not None):
             stamp(((nlayers * 5 + 1) * CUS + bid) * 2)
 
@@ -220,21 +209,15 @@ def _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, ba
     # in_proj
     w, buf = barrier_then(inp, T(T_MIX_T), T(T_MIX_S), e0)
     S.prologue_norm(c, inp, xq, xs, red, hf0, q0, T(T_IN_LN), EPS)
-    if const_expr(inp.name not in SKIP):
-        inp.run(c, w, buf, part, cnt("inp"), S.EpiConv(c, M, y, T(T_CONV), T(T_CONVW)))
-    if const_expr(STOP[0] < 2):
-        return
+    inp.run(c, w, buf, part, cnt("inp"), S.EpiConv(c, M, y, T(T_CONV), T(T_CONVW)))
     # GDN core
     barrier_then(None, None, None, e0 + 1)
-    for t in range(gw, (ntask, 0)["gdn" in SKIP], c["cus"] * WAVES):
+    for t in range(gw, ntask, c["cus"] * WAVES):
         X.gdn_task(c, M, t, y, T(T_ALOG), T(T_DTB), T(T_NORMW), T(T_SSM), y2, hssq, wl)
-    if const_expr(STOP[0] < 3):
-        return
     # out_proj (+ residual)
     w, buf = barrier_then(out, T(T_OUT_T), T(T_OUT_S), e0 + 2)
     S.prologue_scaled(c, out, xq, xs, y2, hssq, EPS, 128)
-    if const_expr(out.name not in SKIP):
-        out.run(c, w, buf, part, cnt("out"), S.EpiRes(c, M, hb0, hb1, q1, hf1))
+    out.run(c, w, buf, part, cnt("out"), S.EpiRes(c, M, hb0, hb1, q1, hf1))
 
 
 @D.traced
@@ -246,16 +229,14 @@ def _attn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, b
     y, y2 = G[G_Y], G[G_Y2]
     w, buf = barrier_then(qkv, T(T_MIX_T), T(T_MIX_S), e0)
     S.prologue_norm(c, qkv, xq, xs, red, hf0, q0, T(T_IN_LN), EPS)
-    if const_expr(qkv.name not in SKIP):
-        qkv.run(c, w, buf, part, cnt("qkv"), lambda cg, tots: S.epi_raw(c, M, QKV_N, cg, tots[0], y))
+    qkv.run(c, w, buf, part, cnt("qkv"), lambda cg, tots: S.epi_raw(c, M, QKV_N, cg, tots[0], y))
     barrier_then(None, None, None, e0 + 1)
-    for t in range(gw, (ntask, 0)["attn" in SKIP], c["cus"] * WAVES):
+    for t in range(gw, ntask, c["cus"] * WAVES):
         X.attn_task(c, t, cfg.ncmax, y, T(T_QN), T(T_KN), G[G_ROPE], T(T_KC), T(T_VC), G[G_POS],
                     cfg.maxlen, G[G_REC], cnt("attn"), y2, wl)
     w, buf = barrier_then(o, T(T_OUT_T), T(T_OUT_S), e0 + 2)
     S.prologue_scaled(c, o, xq, xs, y2, y2, EPS, 0)
-    if const_expr(o.name not in SKIP):
-        o.run(c, w, buf, part, cnt("o"), S.EpiRes(c, M, hb0, hb1, q1, hf1))
+    o.run(c, w, buf, part, cnt("o"), S.EpiRes(c, M, hb0, hb1, q1, hf1))
 
 
 @D.traced
@@ -266,14 +247,10 @@ def _mlp(c, SP, T, e0, xq, xs, red, hb0, hb1, q0, q1, part, cnt, barrier_then, G
     y = G[G_Y]
     w, buf = barrier_then(gu, T(T_GU_T), T(T_GU_S), e0)
     S.prologue_norm(c, gu, xq, xs, red, hf1, q1, T(T_POST_LN), EPS)
-    if const_expr(gu.name not in SKIP):
-        gu.run(c, w, buf, part, cnt("gu"), lambda cg, tots: S.epi_act(c, M, cg, tots[0], y))
-    if const_expr(STOP[0] < 5):
-        return
+    gu.run(c, w, buf, part, cnt("gu"), lambda cg, tots: S.epi_act(c, M, cg, tots[0], y))
     w, buf = barrier_then(dn, T(T_DN_T), T(T_DN_S), e0 + 1)
     S.prologue_act(c, dn, xq, xs, y)
-    if const_expr(dn.name not in SKIP):
-        dn.run(c, w, buf, part, cnt("down"), S.EpiRes(c, M, hb1, hb0, q0, hf0))
+    dn.run(c, w, buf, part, cnt("down"), S.EpiRes(c, M, hb1, hb0, q0, hf0))
 
 
 def hf_ptrs(hb0, M):
