@@ -1,5 +1,12 @@
 # Qwen3.8-27B decode megakernel for gfx942 (FlyDSL)
 
+## Result
+
+Batch 1 on one MI300X: 7.56 ms per output token (132 tok/s) against 15.59 ms for the
+fastest stock engine on the same GPU (vLLM 0.29.1 + AITER, FP8 checkpoint): 2.06x.
+Batch 2 / 4 / 8: 2.07x / 1.98x / 1.68x. Perplexity +0.8 % against the same MXFP4
+weights with bf16 activations. Details and reproducibility runs: `bench/RESULTS.md`.
+
 ## Fixed point
 
 One decode step of the Qwen3.8-27B text model for M independent sequences runs as
@@ -86,8 +93,8 @@ norm input.
    per step in MXFP4 (with scales) against 25.1 GB in FP8. The bf16 LM head adds 2.5 GB.
 2. fp8 activations with the fp8 MFMA. gfx942 has no MX MFMA. Decoding e2m1 to e4m3fnuz
    is exact and costs one byte permute per 4 values; a bf16 path would need twice the
-   MFMA work. Cost on real text: perplexity +0.35 % against the same weights with bf16
-   activations (`tests/eval_text.py`).
+   MFMA work. Cost on real text: perplexity +0.8 % against the same weights with bf16
+   activations (`tests/eval_text.py`, 592 tokens).
 3. Split-K with a fixed-order last arriver, no float atomics. Same inputs give
    bitwise-equal logits (`tests/test_determinism.py`); a row's logits do not depend on
    the other rows of the batch (`tests/eval_text.py`, batch-invariance check).
@@ -113,7 +120,7 @@ Measured and kept, in order:
 
 | Change | Effect |
 |---|---|
-| Opaque thread ids per stage (no hoisting of per-stage address math out of the layer loop) | removed most register spills |
+| Opaque thread ids per stage (no hoisting of per-stage address math out of the layer loop) | VGPR spills 424 -> 66 (0 after the GEMV changes below) |
 | Wave index made wave-uniform; unit cursors; unit-order tiles; select-free blocks | GEMV loop SALU per 2-unit block 352 -> 20; gate_up stream (slowest wave) 29.9 -> 26.8 us |
 | Mixer tasks spread over CUs | GDN stage 12.4 -> 7.6 us |
 | Attention QK^T on the bf16 MFMA | attention stage 44 -> 25 us (ctx 512) |
