@@ -203,6 +203,7 @@ def attn(W: Weights, i: int, x: torch.Tensor, st: State, a_i: int) -> torch.Tens
     k = rms0(k, W.L(i, pre + "k_norm.weight"))
     cos, sin = rope_cos_sin(st.pos)
     q, k = apply_rope(q, cos, sin), apply_rope(k, cos, sin)
+    q = q.to(torch.bfloat16).float()                       # q enters QK^T in bf16 (model dtype)
     out = torch.empty(M, NQ, HD, device=x.device)
     for m in range(M):
         p = int(st.pos[m])

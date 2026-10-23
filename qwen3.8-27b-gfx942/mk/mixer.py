@@ -25,7 +25,7 @@ from __future__ import annotations
 import math
 
 import flydsl.expr as fx
-from flydsl.expr import const_expr, gpu, range_constexpr
+from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
 from flydsl.expr.typing import T
 
 from . import dev as D
@@ -176,6 +176,7 @@ def attn_task(c, task, ncmax, y_qkv, qn_w, kn_w, rope_cs, kc, vc, pos_ptr, maxle
     """One (m, j, ci) task; wl: this wave's LDS (GQ * HD + 2 * HD // 2 floats).
     Returns nothing; the last arriver of (m, j) writes og."""
     lane = c["lane"]
+    D.PROBE["on"] = D.PROBE.get("stage") == "attn"
     m = task // (NKV * ncmax)
     j = task % (NKV * ncmax) // ncmax
     ci = task % ncmax
@@ -192,6 +193,23 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
     ry = D.rsrc(y_qkv)
     ybase = m * QKV_N
     d0 = 4 * lane
+    rk, rv = D.rsrc(kc), D.rsrc(vc)
+    cache = ((m * NKV + j) * maxlen) * HD             # element offset of (m, j, pos 0)
+    p = p0 + lane
+    live = p <= pos
+    gq, nq = lane // 16, lane % 16                   # MFMA lane coordinates
+
+    def ktile(t):
+        """B operand rows of score tile t: position p0 + 16 t + nq (clamped to pos), dims
+        64 gq .. 64 gq + 63 (8 x 16 B; k-step i = dims 64 gq + 4 i .. + 3)."""
+        pt = fx.min(p0 + 16 * t + nq, pos)
+        return [D.ld(rk, (cache + pt * HD + 64 * gq + 8 * u) // 2, 4) for u in range(8)]
+
+    def vload(b):
+        return [D.ld(rv, (cache + fx.min(p0 + b * PVB + k, pos) * HD + d0) // 2, 2) for k in range(PVB)]
+
+    kt = ktile(0)                                     # independent of this step's q/k/v
+    D.probe(c, 4)
     # rope table [maxlen][64] fp32: cos[0..31], sin[0..31] of position pos
     rcs = D.rsrc(rope_cs)
     di = d0 % 32
@@ -214,26 +232,29 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
     vw2 = fx.Vector.from_elements([pack_bf2(vv_[0], vv_[1]), pack_bf2(vv_[2], vv_[3])], fx.Int32)
     _store_i32x2(wl, GQ * HD + d0 // 2, kw2)
     _store_i32x2(wl, GQ * HD + HD // 2 + d0 // 2, vw2)
-    rk, rv = D.rsrc(kc), D.rsrc(vc)
-    cache = ((m * NKV + j) * maxlen) * HD             # element offset of (m, j, pos 0)
     if (pos >= p0) & (pos < p0 + CH):
         D.st(kw2, rk, (cache + pos * HD + d0) // 2, D.CM_DEV)
         D.st(vw2, rv, (cache + pos * HD + d0) // 2, D.CM_DEV)
-    # ---- scores: lane = position p0 + lane
-    p = p0 + lane
-    live = p <= pos
-    isnew = p == pos
-    pc = fx.min(p, pos)
-    # runtime loops over load batches: unrolled, the compiler issues every batch's loads
-    # at once and spills them
-    sc = [fx.Float32(0.0)] * GQ
-    for b in range(0, HD // 32):                       # 8 batches of 32 dims (4 x 16 B)
-        kr = [D.ld(rk, (cache + pc * HD + 32 * b + 8 * u) // 2, 4) for u in range(4)]
-        sc = _qk_batch(wl, b, isnew, kr, sc)
+    D.probe(c, 5)
+    # ---- scores on the MFMA (bf16 16x16x16): S^T tile [16 head rows][16 positions].
+    # The k order is permuted alike in A and B (lane group gq takes dims 64 gq ..): the
+    # sum over k does not depend on it. Rows >= GQ are zero.
+    qa = []
+    for i in range_constexpr(16):
+        qv = _load_f4(wl, fx.min(nq, GQ - 1) * HD + 64 * gq + 4 * i)
+        w2 = fx.Vector.from_elements([pack_bf2(qv[0], qv[1]), pack_bf2(qv[2], qv[3])], fx.Int32)
+        z2 = fx.Vector.from_elements([fx.Int32(0), fx.Int32(0)], fx.Int32)
+        qa.append((nq < GQ).select(w2, z2))
+    # (q is in registers now: its LDS region takes the scores / probabilities)
+    for t in range(0, D.opaque_s(CH // 16)):         # opaque trip count: LLVM would unroll
+        kn_ = ktile(fx.min(t + 1, CH // 16 - 1))
+        _score_tile(wl, t, p0, pos, gq, nq, qa, kt)
+        kt = kn_
+    D.probe(c, 6)
     scale = 1.0 / math.sqrt(HD)
     mx, sm, pr = [], [], []
     for hh in range_constexpr(GQ):
-        s_ = live.select(sc[hh] * scale, fx.Float32(-3.0e38))
+        s_ = live.select(fx.ptr_load(wl + (hh * CH + lane)) * scale, fx.Float32(-3.0e38))
         mh = D.xor_max(s_, lane, (1, 2, 4, 8, 16, 32))
         ph = live.select(D.expf(s_ - mh), fx.Float32(0.0))
         mx.append(mh)
@@ -248,8 +269,8 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
     o = [fx.Vector.filled(4, 0.0, fx.Float32) for _ in range(GQ)]
     vl_ = _load_i32x2(wl, GQ * HD + HD // 2 + d0 // 2)
     for b in range(0, CH // PVB):
-        vrs = [D.ld(rv, (cache + fx.min(p0 + b * PVB + k, pos) * HD + d0) // 2, 2) for k in range(PVB)]
-        o = _pv_batch(wl, b, p0, pos, vl_, vrs, o)
+        o = _pv_batch(wl, b, p0, pos, vl_, vload(b), o)
+    D.probe(c, 7)
     # ---- partial record
     rr = D.rsrc(rec)
     rbase = ((m * NKV + j) * ncmax + ci) * REC
@@ -265,25 +286,29 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
     if lane == 0:
         old = D.atomic_add_dev(cnt + (m * NKV + j) * 4, 1)
     old = D.uniform(old)
+    D.probe(c, 8)
     if (old + 1) % nchunk == 0:
         _attn_merge(lane, m, j, nchunk, ncmax, ry, ybase, rr, og)
+        D.probe(c, 9)
 
 
 @D.traced
-def _qk_batch(wl, b, isnew, kr, sc):
-    """Scores of the lane's position over dims 32 b .. 32 b + 31 (q from LDS)."""
-    sc = list(sc)
-    for u in range_constexpr(4):
-        dd = 32 * b + 8 * u
-        kl = _load_i32x4(wl, GQ * HD + dd // 2)
-        qs = [[_load_f4(wl, hh * HD + dd), _load_f4(wl, hh * HD + dd + 4)] for hh in range(GQ)]
-        for e in range_constexpr(4):
-            w = isnew.select(kl[e], kr[u][e])
-            k0, k1 = D.bf_lo(w), D.bf_hi(w)
-            for hh in range_constexpr(GQ):
-                qv = qs[hh][e // 2]
-                sc[hh] = sc[hh] + qv[2 * (e % 2)] * k0 + qv[2 * (e % 2) + 1] * k1
-    return sc
+def _score_tile(wl, t, p0, pos, gq, nq, qa, kt):
+    """Scores of positions p0 + 16 t .. + 15 for the GQ heads -> LDS s[h][16 t + n]. The
+    new position's k comes from LDS (bf16 pairs at GQ HD floats), the rest from the cache."""
+    isnew = (p0 + 16 * t + nq) == pos
+    acc = fx.Vector.filled(4, 0.0, fx.Float32)
+    for u in range_constexpr(8):
+        kl = _load_i32x4(wl, GQ * HD + (64 * gq + 8 * u) // 2)
+        kw = [isnew.select(kl[e], kt[u][e]) for e in range(4)]
+        for h in range_constexpr(2):
+            a = qa[2 * u + h].bitcast(fx.Int16)
+            b = fx.Vector.from_elements([kw[2 * h], kw[2 * h + 1]], fx.Int32).bitcast(fx.Int16)
+            acc = fx.Vector(rocdl.mfma_f32_16x16x16bf16_1k(T.vec(4, T.f32), [a, b, acc, 0, 0, 0]))
+    # D[row 4 gq + r][col nq]: head 4 gq + r, position 16 t + nq
+    for r in range_constexpr(4):
+        if 4 * gq + r < GQ:
+            fx.ptr_store(acc[r], wl + ((4 * gq + r) * CH + 16 * t + nq))
 
 
 @D.traced
@@ -299,12 +324,11 @@ def _pv_batch(wl, b, p0, pos, vl_, vrs, o):
         for hh in range_constexpr(GQ):
             ph = fx.ptr_load(wl + (hh * CH + pp))
             for e in range_constexpr(4):
-                o[hh][e] = o[hh][e] + ph * vf[e]
+                o[hh][e] = D.fma(ph, vf[e], o[hh][e])
     return [fx.Vector.from_elements(o[hh], fx.Float32) for hh in range(GQ)]
 
 
 def rocm_wait():
-    from flydsl.expr import rocdl
     rocdl.s_waitcnt(vmcnt=0)
 
 

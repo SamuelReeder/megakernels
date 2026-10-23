@@ -279,10 +279,21 @@ class Gemv:
         last = u1 - 1
         if ((last // KSc) != ((u0 + (nblk - 1) * P) // KSc)) & (nblk > 0):
             self.store_part(w, last // KSc, acc_a, rp)
-        # counters after the whole stream: one drain instead of one per piece
+        # counters after the whole stream: one drain, then all the wave's atomics at once
+        # (their round trips overlap), then the reductions of the groups it completed
         rocdl.s_waitcnt(vmcnt=0)
-        for p in range(u0 // KSc, (u1 - 1) // KSc + 1):
-            self.arrive(c, w, p, rp, cnt, epilogue)
+        p0 = u0 // KSc
+        np_ = (u1 - 1) // KSc + 1 - p0
+        olds = []
+        for j in range_constexpr(self.NPW):
+            old = fx.Int32(0)
+            if (w["lane"] == 0) & (j < np_):
+                old = D.atomic_add_dev(cnt + self.cgroup(p0 + j) * 4, 1)
+            olds.append(D.uniform(old))
+        D.probe(c, 3)
+        for j in range_constexpr(self.NPW):
+            if (j < np_) & ((olds[j] + 1) % self.cg_total(self.cgroup(p0 + j)) == 0):
+                self.la_reduce(w["lane"], self.cgroup(p0 + j), rp, epilogue, c)
         D.probe(c, 2)
 
     def nseg(self, p):
@@ -296,23 +307,23 @@ class Gemv:
         if w["gl"] < self.MT:
             D.st(acc, rp, ((p * self.SEGMAX + w["gw"] - wf) * 64 + w["lane"]) * 4, D.CM_DEV)
 
-    @D.traced
-    def arrive(self, c, w, p, rp, cnt, epilogue):
-        """Count piece p's partial (stored and drained) on its group's counter; the
-        last arriver reduces and runs the epilogue."""
-        lane = w["lane"]
-        cg = (p % self.G) // self.gpc
+    @property
+    def NPW(self):
+        """Max pieces one wave's range touches."""
+        import math
+        return math.ceil(math.ceil(self.U / self.NW) / self.KSc) + 1
+
+    def cgroup(self, p):
+        return (p % self.G) // self.gpc
+
+    def cg_total(self, cg):
+        """Segments counted on counter group cg (all its pieces, all chunks)."""
         total = fx.Int32(0)
         for ch in range_constexpr(self.C):
             for j in range_constexpr(self.gpc):
                 _, n = self.nseg(ch * self.G + cg * self.gpc + j)
                 total = total + n
-        old = fx.Int32(0)
-        if lane == 0:
-            old = D.atomic_add_dev(cnt + cg * 4, 1)
-        old = D.uniform(old)
-        if (old + 1) % total == 0:
-            self.la_reduce(lane, cg, rp, epilogue, c)
+        return total
 
     @D.traced
     def la_reduce(self, lane, cg, rp, epilogue, c=None):

@@ -65,7 +65,15 @@ for k, v in rows.items():
     print(f"{k:6} {len(v):3d} {sp:8.1f} {stt.median(r[1] for r in v):8.1f} {stt.median(r[2] for r in v):10.2f} "
           f"{sum(r[0] for r in v):11.1f}")
 print(f"sum of spans + barriers {acc:.1f} us")
-if PSTAGE:
+if PSTAGE == "attn":
+    pr = probes.double().cpu() / 100.0 - t0
+    act = pr[:, 4] > 0
+    names = ["start", "q/k prep", "QK", "softmax+PV", "record+atomic", "merge"]
+    for k in range(4, 10):
+        v = pr[act, k] if k < 9 else pr[pr[:, 9] > 0, 9]
+        if len(v):
+            print(f"attn {names[k - 4]:14} end: min {v.min():.1f} med {v.median():.1f} max {v.max():.1f} us (n {len(v)})")
+elif PSTAGE:
     pr = probes.double().cpu() / 100.0 - t0
     for k, nm in ((0, "stream start"), (1, "stream end"), (2, "hand-off end")):
         v = pr[:, k]
@@ -74,6 +82,10 @@ if PSTAGE:
     print(f"{PSTAGE} stream time per wave: min {d.min():.1f} med {d.median():.1f} max {d.max():.1f} us")
     d = pr[:, 2] - pr[:, 1]
     print(f"{PSTAGE} hand-off per wave: med {d.median():.1f} max {d.max():.1f} us")
+    d = pr[:, 3] - pr[:, 1]
+    print(f"{PSTAGE} drain + atomics per wave: med {d.median():.1f} max {d.max():.1f} us")
+    d = pr[:, 2] - pr[:, 3]
+    print(f"{PSTAGE} reductions per wave: med {d.median():.1f} max {d.max():.1f} us")
     if os.environ.get("DETAIL"):
         st = (pr[:, 1] - pr[:, 0]).reshape(CUS, 8)
         print("stream by XCD (bid%8) median:", [round(st[x::8].median().item(), 1) for x in range(8)])
