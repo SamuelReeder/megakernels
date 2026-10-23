@@ -83,8 +83,11 @@ def gdn_task(c, M, task, y_in, a_log, dt_bias, norm_w, ssm, y_out, ssq_out, wl):
     r = lane // 4
     kq = lane % 4
     rs = D.rsrc(ssm)
-    sbase = ((m * NVH + h) * 128 + ch * 16 + r) * DK + kq * 32
-    S = [D.ld(rs, sbase + 4 * i, 4, T.f32, D.CM_NT) for i in range(8)]
+    # The chunk's 16 x 128 state is stored lane-interleaved: load i of lane l is the
+    # 16 B at (64 i + l) * 16 of the chunk (one contiguous 1 KiB per instruction) and
+    # holds S[r][32 kq + 4 i .. + 3]. Only the kernel reads the state.
+    sbase = ((m * NVH + h) * 128 + ch * 16) * DK + lane * 4
+    S = [D.ld(rs, sbase + 256 * i, 4, T.f32, D.CM_NT) for i in range(8)]
     kk = [fx.ptr_load(wl + (DK + kq * 32 + e)) for e in range(32)]
     qq = [fx.ptr_load(wl + (kq * 32 + e)) for e in range(32)]
     D.probe(c, 6)
@@ -105,7 +108,7 @@ def gdn_task(c, M, task, y_in, a_log, dt_bias, norm_w, ssm, y_out, ssq_out, wl):
             o = o + s_ * qq[4 * i + e]
         Sn.append(fx.Vector.from_elements(nv, fx.Float32))
     for i in range_constexpr(8):
-        D.st(Sn[i], rs, sbase + 4 * i, D.CM_NT)
+        D.st(Sn[i], rs, sbase + 256 * i, D.CM_NT)
     o = D.xor_sum(o, lane, (1, 2))
     zrow = D.gather_f(zval, 16 + r)
     nwr = D.bf_lo(D.ld(D.rsrc(norm_w), (ch * 16 + r) // 2) >> (((ch * 16 + r) % 2) * 16))
