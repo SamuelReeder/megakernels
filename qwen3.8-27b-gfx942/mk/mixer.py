@@ -184,10 +184,11 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
     gq, nq = lane // 16, lane % 16                   # MFMA lane coordinates
 
     def ktile(t):
-        """B operand rows of score tile t: position p0 + 16 t + nq (clamped to pos), dims
-        64 gq .. 64 gq + 63 (8 x 16 B; k-step i = dims 64 gq + 4 i .. + 3)."""
+        """B operand rows of score tile t: position p0 + 16 t + nq (clamped to pos). Load u
+        of lane group gq: dims 32 u + 8 gq .. + 7 (the 4 groups read 64 contiguous bytes
+        of a row); k-step 2 u + h = dims 32 u + 8 gq + 4 h .. + 3."""
         pt = fx.min(p0 + 16 * t + nq, pos)
-        return [D.ld(rk, (cache + pt * HD + 64 * gq + 8 * u) // 2, 4) for u in range(8)]
+        return [D.ld(rk, (cache + pt * HD + 32 * u + 8 * gq) // 2, 4) for u in range(8)]
 
     def vload(b):
         return [D.ld(rv, (cache + fx.min(p0 + b * PVB + k, pos) * HD + d0) // 2, 2) for k in range(PVB)]
@@ -221,11 +222,11 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
         D.st(vw2, rv, (cache + pos * HD + d0) // 2, D.CM_DEV)
     D.probe(c, 5)
     # ---- scores on the MFMA (bf16 16x16x16): S^T tile [16 head rows][16 positions].
-    # The k order is permuted alike in A and B (lane group gq takes dims 64 gq ..): the
-    # sum over k does not depend on it. Rows >= GQ are zero.
+    # The k order is permuted alike in A and B (see ktile): the sum over k does not
+    # depend on it. Rows >= GQ are zero.
     qa = []
     for i in range_constexpr(16):
-        qv = _load_f4(wl, fx.min(nq, GQ - 1) * HD + 64 * gq + 4 * i)
+        qv = _load_f4(wl, fx.min(nq, GQ - 1) * HD + 32 * (i // 2) + 8 * gq + 4 * (i % 2))
         w2 = fx.Vector.from_elements([pack_bf2(qv[0], qv[1]), pack_bf2(qv[2], qv[3])], fx.Int32)
         z2 = fx.Vector.from_elements([fx.Int32(0), fx.Int32(0)], fx.Int32)
         qa.append((nq < GQ).select(w2, z2))
@@ -283,7 +284,7 @@ def _score_tile(wl, t, p0, pos, gq, nq, qa, kt):
     isnew = (p0 + 16 * t + nq) == pos
     acc = fx.Vector.filled(4, 0.0, fx.Float32)
     for u in range_constexpr(8):
-        kl = _load_i32x4(wl, GQ * HD + (64 * gq + 8 * u) // 2)
+        kl = _load_i32x4(wl, GQ * HD + (32 * u + 8 * gq) // 2)
         kw = [isnew.select(kl[e], kt[u][e]) for e in range(4)]
         for h in range_constexpr(2):
             a = qa[2 * u + h].bitcast(fx.Int16)
