@@ -23,7 +23,7 @@ class Engine:
         self.launch = KK.build(self.cfg)
         z = lambda *s, dt=torch.float32: torch.zeros(*s, dtype=dt, device=device)  # noqa: E731
         ng, na = NL * 3 // 4, NL // 4
-        self.hb = z(2, M, H)
+        self.hb = z(3, M, H)       # residual h0, h1 (fp32), then their bf16 copies
         self.ssq = z(2, M, H // 16)
         self.y = z(M, max(INP_N, QKV_N, 2 * FFN))
         self.y2 = z(M, VAL_DIM)

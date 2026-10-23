@@ -50,7 +50,8 @@ def rstd_from_ssq(c, M, ssq, red, eps):
 @D.traced
 def prologue_norm(c, g, xq, xs, red, h, ssq, lnw, eps):
     """x = h * rstd * (1 + w) (zero-centred RMSNorm) for the CTA's K chunk slots,
-    quantized per (token, 128 K). The h loads go out before the rstd reduction."""
+    quantized per (token, 128 K). h: the bf16 copy of the residual (rstd comes from the
+    fp32 sums of squares). The h loads go out before the rstd reduction."""
     M, K = g.M, g.K
     assert K == H and g.kind == "mx"
     tid = c["tid"]
@@ -68,17 +69,16 @@ def prologue_norm(c, g, xq, xs, red, h, ssq, lnw, eps):
             t = j // (g.Kc // 8)
             kc = j % (g.Kc // 8) * 8
             k0 = cb + kc
-            raw.append((sl, i, t, kc, D.ld(rh, t * K + k0, 4, T.f32, D.CM_DEV),
-                        D.ld(rh, t * K + k0 + 4, 4, T.f32, D.CM_DEV), D.ld(rw, k0 // 2, 4)))
+            raw.append((sl, i, t, kc, D.ld(rh, (t * K + k0) // 2, 4, cm=D.CM_DEV), D.ld(rw, k0 // 2, 4)))
     D.probe(c, 6)
     rstd_from_ssq(c, M, ssq, red, eps)
     D.probe(c, 7)
-    for sl, i, t, kc, a, b, wv in raw:
+    for sl, i, t, kc, hw, wv in raw:
         rs = fx.ptr_load(red + t)
-        f = []
+        f, hv = [], []
         for e in range_constexpr(4):
             f += [D.bf_lo(wv[e]), D.bf_hi(wv[e])]
-        hv = [a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3]]
+            hv += [D.bf_lo(hw[e]), D.bf_hi(hw[e])]
         x = [hv[e] * rs * (fx.Float32(1.0) + f[e]) for e in range(8)]
         store_quant8(c, g, xq, xs, x, t, sl * g.Kc + kc, tid + NT * i < nch)
     D.probe(c, 8)
@@ -128,11 +128,12 @@ def prologue_act(c, g, xq, xs, act):
 
 
 class EpiRes:
-    """Residual epilogue: h_out[:, 16 grp + col] = h_in + tot; ssq_out[t][grp] = sum
-    over the 16 columns. pre(grp) loads h_in; the GEMV issues it with its partial loads."""
+    """Residual epilogue: h_out[:, 16 grp + col] = h_in + tot (fp32, and its bf16 copy
+    hb_out for the next GEMV prologue); ssq_out[t][grp] = sum over the 16 columns.
+    pre(grp) loads h_in; the GEMV issues it with its partial loads."""
 
-    def __init__(self, c, M, h_in, h_out, ssq_out):
-        self.c, self.M, self.h_in, self.h_out, self.ssq_out = c, M, h_in, h_out, ssq_out
+    def __init__(self, c, M, h_in, h_out, ssq_out, hb_out):
+        self.c, self.M, self.h_in, self.h_out, self.ssq_out, self.hb_out = c, M, h_in, h_out, ssq_out, hb_out
 
     def pre(self, grp):
         ri = D.rsrc(self.h_in)
@@ -140,13 +141,13 @@ class EpiRes:
                 for r in range(4)]
 
     def __call__(self, grp, tots, pre):
-        _epi_res(self.c, self.M, grp, tots[0], pre, self.h_out, self.ssq_out)
+        _epi_res(self.c, self.M, grp, tots[0], pre, self.h_out, self.ssq_out, self.hb_out)
 
 
 @D.traced
-def _epi_res(c, M, grp, tot, hin, h_out, ssq_out):
+def _epi_res(c, M, grp, tot, hin, h_out, ssq_out, hb_out):
     lane, col = c["lane"], c["col"]
-    ro, rq = D.rsrc(h_out), D.rsrc(ssq_out)
+    ro, rq, rb = D.rsrc(h_out), D.rsrc(ssq_out), D.rsrc(hb_out)
     ng = H // 16
     for r in range_constexpr(4):
         t = 4 * c["gl"] + r
@@ -156,6 +157,7 @@ def _epi_res(c, M, grp, tot, hin, h_out, ssq_out):
         s = D.xor_sum(v * v, lane, (1, 2, 4, 8))
         if live:
             D.st(v, ro, tt * H + grp * 16 + col, D.CM_DEV)
+            D.st(fx.Float32(v).to(fx.BFloat16), rb, tt * H + grp * 16 + col, D.CM_DEV)
             if col == 0:
                 D.st(s, rq, tt * ng + grp, D.CM_DEV)
 
@@ -263,7 +265,8 @@ def prologue_scaled(c, g, xq, xs, y, ssq, norm_eps, per_head):
 
 @D.traced
 def prologue_norm_bf16(c, g, xq, red, h, ssq, lnw, eps):
-    """LM head: LDS x <- bf16(h * rstd * (1 + w)) for the CTA's chunk slots."""
+    """LM head: LDS x <- bf16(h * rstd * (1 + w)) for the CTA's chunk slots (h: the
+    bf16 copy of the residual, as in prologue_norm)."""
     M, K = g.M, g.K
     assert g.kind == "bf16"
     tid = c["tid"]
@@ -278,17 +281,16 @@ def prologue_norm_bf16(c, g, xq, red, h, ssq, lnw, eps):
             t = j // (g.Kc // 8)
             kc = j % (g.Kc // 8) * 8
             k0 = cb + kc
-            raw.append((sl, i, t, kc, D.ld(rh, t * K + k0, 4, T.f32, D.CM_DEV),
-                        D.ld(rh, t * K + k0 + 4, 4, T.f32, D.CM_DEV), D.ld(rw, k0 // 2, 4)))
+            raw.append((sl, i, t, kc, D.ld(rh, (t * K + k0) // 2, 4, cm=D.CM_DEV), D.ld(rw, k0 // 2, 4)))
     D.probe(c, 6)
     rstd_from_ssq(c, M, ssq, red, eps)
     D.probe(c, 7)
-    for sl, i, t, kc, a, b, wv in raw:
+    for sl, i, t, kc, hw, wv in raw:
         rs = fx.ptr_load(red + t)
-        f = []
+        f, hv = [], []
         for e in range_constexpr(4):
             f += [D.bf_lo(wv[e]), D.bf_hi(wv[e])]
-        hv = [a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3]]
+            hv += [D.bf_lo(hw[e]), D.bf_hi(hw[e])]
         x = [hv[e] * rs * (fx.Float32(1.0) + f[e]) for e in range(8)]
         words = [fx.Vector.from_elements([x[2 * q], x[2 * q + 1]], fx.Float32).to(fx.BFloat16).bitcast(fx.Int32)[0]
                  for q in range(4)]
@@ -298,7 +300,7 @@ def prologue_norm_bf16(c, g, xq, red, h, ssq, lnw, eps):
 
 
 @D.traced
-def embed_stage(c, M, tok_ptr, emb, h_out, ssq_out):
+def embed_stage(c, M, tok_ptr, emb, h_out, ssq_out, hb_out):
     """h = embed[tok] (bf16 -> fp32) and its 16-column sums of squares. CTA b handles
     groups b, b + CUS, ... (thread: token t = tid // 16, column tid % 16)."""
     tid, bid = c["tid"], c["bid"]
@@ -315,6 +317,7 @@ def embed_stage(c, M, tok_ptr, emb, h_out, ssq_out):
             w = D.ld(re, k // 2)
             v = (k % 2 == 0).select(D.bf_lo(w), D.bf_hi(w))
             D.st(v, ro, t * H + k, D.CM_DEV)
+            D.st(fx.Float32(v).to(fx.BFloat16), D.rsrc(hb_out), t * H + k, D.CM_DEV)
             s = D.xor_sum(v * v, lane, (1, 2, 4, 8))
             if col == 0:
                 D.st(s, rq, t * ng + gi, D.CM_DEV)

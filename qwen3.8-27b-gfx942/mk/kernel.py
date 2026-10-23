@@ -126,6 +126,7 @@ def build(cfg: Cfg):
         G = [tab64(rg, k) for k in range(NGLOB)]
         rf = D.rsrc(G[G_FLAGS])
         hb0, hb1 = G[G_HB], G[G_HB] + fx.Int64(M * H * 4)
+        hf0, _ = hf_ptrs(hb0, M)
         q0, q1 = G[G_SSQ], G[G_SSQ] + fx.Int64(M * (H // 16) * 4)
         cnt = lambda k: G[G_CNT] + fx.Int64(CNT_REGION[k] * CNT_STRIDE * 4)  # noqa: E731
         part = G[G_PART]
@@ -159,7 +160,7 @@ def build(cfg: Cfg):
             return w, buf
 
         # ---- embedding (+ zero the attention counters: their totals change with pos)
-        S.embed_stage(c, M, G[G_TOK], G[G_EMBED], hb0, q0)
+        S.embed_stage(c, M, G[G_TOK], G[G_EMBED], hb0, q0, hf0)
         if bid == 0:
             for i in range_constexpr((M * NKV + NT - 1) // NT):
                 if tid + NT * i < M * NKV:
@@ -191,7 +192,7 @@ def build(cfg: Cfg):
         # ---- final norm + LM head
         lm = SP["lm"]
         w, buf = barrier_then(lm, G[G_LM], G[G_LM], epoch + 1 + nlayers * 5)
-        S.prologue_norm_bf16(c, lm, xq, red, hb0, q0, G[G_FNORM], EPS)
+        S.prologue_norm_bf16(c, lm, xq, red, hf0, q0, G[G_FNORM], EPS)
         if const_expr(lm.name not in SKIP):
             lm.run(c, w, buf, part, cnt("lm"), lambda cg, tots: S.epi_raw(c, M, VOCAB, cg, tots[0], G[G_LOGITS]))
         if const_expr(PROFILE["addr"] is not None):
@@ -213,11 +214,12 @@ def barriers_per_step(nlayers):
 def _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, barrier_then, gw,
                ntask):
     M = c_M(SP)
+    hf0, hf1 = hf_ptrs(hb0, M)
     inp, out = SP["inp"], SP["out"]
     y, y2, hssq = G[G_Y], G[G_Y2], G[G_HSSQ]
     # in_proj
     w, buf = barrier_then(inp, T(T_MIX_T), T(T_MIX_S), e0)
-    S.prologue_norm(c, inp, xq, xs, red, hb0, q0, T(T_IN_LN), EPS)
+    S.prologue_norm(c, inp, xq, xs, red, hf0, q0, T(T_IN_LN), EPS)
     if const_expr(inp.name not in SKIP):
         inp.run(c, w, buf, part, cnt("inp"), S.EpiConv(c, M, y, T(T_CONV), T(T_CONVW)))
     if const_expr(STOP[0] < 2):
@@ -232,17 +234,18 @@ def _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, ba
     w, buf = barrier_then(out, T(T_OUT_T), T(T_OUT_S), e0 + 2)
     S.prologue_scaled(c, out, xq, xs, y2, hssq, EPS, 128)
     if const_expr(out.name not in SKIP):
-        out.run(c, w, buf, part, cnt("out"), S.EpiRes(c, M, hb0, hb1, q1))
+        out.run(c, w, buf, part, cnt("out"), S.EpiRes(c, M, hb0, hb1, q1, hf1))
 
 
 @D.traced
 def _attn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, barrier_then, gw,
                 ntask, cfg):
     M = c_M(SP)
+    hf0, hf1 = hf_ptrs(hb0, M)
     qkv, o = SP["qkv"], SP["o"]
     y, y2 = G[G_Y], G[G_Y2]
     w, buf = barrier_then(qkv, T(T_MIX_T), T(T_MIX_S), e0)
-    S.prologue_norm(c, qkv, xq, xs, red, hb0, q0, T(T_IN_LN), EPS)
+    S.prologue_norm(c, qkv, xq, xs, red, hf0, q0, T(T_IN_LN), EPS)
     if const_expr(qkv.name not in SKIP):
         qkv.run(c, w, buf, part, cnt("qkv"), lambda cg, tots: S.epi_raw(c, M, QKV_N, cg, tots[0], y))
     barrier_then(None, None, None, e0 + 1)
@@ -252,16 +255,17 @@ def _attn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, b
     w, buf = barrier_then(o, T(T_OUT_T), T(T_OUT_S), e0 + 2)
     S.prologue_scaled(c, o, xq, xs, y2, y2, EPS, 0)
     if const_expr(o.name not in SKIP):
-        o.run(c, w, buf, part, cnt("o"), S.EpiRes(c, M, hb0, hb1, q1))
+        o.run(c, w, buf, part, cnt("o"), S.EpiRes(c, M, hb0, hb1, q1, hf1))
 
 
 @D.traced
 def _mlp(c, SP, T, e0, xq, xs, red, hb0, hb1, q0, q1, part, cnt, barrier_then, G):
     M = c_M(SP)
+    hf0, hf1 = hf_ptrs(hb0, M)
     gu, dn = SP["gu"], SP["down"]
     y = G[G_Y]
     w, buf = barrier_then(gu, T(T_GU_T), T(T_GU_S), e0)
-    S.prologue_norm(c, gu, xq, xs, red, hb1, q1, T(T_POST_LN), EPS)
+    S.prologue_norm(c, gu, xq, xs, red, hf1, q1, T(T_POST_LN), EPS)
     if const_expr(gu.name not in SKIP):
         gu.run(c, w, buf, part, cnt("gu"), lambda cg, tots: S.epi_act(c, M, cg, tots[0], y))
     if const_expr(STOP[0] < 5):
@@ -269,7 +273,12 @@ def _mlp(c, SP, T, e0, xq, xs, red, hb0, hb1, q0, q1, part, cnt, barrier_then, G
     w, buf = barrier_then(dn, T(T_DN_T), T(T_DN_S), e0 + 1)
     S.prologue_act(c, dn, xq, xs, y)
     if const_expr(dn.name not in SKIP):
-        dn.run(c, w, buf, part, cnt("down"), S.EpiRes(c, M, hb1, hb0, q0))
+        dn.run(c, w, buf, part, cnt("down"), S.EpiRes(c, M, hb1, hb0, q0, hf0))
+
+
+def hf_ptrs(hb0, M):
+    """The bf16 copies of h0, h1 (after the two fp32 buffers, see Engine.hb)."""
+    return hb0 + fx.Int64(2 * M * H * 4), hb0 + fx.Int64(2 * M * H * 4 + M * H * 2)
 
 
 def c_M(SP):

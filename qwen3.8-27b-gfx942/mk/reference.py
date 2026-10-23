@@ -84,6 +84,15 @@ def rms0(x32: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
     return x32 * r * (1.0 + w.float())
 
 
+def norm_in(h32: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
+    """The RMSNorm in front of a GEMV. Emulate mode: the megakernel scales the bf16 copy
+    of the residual (rstd from the fp32 residual)."""
+    if not EMULATE:
+        return rms0(h32, w)
+    r = torch.rsqrt(h32.pow(2).mean(-1, keepdim=True) + EPS)
+    return h32.to(torch.bfloat16).float() * r * (1.0 + w.float())
+
+
 EMULATE = False   # set by step(): mirror the megakernel's fp8 activation quantization
 
 
@@ -231,14 +240,14 @@ def step(W: Weights, tok: torch.Tensor, st: State, layers: int = NL, dump=None, 
     h = W["model.language_model.embed_tokens.weight"][tok].float()
     g_i = a_i = 0
     for i in range(layers):
-        x = rms0(h, W.L(i, "input_layernorm.weight"))
+        x = norm_in(h, W.L(i, "input_layernorm.weight"))
         if is_attn(i):
             h = h + attn(W, i, x, st, a_i)
             a_i += 1
         else:
             h = h + gdn(W, i, x, st, g_i)
             g_i += 1
-        x = rms0(h, W.L(i, "post_attention_layernorm.weight"))
+        x = norm_in(h, W.L(i, "post_attention_layernorm.weight"))
         gt = lin(x, W.L(i, "mlp.gate_proj.weight"))
         up = lin(x, W.L(i, "mlp.up_proj.weight"))
         act = gt * torch.sigmoid(gt) * up
@@ -246,7 +255,7 @@ def step(W: Weights, tok: torch.Tensor, st: State, layers: int = NL, dump=None, 
         if dump is not None:
             dump[i] = h.clone()
     st.pos += 1
-    x = rms0(h, W["model.language_model.norm.weight"])
+    x = norm_in(h, W["model.language_model.norm.weight"])
     return lin_bf16(x, W["lm_head.weight"])
 
 
