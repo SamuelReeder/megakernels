@@ -18,6 +18,7 @@ from flydsl.expr.typing import T
 from .vendor import buffer_ops as bo
 
 CM_DEV = 16
+CM_SYS = 17  # sc0 | sc1: system scope (peer GPUs over XGMI)
 CM_NT = 2
 LINE = 32  # i32 per 128 B cache line
 
@@ -204,6 +205,20 @@ def silu(x):
     return fx.Float32(x) * sigmoid(x)
 
 
+def bf16_pair(a, b):
+    """Two f32 -> one f32-typed word holding (bf16(a), bf16(b)), RNE."""
+    return (
+        fx.Vector.from_elements([a, b], fx.Float32)
+        .to(fx.BFloat16)
+        .bitcast(fx.Float32)[0]
+    )
+
+
+def bf16r(v):
+    """f32 rounded to bf16 (RNE) and back."""
+    return fx.Float32(fx.Float32(v).to(fx.BFloat16))
+
+
 def bf_lo(w):
     return (fx.Int32(w) << 16).bitcast(fx.Float32)
 
@@ -299,6 +314,11 @@ def atomic_add_dev(addr, v):
         )
     )
 
+
+# Trace-time constants of the kernel being traced (kernel.build's launch sets them
+# before its body traces): "d" the rank's Dims, "ar" the all-reduce config or None.
+# Python values cannot ride in the stage dict c, which the layer loop carries as IR.
+TRACE = {}
 
 PROBE = {"addr": None}  # debug: global address of an i64 array [CTA * 8 + wave][16]
 

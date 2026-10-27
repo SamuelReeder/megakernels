@@ -6,36 +6,30 @@ import torch
 
 from . import kernel as KK
 from . import mixer as X
-from .dims import (
-    CONV_DIM,
-    DK,
-    DV,
-    H,
-    HD,
-    INP_N,
-    NKV,
-    NL,
-    NVH,
-    QKV_N,
-    FFN,
-    VAL_DIM,
-    VOCAB,
-    is_attn,
-)
+from .dims import DK, DV, H, HD, NL, Dims, is_attn
 from .pack import Packed
 from .reference import rope_cos_sin
 
 LAYER = "model.language_model.layers.{}."
 
 
-CONV_BYTES = 3 * CONV_DIM * 2  # bf16 [3][CONV_DIM]
-PAGE = CONV_BYTES + NVH * DV * DK * 4  # one state slot: conv, then SSM (as vLLM)
+def conv_bytes(d: Dims):
+    return 3 * d.conv_dim * 2  # bf16 [3][conv_dim]
+
+
+def page_bytes(d: Dims):
+    return conv_bytes(d) + d.nvh * DV * DK * 4  # one state slot: conv, then SSM (as vLLM)
 
 
 class Engine:
     """Decode engine for M rows (independent sequences), with its own caches in vLLM's
     layouts: KV blocks of `block` positions handed out in a shuffled order (block 0 is
-    vLLM's null block), and GDN state slots 1..M (slot 0 is the null slot)."""
+    vLLM's null block), and GDN state slots 1..M (slot 0 is the null slot).
+
+    TP > 1 (PK packed for rank PK.rank of PK.tp): the caches, states and logits are
+    the rank's; `group` (a gloo group of the TP ranks) maps the peer buffers
+    (mk/peer.py). Every rank must construct its engines in the same order and step
+    them the same number of times (their barrier epochs tag the all-reduces)."""
 
     def __init__(
         self,
@@ -46,9 +40,16 @@ class Engine:
         device="cuda",
         block: int = 208,
         xpack: bool = False,
+        group=None,
+        ar_dtype: str = "fp32",
+        ar_local: bool = False,
     ):
         self.PK, self.M, self.maxlen, self.layers = PK, M, maxlen, layers
-        cus = torch.cuda.get_device_properties(0).multi_processor_count
+        tp, rank = PK.tp, PK.rank
+        d = self.d = Dims(tp)
+        NKV = d.nkv
+        PAGE = page_bytes(d)
+        cus = torch.cuda.get_device_properties(device).multi_processor_count
         nb = -(-maxlen // block)
         # a block as vLLM's ROCm backends keep it: a K and a V half of NKV HD block
         # elements, [position][head][HD] (TRITON_ATTN) or x-packed per head (ROCM_ATTN)
@@ -58,22 +59,35 @@ class Engine:
             NKV * HD,
             block * NKV * HD,
         )
-        self.cfg = KK.Cfg(M, cus, maxlen, block, nb, *kv_s, xpack, PAGE, PAGE)
+        self.cfg = KK.Cfg(
+            M,
+            cus,
+            maxlen,
+            block,
+            nb,
+            *kv_s,
+            xpack,
+            PAGE,
+            PAGE,
+            tp=tp,
+            ar_dtype=ar_dtype,
+            ar_local=ar_local,
+        )
         self.launch = KK.build(self.cfg)
         z = lambda *s, dt=torch.float32: torch.zeros(*s, dtype=dt, device=device)  # noqa: E731
         ng, na = NL * 3 // 4, NL // 4
         self.hb = z(3, M, H)  # residual h0, h1 (fp32), then their bf16 copies
         self.ssq = z(2, M, H // 16)
-        self.y = z(M, max(INP_N, QKV_N, 2 * FFN))
-        self.y2 = z(M, VAL_DIM)
-        self.hssq = z(M, NVH, 8)
+        self.y = z(M, max(d.inp_n, d.qkv_n, 2 * d.ffn))
+        self.y2 = z(M, d.val_dim)
+        self.hssq = z(M, d.nvh, 8)
         self.part = z(self.cfg.part_floats())
         self.cnt = z(8 * KK.CNT_STRIDE, dt=torch.int32)
         self.flags = z((cus + KK.EPOCH_WORD_LINE + 1) * 32, dt=torch.int32)
         self.rec = z(M * NKV * self.cfg.ncmax * X.REC)
         self.tok = z(M, dt=torch.int32)
         self.pos = z(M, dt=torch.int32)
-        self.logits = z(M, VOCAB)
+        self.logits = z(M, d.vocab)  # this rank's vocab slice
         cos, sin = rope_cos_sin(torch.arange(maxlen, device=device))
         self.rope = torch.cat([cos[:, :32], sin[:, :32]], 1).contiguous()
         g = torch.Generator().manual_seed(0)
@@ -114,6 +128,12 @@ class Engine:
             self.pos.data_ptr(),
         )
         g[KK.G_OUT] = self.logits.data_ptr()
+        self.peer = None
+        if tp > 1:
+            from .peer import PeerBuffer
+
+            self.peer = PeerBuffer(KK.peer_bytes(tp), group, rank, tp, device)
+            g[KK.G_PEERS], g[KK.G_RANK] = self.peer.addresses.data_ptr(), rank
         self.glob = torch.tensor(g, dtype=torch.int64, device=device)
         tab = torch.zeros(NL, KK.NTAB, dtype=torch.int64)
         gi = ai = 0
@@ -144,7 +164,7 @@ class Engine:
                     sm("linear_attn.norm.weight"),
                 )
                 tab[i, KK.T_CONV] = self.state[gi].data_ptr()
-                tab[i, KK.T_SSM] = self.state[gi].data_ptr() + CONV_BYTES
+                tab[i, KK.T_SSM] = self.state[gi].data_ptr() + conv_bytes(d)
                 tab[i, KK.T_IDX] = self.sidx.data_ptr()
                 gi += 1
             gt, gs = PK.mats[(i, "gu")]
@@ -170,8 +190,8 @@ class Engine:
             t.zero_()
 
     def step(self, tok: torch.Tensor, stream=None):
-        """One decode step for all M rows. tok: [M] int. Returns fp32 logits [M, VOCAB]
-        (a view, overwritten by the next step)."""
+        """One decode step for all M rows. tok: [M] int. Returns fp32 logits [M, vocab of
+        this rank] (a view, overwritten by the next step)."""
         self.tok.copy_(tok.to(torch.int32))
         self.launch(
             self.tab.data_ptr(),
