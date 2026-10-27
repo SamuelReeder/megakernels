@@ -500,7 +500,9 @@ def _embed_exchange(c, M, tag, owner, t, k, v):
     if owner == A["rank"]:
         for p in range_constexpr(A["tp"]):
             Mailbox(tag).put(
-                preg(A["bases"][p] + off, 0, "embed"), (owner * M + t) * H + k, v
+                preg(A["bases"][p] + off, 0, "embed"),
+                (owner * M + t) * H + k,
+                fx.Float32(v),  # an f32 put keeps the bits (else Int32(v) converts)
             )
     w = mb.poll([(preg(A["own"] + off, 0, "embed"), (owner * M + t) * H + k, 1)])
     return fx.Int32(w[0][0]).bitcast(fx.Float32)
