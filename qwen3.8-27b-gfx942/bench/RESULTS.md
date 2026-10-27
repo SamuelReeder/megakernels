@@ -71,5 +71,21 @@ bash tests/run_suite.sh $HOME/mk/models OUT_DIR            # everything above on
 bash bench/repro.sh $HOME/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 OUT_DIR   # speed + smoke on another node
 ```
 
-A third same-GPU stock + megakernel run is queued for 2026-10-23 (Slurm job
-68152179, output `~/mk/repro_out/pair_*_68152179` and `~/mk/pair_68152179.log`).
+## Later runs
+
+| Date | Node | Container | Batch 1 | Batch 2 | Batch 4 | Batch 8 |
+|---|---|---|---:|---:|---:|---:|
+| 2026-10-22 | banff-cyxtera-s70-4 | hipdnn_20261017 | 7.56 | 8.08 | 8.80 | 10.26 |
+| 2026-10-27 | banff-cyxtera-s70-4 | hipdnn_20261024 | 7.61 (7.60-7.64, 3 runs) | | | |
+| 2026-10-22 | ctr-cx66-mi300x-13 | hipdnn_20261017 | 8.48 | 8.96 | 10.04 | 12.01 |
+| 2026-10-23 | ctr-cx66-mi300x-13 | hipdnn_20261017 | failed (see below) | 8.97 | 10.06 | 12.16 |
+
+Five days later on the same node and a newer container, batch 1 is 0.7 % slower. On
+2026-10-23 (`results/pair_ctr-cx66-mi300x-13_68152179`) the GPU of
+ctr-cx66-mi300x-13 failed the first launch of two processes in a row: the stock vLLM
+server (`hipErrorLaunchFailure` during engine start-up,
+`stock/raw/vllm_aiter_Qwen3.8-27B-FP8_pair_68152179/job.log`) and then the
+megakernel batch-1 benchmark (the same error at its first synchronize). The later
+processes of the same job ran: batch 2, 4 and 8 within 1.2 % of 2026-10-22, the
+determinism check and the kernel-vs-reference check passed. The stock baseline of
+that day is missing.

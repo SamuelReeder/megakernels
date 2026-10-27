@@ -3,7 +3,7 @@
 Stage b runs from the release of barrier b to the arrival at barrier b + 1. Reports, per
 stage kind, the median over layers of: span (first release -> last arrival), the mean
 per-CTA busy time, and the barrier cost (last arrival -> last release).
-Usage: python bench/profile_decode.py MODEL_DIR M CTX
+Usage: python bench/profile_decode.py MODEL_DIR M CTX [TIMELINE.json]
 """
 import os
 import statistics as stt
@@ -55,6 +55,10 @@ for b in range(NB - 1):
     busy = (arr - rel).mean().item()
     bar = (p[b, :, 1].max() - p[b, :, 0].max()).item()
     rows.setdefault(names[b], []).append((span, busy, bar))
+if len(sys.argv) > 4:      # optional: dump (arrive, release) per barrier and CTA for tools/timeline.py
+    import json
+    json.dump({"M": M, "ctx": CTX, "gpu": torch.cuda.get_device_name(0), "cus": CUS, "stages": names,
+               "us": [[[round(v, 2) for v in cta] for cta in bar] for bar in p.tolist()]}, open(sys.argv[4], "w"))
 total = p[NB - 1, :, 0].max().item()
 print(f"embed (start -> first arrival) {p[0, :, 0].max().item():.1f} us; step total {total:.1f} us")
 print(f"{'stage':6} {'n':>3} {'span us':>8} {'busy us':>8} {'barrier us':>10} {'sum span us':>11}")
