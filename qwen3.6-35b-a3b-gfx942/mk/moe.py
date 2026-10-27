@@ -72,8 +72,11 @@ class Route:
     def eid_of(self, p):
         return D.uniform(fx.ptr_load(self.eid + p))
 
-    def slot_of(self, m, p):
-        return fx.ptr_load(self.slot + (m * self.NP + p))
+
+def slot_of(slot_ptr, NP, m, p):
+    """Row m's slot for position p, or -1 (a plain function: FlyDSL carries the base
+    object of a method call through control flow, and Route is not an IR value)."""
+    return fx.ptr_load(slot_ptr + (m * NP + p))
 
 
 @D.traced
@@ -151,6 +154,35 @@ def routing(c, M, logits, rowv, R: Route):
     if tid < M:
         fx.ptr_store(fx.Int32(TOPK), R.slot + (tid * R.NP + npos - 1))
     gpu.barrier()
+
+
+@D.traced
+def route_hash(c, M, R: Route, out, li, cus, nl):
+    """Debug (invariant I5): thread 0 of each CTA stores a hash of its routing tables
+    (npos, eid, slot, pick, w bits) to the i32 out[li][bid]; CTA 0 also stores its pick
+    table to out[nl cus + (li M + m) 8 + j] and its weights (f32 bits) to
+    out[nl cus + nl M 8 + (li M + m) 9 + j]."""
+    eid, slot, pick, wt = R.eid, R.slot, R.pick, R.w
+    tid, bid = c["tid"], c["bid"]
+    ro = D.rsrc(out)
+    if tid == 0:
+        npos = fx.ptr_load(R.npos)
+        h = npos
+        for k in range(0, npos):
+            h = h * 31 + fx.ptr_load(eid + k)
+        for k in range(0, M * R.NP):
+            h = h * 31 + fx.ptr_load(slot + k)
+        for k in range(0, M * TOPK):
+            h = h * 31 + fx.ptr_load(pick + k)
+        for k in range(0, M * NSLOT):
+            h = h * 31 + fx.ptr_load(wt + k).bitcast(fx.Int32)
+        D.st(h, ro, li * cus + bid, D.CM_DEV)
+    if bid == 0:
+        if tid < M * TOPK:
+            D.st(fx.ptr_load(pick + tid), ro, nl * cus + li * M * TOPK + tid, D.CM_DEV)
+        if tid < M * NSLOT:
+            D.st(fx.ptr_load(wt + tid).bitcast(fx.Int32), ro,
+                 nl * cus + nl * M * TOPK + li * M * NSLOT + tid, D.CM_DEV)
 
 
 @dataclass(frozen=True)
@@ -284,6 +316,7 @@ class MoeGemv:
         p1 = (gw + 1) * T_ // self.NW
         rp = D.rsrc(part)
         G, KSp, C = self.G, self.KSp, self.C
+        rslot = R.slot
         buf = self._load_piece(w, R, fx.min(p0, T_ - 1))
         for pi in range(p0, p1):
             nxt = self._load_piece(w, R, fx.min(pi + 1, T_ - 1))
@@ -308,7 +341,7 @@ class MoeGemv:
                 for r in range_constexpr(4):
                     m = 4 * w["gl"] + r
                     if m < self.M:
-                        j = R.slot_of(m, pos)
+                        j = slot_of(rslot, self.NP, m, pos)
                         if j >= 0:
                             D.st(acc[r], rp, self._p2(g, j, ch, w["col"], m), D.CM_DEV)
             buf = nxt
@@ -399,11 +432,12 @@ class EpiAct:
 def _epi_act(c, M, R, act, fi, pos, g, tot):
     col, lane = c["col"], c["lane"]
     ra = D.rsrc(act)
+    rslot = R.slot
     for r in range_constexpr(4):
         m = 4 * c["gl"] + r
         up = D.gather_f(tot[r], lane + 8)
         if (m < M) & (col < 8):
-            j = R.slot_of(m, pos)
+            j = slot_of(rslot, R.NP, m, pos)
             if j >= 0:
                 D.st(D.silu(tot[r]) * up, ra, (m * NSLOT + j) * fi + g * 8 + col, D.CM_DEV)
 
@@ -434,7 +468,7 @@ def prologue_act_moe(c, g, xq, xs, act, R, pos0):
         m = k % (M * per) // per
         kc = k % per * 8
         pos = fx.min(pos0 + sl, npos - 1)
-        j = fx.max(R.slot_of(m, pos), 0)
+        j = fx.max(slot_of(R.slot, R.NP, m, pos), 0)
         base = (m * NSLOT + j) * K + kc
         raw.append((i, sl, m, kc, [D.ld(ra, base + o, 4, T.f32, D.CM_DEV) for o in (0, 4)]))
     for i, sl, m, kc, v in raw:

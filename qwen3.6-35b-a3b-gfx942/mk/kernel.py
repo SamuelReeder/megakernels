@@ -42,7 +42,7 @@ from . import dev as D
 from . import mixer as X
 from . import moe as MO
 from . import stages as S
-from .dims import EPS, FI, HD, INP_N, NKV, NQ, NVH, QKV_N, QKVZ_N, VAL_DIM, VOCAB, H, NE
+from .dims import EPS, FI, HD, INP_N, NKV, NL, NQ, NVH, QKV_N, QKVZ_N, VAL_DIM, VOCAB, H, NE
 from .gemv import Gemv
 
 NTAB = 20  # pointer-table slots per layer
@@ -128,6 +128,7 @@ class Cfg:
     c_e1: int = 4
     c_e2: int = 1
     c_lm: int = 8
+    debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
 
     def chunks(self):
         return {k[2:]: v for k, v in asdict(self).items() if k.startswith("c_")}
@@ -332,7 +333,7 @@ def build(cfg: Cfg):
             T = functools.partial(lambda r, k: tab64(rt, r + k), ri)
             env = dict(c=c, SP=SP, T=T, G=G, e0=e0, xq=xq, xb=xb, xs=xs, red=red, wl=wl,
                        hb0=hb0, hb1=hb1, q0=q0, q1=q1, part=part, cnt=cnt,
-                       barrier_then=barrier_then, gw=gw_l, cfg=cfg)
+                       barrier_then=barrier_then, gw=gw_l, cfg=cfg, li=i)
             if i % 4 == 3:
                 _attn_layer(env, NTASK_A)
             else:
@@ -388,7 +389,7 @@ def _moe(env, R):
 
 @D.traced
 def _gdn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, cnt,
-                 barrier_then, gw, cfg, ntask):
+                 barrier_then, gw, cfg, li, ntask):
     M = SP["inp"].M
     hf0, hf1 = hf_ptrs(hb0, M)
     inp, ba, out = SP["inp"], SP["ba"], SP["out"]
@@ -440,7 +441,7 @@ def _gdn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, c
 
 @D.traced
 def _attn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, cnt,
-                  barrier_then, gw, cfg, ntask):
+                  barrier_then, gw, cfg, li, ntask):
     M = SP["inp"].M
     hf0, hf1 = hf_ptrs(hb0, M)
     qkv, o = SP["qkv"], SP["o"]
@@ -481,7 +482,7 @@ def _attn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, 
 
 @D.traced
 def _moe_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, cnt,
-           barrier_then, gw, cfg, R):
+           barrier_then, gw, cfg, li, R):
     M = SP["inp"].M
     hf0, hf1 = hf_ptrs(hb0, M)
     rtr, e1, e2 = SP["router"], SP["e1"], SP["e2"]
@@ -499,6 +500,8 @@ def _moe_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, cnt,
     # S5: routing (every CTA), then the experts' gate_up on fp8(norm(h1))
     barrier_then(None, None, None, e0 + 4)
     MO.routing(c, M, G[G_LOGIT], G[G_ROWV], R)
+    if const_expr(cfg.debug_route):
+        MO.route_hash(c, M, R, G[G_SPARE], li, c["cus"], NL)
     S.prologue_norm(c, e1, xq, xs, red, hf1, q1, T(T_POST_LN), EPS)
     w1 = e1.setup(c, xq, xs, T(T_E1_T), T(T_E1_S))
     e1.run(c, w1, R, part, cnt("e1"), MO.EpiAct(c, M, R, G[G_ACT], FI))

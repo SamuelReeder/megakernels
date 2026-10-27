@@ -43,6 +43,13 @@ def mfma_fp8(a, b, c):
     )
 
 
+def _imin(a, b):
+    """min of host ints, or of a device int and an int."""
+    if isinstance(a, int) and isinstance(b, int):
+        return min(a, b)
+    return fx.min(a, b)
+
+
 def fp8_load(rt, rs, u, lane):
     """Unit u of an fp8 matrix: the lane's 2 x 16 B of the 2 KiB tile (load q holds
     MFMA steps 2 q, 2 q + 1) and the unit's 2 scales (rows 0-7, rows 8-15)."""
@@ -140,11 +147,21 @@ class Gemv:
 
     # ---- unit split: wave gw streams [gw U / NW, (gw + 1) U / NW). (Weighting the
     # waves of a CTA differently was measured: no gain; see docs/DESIGN.md.)
+    # A GEMV with fewer units than waves (the router, in_proj b/a: "small") gives wave
+    # gw < U unit gw instead, so a piece's segments sit in consecutive waves.
+    @property
+    def small(self):
+        return self.U < self.NW
+
     def wave_lo(self, gw):
+        if self.small:
+            return _imin(gw, self.U)
         return (gw * self.U) // self.NW
 
     def wave_of(self, u):
         """Global wave whose range holds unit u."""
+        if self.small:
+            return u
         return ((u + 1) * self.NW - 1) // self.U
 
     @property
@@ -165,6 +182,9 @@ class Gemv:
         assert (self.U + 1) * self.NW < 2**31
         assert self.G % self.gpc == 0
         assert max(self.nseg_host(p) for p in range(self.C * self.G)) <= self.SEGMAX
+        if self.small and self.C > 1:
+            # a CTA's 8 units then lie in one chunk (slots == 1)
+            assert (self.G * self.KSc) % self.waves == 0 and self.slots == 1
         return self
 
     def part_floats(self):
@@ -172,6 +192,8 @@ class Gemv:
 
     # ------------------------------------------------------------ device
     def cta_range(self, bid):
+        if self.small:
+            return _imin(bid * self.waves, self.U), _imin((bid + 1) * self.waves, self.U)
         return (bid * self.U) // self.cus, ((bid + 1) * self.U) // self.cus
 
     def chunk0(self, bid):

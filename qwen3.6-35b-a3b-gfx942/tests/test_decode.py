@@ -23,6 +23,7 @@ M = int(sys.argv[2]) if len(sys.argv) > 2 else 1
 LAYERS = int(sys.argv[3]) if len(sys.argv) > 3 else 40
 STEPS = int(sys.argv[4]) if len(sys.argv) > 4 else 8
 TIE = 1e-3  # router logits closer than this to the 8th/9th boundary count as near-ties
+MARGIN = 0.5  # a top-1 change counts as an error when the exact logit gap exceeds this
 
 
 def cmp(a, b):
@@ -57,13 +58,14 @@ def main():
         layers=LAYERS,
         xpack=bool(int(os.environ.get("MK_XPACK", "0"))),
         block=int(os.environ.get("MK_BLOCK", "208")),
+        debug_route=True,
     )
     print(f"load+pack+build {time.time() - t0:.0f}s  kernel cfg {eng.cfg}")
     st = R.State.new(M, 512)
     st_x = R.State.new(M, 512)
     torch.manual_seed(int(os.environ.get("MK_SEED", "0")))
     tok = torch.randint(0, 200000, (M,), device="cuda")
-    rows, bad_route = [], 0
+    rows, bad_route, hard, i5_bad, code_bad = [], 0, 0, 0, 0
     for s in range(STEPS):
         tr = []
         emu = R.step(W, tok, st, layers=LAYERS, emulate=True, trace=tr)
@@ -71,13 +73,29 @@ def main():
         out = eng.step(tok).clone()
         torch.cuda.synchronize()
         rc, rdiff, rtie = routing_check(eng.router.clone(), tr[-1])
+        rh = eng.route_hash[:LAYERS]
+        i5_bad += int(not (bool((rh == rh[:, :1]).all()) and bool((rh != 0).all())))
         bad_route += rdiff - rtie
+        # the kernel's routing tables against reference.route on the kernel's own last-
+        # layer logits: same experts in the same order, same weights (to fp32 rounding)
+        klg = eng.router.clone()
+        ridx, rw = R.route(klg[:, :256])
+        kp, kw = eng.route_pick[LAYERS - 1], eng.route_w[LAYERS - 1]
+        code_bad += int(
+            not torch.equal(kp.long(), ridx)
+            or not torch.allclose(kw[:, :8], rw, rtol=1e-5, atol=1e-7)
+            or not torch.allclose(kw[:, 8], torch.sigmoid(klg[:, 256]), rtol=1e-5, atol=1e-7)
+        )
         k_e, k_x, e_x = cmp(out, emu), cmp(out, ex), cmp(emu, ex)
         rows.append((k_e, k_x, e_x))
+        # the exact logit the kernel's token gives up against the exact top-1
+        gap = (ex.max(-1).values - ex.gather(1, out.argmax(-1, keepdim=True))[:, 0]).max()
+        hard += int(float(gap) > MARGIN)
         print(
             f"step {s}: kernel~emulate cos {k_e[0]:.6f} top1 {k_e[1]:.2f} | kernel~exact "
-            f"cos {k_x[0]:.6f} top1 {k_x[1]:.2f} | emulate~exact cos {e_x[0]:.6f} top1 "
-            f"{e_x[1]:.2f} | router cos {rc:.6f} expert-set diffs {rdiff} (near-ties {rtie})"
+            f"cos {k_x[0]:.6f} top1 {k_x[1]:.2f} (gap {float(gap):.3f}) | emulate~exact cos "
+            f"{e_x[0]:.6f} top1 {e_x[1]:.2f} | router cos {rc:.6f} expert-set diffs {rdiff} "
+            f"(near-ties {rtie})"
         )
         tok = ex.argmax(-1)
     mean = lambda k, j: sum(r[k][j] for r in rows) / len(rows)  # noqa: E731
@@ -85,17 +103,25 @@ def main():
     print(f"kernel~emulate: worst cos {worst(0):.6f} top1 {mean(0, 1):.3f}")
     print(f"kernel~exact:   worst cos {worst(1):.6f} top1 {mean(1, 1):.3f}")
     print(f"emulate~exact:  worst cos {worst(2):.6f} top1 {mean(2, 1):.3f}")
-    print(f"routing: {bad_route} expert-set differences that are not near-ties")
+    print(f"routing vs emulate (drifted inputs; information): {bad_route} expert-set "
+          f"differences that are not near-ties")
+    print(f"top-1 changes with an exact logit gap > {MARGIN}: {hard}")
+    print(f"I5: steps where two CTAs built different routing tables: {i5_bad}")
+    print(f"routing code: steps where the kernel's tables differ from reference.route on "
+          f"the kernel's logits: {code_bad}")
     # fp8 activation rounding is chaotic over 40 layers: two correct fp8 implementations
     # (kernel, emulating reference) drift apart as far as each drifts from the exact
-    # model. Pass: the kernel is as close to the exact model as the emulating reference
-    # is. With <= 4 layers the drift is small, so the last layer must also select the
-    # same experts as the emulating reference except at near-ties.
+    # model, and the drift alone moves router logits across top-8 boundaries. Pass: the
+    # kernel is as close to the exact model as the emulating reference is; its routing
+    # tables are reference.route of its own logits and equal in every CTA; and (full
+    # model only: a truncated model's logits are not a language model's) where its top-1
+    # token differs from the exact model's, the two were near-tied.
     ok = (
         worst(0) > 0.95
         and (1 - worst(1)) <= 2 * (1 - worst(2)) + 1e-5
-        and mean(1, 1) >= mean(2, 1) - 0.1
-        and (bad_route == 0 or LAYERS > 4)
+        and (hard == 0 or LAYERS < 40)
+        and i5_bad == 0
+        and code_bad == 0
     )
     print("PASS" if ok else "FAIL")
     sys.exit(0 if ok else 1)

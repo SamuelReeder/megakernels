@@ -1,8 +1,10 @@
 # Qwen3.6-35B-A3B decode megakernel for gfx942 (FlyDSL)
 
-Status: milestone 1 (design). No kernel code exists yet. The design reuses the
-Qwen3.8-27B kernel (`../qwen3.8-27b-gfx942/`) for every stage that the two models share,
-and adds a mixture-of-experts (MoE) block in place of the dense MLP.
+Status: milestone 3 (correct kernel). The kernel runs all 40 layers at M = 1, 2, 4, 8
+and passes `tests/test_decode.py`, `tests/test_determinism.py` and `tests/eval_text.py`
+(`bench/results/m3`). It is not yet tuned for speed. The design reuses the Qwen3.8-27B
+kernel (`../qwen3.8-27b-gfx942/`) for every stage that the two models share, and adds a
+mixture-of-experts (MoE) block in place of the dense MLP.
 
 ## Fixed point
 
@@ -105,6 +107,12 @@ tables.
 
 Final stage: norm(h0) -> bf16 x, bf16 LM head GEMV 248320 x 2048, fp32 logits. With
 `lm_head = False` the stage writes the normed hidden states (Qwen3.8 `final_norm_stage`).
+
+Small GEMVs (fewer units than the 2432 waves: the router, 272 units, and in_proj b / a,
+64 units) give wave gw < U unit gw instead of the Qwen3.8 spread
+[gw U / NW, (gw + 1) U / NW). The spread leaves empty waves inside a piece, and the
+last-arriver count assumes the segments of a piece sit in consecutive waves. The
+in_proj b / a GEMV uses its own partial region after the fp8 GEMV's (both run in S1).
 
 ### MoE stage design
 
@@ -247,9 +255,10 @@ stays below 64 KB (S5 x 32 KB, S6 x 16 KB, in_proj 32 KB). Weight bytes double.
 | S6: 2 positions x 8 rows fp8 x + scales | 9.0 KB |
 | S2 attention: 8 waves x (q bf16 8 heads x 256 = 4 KB, k_new / v_new 1 KB) | 40 KB |
 | S2 GDN: 8 waves x 1 KB | 8 KB |
-| Routing tables (persistent across S5, S6) + `red` | 1.3 KB |
+| Routing tables (persistent across S5, S6: pick, w, eid, posof [256], slot [M][65]) + `red` | 3.5 KB |
 
-The stage regions form a union (as in Qwen3.8); the maximum is 51.7 KB.
+The stage regions form a union (as in Qwen3.8); the maximum is 53.9 KB. The builder
+computes the total and stops with `STOP: I1` above 64 KB.
 
 Required change from Qwen3.8: the attention task keeps q in LDS as bf16, not fp32.
 With 8 Q heads per KV head the fp32 layout needs 8 x (8 KB + 1 KB) = 72 KB. q is
@@ -344,37 +353,41 @@ The tests allow near-ties (see "Correctness oracle").
 
 ## Correctness oracle
 
-Built before the kernel, in this order:
+As built (milestones 2 and 3; results in `bench/results/m2`, `bench/results/m3`):
 
-1. `mk/reference.py` (milestone 2): plain PyTorch fp32 decoder of one step for M rows,
-   with a `trace` option that returns per-layer h0 / h1, the router logits, and the
-   selected experts and weights.
-   - Exact mode: fp32 everywhere; FP8 weights dequantized exactly.
+1. `mk/reference.py`: plain PyTorch fp32 decoder of one step for M rows, with a `trace`
+   option that returns per-layer h0 / h1, the router logits, and the selected experts
+   and weights.
+   - Exact mode: fp32 everywhere (activations, caches); FP8 weights dequantized exactly.
    - Emulate mode: the kernel's rounding - fp8 GEMV inputs with pow2 scales per (token,
-     128 K), bf16 norm input, bf16 router input, fp32 routing, fp8 act input to the
-     down projection, bf16 q and KV, the fixed slot order of the expert sum.
+     128 K), bf16 inputs to bf16 weights, bf16 norm input, fp32 routing, fp8 act input
+     to the down projection, bf16 conv state, q and KV, the fixed slot order of the
+     expert sum.
 2. `tests/ref_vs_hf.py`: exact reference against HF transformers (`Qwen3_5Moe`, fp32,
-   BF16 checkpoint), every position of a prompt: cosine >= 0.9999 and top-1 agreement
-   on all positions. A second run feeds the FP8 checkpoint (dequantized) and reports
-   the KL and top-1 agreement against the BF16 run (information, not a gate).
-3. `tests/test_gemv_moe.py` (unit level): the grouped GEMV of S5 and S6 alone against
-   torch, for fixed routings - all rows on the same 8 experts (U = 8), all rows on
-   disjoint experts (U = 64), mixed, padding rows, and expert ids 0 and 255.
-4. `tests/test_decode.py` (milestone 3): the kernel against the reference in both
-   modes, at M = 1, 2, 4, 8, every step. Per layer (the kernel runs `nlayers` layers
-   and returns h): the routing must match the emulating reference except at near-ties
-   (the 8th and 9th logits of the reference closer than a fixed bound; the test prints
-   each case), and h must be as close to the exact reference as the emulating
-   reference is. The routing hash of all CTAs must be equal (I5).
-5. `tests/test_determinism.py`: three runs give bitwise-equal logits; a row decoded
+   BF16 checkpoint), every position of a 52-token prompt: gate cosine >= 0.9999 and the
+   same top-1 at every position. Measured: cosine min 1.000000, top-1 100 %, KL 1.7e-9.
+   Information: the FP8 checkpoint (exact) against HF BF16: cosine min 0.992, top-1
+   100 %.
+3. `tests/test_decode.py`: the kernel against the reference in both modes, at M = 1, 2,
+   4, 8 over 32 greedy steps (or a truncated model with LAYERS < 40). Gates: the
+   kernel is as close to the exact reference as the emulating reference is (worst-row
+   cosine); every top-1 change against the exact model is a near-tie (exact logit gap
+   <= 0.5); in every step the routing tables of all 304 CTAs hash equal (I5,
+   `Cfg.debug_route`); and CTA 0's tables (experts in rank order, weights, shared gate)
+   equal `reference.route` of the kernel's own router logits. The expert sets against
+   the emulating reference are printed only: fp8 drift alone moves router logits
+   across the top-8 boundary.
+4. `tests/test_determinism.py`: three runs give bitwise-equal logits; a row decoded
    alone (M = 1) and inside batches of M = 2, 4, 8 with other rows that select other
-   experts gives bitwise-equal logits (I4).
-6. `tests/eval_text.py`: teacher-forced perplexity on real passages for the kernel, the
-   FP8 reference with bf16 activations, and the BF16 model; top-1 agreement and KL
-   against BF16.
+   experts gives bitwise-equal logits (I4); the same with rows 4..7 marked padding (I7).
+5. `tests/eval_text.py`: teacher-forced perplexity on five real passages for the
+   kernel, the FP8 reference (fp32 activations) and the BF16 reference; top-1 agreement,
+   KL against BF16, and batch invariance.
 
-A failure reports the layer, the stage and the row, for example "layer 17 S6 row 3:
-max |h0 - ref| 0.31 > bound 0.02; routing equal".
+Changed from the milestone 1 plan: the unit-level grouped-GEMV test
+(`tests/test_gemv_moe.py`) was not built. The grouped GEMV is checked end to end by
+items 3 and 4 (U from 8 at M = 1 to about 57 at M = 8, padding rows), not for chosen
+routings such as expert ids 0 and 255 or U = 64.
 
 ## Stop conditions
 

@@ -54,6 +54,7 @@ class Engine:
         block: int = 208,
         xpack: bool = False,
         lm_head: bool = True,
+        debug_route: bool = False,
     ):
         self.PK, self.M, self.maxlen, self.layers = PK, M, maxlen, layers
         cus = torch.cuda.get_device_properties(0).multi_processor_count
@@ -66,7 +67,10 @@ class Engine:
             NKV * HD,
             block * NKV * HD,
         )
-        self.cfg = KK.Cfg(M, cus, maxlen, block, nb, *kv_s, xpack, PAGE, PAGE, lm_head)
+        self.cfg = KK.Cfg(
+            M, cus, maxlen, block, nb, *kv_s, xpack, PAGE, PAGE, lm_head,
+            debug_route=debug_route,
+        )
         assert self.cfg.chunks() == PK.chunks, (self.cfg.chunks(), PK.chunks)
         self.launch = KK.build(self.cfg)
         z = lambda *s, dt=torch.float32: torch.zeros(*s, dtype=dt, device=device)  # noqa: E731
@@ -85,6 +89,12 @@ class Engine:
         self.router = z(M, MO.LGN)  # router logits (debug: last layer's)
         self.act = z(M, MO.NSLOT, FI)
         self.rowv = torch.ones(M, dtype=torch.int32, device=device)
+        # debug_route (moe.route_hash): per layer and CTA the hash of its routing
+        # tables (invariant I5), then CTA 0's picks [NL][M][8] and weights [NL][M][9]
+        self.dbg = z(NL * cus + NL * M * 8 + NL * M * 9, dt=torch.int32)
+        self.route_hash = self.dbg[: NL * cus].view(NL, cus)
+        self.route_pick = self.dbg[NL * cus : NL * cus + NL * M * 8].view(NL, M, 8)
+        self.route_w = self.dbg[NL * cus + NL * M * 8 :].view(torch.float32).view(NL, M, 9)
         self.out = z(M, VOCAB) if lm_head else z(M, H, dt=torch.bfloat16)
         cos, sin = rope_cos_sin(torch.arange(maxlen, device=device))
         self.rope = torch.cat([cos[:, :32], sin[:, :32]], 1).contiguous()
@@ -119,6 +129,7 @@ class Engine:
         gp[KK.G_LOGIT] = self.router.data_ptr()
         gp[KK.G_ACT] = self.act.data_ptr()
         gp[KK.G_ROWV] = self.rowv.data_ptr()
+        gp[KK.G_SPARE] = self.dbg.data_ptr()
         self.glob = torch.tensor(gp, dtype=torch.int64, device=device)
         tab = torch.zeros(NL, KK.NTAB, dtype=torch.int64)
         gi = ai = 0
