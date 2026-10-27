@@ -31,7 +31,10 @@ def main():
         for s in range(STEPS):
             eng.step(torch.zeros(M, dtype=torch.long))
         sys.exit(0 if TP.agree(ctx, eng.ranks_equal) else 1)
-    ar_bf16 = ctx.tp if ctx.tp > 1 and ctx.ar_dtype == "bf16" else 0
+    # emulate the TP kernel's sum order: K-slice partials per rank, added in rank order
+    # (rounded to bf16 for MK_AR=bf16); MK_EMU_SPLIT=0 emulates TP1's order instead
+    split = ctx.tp if int(__import__("os").environ.get("MK_EMU_SPLIT", "1")) else 1
+    ar_bf16 = ctx.tp > 1 and ctx.ar_dtype == "bf16"
     print(f"load+pack+build {time.time() - t0:.0f}s tp {ctx.tp} ar {ctx.ar_dtype if ctx.tp > 1 else '-'}")
     st = R.State.new(M, 512)
     st_x = R.State.new(M, 512)
@@ -45,7 +48,7 @@ def main():
 
     rows = []
     for s in range(STEPS):
-        emu = R.step(W, tok, st, layers=LAYERS, emulate=True, ar_bf16_tp=ar_bf16)
+        emu = R.step(W, tok, st, layers=LAYERS, emulate=True, ar_tp=split, ar_bf16=ar_bf16)
         ex = R.step(W, tok, st_x, layers=LAYERS, emulate=False)
         out = eng.step(tok).clone()
         torch.cuda.synchronize()

@@ -261,6 +261,18 @@ Source of truth:
 - `test_determinism`: 3 runs bitwise-equal per rank, M = 1 and 8.
 - `eval_text`: perplexity, top-1, KL(bf16 || kernel) per passage, and the batch-invariance pass.
 
+Gates from milestone 4 on (approved 2026-10-27, after milestone 3):
+- Hard gates: median per-step 1 - cos(kernel, exact) <= 1.2 x TP1's (same node, same
+  seeds); eval_text KL(bf16 || kernel) within 10 % of TP1's; ranks bitwise equal at every
+  step; determinism (3 runs); batch invariance.
+- Report only: the test_decode criterion (c1) and the TP1 bound (c2). With F = 55 the bound
+  does not bind at M = 8.
+- fp32 is at +9.6 % KL against the 10 % limit: re-checked in milestone 5 on a second node.
+- The 1-layer check stays: TP2 against an emulating reference with TP2's sum order
+  (`reference.step(..., ar_tp=2)`: each row-parallel GEMV as the ranks' K-slice fp32
+  partials, added in rank order). Expected agreement about 1e-7, as TP1 against its own
+  order. test_decode emulates TP2's order by default (MK_EMU_SPLIT=1).
+
 Partial format choice (milestone 3, both formats run): default `bf16` if it passes the TP1
 bound above and its `eval_text` KL against BF16 is within 10 % of TP1's; otherwise `fp32`.
 
@@ -391,9 +403,6 @@ Decided 2026-10-27: PeerBuffer at model load (section 8); the bound factor rule 
 `ar_local` is a hashed `Cfg` field that the vLLM spec refuses; `ar_dtype = "fp32"` after
 milestone 3 (section 9).
 
-Open:
-1. Gate for later milestones. The test_decode criterion (c1) rests on the worst row of one
-   step; TP1 fails it in 1 of 18 runs and TP2 fp32 in 2 of 18. Proposal: gate on the TP1
-   bound (c2) and the median per-step error, and report c1.
-2. The 1-layer check bound (1e-5) does not allow for fp8 rounding flips (section 9);
-   proposal: drop it, or compare against the emulating reference with TP2's sum order.
+Decided after milestone 3: the gates of section 9 (hard: median per-step error <= 1.2 x
+TP1, KL within 10 % of TP1, rank equality, determinism, batch invariance; report only: c1
+and the TP1 bound). The 1-layer check stays, against the reference in TP2's sum order.

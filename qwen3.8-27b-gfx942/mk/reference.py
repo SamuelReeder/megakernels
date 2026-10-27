@@ -183,21 +183,23 @@ def lin(x32: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
     return xq @ w.float().t()
 
 
-AR_BF16_TP = 0  # emulate only: row GEMVs as tp K-slice partials, each rounded to bf16
+AR_TP = 1  # emulate only: row GEMVs as AR_TP K-slice partials added in rank order
+AR_BF16 = False  # ... each partial rounded to bf16 first (ar_dtype "bf16")
 
 
 def lin_row(x32: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
-    """A row-parallel GEMV (out_proj, o_proj, down). Emulating a TP kernel whose
-    all-reduce sends bf16 partials (ar_dtype "bf16"): each rank's K-slice partial is
-    rounded to bf16 and the partials are added in rank order in fp32."""
-    if not (EMULATE and AR_BF16_TP > 1):
+    """A row-parallel GEMV (out_proj, o_proj, down). Emulating a TP kernel (AR_TP > 1):
+    each rank's K-slice partial in fp32, rounded to bf16 for ar_dtype "bf16", and the
+    partials added in rank order in fp32, as the kernel's all-reduce adds them."""
+    if not (EMULATE and AR_TP > 1):
         return lin(x32, w)
     xq = quant_fp8(x32.float())
-    k = x32.shape[1] // AR_BF16_TP
+    k = x32.shape[1] // AR_TP
     out = None
-    for r in range(AR_BF16_TP):
+    for r in range(AR_TP):
         p = xq[:, r * k : (r + 1) * k] @ w[:, r * k : (r + 1) * k].float().t()
-        p = p.to(torch.bfloat16).float()
+        if AR_BF16:
+            p = p.to(torch.bfloat16).float()
         out = p if out is None else out + p
     return out
 
@@ -327,15 +329,16 @@ def step(
     layers: int = NL,
     dump=None,
     emulate=False,
-    ar_bf16_tp=0,
+    ar_tp=1,
+    ar_bf16=False,
 ):
     """One decode step for M rows. tok [M] int64. Returns fp32 logits [M, VOCAB].
 
     Advances st.pos by one. `dump`, if a dict, receives per-layer h (fp32).
     emulate: quantize GEMV inputs as the megakernel does (else bf16, the model dtype).
     """
-    global EMULATE, AR_BF16_TP
-    EMULATE, AR_BF16_TP = emulate, ar_bf16_tp
+    global EMULATE, AR_TP, AR_BF16
+    EMULATE, AR_TP, AR_BF16 = emulate, ar_tp, ar_bf16
     h = W["model.language_model.embed_tokens.weight"][tok].float()
     g_i = a_i = 0
     for i in range(layers):
