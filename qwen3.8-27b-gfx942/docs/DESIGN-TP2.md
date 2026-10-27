@@ -222,13 +222,13 @@ Source of truth:
 - Build: `SpecializedDecode.__init__` agrees on model refusal with `tp_agree`
   (`models/common/specialized_decode/dispatch.py:78-84`). The Qwen spec refuses TP != 1 today
   (`models/qwen3_5/amd/specialized_decode/spec.py:142-143`); it changes to accept TP 1 and 2.
-- Peer memory: `PeerBuffer` construction is collective and agrees on the mapping. In DSv4.1
-  it is constructed in the runner constructor at model load (`mono/runner.py:241`), not at the
-  first eager step; only the per-width scratch is allocated at the first eager step
-  (`mono/runner.py:250-266`). The objective says "bind the peer buffers at the first eager
-  decode step, as DSv4.1 does". The design follows what DSv4.1 does: allocate and map at
-  build (after the build `tp_agree`), bind the per-width scratch at the first eager step.
-  This needs your confirmation.
+- Peer memory: `PeerBuffer` construction is collective and agrees on the mapping. As in
+  DSv4.1 (`mono/runner.py:241`), it is constructed at model load, after the build
+  `tp_agree`; only the per-width scratch is allocated at the first eager step
+  (`mono/runner.py:250-266`). Approved 2026-10-27.
+- Epoch: the mailbox tags come from the barrier epoch, so every kernel that shares a peer
+  buffer must share one epoch word. The standalone engine has one width per engine; the vLLM
+  runtime (milestone 6) keeps one flag buffer for all widths.
 - Caches: `bind_caches` raises on refusal (`dispatch.py:94-107`); it does not fall back, so a
   one-rank refusal stops the engine instead of splitting the paths. The cache checks become
   per-rank shapes (SSM (24, 128, 128), 2 KV heads, conv 5120 channels).
@@ -251,9 +251,9 @@ Source of truth:
   halves gathered over gloo. Pass:
   1. the TP1 criterion (`tests/test_decode.py:58-60`) with the TP2 logits; and
   2. the TP1 bound: on the same node, seed and steps, 1 - worst cos(TP2, exact) <=
-     1.5 x (1 - worst cos(TP1, exact)) + 1e-5, and mean top-1 agreement with exact >= TP1's
-     - 0.05. The factor 1.5 absorbs the run-to-run spread of the chaotic worst cosine; review
-     it.
+     F x (1 - worst cos(TP1, exact)) + 1e-5, and mean top-1 agreement with exact >= TP1's
+     - 0.05. F = 1.5, or the largest TP1-to-TP1 ratio of 1 - worst cos over 3 seeds at
+     M = 1 and 8 if that is larger (approved 2026-10-27).
 - Local check before the 64-layer runs: 1 layer, TP2 `fp32` against TP1, max relative
   difference of the residual <= 1e-5 (only the fp32 sum grouping differs).
 - Ranks: the residual buffer and the normed hidden state compared bitwise across ranks after
@@ -262,15 +262,44 @@ Source of truth:
 - `eval_text`: perplexity, top-1, KL(bf16 || kernel) per passage, and the batch-invariance pass.
 
 Partial format choice (milestone 3, both formats run): default `bf16` if it passes the TP1
-bound above and its `eval_text` KL against BF16 is within 10 % of TP1's
-(`bench/results/banff-cyxtera-s70-4_suite_41b0956/eval_text.txt`); otherwise `fp32`. The
-comparison table goes here:
+bound above and its `eval_text` KL against BF16 is within 10 % of TP1's; otherwise `fp32`.
 
-| Format | test_decode worst cos (exact) | top-1 | eval_text KL(bf16 \|\| kernel) | ppl | Decision |
-|---|---|---|---|---|---|
-| TP1 | | | | | reference |
-| TP2 fp32 | | | | | |
-| TP2 bf16 | | | | | |
+### Milestone 3 results (2026-10-27, banff-cyxtera-s70-4, job 68191827)
+
+Code: commit `19e5983` and the embedding fix of the next commit (`fx.Float32(v)` in the embedding put; without it
+`Mailbox.put` converted the value to an integer and every activation was 0). Container
+hipdnn_20261024_gfx942. Logs: `scratch/logs/m3a/` (seeds 0..2, determinism, eval_text) and
+`scratch/logs/m3b/` (seeds 3..7); summaries `scratch/logs/bound_m3.txt`,
+`scratch/logs/m3a/steps_summary.txt`.
+
+The TP1-to-TP1 spread (TP1, seeds 0, 1, 2): 1 - worst cos(kernel, exact) is 0.000557,
+0.000532, 0.000546 at M = 1 (ratio 1.05) and 0.012213, 0.002636, 0.145837 at M = 8 (ratio
+55.3). The worst cosine is one row at one step, and fp8 rounding is chaotic over 64 layers,
+so at M = 8 it spans 55x. Per the approved rule, F = 55.3.
+
+| Format | test_decode criterion (c1), 18 runs | TP1 bound (c2), 18 runs | median per-step 1 - cos(kernel, exact), 128 steps | eval_text KL(bf16 \|\| kernel) | ppl kernel (w4, bf16) | ranks bitwise equal | determinism (3 runs, M = 1, 8) | batch invariance | Decision |
+|---|---|---|---|---|---|---|---|---|---|
+| TP1 | 17/18 | 18/18 (reference) | 0.000377 | 0.03904 | 1.661 (1.645, 1.580) | - | PASS, PASS | True | reference |
+| TP2 fp32 | 16/18 | 18/18 | 0.000406 | 0.04279 (+9.6 %) | 1.657 | every step of every run | PASS, PASS | True | **chosen** |
+| TP2 bf16 | 13/18 | 16/18 | 0.000501 | 0.03708 (-5.0 %) | 1.650 | every step of every run | PASS, PASS | True | rejected: fails the bound |
+
+Runs: M = 1 and 2 at seeds 0 and 3..7, M = 1 and 8 at seeds 1 and 2, M = 4 and 8 at seed 0
+(test_decode, 64 layers, 16 steps). The median column counts the 128 steps of M = 1, 2, 4,
+8 at seeds 0..2 (`steps_summary.txt`).
+
+- The c1 failures are single chaotic rows. TP1 fails c1 once too (M = 1, seed 7). TP2 fp32
+  fails it at M = 1 seed 2 (kernel~emulate 0.942 < 0.95; the emulating reference itself
+  drops to 0.951 against exact at that step, the kernel stays at 0.997) and at M = 2 seed 0
+  (1 - cos 0.000895 against 2 x 0.000402 + 1e-5 = 0.000814; TP1 0.000579).
+- bf16 fails the bound at M = 1 seed 2 (ratio 89 to TP1) and M = 1 seed 7 (top-1 0.812
+  against TP1 0.875); its median per-step error is 33 % above TP1's.
+- Decision: `ar_dtype = "fp32"` is the default. bf16 passes the KL condition but not the
+  bound.
+- Local 1-layer check (`scratch/m3/dbg.py`, `scratch/logs/dbg2/`, TP1:
+  `scratch/logs/dbg1/dbg_tp1_l1.r0.log`): relative error of the residual against the emulating
+  reference is 3.2e-5 for TP2 fp32 and 6.5e-8 for TP1, above the planned 1e-5. The planned
+  bound assumed no fp8 rounding flips; one flipped e4m3 input element in gate_up or down
+  gives this size. The 64-layer statistics above show no systematic error.
 
 ## 10. Fixed cost per stage at TP2
 
@@ -356,10 +385,15 @@ Return `STOP: <invariant>` with evidence, no workaround:
 - vLLM: the peer handshake fails, or kernel-on and kernel-off greedy outputs differ beyond
   the kernel's TP1 behaviour.
 
-## 14. Open questions
+## 14. Decisions and open questions
 
-1. PeerBuffer timing in vLLM: build time (what DSv4.1 does) or first eager step (what the
-   objective states). Section 8 proposes build time.
-2. The TP1-bound factor (1.5 on 1 - worst cos, 0.05 on top-1) in section 9.
-3. The `ar_local` debug field: in `Cfg` (hashed, refused by the vLLM spec) as proposed, or a
-   separate profiling build path.
+Decided 2026-10-27: PeerBuffer at model load (section 8); the bound factor rule (section 9);
+`ar_local` is a hashed `Cfg` field that the vLLM spec refuses; `ar_dtype = "fp32"` after
+milestone 3 (section 9).
+
+Open:
+1. Gate for later milestones. The test_decode criterion (c1) rests on the worst row of one
+   step; TP1 fails it in 1 of 18 runs and TP2 fp32 in 2 of 18. Proposal: gate on the TP1
+   bound (c2) and the median per-step error, and report c1.
+2. The 1-layer check bound (1e-5) does not allow for fp8 rounding flips (section 9);
+   proposal: drop it, or compare against the emulating reference with TP2's sum order.

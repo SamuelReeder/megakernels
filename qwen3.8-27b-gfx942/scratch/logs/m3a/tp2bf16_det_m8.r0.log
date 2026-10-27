@@ -1,0 +1,5 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-27T21:30:01Z rank 0 env MK_TP=2 MK_AR=bf16 MK_SEED=
+# python tests/test_determinism.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 8 64
+M=8 steps=64: 3 runs bitwise equal: True
+tp 2 ar bf16: ranks bitwise equal every step: True
+PASS

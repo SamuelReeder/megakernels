@@ -1,0 +1,6 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-27T20:40:01Z rank 0 env MK_TP=2 MK_AR=fp32 MK_SEED=
+# python scratch/m3/dbg.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 2 1
+[r0] tok [91541, 120097] h norm 0.0000 nan False logits(local) norm 0.0000 gathered 0.0000 shape (2, 248320)
+[r0] h1 norm 0.0000 ssq 0.0000 y 0.0000 y2 0.0000 peer nonzero 51200
+ref h norm 39.6930 | rel err 1.000e+00 | logits cos [0.0, 0.0]
+embed norm 1.3848; kernel h1 (after mixer) vs ref: n/a

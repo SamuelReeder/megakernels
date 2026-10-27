@@ -1,0 +1,4 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-27T20:42:22Z rank 1 env MK_TP=2 MK_AR=fp32 MK_SEED=
+# python scratch/m3/dbg.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 2 1
+[r1] tok [91541, 120097] h norm 39.6928 nan False logits(local) norm 1921.5100 gathered 2320.5886 shape (2, 248320)
+[r1] h1 norm 39.0563 ssq 1555.5309 y 4.5173 y2 0.0205 peer nonzero 234746
