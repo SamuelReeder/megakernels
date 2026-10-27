@@ -1,0 +1,28 @@
+M=1 ctx=512: embed (start -> first arrival) 3.7 us; step total 3395.0 us
+stage    n  span us  busy us barrier us sum span us
+inp     30     16.6     12.6       2.29       501.6
+gdn     30      3.3      2.4       4.06        98.3
+out     30     13.8      8.1       3.15       407.8
+router  40      5.4      2.1       2.10       213.8
+e1      40     11.3      8.1       2.89       478.5
+e2      40      5.7      1.9       1.82       240.8
+qkv     10     10.0      7.7       2.11        98.7
+attn    10     34.5      2.0       2.25       346.7
+o       10     13.3      7.6       1.55       132.3
+lm       1    320.9    275.3       2.77       320.9
+sum of spans + barriers 3467.9 us
+out timeline (us from its barrier's last release):
+  first release  med   -0.3 max   -0.3
+  prologue       med -351335388397.5 max -351335388397.5
+  loads issued   med  106.3 max  106.5
+  rstd done      med  107.0 max  107.1
+  quantized      med -351335388397.5 max -351335388397.5
+  stream start   med    0.8 max    0.9
+  stream end     med    2.0 max    2.8
+  hand-off end   med    7.6 max   13.4
+  next arrival   med    8.0 max   12.9
+  next release   med   15.0 max   15.2
+out stream          per wave: med 1.3 max 2.0 us
+out hand-off        per wave: med 5.5 max 11.1 us
+out drain + atomics per wave: med 3.9 max 6.5 us
+out reductions      per wave: med 0.9 max 6.1 us

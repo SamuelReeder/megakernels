@@ -1,0 +1,12 @@
+#!/bin/bash
+# Compile the decode kernel (via a 4-layer decode test) with IR dumps and print the
+# register / spill statistics. Runs on the compute node: scripts/mkrun 'scripts/isa_stats [M]'
+set -uo pipefail
+M=${1:-1}
+D=$HOME/mk/dumpk36
+rm -rf "$D"
+FLYDSL_RUNTIME_ENABLE_CACHE=0 FLYDSL_DUMP_IR=1 FLYDSL_DUMP_DIR=$D timeout 600 \
+    python tests/test_decode.py "$HOME/mk/models/Qwen3.6-35B-A3B-FP8" "$M" 4 1 2>&1 | tail -1
+f=$(ls "$D"/*/22_final_isa.s | head -1)
+grep -E '^ +\.(vgpr_count|vgpr_spill_count|sgpr_spill_count|private_segment_fixed_size):' "$f"
+echo "scratch ops $(grep -c scratch_ "$f")"

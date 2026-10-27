@@ -44,7 +44,7 @@ def mfma_fp8(a, b, c):
 
 
 def _imin(a, b):
-    """min of host ints, or of a device int and an int."""
+    """Return min of host ints, or of a device int and an int."""
     if isinstance(a, int) and isinstance(b, int):
         return min(a, b)
     return fx.min(a, b)

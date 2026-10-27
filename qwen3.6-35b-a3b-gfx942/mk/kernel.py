@@ -4,8 +4,9 @@ Grid = CU count, 512 threads, all CTAs co-resident. Stages are separated by grid
 barriers (dev.grid_arrive / grid_wait). Per layer (docs/DESIGN.md, "Per-layer stage
 list"):
 
-  GDN layer:  in_proj GEMV (fp8 qkvz + bf16 b/a) -> | GDN core tasks -> | out_proj (+h) -> |
-  attn layer: qkv GEMV                           -> | attention tasks -> | o_proj (+h)   -> |
+  GDN layer:  in_proj GEMV (fp8 qkvz + bf16 b/a) -> | GDN core tasks -> |
+              out_proj (+h) -> |
+  attn layer: qkv GEMV -> | attention tasks -> | o_proj (+h) -> |
   both:       router GEMV -> | routing + experts gate_up -> | experts down (+h) -> |
 then the final norm and either the LM head GEMV (bf16) -> fp32 logits, or the normed
 hidden states (bf16) for a serving engine's own LM head.
@@ -25,8 +26,8 @@ Caches use vLLM's layouts (Cfg holds their strides), as in the Qwen3.8 kernel:
 The barrier epoch lives on the device (word EPOCH_WORD of the flag buffer), so a
 launch has no per-step host argument and can be captured in a graph.
 
-Every compile-time setting is a Cfg field, and the kernel name holds a hash of
-repr(cfg): FlyDSL's disk cache keys on the name, not on the fields.
+Every compile-time setting is a Cfg field or a debug global, and the kernel name holds a
+hash of all of them: FlyDSL's disk cache keys on the name, not on the fields.
 """
 
 import functools
@@ -123,12 +124,13 @@ class Cfg:
     c_ba: int = 8
     c_out: int = 2
     c_qkv: int = 1
-    c_o: int = 2
+    c_o: int = 16  # one head per K chunk: the prologue merges one head (prologue_attn)
     c_router: int = 1
     c_e1: int = 4
     c_e2: int = 1
-    c_lm: int = 8
+    c_lm: int = 1  # 8 -> 1: 3.36 -> 3.26 ms at M = 1 (fewer partial hand-offs)
     debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
+    fence: bool = False  # L2 write-back / invalidate at every grid barrier (dev.grid_*)
 
     def chunks(self):
         return {k[2:]: v for k, v in asdict(self).items() if k.startswith("c_")}
@@ -169,7 +171,7 @@ class Cfg:
         )
 
 
-CNT_REGION = dict(inp=0, ba=1, out=2, qkv=3, o=4, router=5, e1=6, e2=7, lm=8, attn=9)
+CNT_REGION = dict(inp=0, ba=1, out=2, qkv=3, o=4, router=5, e1=6, e2=7, lm=8)
 
 
 PROFILE = {
@@ -178,13 +180,17 @@ PROFILE = {
 
 
 def kernel_name(cfg: Cfg) -> str:
-    return f"qwen36moe_decode_m{cfg.M}_{zlib.crc32(repr(cfg).encode()):08x}"
+    """Every compile-time setting goes into the name (FlyDSL's disk cache keys on it):
+    the Cfg fields and the debug globals (PROFILE and PROBE addresses are baked in)."""
+    key = repr((cfg, PROFILE, D.PROBE))
+    return f"qwen36moe_decode_m{cfg.M}_{zlib.crc32(key.encode()):08x}"
 
 
 def build(cfg: Cfg):
     M, CUS = cfg.M, cfg.cus
     assert 1 <= M <= WAVES, "the norm prologues and the routing give each row one wave"
     SP = cfg.specs()
+    D.FENCE["on"] = cfg.fence
     S.NT = NT
     NP = MO.npos_max(M)
     XQB = max(s.XR * (s.XROWS if isinstance(s, MO.MoeGemv) else M) for s in SP.values())
@@ -297,19 +303,15 @@ def build(cfg: Cfg):
             if const_expr(PROFILE["addr"] is not None):
                 slot = ((e - epoch - 1) * CUS + bid) * 2
                 stamp(slot)
-            D.grid_arrive(rf, e, tid, bid)
+            D.grid_arrive(rf, e, tid, bid, cfg.fence)
             buf = spec.first_loads(w) if spec is not None else None
-            D.grid_wait(rf, e, tid, bid, CUS)
+            D.grid_wait(rf, e, tid, bid, CUS, cfg.fence)
             if const_expr(PROFILE["addr"] is not None):
                 stamp(slot + 1)
             return w, buf
 
-        # ---- embedding (+ zero the attention counters: their totals change with pos)
+        # ---- embedding
         S.embed_stage(c, M, G[G_TOK], G[G_EMBED], hb0, q0, hf0)
-        if bid == 0:
-            for i in range_constexpr((M * NKV + NT - 1) // NT):
-                if tid + NT * i < M * NKV:
-                    D.st(fx.Int32(0), D.rsrc(cnt("attn")), tid + NT * i, D.CM_DEV)
 
         c0 = dict(c)
         for i in range(0, nlayers):
@@ -445,7 +447,7 @@ def _attn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, 
     M = SP["inp"].M
     hf0, hf1 = hf_ptrs(hb0, M)
     qkv, o = SP["qkv"], SP["o"]
-    y, y2 = G[G_Y], G[G_Y2]
+    y = G[G_Y]
     w, buf = barrier_then(qkv, T(T_MIX_T), T(T_MIX_S), e0)
     S.prologue_norm(c, qkv, xq, xs, red, hf0, q0, T(T_IN_LN), EPS)
     qkv.run(
@@ -471,12 +473,10 @@ def _attn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, 
             T(T_SLOT),
             G[G_POS],
             G[G_REC],
-            cnt("attn"),
-            y2,
             wl,
         )
     w, buf = barrier_then(o, T(T_OUT_T), T(T_OUT_S), e0 + 2)
-    S.prologue_scaled(c, o, xq, xs, y2, y2, EPS, 0)
+    X.prologue_attn(c, o, xq, xs, cfg, G[G_REC], y, G[G_POS], T(T_SLOT))
     o.run(c, w, buf, part, cnt("o"), S.EpiRes(c, M, hb0, hb1, q1, hf1))
 
 

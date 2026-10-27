@@ -1,0 +1,13 @@
+M=1 ctx=512: embed (start -> first arrival) 3.4 us; step total 3550.2 us
+stage    n  span us  busy us barrier us sum span us
+inp     30     16.4     12.7       2.41       491.5
+gdn     30      2.9      2.1       4.21        86.4
+out     30     12.6      7.2       3.58       351.2
+router  40      4.8      1.8       2.45       196.6
+e1      40     17.7     15.2       3.23       710.4
+e2      40      8.3      3.5       2.04       326.6
+qkv     10      9.5      7.3       2.48        95.6
+attn    10     20.6      1.6       2.24       206.8
+o       10     19.5     12.4       2.40       196.5
+lm       1    224.3    204.6       3.00       224.3
+sum of spans + barriers 3618.7 us

@@ -7,7 +7,8 @@ Per layer the GEMVs are (docs/DESIGN.md, "Per-layer stage list"):
   attn layer: qkv  = [q_proj | k_proj | v_proj]        fp8  (9216 x 2048)
               o    = o_proj                            fp8  (2048 x 4096)
   every layer router = [mlp.gate | shared_expert_gate | 0]  bf16 (272 x 2048)
-              e1   = experts 0..255 + shared, [gate | up] rows in gu_order  fp8 (257 x 1024 x 2048)
+              e1   = experts 0..255 + shared, [gate | up] rows in gu_order
+                                                      fp8  (257 x 1024 x 2048)
               e2   = experts 0..255 + shared, down     fp8  (257 x 2048 x 512)
 LM head: bf16 (pack_bf16). The small tensors stay bf16 as in the checkpoint.
 
@@ -43,8 +44,8 @@ def row_scales(s: torch.Tensor, N: int) -> torch.Tensor:
 
 
 def fp8_tiles(w: torch.Tensor, srow: torch.Tensor):
-    """e4m3fn [..., N, K] + per-row fp32 scales [..., N, K/128] -> (tiles u8 [..., G, KS,
-    2, 64, 16], scales fp32 [..., G, KS, 2]).
+    """Convert e4m3fn [..., N, K] + per-row fp32 scales [..., N, K/128] to (tiles u8
+    [..., G, KS, 2, 64, 16], scales fp32 [..., G, KS, 2]).
 
     Lane l (row r = l % 16, gl = l // 16), load q: MFMA steps d = 2 q, 2 q + 1, 8 bytes
     each at k = 128 st + 32 d + 8 gl + 0..7. Scales: rows 0-7 and rows 8-15 of the group
@@ -146,7 +147,7 @@ class Packed:
             put((i, "router"), t, t)
             # routed experts + the shared expert as expert NE
             se = f"{P}layers.{i}.mlp.shared_expert."
-            def stack(pj):
+            def stack(pj, i=i, se=se):
                 w = W.ex[(i, pj)]
                 s = row_scales(W.exs[(i, pj)], w.shape[1])
                 ws, ss = W.raw[se + pj + ".weight"]

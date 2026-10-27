@@ -13,16 +13,17 @@ routing(): every CTA, after the S4 barrier, builds in its LDS (Route):
 MoeGemv: grouped fp8 GEMV over the npos positions. A piece is (position, chunk c, group
 g) of KSp units; pieces are ordered (position, chunk, group) and global wave gw computes
 pieces [gw T / NW, (gw + 1) T / NW) (T = npos C G) whole, in K order, so a piece's value
-does not depend on T (batch invariance). Weights of a layer: one stack of NE + 1 experts,
-expert e's units at e upe .. in the dense unit order (pack.unit_order).
+does not depend on T (batch invariance). Weights of a layer: one stack of NE + 1
+experts, expert e's units at e upe .. in the dense unit order (pack.unit_order).
 
   "gu"   (S5): x = norm(h1) (all K in LDS). Partial of piece -> part[pi]; counter per
          (pos, g) counts C; the last arriver sums the chunks in order and stores act =
          silu(gate) * up for the rows that use pos: act[m][slot][8 g + col].
-  "down" (S6): x = act of the CTA's <= 2 positions (prologue_act_moe). Partial of piece
-         (pos, c, g) -> part[g][slot][c][col][m] for the rows that use pos; counter per g
-         counts npos C; the last arriver forms, per row, sum over j in order of w[m][j] *
-         (sum over c of the slot's partials) and runs the residual epilogue.
+  "down" (S6): x = act of the CTA's <= 2 positions (prologue_act_moe). Partial of
+         piece (pos, c, g) -> part[g][slot][c][col][m] for the rows that use pos;
+         counter per g counts npos C; the last arriver forms, per row, sum over j in
+         order of w[m][j] * (sum over c of the slot's partials) and runs the residual
+         epilogue.
 """
 
 from __future__ import annotations
@@ -98,11 +99,12 @@ def routing(c, M, logits, rowv, R: Route):
                 gt = v[k] > best  # strict: the lower index wins a tie
                 best = gt.select(v[k], best)
                 bk = gt.select(fx.Int32(k), bk)
-            mv = D.xor_max(best, lane, (32, 16, 8, 4, 2, 1))
+            # wave-uniform maxima by DPP only (dev.wave_max); max is exact in any order
+            mv = D.wave_max(best)
             idx = lane + 64 * bk
             cand = (best == mv).select(-i2f(idx), fx.Float32(NEG))
-            e = D.uniform(f2i(-D.xor_max(cand, lane, (32, 16, 8, 4, 2, 1))))
-            vals.append(D.uniform(mv.bitcast(fx.Int32)).bitcast(fx.Float32))
+            e = D.uniform(f2i(-D.wave_max(cand)))
+            vals.append(mv)
             picks.append(e)
             for k in range_constexpr(4):
                 v[k] = ((lane + 64 * k) == e).select(fx.Float32(NEG), v[k])
@@ -216,7 +218,7 @@ class MoeGemv:
 
     @property
     def Kc(self):
-        """x columns per LDS row (prologue interface): all of K."""
+        """Columns of x per LDS row (prologue interface): all of K."""
         return self.K
 
     @property
@@ -309,13 +311,15 @@ class MoeGemv:
         """Stream this wave's pieces, then count them; the last arriver of a counter
         group calls fin(cg, tots[, ...]) (see mode). pos0: the CTA's first position
         (down mode: LDS x slot = pos - pos0)."""
+        D.PROBE["on"] = D.PROBE.get("stage") == self.name
+        D.probe(c, 0)
         npos = R.n()
         T_ = npos * self.ppe
         gw = w["gw"]
         p0 = gw * T_ // self.NW
         p1 = (gw + 1) * T_ // self.NW
         rp = D.rsrc(part)
-        G, KSp, C = self.G, self.KSp, self.C
+        G, KSp = self.G, self.KSp
         rslot = R.slot
         buf = self._load_piece(w, R, fx.min(p0, T_ - 1))
         for pi in range(p0, p1):
@@ -345,6 +349,7 @@ class MoeGemv:
                         if j >= 0:
                             D.st(acc[r], rp, self._p2(g, j, ch, w["col"], m), D.CM_DEV)
             buf = nxt
+        D.probe(c, 1)
         rocdl.s_waitcnt(vmcnt=0)
         olds = []
         for k in range_constexpr(self.PMAX):
@@ -353,6 +358,7 @@ class MoeGemv:
             if (w["lane"] == 0) & (pi < p1):
                 old = D.atomic_add_dev(cnt + self._cg(pi) * 4, 1)
             olds.append(D.uniform(old))
+        D.probe(c, 3)
         for k in range_constexpr(self.PMAX):
             pi = p0 + k
             cg = self._cg(pi)
@@ -366,6 +372,7 @@ class MoeGemv:
                     self._reduce_gu(w, R, rp, pi // self.ppe, pi % G, fin)
                 else:
                     self._reduce_down(w, R, rp, pi % G, fin)
+        D.probe(c, 2)
 
     def _cg(self, pi):
         if self.mode == "gu":

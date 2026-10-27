@@ -1,0 +1,100 @@
+srun: job 68192233 queued and waiting for resources
+srun: job 68192233 has been allocated resources
+===== Qwen3.6-35B-A3B-FP8 2026-10-27T16:44:47-04:00
+date: 2026-10-27T16:44:47-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.26;rocm 10.0.0;rocm-bootstrap 0.3.0;rocm_mq 0.1.0 /home/AMD/sareeder/worktrees/rocmlibs-merge-queue-rfc/.github/merge-queue;rocm-sdk-core 10.0.0;rocm-sdk-devel 10.0.0;rocm-sdk-device-gfx1100 10.0.0;rocm-sdk-device-gfx1101 10.0.0;rocm-sdk-device-gfx1150 10.0.0;rocm-sdk-device-gfx1151 10.0.0;rocm-sdk-device-gfx1200 10.0.0;rocm-sdk-device-gfx1201 10.0.0;rocm-sdk-device-gfx90a 10.0.0;rocm-sdk-device-gfx942 10.0.0;rocm-sdk-device-gfx950 10.0.0;rocm-sdk-libraries 10.0.0;triton 3.8.0+git669b31ac
+vllm 0.32.1rc1.dev505+g00b6c4c56
+torch 2.13.0+rocm10.0.0 hip 7.15.26333
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_ENABLE_IPC_MODE_LEGACY=1
+HSA_NO_SCRATCH_RECLAIM=1
+VLLM_ROCM_USE_AITER=1
+serve args: 
+server ready 2026-10-27T16:48:31-04:00
+[warmup] Output token throughput (tok/s):         637.06    
+[warmup] Median TTFT (ms):                        1326.86   
+[warmup] Median TPOT (ms):                        7.39      
+[warmup] Median ITL (ms):                         7.42      
+[c1] Output token throughput (tok/s):         185.64    
+[c1] Median TTFT (ms):                        62.85     
+[c1] Median TPOT (ms):                        5.11      
+[c1] Median ITL (ms):                         5.13      
+[c2] Output token throughput (tok/s):         307.29    
+[c2] Median TTFT (ms):                        227.58    
+[c2] Median TPOT (ms):                        5.51      
+[c2] Median ITL (ms):                         5.53      
+[c4] Output token throughput (tok/s):         575.18    
+[c4] Median TTFT (ms):                        207.27    
+[c4] Median TPOT (ms):                        6.17      
+[c4] Median ITL (ms):                         6.18      
+[c8] Output token throughput (tok/s):         958.81    
+[c8] Median TTFT (ms):                        220.56    
+[c8] Median TPOT (ms):                        7.44      
+[c8] Median ITL (ms):                         7.46      
+[c1_rep2] Output token throughput (tok/s):         187.13    
+[c1_rep2] Median TTFT (ms):                        63.87     
+[c1_rep2] Median TPOT (ms):                        5.11      
+[c1_rep2] Median ITL (ms):                         5.11      
+[c1_rep3] Output token throughput (tok/s):         185.18    
+[c1_rep3] Median TTFT (ms):                        66.15     
+[c1_rep3] Median TPOT (ms):                        5.11      
+[c1_rep3] Median ITL (ms):                         5.14      
+done /home/AMD/sareeder/mk/models/Qwen3.6-35B-A3B-FP8 2026-10-27T16:52:12-04:00
+===== Qwen3.6-35B-A3B 2026-10-27T16:52:12-04:00
+date: 2026-10-27T16:52:12-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.26;rocm 10.0.0;rocm-bootstrap 0.3.0;rocm_mq 0.1.0 /home/AMD/sareeder/worktrees/rocmlibs-merge-queue-rfc/.github/merge-queue;rocm-sdk-core 10.0.0;rocm-sdk-devel 10.0.0;rocm-sdk-device-gfx1100 10.0.0;rocm-sdk-device-gfx1101 10.0.0;rocm-sdk-device-gfx1150 10.0.0;rocm-sdk-device-gfx1151 10.0.0;rocm-sdk-device-gfx1200 10.0.0;rocm-sdk-device-gfx1201 10.0.0;rocm-sdk-device-gfx90a 10.0.0;rocm-sdk-device-gfx942 10.0.0;rocm-sdk-device-gfx950 10.0.0;rocm-sdk-libraries 10.0.0;triton 3.8.0+git669b31ac
+vllm 0.32.1rc1.dev505+g00b6c4c56
+torch 2.13.0+rocm10.0.0 hip 7.15.26333
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_ENABLE_IPC_MODE_LEGACY=1
+HSA_NO_SCRATCH_RECLAIM=1
+VLLM_ROCM_USE_AITER=1
+serve args: 
+server ready 2026-10-27T16:55:31-04:00
+[warmup] Output token throughput (tok/s):         684.41    
+[warmup] Median TTFT (ms):                        733.14    
+[warmup] Median TPOT (ms):                        8.86      
+[warmup] Median ITL (ms):                         8.91      
+[c1] Output token throughput (tok/s):         193.08    
+[c1] Median TTFT (ms):                        68.58     
+[c1] Median TPOT (ms):                        4.93      
+[c1] Median ITL (ms):                         4.94      
+[c2] Output token throughput (tok/s):         318.37    
+[c2] Median TTFT (ms):                        202.57    
+[c2] Median TPOT (ms):                        5.38      
+[c2] Median ITL (ms):                         5.39      
+[c4] Output token throughput (tok/s):         542.92    
+[c4] Median TTFT (ms):                        199.92    
+[c4] Median TPOT (ms):                        6.48      
+[c4] Median ITL (ms):                         6.51      
+[c8] Output token throughput (tok/s):         837.49    
+[c8] Median TTFT (ms):                        201.32    
+[c8] Median TPOT (ms):                        8.81      
+[c8] Median ITL (ms):                         8.81      
+[c1_rep2] Output token throughput (tok/s):         192.51    
+[c1_rep2] Median TTFT (ms):                        71.06     
+[c1_rep2] Median TPOT (ms):                        4.93      
+[c1_rep2] Median ITL (ms):                         4.94      
+[c1_rep3] Output token throughput (tok/s):         192.17    
+[c1_rep3] Median TTFT (ms):                        71.94     
+[c1_rep3] Median TPOT (ms):                        4.93      
+[c1_rep3] Median ITL (ms):                         4.95      
+done /home/AMD/sareeder/mk/models/Qwen3.6-35B-A3B 2026-10-27T16:59:04-04:00

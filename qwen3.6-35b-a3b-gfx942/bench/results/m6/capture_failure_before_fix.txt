@@ -1,0 +1,16 @@
+# kernel on, TRITON_ATTN, FULL_AND_PIECEWISE, before vLLM commit b41c03750 (TORCH_LOGS=recompiles)
+Capturing CUDA graphs (PIECEWISE):   0%|          | 0/5 [00:00<?, ?it/s]W1027 18:00:28.946429 3441229 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-me
+Capturing CUDA graphs (PIECEWISE):  20%|██        | 1/5 [00:03<00:13,  3.37s/it]
+Capturing CUDA graphs (PIECEWISE):  40%|████      | 2/5 [00:22<00:37, 12.49s/it]
+Capturing CUDA graphs (PIECEWISE):  60%|██████    | 3/5 [00:38<00:28, 14.04s/it]
+Capturing CUDA graphs (PIECEWISE):  80%|████████  | 4/5 [00:51<00:13, 13.72s/it][rank0]:V1027 18:01:33.371000 3441229 torch/_dynamo/guards.py:5396] [1/1] [__recompiles] Recompiling function forward_native in /home/AMD/sareeder/mk/vllm36-src/vll
+[rank0]:V1027 18:01:33.371000 3441229 torch/_dynamo/guards.py:5396] [1/1] [__recompiles]     triggered by the following guard failure(s):
+[rank0]:V1027 18:01:33.371000 3441229 torch/_dynamo/guards.py:5396] [1/1] [__recompiles]     - 1/0: 2 <= x.size()[0]  # d = x.shape[-1] // 2  # ome/AMD/sareeder/mk/vllm36-src/vllm/model_executor/layers/activation.py:143 in forward_native (user code shown is fi
+Capturing CUDA graphs (PIECEWISE):  80%|████████  | 4/5 [01:06<00:16, 16.52s/it]
+[rank0]:     shared_experts_overlapping = self._shared_experts.maybe_forward_async(
+[rank0]:   File "/home/AMD/sareeder/mk/vllm36-src/vllm/model_executor/layers/fused_moe/runner/shared_experts.py", line 159, in maybe_forward_async
+[rank0]:     triton_poi_fused_mul_silu_slice_0.run(arg1_1, buf0, s27, triton_poi_fused_mul_silu_slice_0_xnumel, stream=raw_stream0)
+[rank0]:     self.autotune_to_one_config(*args, **kwargs)
+[rank0]:   File "/usr/local/lib/python3.12/dist-packages/torch/_inductor/runtime/triton_heuristics.py", line 1558, in autotune_to_one_config
+[rank0]: torch.AcceleratorError: CUDA error: operation not permitted when stream is capturing
+[rank0]: torch.AcceleratorError: CUDA error: operation failed due to a previous error during capture

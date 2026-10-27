@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import dataclasses
+import os
 
 import torch
 
@@ -33,9 +34,15 @@ PAGE = CONV_BYTES + NVH * DV * DK * 4  # one state slot: conv, then SSM (as vLLM
 
 
 def default_chunks() -> dict:
-    """The GEMV K chunks of a default Cfg (pack.Packed needs them)."""
+    """The GEMV K chunks of a default Cfg (pack.Packed needs them). MK_CHUNKS="lm=4,
+    out=2" overrides some (tuning); Engine then compiles a Cfg with those chunks."""
     f = {x.name: x.default for x in dataclasses.fields(KK.Cfg) if x.name.startswith("c_")}
-    return {k[2:]: v for k, v in f.items()}
+    ch = {k[2:]: v for k, v in f.items()}
+    for kv in filter(None, os.environ.get("MK_CHUNKS", "").split(",")):
+        k, v = kv.split("=")
+        assert k.strip() in ch, kv
+        ch[k.strip()] = int(v)
+    return ch
 
 
 class Engine:
@@ -55,6 +62,7 @@ class Engine:
         xpack: bool = False,
         lm_head: bool = True,
         debug_route: bool = False,
+        fence: bool | None = None,
     ):
         self.PK, self.M, self.maxlen, self.layers = PK, M, maxlen, layers
         cus = torch.cuda.get_device_properties(0).multi_processor_count
@@ -67,11 +75,16 @@ class Engine:
             NKV * HD,
             block * NKV * HD,
         )
+        if fence is None:  # MK_FENCE=1: L2 fences at every grid barrier (debug)
+            fence = os.environ.get("MK_FENCE", "0") == "1"
+        # MK_CFG="name=1,other=0": override Cfg flags (A/B experiments)
+        over = dict(kv.split("=") for kv in filter(None, os.environ.get("MK_CFG", "").split(",")))
         self.cfg = KK.Cfg(
             M, cus, maxlen, block, nb, *kv_s, xpack, PAGE, PAGE, lm_head,
-            debug_route=debug_route,
+            debug_route=debug_route, fence=fence,
+            **{"c_" + k: v for k, v in PK.chunks.items()},
+            **{k: bool(int(v)) for k, v in over.items()},
         )
-        assert self.cfg.chunks() == PK.chunks, (self.cfg.chunks(), PK.chunks)
         self.launch = KK.build(self.cfg)
         z = lambda *s, dt=torch.float32: torch.zeros(*s, dtype=dt, device=device)  # noqa: E731
         ng, na = NL * 3 // 4, NL // 4

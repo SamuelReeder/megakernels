@@ -1,0 +1,1 @@
+{"run_name": "b1_rep2", "batch_size": 1, "input_len": 512, "output_len": 256, "prefill_latency": 0.07393192104063928, "prefill_throughput": 6925.29008841203, "median_decode_latency": 0.006129282992333174, "median_decode_throughput": 163.15122033863537, "total_latency": 1.637427595211193, "overall_throughput": 469.0283724581694}

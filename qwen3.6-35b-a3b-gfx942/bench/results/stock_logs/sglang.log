@@ -1,0 +1,108 @@
+srun: job 68192234 queued and waiting for resources
+srun: job 68192234 has been allocated resources
+===== Qwen3.6-35B-A3B 2026-10-27T16:57:40-04:00
+date: 2026-10-27T16:57:40-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+GPU[0]		: Card Series: 		AMD Instinct MI300X
+GPU[0]		: Card Model: 		0x74a1
+GPU[0]		: GFX Version: 		gfx942
+rocm: 7.0.0
+sglang 0.5.10.post1.dev20260428+g144038fba
+torch 2.9.0a0+git7bcbafe hip 7.0.51831-a3e329ad8
+AITER_COMMIT=v0.1.12.post1
+AITER_COMMIT_DEFAULT=v0.1.12.post1
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_FORCE_DEV_KERNARG=1
+HSA_NO_SCRATCH_RECLAIM=1
+ROCR_VISIBLE_DEVICES=0
+SGLANG_ALLOW_OVERWRITE_LONGER_CONTEXT_LEN=1
+SGLANG_DISABLE_CUDNN_CHECK=1
+SGLANG_INT4_WEIGHT=0
+SGLANG_MOE_PADDING=1
+SGLANG_ROCM_DISABLE_LINEARQUANT=0
+SGLANG_ROCM_FUSED_DECODE_MLA=1
+SGLANG_SET_CPU_AFFINITY=1
+SGLANG_USE_AITER=1
+SGLANG_USE_ROCM700A=1
+extra args: 
+[sweep] exit 0
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+Prefill. latency: 95.72303 s, throughput:      5.35 token/s
+Decode.  median latency: 0.00609 s, median throughput:    164.21 token/s
+Benchmark ...
+Prefill. latency: 0.07742 s, throughput:   6613.39 token/s
+Decode.  median latency: 0.00613 s, median throughput:    163.23 token/s
+Prefill. latency: 0.09440 s, throughput:  10847.01 token/s
+Decode.  median latency: 0.00609 s, median throughput:    328.40 token/s
+Prefill. latency: 0.09174 s, throughput:  22325.03 token/s
+Decode.  median latency: 0.00683 s, median throughput:    586.07 token/s
+Prefill. latency: 0.10752 s, throughput:  38095.05 token/s
+Decode.  median latency: 0.00879 s, median throughput:    910.40 token/s
+[b1_rep2] exit 0
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+Prefill. latency: 0.29095 s, throughput:   1759.76 token/s
+Decode.  median latency: 0.00614 s, median throughput:    162.92 token/s
+Benchmark ...
+Prefill. latency: 0.07393 s, throughput:   6925.29 token/s
+Decode.  median latency: 0.00613 s, median throughput:    163.15 token/s
+[b1_rep3] exit 0
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+Prefill. latency: 0.27742 s, throughput:   1845.58 token/s
+Decode.  median latency: 0.00616 s, median throughput:    162.25 token/s
+Benchmark ...
+Prefill. latency: 0.07521 s, throughput:   6807.32 token/s
+Decode.  median latency: 0.00617 s, median throughput:    162.11 token/s
+===== Qwen3.6-35B-A3B-FP8 2026-10-27T17:06:59-04:00
+date: 2026-10-27T17:06:59-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+GPU[0]		: Card Series: 		AMD Instinct MI300X
+GPU[0]		: Card Model: 		0x74a1
+GPU[0]		: GFX Version: 		gfx942
+rocm: 7.0.0
+sglang 0.5.10.post1.dev20260428+g144038fba
+torch 2.9.0a0+git7bcbafe hip 7.0.51831-a3e329ad8
+AITER_COMMIT=v0.1.12.post1
+AITER_COMMIT_DEFAULT=v0.1.12.post1
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_FORCE_DEV_KERNARG=1
+HSA_NO_SCRATCH_RECLAIM=1
+ROCR_VISIBLE_DEVICES=0
+SGLANG_ALLOW_OVERWRITE_LONGER_CONTEXT_LEN=1
+SGLANG_DISABLE_CUDNN_CHECK=1
+SGLANG_INT4_WEIGHT=0
+SGLANG_MOE_PADDING=1
+SGLANG_ROCM_DISABLE_LINEARQUANT=0
+SGLANG_ROCM_FUSED_DECODE_MLA=1
+SGLANG_SET_CPU_AFFINITY=1
+SGLANG_USE_AITER=1
+SGLANG_USE_ROCM700A=1
+extra args: 
+[sweep] exit 0
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+Prefill. latency: 1.79231 s, throughput:    285.67 token/s
+Decode.  median latency: 0.00780 s, median throughput:    128.27 token/s
+Benchmark ...
+Prefill. latency: 0.09435 s, throughput:   5426.86 token/s
+Decode.  median latency: 0.00779 s, median throughput:    128.39 token/s
+Prefill. latency: 1.26484 s, throughput:    809.59 token/s
+Decode.  median latency: 0.00798 s, median throughput:    250.65 token/s
+Prefill. latency: 1.42327 s, throughput:   1438.94 token/s
+Decode.  median latency: 0.00851 s, median throughput:    469.86 token/s
+Prefill. latency: 1.35444 s, throughput:   3024.12 token/s
+Decode.  median latency: 0.00923 s, median throughput:    867.16 token/s
+[b1_rep2] exit 0
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+Prefill. latency: 0.31106 s, throughput:   1645.97 token/s
+Decode.  median latency: 0.00787 s, median throughput:    127.08 token/s
+Benchmark ...
+Prefill. latency: 0.09470 s, throughput:   5406.58 token/s
+Decode.  median latency: 0.00777 s, median throughput:    128.66 token/s
+[b1_rep3] exit 0
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+Prefill. latency: 0.30087 s, throughput:   1701.75 token/s
+Decode.  median latency: 0.00786 s, median throughput:    127.28 token/s
+Benchmark ...
+Prefill. latency: 0.09622 s, throughput:   5321.19 token/s
+Decode.  median latency: 0.00781 s, median throughput:    128.03 token/s
