@@ -120,11 +120,11 @@ Terms:
 
 1. S4 computes the router logits as one bf16 GEMV of 272 rows: rows 0..255 are
    `mlp.gate`, row 256 is `shared_expert_gate`, rows 257..271 are zero. The input is
-   bf16(norm(h1)), the model dtype. The epilogue writes fp32 logits. Split-K and the
-   last arriver are the Qwen3.8 GEMV.
+   bf16(norm(h1)), the model dtype. The epilogue writes fp32 logits (no bf16 rounding).
+   Split-K and the last arriver are the Qwen3.8 GEMV.
 2. After the S4 barrier, every CTA computes the routing for all M rows. Wave m does
    row m: top-8 of the 256 fp32 logits (8 rounds of a wave max; ties go to the lower
-   expert id), weights w[m][j] = exp(l_j - l_0) / sum over the 8 (equal to HF's
+   expert id), weights w[m][j] = exp(l_j - l_0) / sum over the 8 in fp32 (equal to HF's
    softmax, top-8, renormalize), shared weight w[m][8] = sigmoid(l_256).
 3. The CTA builds a 256-bit selection mask (OR over the valid rows), the position list
    (expert ids in ascending order, then the shared expert), U, and slot_of[m][p] (the
@@ -273,16 +273,20 @@ milestone 4 attacks it (see "Open questions"). This is an estimate, not a measur
 | Router, shared gate, in_proj_a / in_proj_b, LM head, embedding | bf16 (as in the checkpoint) |
 | GEMV inputs, fp8 weights | e4m3fnuz, power-of-two scale per (token, 128 K) |
 | GEMV inputs, bf16 weights | bf16 |
-| Router logits, routing weights, shared gate | fp32 (HF rounds the logits and weights to bf16) |
+| Router logits, shared-gate logit | fp32 (HF and vLLM round them to bf16) |
+| Routing weights, shared gate sigmoid | fp32 (HF casts the weights to bf16; vLLM keeps fp32) |
 | Expert act (silu(g) x u) | fp32 in global memory, fp8 in the down GEMV input |
 | Accumulation, residual stream, GDN state | fp32 |
 | Conv state, KV cache | bf16 (vLLM's layouts) |
 | Norm input | bf16 copy of the fp32 residual; rstd from the fp32 residual |
 | q in QK^T | bf16 |
 
-Decision: fp32 router logits, ties to the lower expert id. Rejected: bf16 logits to
-copy HF and vLLM, because bf16 logits make exact ties between experts frequent, and
-the tie order of `torch.topk` and of vLLM's top-k kernel is not specified.
+Decision (confirmed 2026-10-27): fp32 router logits, ties to the lower expert id.
+Rejected: bf16 logits to copy HF and vLLM. bf16 logits make exact ties common, and the
+tie order of `torch.topk` and of vLLM's top-k kernel is not defined, so tests would fail
+at random. The kernel's GEMV also adds in a different order from rocBLAS, so bf16
+rounding would not make the kernel select bit-for-bit the same experts as vLLM anyway.
+The tests allow near-ties (see "Correctness oracle").
 
 ## Decisions and evidence
 
