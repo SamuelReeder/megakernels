@@ -8,6 +8,7 @@ The numerics follow docs/DESIGN.md:
 - KV cache: bf16
 The same module runs prefill by calling `step` once per prompt token.
 """
+
 from __future__ import annotations
 
 import json
@@ -17,11 +18,45 @@ from dataclasses import dataclass
 import torch
 from safetensors import safe_open
 
-from .dims import (CONV_DIM, CONV_K, DK, DV, EPS, HD, KEY_DIM, NKH, NKV, NL, NQ, NVH, ROT, THETA,
-                   VAL_DIM, is_attn)
+from .dims import (
+    CONV_DIM,
+    CONV_K,
+    DK,
+    DV,
+    EPS,
+    HD,
+    KEY_DIM,
+    NKH,
+    NKV,
+    NL,
+    NQ,
+    NVH,
+    ROT,
+    THETA,
+    VAL_DIM,
+    is_attn,
+)
 
-E2M1 = torch.tensor([0.0, 0.5, 1.0, 1.5, 2.0, 3.0, 4.0, 6.0,
-                     -0.0, -0.5, -1.0, -1.5, -2.0, -3.0, -4.0, -6.0])
+E2M1 = torch.tensor(
+    [
+        0.0,
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        3.0,
+        4.0,
+        6.0,
+        -0.0,
+        -0.5,
+        -1.0,
+        -1.5,
+        -2.0,
+        -3.0,
+        -4.0,
+        -6.0,
+    ]
+)
 
 
 def dequant_mxfp4(w_u8: torch.Tensor, s_u8: torch.Tensor) -> torch.Tensor:
@@ -42,18 +77,44 @@ class Weights:
     Raw MXFP4 bytes are kept in `self.q` (name -> (w_u8, s_u8)) for the kernel.
     """
 
-    LIN = ("in_proj_qkv", "in_proj_z", "in_proj_a", "in_proj_b", "out_proj",
-           "q_proj", "k_proj", "v_proj", "o_proj", "gate_proj", "up_proj", "down_proj")
+    LIN = (
+        "in_proj_qkv",
+        "in_proj_z",
+        "in_proj_a",
+        "in_proj_b",
+        "out_proj",
+        "q_proj",
+        "k_proj",
+        "v_proj",
+        "o_proj",
+        "gate_proj",
+        "up_proj",
+        "down_proj",
+    )
 
-    def __init__(self, path: str, fmt: str, device="cuda", keep_raw=False, layers=NL, dequant=True):
+    def __init__(
+        self,
+        path: str,
+        fmt: str,
+        device="cuda",
+        keep_raw=False,
+        layers=NL,
+        dequant=True,
+    ):
         self.fmt, self.device, self.t, self.q = fmt, device, {}, {}
         idx = os.path.join(path, "model.safetensors.index.json")
         if os.path.exists(idx):
             files = sorted(set(json.load(open(idx))["weight_map"].values()))
         else:
             files = ["model.safetensors"]
-        want = lambda k: ("visual" not in k and "mtp" not in k and
-                          (".layers." not in k or int(k.split(".layers.")[1].split(".")[0]) < layers))
+        want = lambda k: (
+            "visual" not in k
+            and "mtp" not in k
+            and (
+                ".layers." not in k
+                or int(k.split(".layers.")[1].split(".")[0]) < layers
+            )
+        )
         for f in files:
             with safe_open(os.path.join(path, f), framework="pt", device="cpu") as sf:
                 for k in sf.keys():
@@ -66,7 +127,9 @@ class Weights:
                 if keep_raw:
                     self.q[base] = (w, s)
                 if dequant:
-                    self.t[base + ".weight"] = dequant_mxfp4(w.to(device), s.to(device)).cpu()
+                    self.t[base + ".weight"] = dequant_mxfp4(
+                        w.to(device), s.to(device)
+                    ).cpu()
         for k in self.t:
             self.t[k] = self.t[k].to(device)
 
@@ -92,7 +155,7 @@ def norm_in(h32: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
     return h32.to(torch.bfloat16).float() * r * (1.0 + w.float())
 
 
-EMULATE = False   # set by step(): mirror the megakernel's fp8 activation quantization
+EMULATE = False  # set by step(): mirror the megakernel's fp8 activation quantization
 
 
 def pow2_scale(amax):
@@ -126,7 +189,9 @@ def lin_bf16(x32: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
 
 
 def rope_cos_sin(pos: torch.Tensor):
-    inv = THETA ** (-torch.arange(0, ROT, 2, device=pos.device, dtype=torch.float64) / ROT)
+    inv = THETA ** (
+        -torch.arange(0, ROT, 2, device=pos.device, dtype=torch.float64) / ROT
+    )
     ang = pos.double()[:, None] * inv[None, :]
     ang = torch.cat([ang, ang], -1)
     return ang.cos().float(), ang.sin().float()
@@ -135,7 +200,7 @@ def rope_cos_sin(pos: torch.Tensor):
 def apply_rope(x: torch.Tensor, cos, sin):
     """x [M, heads, 256] fp32; NeoX half-split rotation on the first 64 dims."""
     xr, xp = x[..., :ROT], x[..., ROT:]
-    rot = torch.cat([-xr[..., ROT // 2:], xr[..., : ROT // 2]], -1)
+    rot = torch.cat([-xr[..., ROT // 2 :], xr[..., : ROT // 2]], -1)
     xr = xr * cos[:, None, :] + rot * sin[:, None, :]
     return torch.cat([xr, xp], -1)
 
@@ -143,56 +208,64 @@ def apply_rope(x: torch.Tensor, cos, sin):
 @dataclass
 class State:
     """Per-sequence caches for M rows."""
-    conv: torch.Tensor  # [48 gdn layers, M, 10240, 3] fp32 holding bf16 values (oldest first)
-    ssm: torch.Tensor   # [48, M, 48 vh, 128 v, 128 k] fp32
-    k: torch.Tensor     # [16 attn layers, M, 4, maxlen, 256] bf16
-    v: torch.Tensor     # [16, M, 4, maxlen, 256] bf16
-    pos: torch.Tensor   # [M] int64: number of tokens already in the cache
+
+    conv: (
+        torch.Tensor
+    )  # [48 gdn layers, M, 10240, 3] fp32 holding bf16 values (oldest first)
+    ssm: torch.Tensor  # [48, M, 48 vh, 128 v, 128 k] fp32
+    k: torch.Tensor  # [16 attn layers, M, 4, maxlen, 256] bf16
+    v: torch.Tensor  # [16, M, 4, maxlen, 256] bf16
+    pos: torch.Tensor  # [M] int64: number of tokens already in the cache
 
     @staticmethod
     def new(M: int, maxlen: int, device="cuda"):
         z = lambda *s, dt=torch.float32: torch.zeros(*s, dtype=dt, device=device)
-        return State(z(48, M, CONV_DIM, CONV_K - 1), z(48, M, NVH, DV, DK),
-                     z(16, M, NKV, maxlen, HD, dt=torch.bfloat16),
-                     z(16, M, NKV, maxlen, HD, dt=torch.bfloat16),
-                     torch.zeros(M, dtype=torch.long, device=device))
+        return State(
+            z(48, M, CONV_DIM, CONV_K - 1),
+            z(48, M, NVH, DV, DK),
+            z(16, M, NKV, maxlen, HD, dt=torch.bfloat16),
+            z(16, M, NKV, maxlen, HD, dt=torch.bfloat16),
+            torch.zeros(M, dtype=torch.long, device=device),
+        )
 
     def clone(self):
-        return State(*(t.clone() for t in (self.conv, self.ssm, self.k, self.v, self.pos)))
+        return State(
+            *(t.clone() for t in (self.conv, self.ssm, self.k, self.v, self.pos))
+        )
 
 
 def gdn(W: Weights, i: int, x: torch.Tensor, st: State, g_i: int) -> torch.Tensor:
     M = x.shape[0]
     pre = "linear_attn."
-    qkv = lin(x, W.L(i, pre + "in_proj_qkv.weight"))      # [M, 10240]
-    z = lin(x, W.L(i, pre + "in_proj_z.weight"))          # [M, 6144]
-    b = lin(x, W.L(i, pre + "in_proj_b.weight"))          # [M, 48]
-    a = lin(x, W.L(i, pre + "in_proj_a.weight"))          # [M, 48]
+    qkv = lin(x, W.L(i, pre + "in_proj_qkv.weight"))  # [M, 10240]
+    z = lin(x, W.L(i, pre + "in_proj_z.weight"))  # [M, 6144]
+    b = lin(x, W.L(i, pre + "in_proj_b.weight"))  # [M, 48]
+    a = lin(x, W.L(i, pre + "in_proj_a.weight"))  # [M, 48]
     cw = W.L(i, pre + "conv1d.weight").float()[:, 0, :]  # [10240, 4]
     win = torch.cat([st.conv[g_i], qkv[:, :, None]], -1)  # [M, 10240, 4]
     st.conv[g_i] = win[:, :, 1:].to(torch.bfloat16).float()
     y = (win * cw[None]).sum(-1)
-    y = y * torch.sigmoid(y)                               # silu
+    y = y * torch.sigmoid(y)  # silu
     q = y[:, :KEY_DIM].reshape(M, NKH, DK)
-    k = y[:, KEY_DIM: 2 * KEY_DIM].reshape(M, NKH, DK)
-    v = y[:, 2 * KEY_DIM:].reshape(M, NVH, DV)
+    k = y[:, KEY_DIM : 2 * KEY_DIM].reshape(M, NKH, DK)
+    v = y[:, 2 * KEY_DIM :].reshape(M, NVH, DV)
     q = q / torch.sqrt(q.pow(2).sum(-1, keepdim=True) + 1e-6)
     k = k / torch.sqrt(k.pow(2).sum(-1, keepdim=True) + 1e-6)
-    q = q * DK ** -0.5
+    q = q * DK**-0.5
     rep = NVH // NKH
-    q = q.repeat_interleave(rep, 1)                        # [M, 48, 128]
+    q = q.repeat_interleave(rep, 1)  # [M, 48, 128]
     k = k.repeat_interleave(rep, 1)
     beta = torch.sigmoid(b)
     A = W.L(i, pre + "A_log").float()
     dtb = W.L(i, pre + "dt_bias").float()
     g = -torch.exp(A)[None] * torch.nn.functional.softplus(a + dtb[None])  # [M, 48]
-    S = st.ssm[g_i]                                        # [M, 48, v, k]
+    S = st.ssm[g_i]  # [M, 48, v, k]
     S = S * torch.exp(g)[:, :, None, None]
     kv = torch.einsum("mhvk,mhk->mhv", S, k)
     delta = (v - kv) * beta[:, :, None]
     S = S + delta[:, :, :, None] * k[:, :, None, :]
     st.ssm[g_i] = S
-    o = torch.einsum("mhvk,mhk->mhv", S, q)                # [M, 48, 128]
+    o = torch.einsum("mhvk,mhk->mhv", S, q)  # [M, 48, 128]
     o = o * torch.rsqrt(o.pow(2).mean(-1, keepdim=True) + EPS)
     o = o * W.L(i, pre + "norm.weight").float()
     zz = z.reshape(M, NVH, DV)
@@ -211,16 +284,16 @@ def attn(W: Weights, i: int, x: torch.Tensor, st: State, a_i: int) -> torch.Tens
     k = rms0(k, W.L(i, pre + "k_norm.weight"))
     cos, sin = rope_cos_sin(st.pos)
     q, k = apply_rope(q, cos, sin), apply_rope(k, cos, sin)
-    q = q.to(torch.bfloat16).float()                       # q enters QK^T in bf16 (model dtype)
+    q = q.to(torch.bfloat16).float()  # q enters QK^T in bf16 (model dtype)
     out = torch.empty(M, NQ, HD, device=x.device)
     for m in range(M):
         p = int(st.pos[m])
         st.k[a_i, m, :, p] = k[m].to(torch.bfloat16)
         st.v[a_i, m, :, p] = v[m].to(torch.bfloat16)
-        K = st.k[a_i, m, :, : p + 1].float()               # [4, L, 256]
+        K = st.k[a_i, m, :, : p + 1].float()  # [4, L, 256]
         V = st.v[a_i, m, :, : p + 1].float()
-        qh = q[m].reshape(NKV, NQ // NKV, HD)              # q head h uses kv head h // 6
-        s = torch.einsum("gqd,gld->gql", qh, K) * HD ** -0.5
+        qh = q[m].reshape(NKV, NQ // NKV, HD)  # q head h uses kv head h // 6
+        s = torch.einsum("gqd,gld->gql", qh, K) * HD**-0.5
         pr = torch.softmax(s, -1)
         out[m] = torch.einsum("gql,gld->gqd", pr, V).reshape(NQ, HD)
     o = out.reshape(M, NQ * HD) * torch.sigmoid(gate)
@@ -228,7 +301,9 @@ def attn(W: Weights, i: int, x: torch.Tensor, st: State, a_i: int) -> torch.Tens
 
 
 @torch.no_grad()
-def step(W: Weights, tok: torch.Tensor, st: State, layers: int = NL, dump=None, emulate=False):
+def step(
+    W: Weights, tok: torch.Tensor, st: State, layers: int = NL, dump=None, emulate=False
+):
     """One decode step for M rows. tok [M] int64. Returns fp32 logits [M, VOCAB].
 
     Advances st.pos by one. `dump`, if a dict, receives per-layer h (fp32).

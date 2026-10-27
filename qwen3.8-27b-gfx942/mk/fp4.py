@@ -13,12 +13,13 @@ Scales: one dword per (group, superstep, row) = the row's 4 e8m0 bytes of blocks
 4 st .. 4 st + 3 (byte d = block d). Scale layout [group][superstep][16 rows].
 Negative zero (code 8) is stored as code 0 (0x80 is NaN in e4m3fnuz).
 """
+
 from __future__ import annotations
 
 import torch
 
-STEP = 128   # K of one superstep
-ROWS = 16    # rows of one group
+STEP = 128  # K of one superstep
+ROWS = 16  # rows of one group
 # e2m1 magnitude 0..7 -> e4m3fnuz byte (bias 8): 0, .5, 1, 1.5, 2, 3, 4, 6
 FP8_LUT = (0x00, 0x38, 0x40, 0x44, 0x48, 0x4C, 0x50, 0x54)
 
@@ -35,8 +36,8 @@ def repack(w_u8: torch.Tensor, s_u8: torch.Tensor):
     nib = torch.stack([w_u8 & 0xF, w_u8 >> 4], -1).reshape(N, K)
     nib = torch.where(nib == 8, torch.zeros_like(nib), nib)
     # k = 128 st + 32 d + 8 gl + 4 h + b
-    nib = nib.reshape(G, ROWS, KS, 4, 4, 2, 4)                    # g r st d gl h b
-    nib = nib.permute(0, 2, 4, 1, 3, 6, 5)                        # g st gl r d b h
+    nib = nib.reshape(G, ROWS, KS, 4, 4, 2, 4)  # g r st d gl h b
+    nib = nib.permute(0, 2, 4, 1, 3, 6, 5)  # g st gl r d b h
     byte = nib[..., 0] | (nib[..., 1] << 4)
     tiles = byte.reshape(G, KS, 64, 16).contiguous()
     sc = s_u8.reshape(G, ROWS, KS, 4).permute(0, 2, 1, 3).contiguous()
@@ -46,10 +47,11 @@ def repack(w_u8: torch.Tensor, s_u8: torch.Tensor):
 def unpack_ref(tiles: torch.Tensor, scales: torch.Tensor) -> torch.Tensor:
     """Inverse of repack, to a bf16 [N, K] matrix (test helper)."""
     from .reference import dequant_mxfp4
+
     G, KS = tiles.shape[:2]
-    t = tiles.reshape(G, KS, 4, ROWS, 4, 4)                        # g st gl r d b
-    nib = torch.stack([t & 0xF, t >> 4], -1)                       # g st gl r d b h
-    nib = nib.permute(0, 3, 1, 4, 2, 6, 5)                         # g r st d gl h b
+    t = tiles.reshape(G, KS, 4, ROWS, 4, 4)  # g st gl r d b
+    nib = torch.stack([t & 0xF, t >> 4], -1)  # g st gl r d b h
+    nib = nib.permute(0, 3, 1, 4, 2, 6, 5)  # g r st d gl h b
     codes = nib.reshape(G * ROWS, KS * STEP)
     packed = (codes[:, 0::2] | (codes[:, 1::2] << 4)).to(torch.uint8)
     s = scales.view(torch.uint8).reshape(G, KS, ROWS, 4).permute(0, 2, 1, 3)
@@ -78,7 +80,9 @@ def device_helpers():
 
     def mfma(a, b, c):
         """D = A x B + C, 16x16x32 fp8 (operands: i64 of 8 e4m3fnuz)."""
-        return fx.Vector(rocdl.mfma_f32_16x16x32_fp8_fp8(T.vec(4, T.f32), [a, b, c, 0, 0, 0]))
+        return fx.Vector(
+            rocdl.mfma_f32_16x16x32_fp8_fp8(T.vec(4, T.f32), [a, b, c, 0, 0, 0])
+        )
 
     def e8m0_f32(code):
         """e8m0 byte (1..254) -> 2^(code-127) as f32."""
@@ -89,5 +93,10 @@ def device_helpers():
         lo = fx.Int32(rocdl.cvt_pk_fp8_f32(T.i32, a, b, fx.Int32(0), False))
         return fx.Int32(rocdl.cvt_pk_fp8_f32(T.i32, c, d, lo, True))
 
-    return dict(dec_dword=dec_dword, mfma=mfma, e8m0_f32=e8m0_f32, perm=perm,
-                fp8_pack4=fp8_pack4)
+    return dict(
+        dec_dword=dec_dword,
+        mfma=mfma,
+        e8m0_f32=e8m0_f32,
+        perm=perm,
+        fp8_pack4=fp8_pack4,
+    )

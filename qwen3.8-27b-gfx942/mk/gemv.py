@@ -18,6 +18,7 @@ order (deterministic) and runs the epilogue for the group ("last arriver").
 Weights "mx": mk4 tiles (mk/fp4.py), fp8 MFMA, x fp8 with a pow2 scale per
 (token, superstep). Weights "bf16": pack_bf16 tiles, bf16 MFMA, x bf16, no scales.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -30,8 +31,9 @@ from . import dev as D
 from . import fp4
 
 H4 = fp4.device_helpers()
-CHUNKS = dict(out=2, o=2, down=4, lm=8)    # K chunks of the GEMVs (default 1); the packer follows
-PAD_TILES = 16                             # spare tiles after a packed matrix (>= 3 P - 1)
+# K chunks of the GEMVs (default 1); the packer follows
+CHUNKS = dict(out=2, o=2, down=4, lm=8)
+PAD_TILES = 16  # spare tiles after a packed matrix (>= 3 P - 1)
 
 
 @dataclass(frozen=True)
@@ -42,10 +44,10 @@ class Gemv:
     M: int
     cus: int
     waves: int = 8
-    C: int = 1              # K chunks
-    kind: str = "mx"        # "mx" | "bf16"
-    P: int = 2              # units per pipeline block
-    gpc: int = 1            # groups per counter (last-arriver granularity)
+    C: int = 1  # K chunks
+    kind: str = "mx"  # "mx" | "bf16"
+    P: int = 2  # units per pipeline block
+    gpc: int = 1  # groups per counter (last-arriver granularity)
 
     @property
     def G(self):
@@ -108,6 +110,7 @@ class Gemv:
     @property
     def SEGMAX(self):
         import math
+
         return math.ceil(self.KSc / max(math.floor(self.U / self.NW), 1)) + 1
 
     def nseg_host(self, p):
@@ -116,8 +119,10 @@ class Gemv:
     def check(self):
         assert self.N % 16 == 0 and self.K % 128 == 0 and self.KS % self.C == 0
         assert self.KSc >= self.P, "a pipeline block may cross at most one piece end"
-        assert PAD_TILES >= 3 * self.P - 1, "loads run up to 3 P - 1 units past the stream"
-        assert (self.U + 1) * self.NW < 2 ** 31
+        assert PAD_TILES >= 3 * self.P - 1, (
+            "loads run up to 3 P - 1 units past the stream"
+        )
+        assert (self.U + 1) * self.NW < 2**31
         assert self.G % self.gpc == 0
         assert max(self.nseg_host(p) for p in range(self.C * self.G)) <= self.SEGMAX
         return self
@@ -154,22 +159,46 @@ class Gemv:
             tile, sw = ops
             tacc = z4
             for d in range_constexpr(4):
-                a = fx.Vector(fx.ptr_load(w["xq"] + (arow + 32 * d) // 4,
-                                          result_type=fx.Vector.make_type(2, fx.Int32))).bitcast(fx.Int64)[0]
+                a = fx.Vector(
+                    fx.ptr_load(
+                        w["xq"] + (arow + 32 * d) // 4,
+                        result_type=fx.Vector.make_type(2, fx.Int32),
+                    )
+                ).bitcast(fx.Int64)[0]
                 t = H4["mfma"](a, H4["dec_dword"](tile[d]), z4)
-                tacc = D.fma4(t, fx.Vector.filled(4, H4["e8m0_f32"]((sw >> (8 * d)) & 0xFF), fx.Float32), tacc)
+                tacc = D.fma4(
+                    t,
+                    fx.Vector.filled(
+                        4, H4["e8m0_f32"]((sw >> (8 * d)) & 0xFF), fx.Float32
+                    ),
+                    tacc,
+                )
             xs = fx.Vector.from_elements(
-                [fx.ptr_load(w["xs"] + ((4 * w["gl"] + r) * self.XSR + xo)) for r in range(4)],
-                fx.Float32)
+                [
+                    fx.ptr_load(w["xs"] + ((4 * w["gl"] + r) * self.XSR + xo))
+                    for r in range(4)
+                ],
+                fx.Float32,
+            )
             return tacc * xs
         acc = z4
         for q in range_constexpr(4):
             for h in range_constexpr(2):
                 sub = 2 * q + h
-                a = fx.Vector(fx.ptr_load(w["xq"] + (arow + 32 * sub) // 4,
-                                          result_type=fx.Vector.make_type(2, fx.Int32))).bitcast(fx.Int16)
-                b = fx.Vector.from_elements([ops[q][2 * h], ops[q][2 * h + 1]], fx.Int32).bitcast(fx.Int16)
-                acc = fx.Vector(rocdl.mfma_f32_16x16x16bf16_1k(T.vec(4, T.f32), [a, b, acc, 0, 0, 0]))
+                a = fx.Vector(
+                    fx.ptr_load(
+                        w["xq"] + (arow + 32 * sub) // 4,
+                        result_type=fx.Vector.make_type(2, fx.Int32),
+                    )
+                ).bitcast(fx.Int16)
+                b = fx.Vector.from_elements(
+                    [ops[q][2 * h], ops[q][2 * h + 1]], fx.Int32
+                ).bitcast(fx.Int16)
+                acc = fx.Vector(
+                    rocdl.mfma_f32_16x16x16bf16_1k(
+                        T.vec(4, T.f32), [a, b, acc, 0, 0, 0]
+                    )
+                )
         return acc
 
     def setup(self, c, xq, xs, tiles, scales):
@@ -197,9 +226,9 @@ class Gemv:
     @D.traced
     def run(self, c, w, buf, part, cnt, epilogue):
         """Stream this wave's units. buf: first_loads(). part/cnt: global addresses of
-        the partial slots and the group counters. epilogue(cg, [acc4] * gpc[, pre]) runs in the
-        last arriver of counter group cg (groups cg * gpc ...), acc4 per lane: tokens
-        4 gl + r of the group's column `col`."""
+        the partial slots and the group counters. epilogue(cg, [acc4] * gpc[, pre]) runs
+        in the last arriver of counter group cg (groups cg * gpc ...), acc4 per lane:
+        tokens 4 gl + r of the group's column `col`."""
         P, KSc, G = self.P, self.KSc, self.G
         u0, u1 = w["u0"], w["u1"]
         ch0 = w["ch0"]
@@ -208,25 +237,28 @@ class Gemv:
         rp = D.rsrc(part)
 
         def add(acc, t, ok):
-            return fx.Vector.from_elements([ok.select(acc[r] + t[r], acc[r]) for r in range(4)], fx.Float32)
+            return fx.Vector.from_elements(
+                [ok.select(acc[r] + t[r], acc[r]) for r in range(4)], fx.Float32
+            )
 
         @D.traced
         def block(ub, st, ops, acc_a, acc_b):
-            """P units from unit ub = ((c G + g) KSc + s), st = (s, g, c). acc_a: the piece
-            of ub; acc_b: the next piece (a block crosses at most one piece end). Blocks
-            inside one piece and inside the stream (most) take the select-free path."""
+            """P units from unit ub = ((c G + g) KSc + s), st = (s, g, c). acc_a: the
+            piece of ub; acc_b: the next piece (a block crosses at most one piece end).
+            Blocks inside one piece and inside the stream (most) take the select-free
+            path."""
             s0, g0, c0 = st
             xo0 = (c0 - ch0) * KSc + s0
             pa = c0 * G + g0
-            if (s0 + P <= KSc) & (ub + P < u1):          # (the stream's last block stores)
+            if (s0 + P <= KSc) & (ub + P < u1):  # (the stream's last block stores)
                 for p in range_constexpr(P):
                     acc_a = acc_a + self.compute(w, xo0 + p, ops[p])
                 if s0 + P == KSc:
                     self.store_part(w, pa, acc_a, rp)
                     acc_a = z4
             else:
-                nb = KSc - s0                          # units before the piece end
-                xob = ((g0 + 1 == G).select(c0 + 1, c0) - ch0) * KSc    # next piece's x
+                nb = KSc - s0  # units before the piece end
+                xob = ((g0 + 1 == G).select(c0 + 1, c0) - ch0) * KSc  # next piece's x
                 for p in range_constexpr(P):
                     xo = fx.min((nb > p).select(xo0 + p, xob + (p - nb)), XOMAX)
                     t = self.compute(w, xo, ops[p])
@@ -241,7 +273,15 @@ class Gemv:
             ws = s1 >= KSc
             g1 = ws.select(g0 + 1, g0)
             wg = g1 == G
-            return (ws.select(s1 - KSc, s1), wg.select(fx.Int32(0), g1), wg.select(c0 + 1, c0)), acc_a, acc_b
+            return (
+                (
+                    ws.select(s1 - KSc, s1),
+                    wg.select(fx.Int32(0), g1),
+                    wg.select(c0 + 1, c0),
+                ),
+                acc_a,
+                acc_b,
+            )
 
         D.PROBE["on"] = D.PROBE.get("stage") == self.name
         D.probe(c, 0)
@@ -262,8 +302,9 @@ class Gemv:
         last = u1 - 1
         if ((last // KSc) != ((u0 + (nblk - 1) * P) // KSc)) & (nblk > 0):
             self.store_part(w, last // KSc, acc_a, rp)
-        # counters after the whole stream: one drain, then all the wave's atomics at once
-        # (their round trips overlap), then the reductions of the groups it completed
+        # counters after the whole stream: one drain, then all the wave's atomics at
+        # once (their round trips overlap), then the reductions of the groups it
+        # completed
         rocdl.s_waitcnt(vmcnt=0)
         p0 = u0 // KSc
         np_ = (u1 - 1) // KSc + 1 - p0
@@ -289,15 +330,22 @@ class Gemv:
 
     @D.traced
     def store_part(self, w, p, acc, rp):
-        """Piece p's partial of this wave -> slot [p][gw - first wave of p] (device scope)."""
+        """Piece p's partial of this wave -> slot [p][gw - first wave of p] (device
+        scope)."""
         wf, _ = self.nseg(p)
         if w["gl"] < self.MT:
-            D.st(acc, rp, ((p * self.SEGMAX + w["gw"] - wf) * 64 + w["lane"]) * 4, D.CM_DEV)
+            D.st(
+                acc,
+                rp,
+                ((p * self.SEGMAX + w["gw"] - wf) * 64 + w["lane"]) * 4,
+                D.CM_DEV,
+            )
 
     @property
     def NPW(self):
         """Max pieces one wave's range touches."""
         import math
+
         return math.ceil(math.ceil(self.U / self.NW) / self.KSc) + 1
 
     def cgroup(self, p):
@@ -329,14 +377,21 @@ class Gemv:
                     pp = ch * self.G + gg
                     _, n = self.nseg(pp)
                     for sg in range_constexpr(self.SEGMAX):
-                        v = D.ld(rp, ((pp * self.SEGMAX + fx.min(n - 1, sg)) * 64 + lane) * 4, 4,
-                                 T.f32, D.CM_DEV)
+                        v = D.ld(
+                            rp,
+                            ((pp * self.SEGMAX + fx.min(n - 1, sg)) * 64 + lane) * 4,
+                            4,
+                            T.f32,
+                            D.CM_DEV,
+                        )
                         lj.append((v, n > sg))
                 pend.append(lj)
             for lj in pend:
                 tot = fx.Vector.filled(4, 0.0, fx.Float32)
                 for v, ok in lj:
-                    tot = fx.Vector.from_elements([ok.select(tot[r] + v[r], tot[r]) for r in range(4)], fx.Float32)
+                    tot = fx.Vector.from_elements(
+                        [ok.select(tot[r] + v[r], tot[r]) for r in range(4)], fx.Float32
+                    )
                 tots.append(tot)
         if pre is None:
             epilogue(cg, tots)
