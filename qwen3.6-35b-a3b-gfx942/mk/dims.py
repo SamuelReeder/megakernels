@@ -13,11 +13,19 @@ NKH, NVH, DK, DV = 16, 32, 128, 128  # V head h uses K head h // (NVH // NKH)
 KEY_DIM, VAL_DIM = NKH * DK, NVH * DV  # 2048, 4096
 CONV_DIM = 2 * KEY_DIM + VAL_DIM  # 8192 (q | k | v)
 CONV_K = 4
+# in_proj output columns: [q 2048 | k 2048 | v 4096 | z 4096 | b 32 | a 32]. The first
+# QKVZ_N columns are the fp8 GEMV, the last 64 the bf16 GEMV (b, a).
+QKVZ_N = CONV_DIM + VAL_DIM  # 12288
+INP_N = QKVZ_N + 2 * NVH  # 12352
+Q_OFF, K_OFF, V_OFF, Z_OFF = 0, KEY_DIM, 2 * KEY_DIM, CONV_DIM
+B_OFF, A_OFF = QKVZ_N, QKVZ_N + NVH
 
 # Full-attention layers
 NQ, NKV, HD = 16, 2, 256
 ROT = 64  # partial_rotary_factor 0.25 x 256
 THETA = 1e7
+# qkv output columns: [q|gate interleaved per head 8192 | k 512 | v 512]
+QKV_N = 2 * NQ * HD + 2 * NKV * HD  # 9216
 
 # Mixture of experts
 NE, TOPK, FI = 256, 8, 512  # experts, experts per token, expert intermediate

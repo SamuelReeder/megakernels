@@ -1,0 +1,11 @@
+52 tokens
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+[transformers] `chunk_gated_delta_rule` is falling back to its reference PyTorch implementation because `flash-linear-attention` is not installed. This is correct but much slower; install `flash-linear-attention` for the optimized kernel.
+hf fp32 done 94s
+reference done 119s
+exact ref (BF16) vs HF       cos min 1.000000 mean 1.000000 | top1 1.0000 | KL mean 1.72e-09 max 4.20e-07
+HF next: ' Paris'  ref next: ' Paris'
+emulate ref (BF16) vs HF     cos min 0.997265 mean 0.999630 | top1 1.0000 | KL mean 1.38e-03 max 2.11e-02
+exact ref (FP8) vs HF BF16   cos min 0.991976 mean 0.997945 | top1 1.0000 | KL mean 6.94e-03 max 4.57e-02
+emulate ref (FP8) vs HF BF16 cos min 0.990203 mean 0.997233 | top1 0.9615 | KL mean 8.85e-03 max 6.88e-02
+PASS
