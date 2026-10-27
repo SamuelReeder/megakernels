@@ -13,8 +13,13 @@ Residual stream: h0 at a layer start, h1 after the mixer (both fp32 [M][H], with
 their 16-column sums of squares ssq0 / ssq1). See docs/DESIGN.md.
 
 Caches use vLLM's layouts (Cfg holds their strides):
-  KV of an attention layer: [blocks][block][NKV][2 HD] bf16 by strides (kv_s0, kv_s2,
-    kv_s1), K at [0, HD), V at [HD, 2 HD); row m's block b is bt[m][b].
+  KV of an attention layer: bf16, K of (block, head, position) at element strides
+    (kv_s0, kv_s1, kv_s2), its V kv_sv elements later; row m's block b is bt[m][b].
+    vLLM's backends store a block as [NKV][block][2 HD] or [K|V][block][NKV HD]
+    (TRITON_ATTN), or x-packed (ROCM_ATTN: kv_xpack, see mixer._attn_chunk).
+  Each layer's table row points at the cache indices of its vLLM KV cache group
+  (T_IDX, T_SLOT): the groups of a hybrid model share the cache memory, so the same
+  request has different blocks and slots in each.
   GDN layer: per state slot s, the conv state [3][CONV_DIM] bf16 (oldest input first)
     at conv + s conv_s0 bytes and the SSM state [NVH][DV][DK] fp32 at ssm + s ssm_s0
     bytes (vLLM keeps both in one page per slot); row m's slot is sidx[m] (0: padding,
@@ -37,18 +42,21 @@ from . import stages as S
 from .dims import (EPS, FFN, H, HD, INP_N, NKV, NQ, NVH, QKV_N, VAL_DIM, VOCAB)
 from .gemv import CHUNKS, Gemv
 
-NTAB = 16      # pointer-table slots per layer
-NGLOB = 24     # global pointer-table slots
+NTAB = 18      # pointer-table slots per layer
+NGLOB = 16     # global pointer-table slots
 WAVES = 8
 NT = 64 * WAVES
 
 # global table slots
 G_EMBED, G_LM, G_FNORM, G_ROPE, G_HB, G_SSQ, G_Y, G_Y2, G_HSSQ, G_PART, G_CNT, G_FLAGS, G_REC, \
-    G_TOK, G_POS, G_OUT, G_BT, G_SLOT, G_SIDX = range(19)
+    G_TOK, G_POS, G_OUT = range(16)
 # per-layer slots
 T_MIX_T, T_MIX_S, T_OUT_T, T_OUT_S, T_GU_T, T_GU_S, T_DN_T, T_DN_S, T_IN_LN, T_POST_LN = range(10)
 T_ALOG, T_DTB, T_CONVW, T_NORMW, T_CONV, T_SSM = range(10, 16)        # GDN layers
 T_QN, T_KN, T_KV = range(10, 13)                                # attention layers
+# The layer's cache indices, per vLLM KV cache group: a GDN layer's state slots
+# sidx[M]; an attention layer's block table bt[M][maxblocks] and slot mapping slot[M].
+T_IDX, T_SLOT = 16, 17
 
 CNT_STRIDE = 65536   # i32 counters per counter region
 EPOCH_WORD_LINE = 8  # the epoch word is line cus + EPOCH_WORD_LINE of the flag buffer
@@ -65,6 +73,8 @@ class Cfg:
     kv_s0: int           # KV element strides: block, head, position
     kv_s1: int
     kv_s2: int
+    kv_sv: int           # elements from a K row to its V row
+    kv_xpack: bool       # vLLM ROCM_ATTN's x-packed block interior (see mixer._attn_chunk)
     conv_s0: int         # bytes between the conv states of two slots
     ssm_s0: int          # bytes between the SSM states of two slots
     lm_head: bool = True  # False: write the normed hidden states instead of logits
@@ -249,11 +259,11 @@ def _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, ba
     # in_proj
     w, buf = barrier_then(inp, T(T_MIX_T), T(T_MIX_S), e0)
     S.prologue_norm(c, inp, xq, xs, red, hf0, q0, T(T_IN_LN), EPS)
-    inp.run(c, w, buf, part, cnt("inp"), S.EpiConv(c, M, y, T(T_CONV), T(T_CONVW), G[G_SIDX], cfg.conv_s0))
+    inp.run(c, w, buf, part, cnt("inp"), S.EpiConv(c, M, y, T(T_CONV), T(T_CONVW), T(T_IDX), cfg.conv_s0))
     # GDN core
     barrier_then(None, None, None, e0 + 1)
     for t in range(gw, ntask, c["cus"] * WAVES):
-        X.gdn_task(c, M, t, y, T(T_ALOG), T(T_DTB), T(T_NORMW), T(T_SSM), G[G_SIDX], cfg.ssm_s0, y2, hssq,
+        X.gdn_task(c, M, t, y, T(T_ALOG), T(T_DTB), T(T_NORMW), T(T_SSM), T(T_IDX), cfg.ssm_s0, y2, hssq,
                    wl)
     # out_proj (+ residual)
     w, buf = barrier_then(out, T(T_OUT_T), T(T_OUT_S), e0 + 2)
@@ -273,7 +283,7 @@ def _attn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, b
     qkv.run(c, w, buf, part, cnt("qkv"), lambda cg, tots: S.epi_raw(c, M, QKV_N, cg, tots[0], y))
     barrier_then(None, None, None, e0 + 1)
     for t in range(gw, ntask, c["cus"] * WAVES):
-        X.attn_task(c, t, cfg, y, T(T_QN), T(T_KN), G[G_ROPE], T(T_KV), G[G_BT], G[G_SLOT], G[G_POS],
+        X.attn_task(c, t, cfg, y, T(T_QN), T(T_KN), G[G_ROPE], T(T_KV), T(T_IDX), T(T_SLOT), G[G_POS],
                     G[G_REC], cnt("attn"), y2, wl)
     w, buf = barrier_then(o, T(T_OUT_T), T(T_OUT_S), e0 + 2)
     S.prologue_scaled(c, o, xq, xs, y2, y2, EPS, 0)

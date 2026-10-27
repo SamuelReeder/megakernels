@@ -5,6 +5,7 @@ decode speed: TPOT = (time(256 tokens) - time(1 token)) / 255 for batches of 1 t
 Usage: python bench/vllm_e2e.py MODEL_DIR on|off OUT.json [MAX_TOKENS]
 """
 import json
+import os
 import sys
 import time
 
@@ -29,6 +30,8 @@ def main():
               gpu_memory_utilization=0.85, max_num_seqs=8, seed=0)
     if mode == "on":
         kw["specialized_decode"] = "monokernel"
+    if os.environ.get("MK_ATTN"):
+        kw["attention_backend"] = os.environ["MK_ATTN"]
     t0 = time.time()
     llm = LLM(**kw)
     load_s = time.time() - t0

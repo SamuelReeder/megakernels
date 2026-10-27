@@ -22,12 +22,14 @@ class Engine:
     vLLM's null block), and GDN state slots 1..M (slot 0 is the null slot)."""
 
     def __init__(self, PK: Packed, M: int, maxlen: int = 4096, layers: int = NL, device="cuda",
-                 block: int = 208):
+                 block: int = 208, xpack: bool = False):
         self.PK, self.M, self.maxlen, self.layers = PK, M, maxlen, layers
         cus = torch.cuda.get_device_properties(0).multi_processor_count
         nb = -(-maxlen // block)
-        kv_s = (block * NKV * 2 * HD, 2 * HD, NKV * 2 * HD)
-        self.cfg = KK.Cfg(M, cus, maxlen, block, nb, *kv_s, PAGE, PAGE)
+        # a block as vLLM's ROCm backends keep it: a K and a V half of NKV HD block
+        # elements, [position][head][HD] (TRITON_ATTN) or x-packed per head (ROCM_ATTN)
+        kv_s = (2 * block * NKV * HD, HD * (block if xpack else 1), NKV * HD, block * NKV * HD)
+        self.cfg = KK.Cfg(M, cus, maxlen, block, nb, *kv_s, xpack, PAGE, PAGE)
         self.launch = KK.build(self.cfg)
         z = lambda *s, dt=torch.float32: torch.zeros(*s, dtype=dt, device=device)  # noqa: E731
         ng, na = NL * 3 // 4, NL // 4
@@ -49,7 +51,7 @@ class Engine:
         self.bt = (torch.randperm(M * nb, generator=g) + 1).reshape(M, nb).to(torch.int32).to(device)
         self.slot = z(M, dt=torch.int32)              # >= 0: every row is live
         self.sidx = torch.arange(1, M + 1, dtype=torch.int32, device=device)
-        self.kv = z(na, M * nb + 1, block, NKV, 2 * HD, dt=torch.bfloat16)
+        self.kv = z(na, M * nb + 1, 2, block, NKV * HD, dt=torch.bfloat16)
         self.state = z(ng, M + 1, PAGE, dt=torch.uint8)
         g = [0] * KK.NGLOB
         g[KK.G_EMBED], g[KK.G_LM], g[KK.G_FNORM] = PK.embed.data_ptr(), PK.lm_head.data_ptr(), PK.final_norm.data_ptr()
@@ -57,8 +59,7 @@ class Engine:
         g[KK.G_Y], g[KK.G_Y2], g[KK.G_HSSQ] = self.y.data_ptr(), self.y2.data_ptr(), self.hssq.data_ptr()
         g[KK.G_PART], g[KK.G_CNT], g[KK.G_FLAGS] = self.part.data_ptr(), self.cnt.data_ptr(), self.flags.data_ptr()
         g[KK.G_REC], g[KK.G_TOK], g[KK.G_POS] = self.rec.data_ptr(), self.tok.data_ptr(), self.pos.data_ptr()
-        g[KK.G_OUT], g[KK.G_BT], g[KK.G_SLOT] = self.logits.data_ptr(), self.bt.data_ptr(), self.slot.data_ptr()
-        g[KK.G_SIDX] = self.sidx.data_ptr()
+        g[KK.G_OUT] = self.logits.data_ptr()
         self.glob = torch.tensor(g, dtype=torch.int64, device=device)
         tab = torch.zeros(NL, KK.NTAB, dtype=torch.int64)
         gi = ai = 0
@@ -69,6 +70,7 @@ class Engine:
                 ot, os_ = PK.mats[(i, "o")]
                 tab[i, KK.T_QN], tab[i, KK.T_KN] = sm("self_attn.q_norm.weight"), sm("self_attn.k_norm.weight")
                 tab[i, KK.T_KV] = self.kv[ai].data_ptr()
+                tab[i, KK.T_IDX], tab[i, KK.T_SLOT] = self.bt.data_ptr(), self.slot.data_ptr()
                 ai += 1
             else:
                 mt, ms = PK.mats[(i, "inp")]
@@ -77,6 +79,7 @@ class Engine:
                 tab[i, KK.T_CONVW], tab[i, KK.T_NORMW] = sm("linear_attn.conv1d.weight"), sm("linear_attn.norm.weight")
                 tab[i, KK.T_CONV] = self.state[gi].data_ptr()
                 tab[i, KK.T_SSM] = self.state[gi].data_ptr() + CONV_BYTES
+                tab[i, KK.T_IDX] = self.sidx.data_ptr()
                 gi += 1
             gt, gs = PK.mats[(i, "gu")]
             dt, ds = PK.mats[(i, "down")]

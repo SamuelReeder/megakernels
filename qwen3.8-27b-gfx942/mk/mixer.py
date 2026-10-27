@@ -27,7 +27,7 @@ from __future__ import annotations
 import math
 
 import flydsl.expr as fx
-from flydsl.expr import range_constexpr, rocdl
+from flydsl.expr import const_expr, range_constexpr, rocdl
 from flydsl.expr.typing import T
 
 from . import dev as D
@@ -141,7 +141,6 @@ def rs_sum8(vals, lane):
             nv.append(keep + D.gather_f(send, lane ^ msk))
         v = nv
     return D.xor_sum(v[0], lane, (1, 2))
-    D.probe(c, 7)
 
 
 # ------------------------------------------------------------------ attention
@@ -202,13 +201,15 @@ def attn_task(c, task, cfg, y_qkv, qn_w, kn_w, rope_cs, kv, bt, slotp, pos_ptr, 
 
 @D.traced
 def _attn_chunk(c, lane, m, j, ci, pos, p0, pe, pb, cfg, y_qkv, qn_w, kn_w, rope_cs, base, rec, cnt, og, wl):
-    """base: the address of (block of p0, head j); pb: the block's first position, so
-    position p's K is at base + ((p - pb) kv_s2) bf16 elements and its V HD later."""
+    """base: the address of (block of p0, head j); pb: the block's first position.
+    Plain layout: position p's K is at base + (p - pb) kv_s2 bf16 elements, its V kv_sv
+    later. x-packed layout (vLLM's ROCM_ATTN): the head's K is [HD / 8][block][8] and its
+    V, kv_sv elements later, [HD][block]."""
     ry = D.rsrc(y_qkv)
     ybase = m * QKV_N
     d0 = 4 * lane
     rk = D.rsrc(base)
-    s2 = cfg.kv_s2
+    s2, sv, B, xp = cfg.kv_s2, cfg.kv_sv, cfg.block, cfg.kv_xpack
     lastp = fx.min(pos, pe - 1)                       # the chunk's last live position
     p = p0 + lane
     live = p <= lastp
@@ -219,10 +220,27 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, pe, pb, cfg, y_qkv, qn_w, kn_w, rope
         of lane group gq: dims 32 u + 8 gq .. + 7 (the 4 groups read 64 contiguous bytes
         of a row); k-step 2 u + h = dims 32 u + 8 gq + 4 h .. + 3."""
         pt = fx.min(p0 + 16 * t + nq, lastp)
+        if const_expr(xp):
+            return [D.ld(rk, (4 * u + gq) * 4 * B + (pt - pb) * 4, 4) for u in range(8)]
         return [D.ld(rk, ((pt - pb) * s2 + 32 * u + 8 * gq) // 2, 4) for u in range(8)]
 
     def vload(b):
-        return [D.ld(rk, ((fx.min(p0 + b * PVB + k, lastp) - pb) * s2 + HD + d0) // 2, 2) for k in range(PVB)]
+        """[k] -> (dims d0, d0 + 1 | d0 + 2, d0 + 3) bf16 pairs of position p0 + PVB b + k;
+        positions past lastp: the plain layout loads lastp's, the x-packed layout zeros
+        (its rows of PVB positions are loaded whole, and stale slots may hold NaNs)."""
+        if const_expr(not xp):
+            return [D.ld(rk, ((fx.min(p0 + b * PVB + k, lastp) - pb) * s2 + sv + d0) // 2, 2)
+                    for k in range(PVB)]
+        q0 = p0 + b * PVB - pb
+        rows = [[D.ld(rk, (sv + (d0 + e) * B + q0) // 2 + 4 * h, 4) for h in range(PVB // 8)]
+                for e in range(4)]
+        out = []
+        for k in range_constexpr(PVB):
+            hw = [(rows[e][k // 8][k % 8 // 2] >> (16 * (k % 2))) & 0xFFFF for e in range(4)]
+            ok = (p0 + b * PVB + k) <= lastp
+            z = fx.Int32(0)
+            out.append([ok.select(hw[0] | (hw[1] << 16), z), ok.select(hw[2] | (hw[3] << 16), z)])
+        return out
 
     kt = ktile(0)                                     # independent of this step's q/k/v
     D.probe(c, 4)
@@ -249,8 +267,13 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, pe, pb, cfg, y_qkv, qn_w, kn_w, rope
     _store_i32x2(wl, GQ * HD + d0 // 2, kw2)
     _store_i32x2(wl, GQ * HD + HD // 2 + d0 // 2, vw2)
     if (pos >= p0) & (pos < pe):
-        D.st(kw2, rk, ((pos - pb) * s2 + d0) // 2, D.CM_DEV)
-        D.st(vw2, rk, ((pos - pb) * s2 + HD + d0) // 2, D.CM_DEV)
+        if const_expr(xp):
+            D.st(kw2, rk, ((d0 // 8) * 8 * B + (pos - pb) * 8 + d0 % 8) // 2, D.CM_DEV)
+            for e in range_constexpr(4):
+                D.st(bf16r(vv_[e]).to(fx.BFloat16), rk, sv + (d0 + e) * B + pos - pb, D.CM_DEV)
+        else:
+            D.st(kw2, rk, ((pos - pb) * s2 + d0) // 2, D.CM_DEV)
+            D.st(vw2, rk, ((pos - pb) * s2 + sv + d0) // 2, D.CM_DEV)
     D.probe(c, 5)
     # ---- scores on the MFMA (bf16 16x16x16): S^T tile [16 head rows][16 positions].
     # The k order is permuted alike in A and B (see ktile): the sum over k does not
@@ -284,7 +307,12 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, pe, pb, cfg, y_qkv, qn_w, kn_w, rope
     # batches of PVB so their latencies overlap
     o = [fx.Vector.filled(4, 0.0, fx.Float32) for _ in range(GQ)]
     vl_ = _load_i32x2(wl, GQ * HD + HD // 2 + d0 // 2)
-    for b in range(0, CH // PVB):
+    # (the x-packed layout loads only batches inside the chunk: its last chunk of a block
+    # may be shorter than CH)
+    nbat = CH // PVB
+    if const_expr(xp):
+        nbat = (lastp - p0) // PVB + 1
+    for b in range(0, nbat):
         o = _pv_batch(wl, b, p0, pos, vl_, vload(b), o)
     D.probe(c, 7)
     # ---- partial record
