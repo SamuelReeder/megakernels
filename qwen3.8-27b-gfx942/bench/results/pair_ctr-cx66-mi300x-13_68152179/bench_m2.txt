@@ -1,0 +1,5 @@
+load+pack+build 6s
+rep 0: TPOT 8.940 ms (111.9 tok/s/user), kernel median 9.025 ms
+rep 1: TPOT 8.970 ms (111.5 tok/s/user), kernel median 9.061 ms
+rep 2: TPOT 8.976 ms (111.4 tok/s/user), kernel median 9.070 ms
+{"M": 2, "ctx": 512, "steps": 64, "node": "ctr-cx66-mi300x-13.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-23 15:05:10", "runs": [{"tpot_ms": 8.940126419067383, "kernel_ms_median": 9.025079727172852, "kernel_ms_min": 8.964269638061523}, {"tpot_ms": 8.96979808807373, "kernel_ms_median": 9.060773849487305, "kernel_ms_min": 8.994355201721191}, {"tpot_ms": 8.976113319396973, "kernel_ms_median": 9.06978702545166, "kernel_ms_min": 8.980093955993652}]}

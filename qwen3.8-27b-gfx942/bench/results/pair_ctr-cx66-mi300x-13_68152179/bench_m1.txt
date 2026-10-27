@@ -1,0 +1,53 @@
+load+pack+build 4s
+rep 0: TPOT 8.449 ms (118.4 tok/s/user), kernel median 8.527 ms
+Traceback (most recent call last):
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/cuda/__init__.py", line 1281, in synchronize
+    return torch._C._cuda_synchronize()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.AcceleratorError: CUDA error: unspecified launch failure
+Search for `hipErrorLaunchFailure' in https://rocm.docs.amd.com/projects/HIP/en/latest/index.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing AMD_SERIALIZE_KERNEL=3
+Device-side assertion tracking was not enabled by user.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/AMD/sareeder/mk/repro_src_96466b3/bench/bench_decode.py", line 67, in <module>
+    main()
+  File "/home/AMD/sareeder/mk/repro_src_96466b3/bench/bench_decode.py", line 46, in main
+    torch.cuda.synchronize()
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/cuda/__init__.py", line 1280, in synchronize
+    with torch.cuda.device(device):
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/cuda/__init__.py", line 720, in __exit__
+    self.idx = torch.cuda._maybe_exchange_device(self.prev_idx)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.AcceleratorError: CUDA error: unspecified launch failure
+Search for `hipErrorLaunchFailure' in https://rocm.docs.amd.com/projects/HIP/en/latest/index.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing AMD_SERIALIZE_KERNEL=3
+Device-side assertion tracking was not enabled by user.
+'hipModuleUnload(module)' failed with 'hipErrorLaunchFailure'
+terminate called after throwing an instance of 'c10::AcceleratorError'
+  what():  CUDA error: unspecified launch failure
+Search for `hipErrorLaunchFailure' in https://rocm.docs.amd.com/projects/HIP/en/latest/index.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing AMD_SERIALIZE_KERNEL=3
+Device-side assertion tracking was not enabled by user.
+Exception raised from ExchangeDevice at /__w/pytorch/pytorch/c10/hip/HIPFunctions.cpp:347 (most recent call first):
+frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x9d (0x74b39cc627fd in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #1: <unknown function> + 0x12cd2 (0x74b448509cd2 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10_hip.so)
+frame #2: c10::cuda::ExchangeDevice(signed char) + 0x51 (0x74b448550461 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10_hip.so)
+frame #3: <unknown function> + 0x7acde6 (0x74b446e44de6 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_python.so)
+frame #4: <unknown function> + 0xef8be7 (0x74b447590be7 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_python.so)
+frame #5: python() [0x59f273]
+frame #6: python() [0x558e11]
+frame #7: python() [0x610885]
+frame #8: python() [0x610895]
+frame #9: python() [0x573556]
+<omitting python frames>
+frame #11: python() [0x6b83a5]
+frame #12: python() [0x6b1b02]
+frame #16: <unknown function> + 0x2a1ca (0x74b448e2a1ca in /lib/x86_64-linux-gnu/libc.so.6)
+frame #17: __libc_start_main + 0x8b (0x74b448e2a28b in /lib/x86_64-linux-gnu/libc.so.6)
+

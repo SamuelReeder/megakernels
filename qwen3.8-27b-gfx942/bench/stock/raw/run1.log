@@ -1,0 +1,12 @@
+salloc: Pending job allocation 68148833
+salloc: job 68148833 queued and waiting for resources
+salloc: job 68148833 has been allocated resources
+salloc: Granted job allocation 68148833
+salloc: Waiting for resource configuration
+salloc: Nodes banff-cyxtera-s70-4 are ready for job
+salloc: Job allocation 68148833 has been revoked.
+slurmstepd: error: *** STEP 68148833.0 ON banff-cyxtera-s70-4 CANCELLED AT 2026-10-22T17:08:30 ***
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: forcing job termination
+srun: got SIGCONT
+srun: error: banff-cyxtera-s70-4: task 0: Terminated

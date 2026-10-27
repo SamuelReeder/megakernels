@@ -1,0 +1,13 @@
+load+pack+build 90s
+step 0: kernel~emulate cos 0.999592 top1 1.00 | kernel~exact cos 0.999750 top1 1.00 | emulate~exact cos 0.999460 top1 1.00
+step 1: kernel~emulate cos 0.999913 top1 1.00 | kernel~exact cos 0.999884 top1 1.00 | emulate~exact cos 0.999906 top1 1.00
+step 2: kernel~emulate cos 0.999905 top1 1.00 | kernel~exact cos 0.999947 top1 1.00 | emulate~exact cos 0.999919 top1 1.00
+step 3: kernel~emulate cos 0.999742 top1 1.00 | kernel~exact cos 0.999822 top1 0.00 | emulate~exact cos 0.999815 top1 0.00
+step 4: kernel~emulate cos 0.999525 top1 1.00 | kernel~exact cos 0.999550 top1 1.00 | emulate~exact cos 0.999862 top1 1.00
+step 5: kernel~emulate cos 0.999748 top1 1.00 | kernel~exact cos 0.999914 top1 1.00 | emulate~exact cos 0.999774 top1 1.00
+step 6: kernel~emulate cos 0.999890 top1 1.00 | kernel~exact cos 0.999885 top1 1.00 | emulate~exact cos 0.999910 top1 1.00
+step 7: kernel~emulate cos 0.999763 top1 1.00 | kernel~exact cos 0.999650 top1 1.00 | emulate~exact cos 0.999732 top1 1.00
+kernel~emulate: worst cos 0.999525 top1 1.000
+kernel~exact:   worst cos 0.999550 top1 0.875
+emulate~exact:  worst cos 0.999460 top1 0.875
+PASS

@@ -1,0 +1,24 @@
+srun: job 68148891 queued and waiting for resources
+srun: job 68148891 has been allocated resources
+===== Qwen3.8-27B-Quark-AWQ-MXFP4 2026-10-22T17:10:12-04:00
+date: 2026-10-22T17:10:12-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+rocm: 
+vllm 0.29.1.dev0+g98dff2a81.d20261002
+torch 2.13.0+rocm10.1.0 hip 7.16.26385
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel
+HSA_NO_SCRATCH_RECLAIM=1
+ROCR_VISIBLE_DEVICES=0
+serve args: 
+/home/AMD/sareeder/mk/stock/vllm_serve_bench.sh: line 37: $1: unbound variable
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+srun: forcing job termination
+srun: got SIGCONT
+slurmstepd: error: *** STEP 68148891.0 ON banff-cyxtera-s70-4 CANCELLED AT 2026-10-22T17:16:45 ***
+srun: error: banff-cyxtera-s70-4: task 0: Terminated

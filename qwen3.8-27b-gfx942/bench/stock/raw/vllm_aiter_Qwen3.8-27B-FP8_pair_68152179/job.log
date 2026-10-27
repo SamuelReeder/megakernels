@@ -1,0 +1,108 @@
+date: 2026-10-23T15:00:53-04:00
+node: ctr-cx66-mi300x-13.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.22.post2.dev0+gb4d9154d1.d20261002;rocm 10.1.0;rocm-bootstrap 0.3.0;rocm-sdk-core 10.1.0;rocm-sdk-devel 10.1.0;rocm-sdk-device-gfx1010 10.1.0;rocm-sdk-device-gfx1011 10.1.0;rocm-sdk-device-gfx1012 10.1.0;rocm-sdk-device-gfx1030 10.1.0;rocm-sdk-device-gfx1031 10.1.0;rocm-sdk-device-gfx1032 10.1.0;rocm-sdk-device-gfx1033 10.1.0;rocm-sdk-device-gfx1034 10.1.0;rocm-sdk-device-gfx1035 10.1.0;rocm-sdk-device-gfx1036 10.1.0;rocm-sdk-device-gfx1100 10.1.0;rocm-sdk-device-gfx1101 10.1.0;rocm-sdk-device-gfx1102 10.1.0;rocm-sdk-device-gfx1103 10.1.0;rocm-sdk-device-gfx1150 10.1.0;rocm-sdk-device-gfx1151 10.1.0;rocm-sdk-device-gfx1152 10.1.0;rocm-sdk-device-gfx1153 10.1.0;rocm-sdk-device-gfx1200 10.1.0;rocm-sdk-device-gfx1201 10.1.0;rocm-sdk-device-gfx1250 10.1.0;rocm-sdk-device-gfx908 10.1.0;rocm-sdk-device-gfx90a 10.1.0;rocm-sdk-device-gfx942 10.1.0;rocm-sdk-device-gfx950 10.1.0;rocm-sdk-libraries 10.1.0;triton 3.8.0+git669b31ac.rocm10.1.0
+vllm 0.29.1.dev0+g98dff2a81.d20261002
+torch 2.13.0+rocm10.1.0 hip 7.16.26385
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_NO_SCRATCH_RECLAIM=1
+VLLM_ROCM_USE_AITER=1
+serve args: 
+SERVER FAILED (/home/AMD/sareeder/mk/models/Qwen3.8-27B-FP8)
+(APIServer pid=41963)     )
+(APIServer pid=41963)   File "/opt/python/lib/python3.14/site-packages/vllm/v1/engine/async_llm.py", line 227, in from_vllm_config
+(APIServer pid=41963)     return cls(
+(APIServer pid=41963)         vllm_config=vllm_config,
+(APIServer pid=41963)     ...<9 lines>...
+(APIServer pid=41963)         client_index=client_index,
+(APIServer pid=41963)     )
+(APIServer pid=41963)   File "/opt/python/lib/python3.14/site-packages/vllm/v1/engine/async_llm.py", line 156, in __init__
+(APIServer pid=41963)     self.engine_core = EngineCoreClient.make_async_mp_client(
+(APIServer pid=41963)                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+(APIServer pid=41963)         vllm_config=vllm_config,
+(APIServer pid=41963)         ^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=41963)     ...<4 lines>...
+(APIServer pid=41963)         client_index=client_index,
+(APIServer pid=41963)         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=41963)     )
+(APIServer pid=41963)     ^
+(APIServer pid=41963)   File "/opt/python/lib/python3.14/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(APIServer pid=41963)     return func(*args, **kwargs)
+(APIServer pid=41963)   File "/opt/python/lib/python3.14/site-packages/vllm/v1/engine/core_client.py", line 139, in make_async_mp_client
+(APIServer pid=41963)     return AsyncMPClient(*client_args)
+(APIServer pid=41963)   File "/opt/python/lib/python3.14/site-packages/vllm/tracing/otel.py", line 178, in sync_wrapper
+(APIServer pid=41963)     return func(*args, **kwargs)
+(APIServer pid=41963)   File "/opt/python/lib/python3.14/site-packages/vllm/v1/engine/core_client.py", line 991, in __init__
+(APIServer pid=41963)     super().__init__(
+(APIServer pid=41963)     ~~~~~~~~~~~~~~~~^
+(APIServer pid=41963)         asyncio_mode=True,
+(APIServer pid=41963)         ^^^^^^^^^^^^^^^^^^
+(APIServer pid=41963)     ...<3 lines>...
+(APIServer pid=41963)         client_addresses=client_addresses,
+(APIServer pid=41963)         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=41963)     )
+(APIServer pid=41963)     ^
+(APIServer pid=41963)   File "/opt/python/lib/python3.14/site-packages/vllm/v1/engine/core_client.py", line 609, in __init__
+(APIServer pid=41963)     with launch_core_engines(
+(APIServer pid=41963)          ~~~~~~~~~~~~~~~~~~~^
+(APIServer pid=41963)         vllm_config, executor_class, log_stats, addresses
+(APIServer pid=41963)         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+(APIServer pid=41963)     ) as engine_launch:
+(APIServer pid=41963)     ^
+(APIServer pid=41963)   File "/root/.local/share/uv/python/cpython-3.14.8-linux-x86_64-gnu/lib/python3.14/contextlib.py", line 148, in __exit__
+(APIServer pid=41963)     next(self.gen)
+(APIServer pid=41963)     ~~~~^^^^^^^^^^
+(APIServer pid=41963)   File "/opt/python/lib/python3.14/site-packages/vllm/v1/engine/utils.py", line 1240, in launch_core_engines
+(APIServer pid=41963)     wait_for_engine_startup(
+(APIServer pid=41963)     ~~~~~~~~~~~~~~~~~~~~~~~^
+(APIServer pid=41963)         handshake_socket,
+(APIServer pid=41963)         ^^^^^^^^^^^^^^^^^
+(APIServer pid=41963)     ...<4 lines>...
+(APIServer pid=41963)         launch,
+(APIServer pid=41963)         ^^^^^^^
+(APIServer pid=41963)     )
+(APIServer pid=41963)     ^
+(APIServer pid=41963)   File "/opt/python/lib/python3.14/site-packages/vllm/v1/engine/utils.py", line 1320, in wait_for_engine_startup
+(APIServer pid=41963)     raise RuntimeError(
+(APIServer pid=41963)     ...<8 lines>...
+(APIServer pid=41963)     )
+(APIServer pid=41963) RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+/root/.local/share/uv/python/cpython-3.14.8-linux-x86_64-gnu/lib/python3.14/multiprocessing/resource_tracker.py:475: UserWarning: resource_tracker: There appear to be 1 leaked semaphore objects to clean up at shutdown: {'/mp-9h40cfsq'}
+  warnings.warn(
+srun: error: ctr-cx66-mi300x-13: task 0: Exited with exit code 1
+srun: Step created for StepId=68152179.1
+bench/repro.sh: line 20: 46724 Aborted                 python bench/bench_decode.py "$MODEL" "$m" 512 64 3 > "$OUT/bench_m$m.txt" 2>&1
+==> /home/AMD/sareeder/mk/repro_out/pair_ctr-cx66-mi300x-13_68152179/bench_m1.txt <==
+frame #17: __libc_start_main + 0x8b (0x74b448e2a28b in /lib/x86_64-linux-gnu/libc.so.6)
+
+
+==> /home/AMD/sareeder/mk/repro_out/pair_ctr-cx66-mi300x-13_68152179/bench_m2.txt <==
+rep 2: TPOT 8.976 ms (111.4 tok/s/user), kernel median 9.070 ms
+{"M": 2, "ctx": 512, "steps": 64, "node": "ctr-cx66-mi300x-13.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-23 15:05:10", "runs": [{"tpot_ms": 8.940126419067383, "kernel_ms_median": 9.025079727172852, "kernel_ms_min": 8.964269638061523}, {"tpot_ms": 8.96979808807373, "kernel_ms_median": 9.060773849487305, "kernel_ms_min": 8.994355201721191}, {"tpot_ms": 8.976113319396973, "kernel_ms_median": 9.06978702545166, "kernel_ms_min": 8.980093955993652}]}
+
+==> /home/AMD/sareeder/mk/repro_out/pair_ctr-cx66-mi300x-13_68152179/bench_m4.txt <==
+rep 2: TPOT 10.057 ms (99.4 tok/s/user), kernel median 10.172 ms
+{"M": 4, "ctx": 512, "steps": 64, "node": "ctr-cx66-mi300x-13.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-23 15:05:36", "runs": [{"tpot_ms": 10.025899887084961, "kernel_ms_median": 10.10893440246582, "kernel_ms_min": 10.03554630279541}, {"tpot_ms": 10.058279037475586, "kernel_ms_median": 10.126681327819824, "kernel_ms_min": 10.074804306030273}, {"tpot_ms": 10.05746841430664, "kernel_ms_median": 10.17210865020752, "kernel_ms_min": 10.114623069763184}]}
+
+==> /home/AMD/sareeder/mk/repro_out/pair_ctr-cx66-mi300x-13_68152179/bench_m8.txt <==
+rep 2: TPOT 12.164 ms (82.2 tok/s/user), kernel median 12.270 ms
+{"M": 8, "ctx": 512, "steps": 64, "node": "ctr-cx66-mi300x-13.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-23 15:06:05", "runs": [{"tpot_ms": 12.102137565612793, "kernel_ms_median": 12.248312950134277, "kernel_ms_min": 12.14564037322998}, {"tpot_ms": 12.143893241882324, "kernel_ms_median": 12.266103744506836, "kernel_ms_min": 12.197442054748535}, {"tpot_ms": 12.164405822753906, "kernel_ms_median": 12.270353317260742, "kernel_ms_min": 12.188631057739258}]}
+
+==> /home/AMD/sareeder/mk/repro_out/pair_ctr-cx66-mi300x-13_68152179/determinism_m1.txt <==
+M=1 steps=32: 3 runs bitwise equal: True
+PASS
+
+==> /home/AMD/sareeder/mk/repro_out/pair_ctr-cx66-mi300x-13_68152179/env.txt <==
+torch 2.14.1+rocm7.2 hip 7.2.53211 flydsl 0.4.0 AMD Instinct MI300X 304 CUs
+96466b3
+
+==> /home/AMD/sareeder/mk/repro_out/pair_ctr-cx66-mi300x-13_68152179/test_decode_m1.txt <==
+emulate~exact:  worst cos 0.999460 top1 0.875
+PASS

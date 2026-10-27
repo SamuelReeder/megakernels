@@ -1,0 +1,21 @@
+load+pack+build 28s
+step 0: kernel~emulate cos 0.999334 top1 1.00 | kernel~exact cos 0.999644 top1 1.00 | emulate~exact cos 0.999622 top1 1.00
+step 1: kernel~emulate cos 0.999817 top1 1.00 | kernel~exact cos 0.999872 top1 1.00 | emulate~exact cos 0.999846 top1 1.00
+step 2: kernel~emulate cos 0.999184 top1 1.00 | kernel~exact cos 0.999724 top1 1.00 | emulate~exact cos 0.999649 top1 1.00
+step 3: kernel~emulate cos 0.999743 top1 1.00 | kernel~exact cos 0.999822 top1 1.00 | emulate~exact cos 0.999803 top1 1.00
+step 4: kernel~emulate cos 0.999630 top1 1.00 | kernel~exact cos 0.999683 top1 1.00 | emulate~exact cos 0.999662 top1 1.00
+step 5: kernel~emulate cos 0.999601 top1 1.00 | kernel~exact cos 0.999769 top1 1.00 | emulate~exact cos 0.999725 top1 1.00
+step 6: kernel~emulate cos 0.999790 top1 1.00 | kernel~exact cos 0.999880 top1 1.00 | emulate~exact cos 0.999886 top1 1.00
+step 7: kernel~emulate cos 0.999517 top1 1.00 | kernel~exact cos 0.999648 top1 1.00 | emulate~exact cos 0.999756 top1 1.00
+step 8: kernel~emulate cos 0.999538 top1 1.00 | kernel~exact cos 0.999682 top1 1.00 | emulate~exact cos 0.999714 top1 1.00
+step 9: kernel~emulate cos 0.998969 top1 1.00 | kernel~exact cos 0.999467 top1 1.00 | emulate~exact cos 0.998960 top1 1.00
+step 10: kernel~emulate cos 0.999578 top1 1.00 | kernel~exact cos 0.999693 top1 1.00 | emulate~exact cos 0.999627 top1 1.00
+step 11: kernel~emulate cos 0.999542 top1 1.00 | kernel~exact cos 0.999717 top1 1.00 | emulate~exact cos 0.999699 top1 1.00
+step 12: kernel~emulate cos 0.999685 top1 1.00 | kernel~exact cos 0.999852 top1 1.00 | emulate~exact cos 0.999736 top1 1.00
+step 13: kernel~emulate cos 0.999471 top1 1.00 | kernel~exact cos 0.999579 top1 1.00 | emulate~exact cos 0.999431 top1 1.00
+step 14: kernel~emulate cos 0.999586 top1 1.00 | kernel~exact cos 0.999712 top1 1.00 | emulate~exact cos 0.999743 top1 1.00
+step 15: kernel~emulate cos 0.999731 top1 1.00 | kernel~exact cos 0.999810 top1 1.00 | emulate~exact cos 0.999817 top1 1.00
+kernel~emulate: worst cos 0.998969 top1 1.000
+kernel~exact:   worst cos 0.999467 top1 1.000
+emulate~exact:  worst cos 0.998960 top1 1.000
+PASS

@@ -1,0 +1,113 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 1 L9 5 L0 9 z" fill="#52514e"/>
+    </marker>
+    <marker id="b" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 1 L9 5 L0 9 z" fill="#eb6834"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="720" fill="#fcfcfb"/>
+  <text x="30" y="40" font-size="22" font-weight="700" fill="#0b0b0b">One launch per decode step: 304 persistent CTAs, one per CU of an MI300X</text>
+  <text x="30" y="64" font-size="14" fill="#52514e">Every CTA runs the same program: 321 stages per step (64 layers × 5 + LM head), separated by grid barriers. Batch 1 to 16 rows.</text>
+
+  <!-- per-layer stage strip -->
+  <g font-size="12" text-anchor="middle" fill="#0b0b0b">
+    <text x="30" y="106" font-size="13" font-weight="700" text-anchor="start" fill="#52514e">ONE LAYER, SPLIT ACROSS ALL 304 CUs (48 DeltaNet layers, 16 attention layers: every 4th)</text>
+    <rect x="30" y="118" width="170" height="44" rx="6" fill="#2a78d6"/><text x="115" y="138" fill="#fff" font-weight="700">in_proj / qkv</text><text x="115" y="154" fill="#fff" font-size="11">RMSNorm + MXFP4 GEMV</text>
+    <rect x="212" y="118" width="190" height="44" rx="6" fill="#eb6834"/><text x="307" y="138" fill="#fff" font-weight="700">mixer</text><text x="307" y="154" fill="#fff" font-size="11">gated delta rule or attention</text>
+    <rect x="414" y="118" width="150" height="44" rx="6" fill="#1baf7a"/><text x="489" y="138" fill="#fff" font-weight="700">out_proj / o_proj</text><text x="489" y="154" fill="#fff" font-size="11">GEMV + residual</text>
+    <rect x="576" y="118" width="170" height="44" rx="6" fill="#eda100"/><text x="661" y="138" fill="#fff" font-weight="700">mlp gate/up</text><text x="661" y="154" fill="#fff" font-size="11">norm, GEMV, SiLU-mul</text>
+    <rect x="758" y="118" width="150" height="44" rx="6" fill="#e87fa3"/><text x="833" y="138" fill="#fff" font-weight="700">mlp down</text><text x="833" y="154" fill="#fff" font-size="11">GEMV + residual</text>
+    <text x="965" y="146" font-size="18" fill="#52514e">× 64</text>
+    <rect x="1010" y="118" width="160" height="44" rx="6" fill="#0b7d32"/><text x="1090" y="138" fill="#fff" font-weight="700">LM head</text><text x="1090" y="154" fill="#fff" font-size="11">248K-vocab bf16 GEMV</text>
+  </g>
+  <g stroke="#52514e" stroke-width="1.5" marker-end="url(#a)">
+    <line x1="200" y1="140" x2="210" y2="140"/><line x1="402" y1="140" x2="412" y2="140"/>
+    <line x1="564" y1="140" x2="574" y2="140"/><line x1="746" y1="140" x2="756" y2="140"/>
+    <line x1="908" y1="140" x2="945" y2="140"/><line x1="995" y1="140" x2="1008" y2="140"/>
+  </g>
+  <text x="30" y="188" font-size="12" fill="#52514e">Each GEMV's weight tiles are divided among all 2,432 waves; mixer tasks (one wave per head slice) are spread over the CUs. The step writes fp32 logits and updates</text>
+  <text x="30" y="204" font-size="12" fill="#52514e">the KV caches, conv states and DeltaNet states in place. Every stage reads only what was published before the barrier in front of it.</text>
+
+  <!-- inside one CU -->
+  <text x="30" y="246" font-size="13" font-weight="700" fill="#52514e">INSIDE ONE CU: A SPLIT-K MXFP4 WEIGHT STREAM ON THE FP8 MATRIX CORES</text>
+  <rect x="30" y="266" width="130" height="150" rx="8" fill="#e1e0d9"/>
+  <text x="95" y="304" font-size="14" font-weight="700" text-anchor="middle" fill="#0b0b0b">HBM3</text>
+  <text x="95" y="326" font-size="12" text-anchor="middle" fill="#52514e">12.9 GB MXFP4</text>
+  <text x="95" y="342" font-size="12" text-anchor="middle" fill="#52514e">+ 2.5 GB bf16</text>
+  <text x="95" y="358" font-size="12" text-anchor="middle" fill="#52514e">LM head</text>
+  <text x="95" y="384" font-size="12" text-anchor="middle" fill="#52514e">read once</text>
+  <text x="95" y="400" font-size="12" text-anchor="middle" fill="#52514e">per step</text>
+
+  <rect x="195" y="262" width="975" height="182" rx="10" fill="none" stroke="#c3c2b7" stroke-dasharray="6 4"/>
+  <text x="210" y="436" font-size="12" font-weight="700" fill="#898781">one CTA: 512 threads = 8 waves; LDS holds the CTA's GEMV input; up to 256 VGPRs per lane</text>
+
+  <rect x="215" y="280" width="200" height="66" rx="8" fill="#2a78d6"/>
+  <text x="315" y="304" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">wave w streams</text>
+  <text x="315" y="322" font-size="11" text-anchor="middle" fill="#fff">one contiguous range of units,</text>
+  <text x="315" y="337" font-size="11" text-anchor="middle" fill="#fff">2 units in flight (buffer_load)</text>
+  <text x="315" y="366" font-size="11" text-anchor="middle" fill="#52514e">unit = 16 rows × 128 K:</text>
+  <text x="315" y="381" font-size="11" text-anchor="middle" fill="#52514e">1 KiB e2m1 tile + e8m0 scales,</text>
+  <text x="315" y="396" font-size="11" text-anchor="middle" fill="#52514e">stored in stream order</text>
+
+  <rect x="450" y="280" width="190" height="66" rx="8" fill="#d6e4f7" stroke="#2a78d6"/>
+  <text x="545" y="304" font-size="14" font-weight="700" text-anchor="middle" fill="#0b0b0b">e2m1 → e4m3fnuz</text>
+  <text x="545" y="322" font-size="11" text-anchor="middle" fill="#52514e">exact, one v_perm_b32</text>
+  <text x="545" y="337" font-size="11" text-anchor="middle" fill="#52514e">lookup per 4 values</text>
+
+  <rect x="675" y="280" width="215" height="66" rx="8" fill="#d6e4f7" stroke="#2a78d6"/>
+  <text x="782" y="304" font-size="14" font-weight="700" text-anchor="middle" fill="#0b0b0b">fp8 MFMA 16×16×32</text>
+  <text x="782" y="322" font-size="11" text-anchor="middle" fill="#52514e">A = activations (fp8, from LDS)</text>
+  <text x="782" y="337" font-size="11" text-anchor="middle" fill="#52514e">× e8m0 scale per 32 K, fp32 acc</text>
+
+  <rect x="925" y="280" width="225" height="66" rx="8" fill="#1baf7a"/>
+  <text x="1037" y="304" font-size="14" font-weight="700" text-anchor="middle" fill="#fff">last arriver per group</text>
+  <text x="1037" y="322" font-size="11" text-anchor="middle" fill="#fff">sums the split-K partials in a</text>
+  <text x="1037" y="337" font-size="11" text-anchor="middle" fill="#fff">fixed order, runs the epilogue</text>
+  <text x="1037" y="366" font-size="11" text-anchor="middle" fill="#52514e">epilogues: residual add + sums of</text>
+  <text x="1037" y="381" font-size="11" text-anchor="middle" fill="#52514e">squares, SiLU-mul, causal conv;</text>
+  <text x="1037" y="396" font-size="11" text-anchor="middle" fill="#52514e">no float atomics: bitwise-reproducible</text>
+
+  <rect x="560" y="364" width="280" height="40" rx="8" fill="#fcfcfb" stroke="#c3c2b7"/>
+  <text x="700" y="382" font-size="11" text-anchor="middle" fill="#0b0b0b">prologue: RMSNorm of the residual, quantize to</text>
+  <text x="700" y="396" font-size="11" text-anchor="middle" fill="#0b0b0b">fp8 with a pow2 scale per 128 K → LDS</text>
+
+  <g stroke="#52514e" stroke-width="1.5" fill="none" marker-end="url(#a)">
+    <line x1="160" y1="313" x2="213" y2="313"/>
+    <line x1="415" y1="313" x2="448" y2="313"/>
+    <line x1="640" y1="313" x2="673" y2="313"/>
+    <line x1="890" y1="313" x2="923" y2="313"/>
+    <line x1="782" y1="364" x2="782" y2="348"/>
+  </g>
+
+  <!-- between CUs -->
+  <text x="30" y="486" font-size="13" font-weight="700" fill="#52514e">BETWEEN CUs: A TWO-LEVEL GRID BARRIER, ONE PER STAGE</text>
+  <rect x="30" y="502" width="330" height="128" rx="8" fill="#fff" stroke="#c3c2b7"/>
+  <text x="46" y="526" font-size="13" font-weight="700" fill="#0b0b0b">stage i, on every CU</text>
+  <text x="46" y="548" font-size="12" fill="#52514e">stores its outputs at device scope (sc1),</text>
+  <text x="46" y="566" font-size="12" fill="#52514e">drains them (s_waitcnt vmcnt(0)), then</text>
+  <text x="46" y="584" font-size="12" fill="#52514e">writes the step's epoch to its flag line</text>
+  <text x="46" y="610" font-size="12" font-family="Courier New, monospace" fill="#52514e">flag[cta] = epoch</text>
+
+  <rect x="430" y="502" width="350" height="128" rx="8" fill="#fff" stroke="#c3c2b7"/>
+  <text x="446" y="526" font-size="13" font-weight="700" fill="#0b0b0b">8 leaders, one per XCD</text>
+  <text x="446" y="548" font-size="12" fill="#52514e">CTA x &lt; 8 polls the 38 flags of its XCD</text>
+  <text x="446" y="566" font-size="12" fill="#52514e">(b % 8 == x, round-robin dispatch) with</text>
+  <text x="446" y="584" font-size="12" fill="#52514e">s_sleep, then publishes leader[x] = epoch.</text>
+  <text x="446" y="610" font-size="12" fill="#52514e">Every CTA polls the 8 leader lines.</text>
+
+  <rect x="850" y="502" width="320" height="128" rx="8" fill="#fbeee8" stroke="#eb6834"/>
+  <text x="866" y="526" font-size="13" font-weight="700" fill="#0b0b0b">What one step costs (batch 1)</text>
+  <text x="866" y="548" font-size="12" fill="#52514e">7.56 ms: weight stream at 3.3-3.7 TB/s,</text>
+  <text x="866" y="566" font-size="12" fill="#52514e">~3 µs per barrier × 321, ~2.5 µs prologue</text>
+  <text x="866" y="584" font-size="12" fill="#52514e">and 2-5 µs hand-off per stage.</text>
+  <text x="866" y="610" font-size="12" font-weight="700" fill="#0b0b0b">vLLM FP8 + AITER: 15.59 ms (2.06×).</text>
+
+  <g stroke="#eb6834" stroke-width="1.5" marker-end="url(#b)">
+    <line x1="360" y1="566" x2="428" y2="566"/>
+  </g>
+  <text x="394" y="556" font-size="11" text-anchor="middle" fill="#eb6834">epochs</text>
+  <text x="30" y="668" font-size="12" fill="#52514e">Attention tasks: one wave per (row, kv head, 64 positions): RMSNorm + RoPE, QK^T on the bf16 MFMA, softmax, PV; the last arriver merges the chunks and applies the output gate.</text>
+  <text x="30" y="686" font-size="12" fill="#52514e">DeltaNet tasks: one wave per (row, value head, 16 value rows) of the 128 × 128 fp32 state: l2norm of q and k, the gated delta rule, the gated RMSNorm numerator.</text>
+</svg>

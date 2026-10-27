@@ -1,0 +1,136 @@
+srun: job 68148946 queued and waiting for resources
+srun: job 68148946 has been allocated resources
+===== Qwen3.8-27B-Quark-AWQ-MXFP4 2026-10-22T17:18:19-04:00
+date: 2026-10-22T17:18:19-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.22.post2.dev0+gb4d9154d1.d20261002;rocm 10.1.0;rocm-bootstrap 0.3.0;rocm-sdk-core 10.1.0;rocm-sdk-devel 10.1.0;rocm-sdk-device-gfx1010 10.1.0;rocm-sdk-device-gfx1011 10.1.0;rocm-sdk-device-gfx1012 10.1.0;rocm-sdk-device-gfx1030 10.1.0;rocm-sdk-device-gfx1031 10.1.0;rocm-sdk-device-gfx1032 10.1.0;rocm-sdk-device-gfx1033 10.1.0;rocm-sdk-device-gfx1034 10.1.0;rocm-sdk-device-gfx1035 10.1.0;rocm-sdk-device-gfx1036 10.1.0;rocm-sdk-device-gfx1100 10.1.0;rocm-sdk-device-gfx1101 10.1.0;rocm-sdk-device-gfx1102 10.1.0;rocm-sdk-device-gfx1103 10.1.0;rocm-sdk-device-gfx1150 10.1.0;rocm-sdk-device-gfx1151 10.1.0;rocm-sdk-device-gfx1152 10.1.0;rocm-sdk-device-gfx1153 10.1.0;rocm-sdk-device-gfx1200 10.1.0;rocm-sdk-device-gfx1201 10.1.0;rocm-sdk-device-gfx1250 10.1.0;rocm-sdk-device-gfx908 10.1.0;rocm-sdk-device-gfx90a 10.1.0;rocm-sdk-device-gfx942 10.1.0;rocm-sdk-device-gfx950 10.1.0;rocm-sdk-libraries 10.1.0;triton 3.8.0+git669b31ac.rocm10.1.0
+vllm 0.29.1.dev0+g98dff2a81.d20261002
+torch 2.13.0+rocm10.1.0 hip 7.16.26385
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_NO_SCRATCH_RECLAIM=1
+serve args: 
+server ready 2026-10-22T17:24:13-04:00
+[warmup] Output token throughput (tok/s):         171.75    
+[warmup] Median TTFT (ms):                        554.85    
+[warmup] Median TPOT (ms):                        44.25     
+[warmup] Median ITL (ms):                         44.15     
+[c1] Output token throughput (tok/s):         23.16     
+[c1] Median TTFT (ms):                        117.45    
+[c1] Median TPOT (ms):                        42.92     
+[c1] Median ITL (ms):                         42.88     
+[c2] Output token throughput (tok/s):         44.35     
+[c2] Median TTFT (ms):                        198.03    
+[c2] Median TPOT (ms):                        44.49     
+[c2] Median ITL (ms):                         44.43     
+[c4] Output token throughput (tok/s):         86.51     
+[c4] Median TTFT (ms):                        330.32    
+[c4] Median TPOT (ms):                        45.14     
+[c4] Median ITL (ms):                         45.10     
+[c8] Output token throughput (tok/s):         171.38    
+[c8] Median TTFT (ms):                        561.13    
+[c8] Median TPOT (ms):                        44.69     
+[c8] Median ITL (ms):                         44.65     
+[c1_rep2] Output token throughput (tok/s):         23.09     
+[c1_rep2] Median TTFT (ms):                        116.95    
+[c1_rep2] Median TPOT (ms):                        43.03     
+[c1_rep2] Median ITL (ms):                         43.01     
+[c1_rep3] Output token throughput (tok/s):         23.08     
+[c1_rep3] Median TTFT (ms):                        117.82    
+[c1_rep3] Median TPOT (ms):                        43.05     
+[c1_rep3] Median ITL (ms):                         43.04     
+/home/AMD/sareeder/mk/stock/vllm_serve_bench.sh: line 62: $1: unbound variable
+===== Qwen3.8-27B 2026-10-22T17:41:51-04:00
+date: 2026-10-22T17:41:51-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.22.post2.dev0+gb4d9154d1.d20261002;rocm 10.1.0;rocm-bootstrap 0.3.0;rocm-sdk-core 10.1.0;rocm-sdk-devel 10.1.0;rocm-sdk-device-gfx1010 10.1.0;rocm-sdk-device-gfx1011 10.1.0;rocm-sdk-device-gfx1012 10.1.0;rocm-sdk-device-gfx1030 10.1.0;rocm-sdk-device-gfx1031 10.1.0;rocm-sdk-device-gfx1032 10.1.0;rocm-sdk-device-gfx1033 10.1.0;rocm-sdk-device-gfx1034 10.1.0;rocm-sdk-device-gfx1035 10.1.0;rocm-sdk-device-gfx1036 10.1.0;rocm-sdk-device-gfx1100 10.1.0;rocm-sdk-device-gfx1101 10.1.0;rocm-sdk-device-gfx1102 10.1.0;rocm-sdk-device-gfx1103 10.1.0;rocm-sdk-device-gfx1150 10.1.0;rocm-sdk-device-gfx1151 10.1.0;rocm-sdk-device-gfx1152 10.1.0;rocm-sdk-device-gfx1153 10.1.0;rocm-sdk-device-gfx1200 10.1.0;rocm-sdk-device-gfx1201 10.1.0;rocm-sdk-device-gfx1250 10.1.0;rocm-sdk-device-gfx908 10.1.0;rocm-sdk-device-gfx90a 10.1.0;rocm-sdk-device-gfx942 10.1.0;rocm-sdk-device-gfx950 10.1.0;rocm-sdk-libraries 10.1.0;triton 3.8.0+git669b31ac.rocm10.1.0
+vllm 0.29.1.dev0+g98dff2a81.d20261002
+torch 2.13.0+rocm10.1.0 hip 7.16.26385
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_NO_SCRATCH_RECLAIM=1
+serve args: 
+server ready 2026-10-22T17:48:12-04:00
+[warmup] Output token throughput (tok/s):         336.29    
+[warmup] Median TTFT (ms):                        478.50    
+[warmup] Median TPOT (ms):                        21.53     
+[warmup] Median ITL (ms):                         21.46     
+[c1] Output token throughput (tok/s):         60.32     
+[c1] Median TTFT (ms):                        96.28     
+[c1] Median TPOT (ms):                        16.27     
+[c1] Median ITL (ms):                         16.27     
+[c2] Output token throughput (tok/s):         107.76    
+[c2] Median TTFT (ms):                        153.88    
+[c2] Median TPOT (ms):                        18.02     
+[c2] Median ITL (ms):                         18.01     
+[c4] Output token throughput (tok/s):         187.09    
+[c4] Median TTFT (ms):                        266.84    
+[c4] Median TPOT (ms):                        20.45     
+[c4] Median ITL (ms):                         20.42     
+[c8] Output token throughput (tok/s):         341.21    
+[c8] Median TTFT (ms):                        482.43    
+[c8] Median TPOT (ms):                        21.63     
+[c8] Median ITL (ms):                         21.64     
+/home/AMD/sareeder/mk/stock/vllm_serve_bench.sh: error reading input file: Stale file handle
+===== Qwen3.8-27B-FP8 2026-10-22T17:51:51-04:00
+date: 2026-10-22T17:51:51-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.22.post2.dev0+gb4d9154d1.d20261002;rocm 10.1.0;rocm-bootstrap 0.3.0;rocm-sdk-core 10.1.0;rocm-sdk-devel 10.1.0;rocm-sdk-device-gfx1010 10.1.0;rocm-sdk-device-gfx1011 10.1.0;rocm-sdk-device-gfx1012 10.1.0;rocm-sdk-device-gfx1030 10.1.0;rocm-sdk-device-gfx1031 10.1.0;rocm-sdk-device-gfx1032 10.1.0;rocm-sdk-device-gfx1033 10.1.0;rocm-sdk-device-gfx1034 10.1.0;rocm-sdk-device-gfx1035 10.1.0;rocm-sdk-device-gfx1036 10.1.0;rocm-sdk-device-gfx1100 10.1.0;rocm-sdk-device-gfx1101 10.1.0;rocm-sdk-device-gfx1102 10.1.0;rocm-sdk-device-gfx1103 10.1.0;rocm-sdk-device-gfx1150 10.1.0;rocm-sdk-device-gfx1151 10.1.0;rocm-sdk-device-gfx1152 10.1.0;rocm-sdk-device-gfx1153 10.1.0;rocm-sdk-device-gfx1200 10.1.0;rocm-sdk-device-gfx1201 10.1.0;rocm-sdk-device-gfx1250 10.1.0;rocm-sdk-device-gfx908 10.1.0;rocm-sdk-device-gfx90a 10.1.0;rocm-sdk-device-gfx942 10.1.0;rocm-sdk-device-gfx950 10.1.0;rocm-sdk-libraries 10.1.0;triton 3.8.0+git669b31ac.rocm10.1.0
+vllm 0.29.1.dev0+g98dff2a81.d20261002
+torch 2.13.0+rocm10.1.0 hip 7.16.26385
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/opt/python/lib/python3.14/site-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_NO_SCRATCH_RECLAIM=1
+serve args: 
+server ready 2026-10-22T17:52:01-04:00
+[warmup] Output token throughput (tok/s):         341.45    
+[warmup] Median TTFT (ms):                        481.87    
+[warmup] Median TPOT (ms):                        21.61     
+[warmup] Median ITL (ms):                         21.60     
+[c1] Output token throughput (tok/s):         60.18     
+[c1] Median TTFT (ms):                        95.11     
+[c1] Median TPOT (ms):                        16.31     
+[c1] Median ITL (ms):                         16.32     
+[c2] Output token throughput (tok/s):         107.72    
+[c2] Median TTFT (ms):                        151.86    
+[c2] Median TPOT (ms):                        18.04     
+[c2] Median ITL (ms):                         18.01     
+[c4] Output token throughput (tok/s):         186.94    
+[c4] Median TTFT (ms):                        267.19    
+[c4] Median TPOT (ms):                        20.45     
+[c4] Median ITL (ms):                         20.44     
+[c8] Output token throughput (tok/s):         341.00    
+[c8] Median TTFT (ms):                        481.67    
+[c8] Median TPOT (ms):                        21.66     
+[c8] Median ITL (ms):                         21.66     
+[c1_rep2] Output token throughput (tok/s):         60.02     
+[c1_rep2] Median TTFT (ms):                        96.24     
+[c1_rep2] Median TPOT (ms):                        16.35     
+[c1_rep2] Median ITL (ms):                         16.35     
+[c1_rep3] Output token throughput (tok/s):         59.84     
+[c1_rep3] Median TTFT (ms):                        94.26     
+[c1_rep3] Median TPOT (ms):                        16.35     
+[c1_rep3] Median ITL (ms):                         16.41     
+/home/AMD/sareeder/mk/stock/vllm_serve_bench.sh: line 61: kill: (1529041) - No such process
+done /home/AMD/sareeder/mk/models/Qwen3.8-27B-FP8 2026-10-22T17:57:07-04:00
