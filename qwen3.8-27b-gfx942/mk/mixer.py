@@ -8,11 +8,14 @@ epilogue (stages.EpiConv) has already applied the causal conv + SiLU to the q/k/
 channels and shifted the conv state.
   lanes 0..31: l2norm of q_j (j = h // 3), 4 channels a lane; lanes 32..63: k_j.
   q, k -> wave LDS. lanes 0..15: value channel 16 c + lane; lanes 16..31: z.
-  recurrence: lane l -> value row r = l // 4, k quarter l % 4 (32 fp32 of the state).
+  recurrence: load i of lane l = the state's [16][128] floats 4 (64 i + l) .. + 3 (one
+  coalesced KiB per load; row 2 i + l // 32); row sums over k by a reduce-scatter
+  butterfly (rs_sum8), after which lane l holds row r(l) (4 lanes a row).
   y[m][128 h + 16 c + r] = o * norm_w * silu(z) (not yet divided by the head RMS);
   ssq[m][h][c] = sum of o^2 over the 16 rows (the out_proj prologue finishes the norm).
 
-Attention task (row m, kv head j, chunk ci of CH positions), one wave:
+Attention task (row m, kv head j, chunk ci of CH positions inside one KV block), one
+wave:
   q (6 heads) and k_new: zero-centred RMSNorm over 256, NeoX RoPE on dims 0..63.
   scores (lane = position) -> partial softmax (max, sum) -> P V (lane = 4 dims).
   The chunk holding position pos writes k_new, v_new to the cache (bf16).
@@ -39,9 +42,11 @@ GQ = NQ // NKV          # 6 q heads per kv head
 
 # ------------------------------------------------------------------ GDN
 @D.traced
-def gdn_task(c, M, task, y_in, a_log, dt_bias, norm_w, ssm, y_out, ssq_out, wl):
+def gdn_task(c, M, task, y_in, a_log, dt_bias, norm_w, ssm, sidx, ssm_s0, y_out, ssq_out, wl):
     """One (m, h, chunk) task. y_in: the in_proj output with the causal conv + SiLU
-    already applied to the q/k/v channels (S.EpiConv). wl: this wave's LDS (256
+    already applied to the q/k/v channels (S.EpiConv). ssm: the layer's SSM state of
+    slot 0, slot s at ssm + s ssm_s0 bytes ([NVH][DV][DK] fp32); row m's slot is
+    sidx[m] (0: a padding row, whose state is not written). wl: this wave's LDS (256
     floats: q[128] k[128])."""
     lane = c["lane"]
     D.PROBE["on"] = D.PROBE.get("stage") == "gdn"
@@ -79,45 +84,63 @@ def gdn_task(c, M, task, y_in, a_log, dt_bias, norm_w, ssm, y_out, ssq_out, wl):
     beta = D.sigmoid(bval)
     # q/k reach the other lanes through this wave's LDS: a wave's LDS ops run in order
     D.probe(c, 5)
-    # ---- recurrence: lane -> row r = lane // 4, k quarter kq = lane % 4
-    r = lane // 4
-    kq = lane % 4
-    rs = D.rsrc(ssm)
-    # The chunk's 16 x 128 state is stored lane-interleaved: load i of lane l is the
-    # 16 B at (64 i + l) * 16 of the chunk (one contiguous 1 KiB per instruction) and
-    # holds S[r][32 kq + 4 i .. + 3]. Only the kernel reads the state.
-    sbase = ((m * NVH + h) * 128 + ch * 16) * DK + lane * 4
+    # ---- recurrence. Load i of lane l is the 16 B at float 4 (64 i + l) of the chunk's
+    # [16][128] state (one contiguous KiB per instruction): S[2 i + l // 32][kc .. kc + 3]
+    # with kc = 4 (l % 32). Row sums over k then span 32 lanes: a reduce-scatter
+    # butterfly (lane bits 4, 3, 2) leaves lane l the sum of instruction i(l) = 4 b4 +
+    # 2 b3 + b2, and lane bits 1, 0 finish it (see rs_sum8).
+    slot = D.uniform(D.ld(D.rsrc(sidx), m))
+    rs = D.rsrc(ssm + fx.Int64(slot) * ssm_s0)
+    sbase = (h * 128 + ch * 16) * DK + 4 * lane
     S = [D.ld(rs, sbase + 256 * i, 4, T.f32, D.CM_NT) for i in range(8)]
-    kk = [fx.ptr_load(wl + (DK + kq * 32 + e)) for e in range(32)]
-    qq = [fx.ptr_load(wl + (kq * 32 + e)) for e in range(32)]
+    kc = 4 * (lane % 32)
+    kk = [fx.ptr_load(wl + (DK + kc + e)) for e in range(4)]
+    qq = [fx.ptr_load(wl + (kc + e)) for e in range(4)]
     D.probe(c, 6)
-    kv = fx.Float32(0.0)
-    for i in range_constexpr(8):
-        for e in range_constexpr(4):
-            kv = kv + S[i][e] * kk[4 * i + e]
-    kv = D.xor_sum(kv * decay, lane, (1, 2))
+    r = 2 * (((lane >> 4) & 1) * 4 + ((lane >> 3) & 1) * 2 + ((lane >> 2) & 1)) + lane // 32  # lane's row
+    kv = rs_sum8([S[i][0] * kk[0] + S[i][1] * kk[1] + S[i][2] * kk[2] + S[i][3] * kk[3] for i in range(8)],
+                 lane)
     vrow = D.gather_f(vval, r)                      # v of row r lives in lane r
-    delta = (vrow - kv) * beta
-    o = fx.Float32(0.0)
-    Sn = []
+    delta = (vrow - kv * decay) * beta
+    Sn, po = [], []
     for i in range_constexpr(8):
-        nv = []
-        for e in range_constexpr(4):
-            s_ = S[i][e] * decay + kk[4 * i + e] * delta
-            nv.append(s_)
-            o = o + s_ * qq[4 * i + e]
+        # row 2 i + l // 32's delta lives in the lanes with i(l') = i (and l' // 32 = l // 32)
+        di = D.gather_f(delta, (lane & 32) | ((i >> 2) & 1) << 4 | ((i >> 1) & 1) << 3 | (i & 1) << 2)
+        nv = [S[i][e] * decay + kk[e] * di for e in range(4)]
         Sn.append(fx.Vector.from_elements(nv, fx.Float32))
-    for i in range_constexpr(8):
-        D.st(Sn[i], rs, sbase + 256 * i, D.CM_NT)
-    o = D.xor_sum(o, lane, (1, 2))
+        po.append(nv[0] * qq[0] + nv[1] * qq[1] + nv[2] * qq[2] + nv[3] * qq[3])
+    if slot != 0:
+        for i in range_constexpr(8):
+            D.st(Sn[i], rs, sbase + 256 * i, D.CM_NT)
+    o = rs_sum8(po, lane)
     zrow = D.gather_f(zval, 16 + r)
     nwr = D.bf_lo(D.ld(D.rsrc(norm_w), (ch * 16 + r) // 2) >> (((ch * 16 + r) % 2) * 16))
     y = o * nwr * D.silu(zrow)
-    s2 = D.xor_sum((kq == 0).select(o * o, fx.Float32(0.0)), lane, (4, 8, 16, 32))
-    if kq == 0:
+    first = (lane & 3) == 0                         # one of the 4 lanes of each row
+    s2 = D.xor_sum(first.select(o * o, fx.Float32(0.0)), lane, (4, 8, 16, 32))
+    if first:
         D.st(y, D.rsrc(y_out), m * NVH * 128 + h * 128 + ch * 16 + r, D.CM_DEV)
     if lane == 0:
         D.st(s2, D.rsrc(ssq_out), (m * NVH + h) * 8 + ch, D.CM_DEV)
+    D.probe(c, 7)
+
+
+def rs_sum8(vals, lane):
+    """vals[i] (i < 8) summed over the 32 lanes of the lane's half-wave, lane l getting
+    the sum of i = 4 b4 + 2 b3 + b2 (bits of l). Reduce-scatter steps 16, 8, 4 halve the
+    values a lane holds (send the other half to the partner, add the partner's copy of
+    the kept half), then steps 2, 1 sum the remaining value."""
+    v = list(vals)
+    for msk in (16, 8, 4):
+        hi = (lane & msk) != 0
+        n = len(v) // 2
+        nv = []
+        for k in range(n):
+            keep = hi.select(v[k + n], v[k])
+            send = hi.select(v[k], v[k + n])
+            nv.append(keep + D.gather_f(send, lane ^ msk))
+        v = nv
+    return D.xor_sum(v[0], lane, (1, 2))
     D.probe(c, 7)
 
 
@@ -155,43 +178,51 @@ def pack_bf2(a, b):
 
 
 @D.traced
-def attn_task(c, task, ncmax, y_qkv, qn_w, kn_w, rope_cs, kc, vc, pos_ptr, maxlen, rec, cnt, og,
-              wl):
+def attn_task(c, task, cfg, y_qkv, qn_w, kn_w, rope_cs, kv, bt, slotp, pos_ptr, rec, cnt, og, wl):
     """One (m, j, ci) task; wl: this wave's LDS (GQ * HD + 2 * HD // 2 floats).
+    Chunk ci covers positions [p0, pe) inside KV block b = ci // cpb (see kernel.Cfg).
     Returns nothing; the last arriver of (m, j) writes og."""
     lane = c["lane"]
     D.PROBE["on"] = D.PROBE.get("stage") == "attn"
+    ncmax, cpb, B = cfg.ncmax, cfg.cpb, cfg.block
     m = task // (NKV * ncmax)
     j = task % (NKV * ncmax) // ncmax
     ci = task % ncmax
-    pos = D.ld(D.rsrc(pos_ptr), m)
-    p0 = ci * CH
-    if p0 <= pos:
-        _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, kc, vc, maxlen,
-                    rec, cnt, og, wl)
+    pos = D.uniform(D.ld(D.rsrc(pos_ptr), m))
+    slot = D.uniform(D.ld(D.rsrc(slotp), m))
+    b = ci // cpb
+    p0 = b * B + ci % cpb * CH
+    if (p0 <= pos) & (slot >= 0):
+        pe = fx.min(p0 + CH, (b + 1) * B)
+        blk = D.uniform(D.ld(D.rsrc(bt), m * cfg.maxblocks + b))
+        base = kv + (fx.Int64(blk) * cfg.kv_s0 + j * cfg.kv_s1) * 2
+        _attn_chunk(c, lane, m, j, ci, pos, p0, pe, b * B, cfg, y_qkv, qn_w, kn_w, rope_cs, base, rec, cnt, og,
+                    wl)
 
 
 @D.traced
-def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, kc, vc, maxlen, rec,
-                cnt, og, wl):
+def _attn_chunk(c, lane, m, j, ci, pos, p0, pe, pb, cfg, y_qkv, qn_w, kn_w, rope_cs, base, rec, cnt, og, wl):
+    """base: the address of (block of p0, head j); pb: the block's first position, so
+    position p's K is at base + ((p - pb) kv_s2) bf16 elements and its V HD later."""
     ry = D.rsrc(y_qkv)
     ybase = m * QKV_N
     d0 = 4 * lane
-    rk, rv = D.rsrc(kc), D.rsrc(vc)
-    cache = ((m * NKV + j) * maxlen) * HD             # element offset of (m, j, pos 0)
+    rk = D.rsrc(base)
+    s2 = cfg.kv_s2
+    lastp = fx.min(pos, pe - 1)                       # the chunk's last live position
     p = p0 + lane
-    live = p <= pos
+    live = p <= lastp
     gq, nq = lane // 16, lane % 16                   # MFMA lane coordinates
 
     def ktile(t):
-        """B operand rows of score tile t: position p0 + 16 t + nq (clamped to pos). Load u
+        """B operand rows of score tile t: position p0 + 16 t + nq (clamped to lastp). Load u
         of lane group gq: dims 32 u + 8 gq .. + 7 (the 4 groups read 64 contiguous bytes
         of a row); k-step 2 u + h = dims 32 u + 8 gq + 4 h .. + 3."""
-        pt = fx.min(p0 + 16 * t + nq, pos)
-        return [D.ld(rk, (cache + pt * HD + 32 * u + 8 * gq) // 2, 4) for u in range(8)]
+        pt = fx.min(p0 + 16 * t + nq, lastp)
+        return [D.ld(rk, ((pt - pb) * s2 + 32 * u + 8 * gq) // 2, 4) for u in range(8)]
 
     def vload(b):
-        return [D.ld(rv, (cache + fx.min(p0 + b * PVB + k, pos) * HD + d0) // 2, 2) for k in range(PVB)]
+        return [D.ld(rk, ((fx.min(p0 + b * PVB + k, lastp) - pb) * s2 + HD + d0) // 2, 2) for k in range(PVB)]
 
     kt = ktile(0)                                     # independent of this step's q/k/v
     D.probe(c, 4)
@@ -217,9 +248,9 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
     vw2 = fx.Vector.from_elements([pack_bf2(vv_[0], vv_[1]), pack_bf2(vv_[2], vv_[3])], fx.Int32)
     _store_i32x2(wl, GQ * HD + d0 // 2, kw2)
     _store_i32x2(wl, GQ * HD + HD // 2 + d0 // 2, vw2)
-    if (pos >= p0) & (pos < p0 + CH):
-        D.st(kw2, rk, (cache + pos * HD + d0) // 2, D.CM_DEV)
-        D.st(vw2, rv, (cache + pos * HD + d0) // 2, D.CM_DEV)
+    if (pos >= p0) & (pos < pe):
+        D.st(kw2, rk, ((pos - pb) * s2 + d0) // 2, D.CM_DEV)
+        D.st(vw2, rk, ((pos - pb) * s2 + HD + d0) // 2, D.CM_DEV)
     D.probe(c, 5)
     # ---- scores on the MFMA (bf16 16x16x16): S^T tile [16 head rows][16 positions].
     # The k order is permuted alike in A and B (see ktile): the sum over k does not
@@ -258,6 +289,7 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
     D.probe(c, 7)
     # ---- partial record
     rr = D.rsrc(rec)
+    ncmax = cfg.ncmax
     rbase = ((m * NKV + j) * ncmax + ci) * REC
     if lane < GQ:
         D.st(_sel6(lane, mx), rr, rbase + lane, D.CM_DEV)
@@ -266,7 +298,7 @@ def _attn_chunk(c, lane, m, j, ci, pos, p0, ncmax, y_qkv, qn_w, kn_w, rope_cs, k
         D.st(o[hh], rr, rbase + 16 + hh * HD + d0, D.CM_DEV)
     # ---- last arriver of (m, j) merges the chunks
     rocm_wait()
-    nchunk = pos // CH + 1
+    nchunk = pos // cfg.block * cfg.cpb + pos % cfg.block // CH + 1   # chunks up to pos's
     old = fx.Int32(0)
     if lane == 0:
         old = D.atomic_add_dev(cnt + (m * NKV + j) * 4, 1)

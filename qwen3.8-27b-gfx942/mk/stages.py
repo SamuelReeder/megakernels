@@ -14,7 +14,7 @@ from flydsl.expr import const_expr, gpu, range_constexpr
 from flydsl.expr.typing import T
 
 from . import dev as D
-from .dims import CONV_DIM, FFN, H, INP_N
+from .dims import CONV_DIM, FFN, H, INP_N, VOCAB
 
 NT = 512   # threads per CTA (set by the kernel builder before tracing)
 
@@ -165,32 +165,48 @@ def _epi_res(c, M, grp, tot, hin, h_out, ssq_out, hb_out):
 class EpiConv:
     """in_proj epilogue: y[:, n] = tot for the z / b / a columns; for the q / k / v
     channels (n < CONV_DIM) the causal depthwise conv (4 taps over the 3 stored inputs
-    and this one) + SiLU, and the conv state [M][CONV_DIM][4] (3 used) shifts by one.
-    Each channel has one last arriver, so its state is read and written by one thread.
-    pre(grp) loads the state and the taps with the GEMV's partial loads."""
+    and this one) + SiLU, and the conv state shifts by one. Row t's state is the bf16
+    [3][CONV_DIM] (oldest first) at conv + sidx[t] conv_s0 bytes; slot 0 (a padding
+    row) is not written. Each channel has one last arriver, so its state is read and
+    written by one thread. pre(grp) loads the state and the taps with the GEMV's partial
+    loads."""
 
-    def __init__(self, c, M, y, conv, convw):
+    def __init__(self, c, M, y, conv, convw, sidx, conv_s0):
         self.c, self.M, self.y, self.conv, self.convw = c, M, y, conv, convw
+        self.sidx, self.conv_s0 = sidx, conv_s0
+
+    def rows(self):
+        """(slot, state address) of the lane's 4 rows 4 gl + r (clamped to M - 1). The
+        rows of a wave differ and their slots can lie more than 4 GB apart, so the state
+        goes through per-lane global addresses."""
+        rsx = D.rsrc(self.sidx)
+        out = []
+        for r in range_constexpr(4):
+            sl = D.ld(rsx, fx.min(4 * self.c["gl"] + r, self.M - 1))
+            out.append((sl, self.conv + fx.Int64(sl) * self.conv_s0))
+        return out
 
     def pre(self, grp):
         n = fx.min(grp * 16 + self.c["col"], CONV_DIM - 1)
-        rs = D.rsrc(self.conv)
-        st = [D.ld(rs, (fx.min(4 * self.c["gl"] + r, self.M - 1) * CONV_DIM + n) * 4, 4, T.f32)
-              for r in range(4)]
-        return st, D.ld(D.rsrc(self.convw), n * 2, 2)
+        rows = self.rows()
+        st = []
+        for sl, base in rows:
+            w = [D.gld32(base + ((k * CONV_DIM + n) // 2) * 4) for k in range(3)]
+            st.append([(n % 2 == 0).select(D.bf_lo(x), D.bf_hi(x)) for x in w])
+        return rows, st, D.ld(D.rsrc(self.convw), n * 2, 2)
 
     def __call__(self, grp, tots, pre):
-        _epi_conv(self.c, self.M, grp, tots[0], pre, self.y, self.conv)
+        _epi_conv(self.c, self.M, grp, tots[0], pre, self.y)
 
 
 @D.traced
-def _epi_conv(c, M, grp, tot, pre, y, conv):
-    st, wv = pre
+def _epi_conv(c, M, grp, tot, pre, y):
+    rows, st, wv = pre
     col = c["col"]
     n = grp * 16 + col
     isconv = grp < CONV_DIM // 16
     taps = [D.bf_lo(wv[0]), D.bf_hi(wv[0]), D.bf_lo(wv[1]), D.bf_hi(wv[1])]
-    ry, rs = D.rsrc(y), D.rsrc(conv)
+    ry = D.rsrc(y)
     for r in range_constexpr(4):
         t = 4 * c["gl"] + r
         v = tot[r]
@@ -198,9 +214,10 @@ def _epi_conv(c, M, grp, tot, pre, y, conv):
         out = isconv.select(D.silu(acc), v)
         if t < M:
             D.st(out, ry, t * INP_N + n, D.CM_DEV)
-            if isconv:
-                D.st(fx.Vector.from_elements([st[r][1], st[r][2], v, fx.Float32(0.0)], fx.Float32), rs,
-                     (t * CONV_DIM + n) * 4)
+            sl, base = rows[r]
+            if isconv & (sl != 0):
+                for k, x in ((0, st[r][1]), (1, st[r][2]), (2, v)):
+                    D.gst_bf16(x, base + (k * CONV_DIM + n) * 2)
 
 
 @D.traced
@@ -309,7 +326,7 @@ def embed_stage(c, M, tok_ptr, emb, h_out, ssq_out, hb_out):
     t = tid // 16
     col = tid % 16
     if t < M:
-        tok = D.ld(D.rsrc(tok_ptr), t)
+        tok = fx.min(fx.max(D.ld(D.rsrc(tok_ptr), t), 0), VOCAB - 1)   # padding rows hold anything
         re = D.rsrc(emb + fx.Int64(tok) * (H * 2))     # the table is > 2 GiB: 64-bit row base
         ro, rq = D.rsrc(h_out), D.rsrc(ssq_out)
         for gi in range(bid, ng, c["cus"]):
@@ -321,3 +338,23 @@ def embed_stage(c, M, tok_ptr, emb, h_out, ssq_out, hb_out):
             s = D.xor_sum(v * v, lane, (1, 2, 4, 8))
             if col == 0:
                 D.st(s, rq, t * ng + gi, D.CM_DEV)
+
+
+@D.traced
+def final_norm_stage(c, M, h, ssq, red, lnw, out, eps):
+    """out[t][k] = bf16(h[t][k] * rstd[t] * (1 + w[k])): the model's final norm, for a
+    serving engine's own LM head. CTA b handles 16-column groups b, b + CUS, ...
+    (thread: token t = tid // 16, column tid % 16)."""
+    rstd_from_ssq(c, M, ssq, red, eps)
+    tid, bid = c["tid"], c["bid"]
+    t = tid // 16
+    col = tid % 16
+    if t < M:
+        rstd = fx.ptr_load(red + t)
+        rh, rw, ro = D.rsrc(h), D.rsrc(lnw), D.rsrc(out)
+        for gi in range(bid, H // 16, c["cus"]):
+            k = gi * 16 + col
+            w = D.ld(rw, k // 2)
+            wk = (k % 2 == 0).select(D.bf_lo(w), D.bf_hi(w))
+            v = D.ldf(rh, t * H + k, cm=D.CM_DEV) * rstd * (fx.Float32(1.0) + wk)
+            D.st(fx.Float32(v).to(fx.BFloat16), ro, t * H + k)

@@ -275,7 +275,11 @@ class Gemv:
             olds.append(D.uniform(old))
         D.probe(c, 3)
         for j in range_constexpr(self.NPW):
-            if (j < np_) & ((olds[j] + 1) % self.cg_total(self.cgroup(p0 + j)) == 0):
+            if (j < np_) & ((olds[j] + 1) == self.cg_total(self.cgroup(p0 + j))):
+                # the last arriver resets the counter for the next layer: every other
+                # arrival is in, and the next use is behind a grid barrier
+                if w["lane"] == 0:
+                    D.st(fx.Int32(0), D.rsrc(cnt), self.cgroup(p0 + j), D.CM_DEV)
                 self.la_reduce(w["lane"], self.cgroup(p0 + j), rp, epilogue, c)
         D.probe(c, 2)
 

@@ -4,7 +4,7 @@ The numerics follow docs/DESIGN.md:
 - residual stream h: fp32
 - RMSNorm in fp32, output rounded to bf16 (GEMV input)
 - GEMV: bf16 input x weight (exact bf16 for MXFP4), fp32 accumulation, fp32 output
-- GDN conv state and SSM state: fp32
+- GDN conv state: bf16 (the model dtype, as vLLM and HF keep it); SSM state: fp32
 - KV cache: bf16
 The same module runs prefill by calling `step` once per prompt token.
 """
@@ -143,7 +143,7 @@ def apply_rope(x: torch.Tensor, cos, sin):
 @dataclass
 class State:
     """Per-sequence caches for M rows."""
-    conv: torch.Tensor  # [48 gdn layers, M, 10240, 3] fp32 (oldest first)
+    conv: torch.Tensor  # [48 gdn layers, M, 10240, 3] fp32 holding bf16 values (oldest first)
     ssm: torch.Tensor   # [48, M, 48 vh, 128 v, 128 k] fp32
     k: torch.Tensor     # [16 attn layers, M, 4, maxlen, 256] bf16
     v: torch.Tensor     # [16, M, 4, maxlen, 256] bf16
@@ -170,7 +170,7 @@ def gdn(W: Weights, i: int, x: torch.Tensor, st: State, g_i: int) -> torch.Tenso
     a = lin(x, W.L(i, pre + "in_proj_a.weight"))          # [M, 48]
     cw = W.L(i, pre + "conv1d.weight").float()[:, 0, :]  # [10240, 4]
     win = torch.cat([st.conv[g_i], qkv[:, :, None]], -1)  # [M, 10240, 4]
-    st.conv[g_i] = win[:, :, 1:]
+    st.conv[g_i] = win[:, :, 1:].to(torch.bfloat16).float()
     y = (win * cw[None]).sum(-1)
     y = y * torch.sigmoid(y)                               # silu
     q = y[:, :KEY_DIM].reshape(M, NKH, DK)

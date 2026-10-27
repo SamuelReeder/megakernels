@@ -31,6 +31,18 @@ def gptr(addr):
     return llvm.IntToPtrOp(ir.Type.parse("!llvm.ptr<1>"), fx.Int64(addr).ir_value()).result
 
 
+def gld32(addr):
+    """The i32 at a per-lane 64-bit global address (4-aligned): for data whose rows
+    differ across a wave and lie more than 4 GB apart, where a buffer resource would
+    have to be divergent."""
+    return fx.Int32(llvm.load(T.i32, gptr(addr), alignment=4))
+
+
+def gst_bf16(v, addr):
+    """Store f32 v as bf16 at a per-lane 64-bit global address."""
+    llvm.store(fx.Float32(v).to(fx.BFloat16).ir_value(), gptr(addr), alignment=2)
+
+
 def ld(r, i, n=1, dtype=None, cm=0):
     """n (1, 2, 4) elements of `dtype` (default i32) at element offset i."""
     dt = T.i32 if dtype is None else dtype
@@ -186,9 +198,10 @@ def memrealtime():
 
 @traced
 def poll_ge(r, slot, val):
-    """Spin until word `slot` (device scope) >= val."""
+    """Spin until word `slot` (device scope) >= val, in wrap-around order (epochs
+    are i32 counters that overflow after about 6.7 M steps)."""
     v = ld(r, slot, cm=CM_DEV)
-    while v < val:
+    while (v - val) < 0:
         rocdl.s_sleep(1)
         v = ld(r, slot, cm=CM_DEV)
 

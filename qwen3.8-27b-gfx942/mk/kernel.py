@@ -6,10 +6,22 @@ grid barriers (dev.grid_arrive / grid_wait). Per layer:
   GDN layer:  in_proj GEMV -> | GDN core tasks -> | out_proj GEMV (+h) -> |
   attn layer: qkv GEMV     -> | attention tasks -> | o_proj GEMV (+h)   -> |
   both:       gate_up GEMV -> | down GEMV (+h) -> |
-then the final norm + LM head GEMV (bf16) -> logits.
+then the final norm and either the LM head GEMV (bf16) -> fp32 logits, or the
+normed hidden states (bf16) for a serving engine's own LM head.
 
 Residual stream: h0 at a layer start, h1 after the mixer (both fp32 [M][H], with
 their 16-column sums of squares ssq0 / ssq1). See docs/DESIGN.md.
+
+Caches use vLLM's layouts (Cfg holds their strides):
+  KV of an attention layer: [blocks][block][NKV][2 HD] bf16 by strides (kv_s0, kv_s2,
+    kv_s1), K at [0, HD), V at [HD, 2 HD); row m's block b is bt[m][b].
+  GDN layer: per state slot s, the conv state [3][CONV_DIM] bf16 (oldest input first)
+    at conv + s conv_s0 bytes and the SSM state [NVH][DV][DK] fp32 at ssm + s ssm_s0
+    bytes (vLLM keeps both in one page per slot); row m's slot is sidx[m] (0: padding,
+    not written).
+  A row with slot[m] < 0 (padding) reads and writes no KV.
+The barrier epoch lives on the device (word EPOCH_WORD of the flag buffer), so a
+launch has no per-step host argument and can be captured in a CUDA graph.
 """
 
 from dataclasses import dataclass
@@ -26,30 +38,45 @@ from .dims import (EPS, FFN, H, HD, INP_N, NKV, NQ, NVH, QKV_N, VAL_DIM, VOCAB)
 from .gemv import CHUNKS, Gemv
 
 NTAB = 16      # pointer-table slots per layer
-NGLOB = 16     # global pointer-table slots
+NGLOB = 24     # global pointer-table slots
 WAVES = 8
 NT = 64 * WAVES
 
 # global table slots
 G_EMBED, G_LM, G_FNORM, G_ROPE, G_HB, G_SSQ, G_Y, G_Y2, G_HSSQ, G_PART, G_CNT, G_FLAGS, G_REC, \
-    G_TOK, G_POS, G_LOGITS = range(16)
+    G_TOK, G_POS, G_OUT, G_BT, G_SLOT, G_SIDX = range(19)
 # per-layer slots
 T_MIX_T, T_MIX_S, T_OUT_T, T_OUT_S, T_GU_T, T_GU_S, T_DN_T, T_DN_S, T_IN_LN, T_POST_LN = range(10)
 T_ALOG, T_DTB, T_CONVW, T_NORMW, T_CONV, T_SSM = range(10, 16)        # GDN layers
-T_QN, T_KN, T_KC, T_VC = range(10, 14)                                # attention layers
+T_QN, T_KN, T_KV = range(10, 13)                                # attention layers
 
 CNT_STRIDE = 65536   # i32 counters per counter region
+EPOCH_WORD_LINE = 8  # the epoch word is line cus + EPOCH_WORD_LINE of the flag buffer
 
 
 @dataclass(frozen=True)
 class Cfg:
+    """One compiled kernel: M rows on `cus` CUs, and the cache geometry it reads."""
     M: int
     cus: int
-    maxlen: int
+    maxlen: int          # positions < maxlen (the RoPE table's length)
+    block: int           # KV positions per block
+    maxblocks: int       # columns of the block table
+    kv_s0: int           # KV element strides: block, head, position
+    kv_s1: int
+    kv_s2: int
+    conv_s0: int         # bytes between the conv states of two slots
+    ssm_s0: int          # bytes between the SSM states of two slots
+    lm_head: bool = True  # False: write the normed hidden states instead of logits
+
+    @property
+    def cpb(self):
+        """Attention chunks per KV block: a chunk never straddles two blocks."""
+        return -(-self.block // X.CH)
 
     @property
     def ncmax(self):
-        return self.maxlen // X.CH
+        return self.maxblocks * self.cpb
 
     def specs(self):
         M, cus = self.M, self.cus
@@ -71,6 +98,7 @@ PROFILE = {"addr": None}   # debug: i64 [barriers][CUS][2] = (arrive, wait end) 
 
 def build(cfg: Cfg):
     M, CUS = cfg.M, cfg.cus
+    assert 1 <= M <= WAVES, "the norm prologues give each row one wave"
     SP = cfg.specs()
     S.NT = NT
     XQB = max(s.XR for s in SP.values()) * M
@@ -101,8 +129,10 @@ def build(cfg: Cfg):
         v = D.ld(r, 2 * i, 2)
         return (fx.Int64(D.uniform(v[1])) << 32) | fx.Int64(fx.Uint32(D.uniform(v[0])))
 
-    @flyc.kernel(name=f"qwen38_decode_m{M}_l{cfg.maxlen}", known_block_size=[NT, 1, 1])
-    def kdec(tab: Int64, glob: Int64, epoch: Int32, nlayers: Int32):
+    name = f"qwen38_decode_m{M}_l{cfg.maxlen}_b{cfg.block}x{cfg.maxblocks}_{'lm' if cfg.lm_head else 'hid'}"
+
+    @flyc.kernel(name=name, known_block_size=[NT, 1, 1])
+    def kdec(tab: Int64, glob: Int64, nlayers: Int32):
         tid = fx.thread_idx.x
         bid = fx.block_idx.x
         lane = tid % 64
@@ -118,6 +148,9 @@ def build(cfg: Cfg):
         rt = D.rsrc(tab)
         G = [tab64(rg, k) for k in range(NGLOB)]
         rf = D.rsrc(G[G_FLAGS])
+        # every CTA reads the epoch before its first arrival; CTA 0 advances it after
+        # the last barrier, which no CTA passes before all have read it
+        epoch = D.uniform(D.ld(rf, (CUS + EPOCH_WORD_LINE) * D.LINE, cm=D.CM_DEV))
         hb0, hb1 = G[G_HB], G[G_HB] + fx.Int64(M * H * 4)
         hf0, _ = hf_ptrs(hb0, M)
         q0, q1 = G[G_SSQ], G[G_SSQ] + fx.Int64(M * (H // 16) * 4)
@@ -175,22 +208,29 @@ def build(cfg: Cfg):
                             gw_l, NTASK_A, cfg)
             else:
                 _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, barrier_then,
-                           gw_l, NTASK_G)
+                           gw_l, NTASK_G, cfg)
             _mlp(c, SP, T, e0 + 3, xq, xs, red, hb0, hb1, q0, q1, part, cnt, barrier_then, G)
         c.clear()
         c.update(c0)
-        # ---- final norm + LM head
-        lm = SP["lm"]
-        w, buf = barrier_then(lm, G[G_LM], G[G_LM], epoch + 1 + nlayers * 5)
-        S.prologue_norm_bf16(c, lm, xq, red, hf0, q0, G[G_FNORM], EPS)
-        lm.run(c, w, buf, part, cnt("lm"), lambda cg, tots: S.epi_raw(c, M, VOCAB, cg, tots[0], G[G_LOGITS]))
+        e_end = epoch + 1 + nlayers * 5
+        if const_expr(cfg.lm_head):
+            # ---- final norm + LM head
+            lm = SP["lm"]
+            w, buf = barrier_then(lm, G[G_LM], G[G_LM], e_end)
+            S.prologue_norm_bf16(c, lm, xq, red, hf0, q0, G[G_FNORM], EPS)
+            lm.run(c, w, buf, part, cnt("lm"), lambda cg, tots: S.epi_raw(c, M, VOCAB, cg, tots[0], G[G_OUT]))
+        else:
+            # ---- final norm -> bf16 hidden states
+            barrier_then(None, None, None, e_end)
+            S.final_norm_stage(c, M, hb0, q0, red, G[G_FNORM], G[G_OUT], EPS)
+        if (bid == 0) & (tid == 0):
+            D.st(e_end, rf, (CUS + EPOCH_WORD_LINE) * D.LINE, D.CM_DEV)
         if const_expr(PROFILE["addr"] is not None):
             stamp(((nlayers * 5 + 1) * CUS + bid) * 2)
 
     @flyc.jit
-    def launch(tab: Int64, glob: Int64, epoch: Int32, nlayers: Int32,
-               stream: fx.Stream = fx.Stream(None)):
-        kdec(tab, glob, epoch, nlayers).launch(grid=(CUS,), block=(NT,), stream=stream)
+    def launch(tab: Int64, glob: Int64, nlayers: Int32, stream: fx.Stream = fx.Stream(None)):
+        kdec(tab, glob, nlayers).launch(grid=(CUS,), block=(NT,), stream=stream)
 
     return launch
 
@@ -201,7 +241,7 @@ def barriers_per_step(nlayers):
 
 @D.traced
 def _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, barrier_then, gw,
-               ntask):
+               ntask, cfg):
     M = c_M(SP)
     hf0, hf1 = hf_ptrs(hb0, M)
     inp, out = SP["inp"], SP["out"]
@@ -209,11 +249,12 @@ def _gdn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, ba
     # in_proj
     w, buf = barrier_then(inp, T(T_MIX_T), T(T_MIX_S), e0)
     S.prologue_norm(c, inp, xq, xs, red, hf0, q0, T(T_IN_LN), EPS)
-    inp.run(c, w, buf, part, cnt("inp"), S.EpiConv(c, M, y, T(T_CONV), T(T_CONVW)))
+    inp.run(c, w, buf, part, cnt("inp"), S.EpiConv(c, M, y, T(T_CONV), T(T_CONVW), G[G_SIDX], cfg.conv_s0))
     # GDN core
     barrier_then(None, None, None, e0 + 1)
     for t in range(gw, ntask, c["cus"] * WAVES):
-        X.gdn_task(c, M, t, y, T(T_ALOG), T(T_DTB), T(T_NORMW), T(T_SSM), y2, hssq, wl)
+        X.gdn_task(c, M, t, y, T(T_ALOG), T(T_DTB), T(T_NORMW), T(T_SSM), G[G_SIDX], cfg.ssm_s0, y2, hssq,
+                   wl)
     # out_proj (+ residual)
     w, buf = barrier_then(out, T(T_OUT_T), T(T_OUT_S), e0 + 2)
     S.prologue_scaled(c, out, xq, xs, y2, hssq, EPS, 128)
@@ -232,8 +273,8 @@ def _attn_layer(c, SP, T, G, e0, xq, xs, red, wl, hb0, hb1, q0, q1, part, cnt, b
     qkv.run(c, w, buf, part, cnt("qkv"), lambda cg, tots: S.epi_raw(c, M, QKV_N, cg, tots[0], y))
     barrier_then(None, None, None, e0 + 1)
     for t in range(gw, ntask, c["cus"] * WAVES):
-        X.attn_task(c, t, cfg.ncmax, y, T(T_QN), T(T_KN), G[G_ROPE], T(T_KC), T(T_VC), G[G_POS],
-                    cfg.maxlen, G[G_REC], cnt("attn"), y2, wl)
+        X.attn_task(c, t, cfg, y, T(T_QN), T(T_KN), G[G_ROPE], T(T_KV), G[G_BT], G[G_SLOT], G[G_POS],
+                    G[G_REC], cnt("attn"), y2, wl)
     w, buf = barrier_then(o, T(T_OUT_T), T(T_OUT_S), e0 + 2)
     S.prologue_scaled(c, o, xq, xs, y2, y2, EPS, 0)
     o.run(c, w, buf, part, cnt("o"), S.EpiRes(c, M, hb0, hb1, q1, hf1))
