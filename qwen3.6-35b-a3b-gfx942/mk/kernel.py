@@ -224,10 +224,11 @@ def build(cfg: Cfg):
         posof: fx.Array[fx.Int32, NE, 16]
         slot: fx.Array[fx.Int32, M * NP, 16]
         npos: fx.Array[fx.Int32, 4, 16]
+        rmask: fx.Array[fx.Int32, M * 8, 16]  # routing: row m's 256-bit expert set
 
     lds = (
         max(XQB + XBB + 4 * XSF, 4 * WAVES * ATT_W)
-        + 4 * (16 + M * MO.TOPK + M * MO.NSLOT + NP + 3 + NE + M * NP + 4)
+        + 4 * (16 + M * MO.TOPK + M * MO.NSLOT + NP + 3 + NE + M * NP + 4 + M * 8)
     )
     assert lds <= LDS_MAX, f"STOP: I1 (LDS {lds} B > {LDS_MAX} B per CTA)"
 
@@ -256,7 +257,7 @@ def build(cfg: Cfg):
         sm = alloc.allocate(Smem).peek()
         red = sm.red.ptr
         R = MO.Route(M, sm.pick.ptr, sm.rw.ptr, sm.eid.ptr, sm.posof.ptr, sm.slot.ptr,
-                     sm.npos.ptr)
+                     sm.npos.ptr, sm.rmask.ptr)
         st_lds = alloc.allocate(StageLds)
         gl_, xl_ = st_lds.g.peek(), st_lds.x.peek()
         xq, xb, xs = gl_.xq.ptr, gl_.xb.ptr, gl_.xs.ptr

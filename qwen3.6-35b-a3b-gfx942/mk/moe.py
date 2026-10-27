@@ -62,9 +62,9 @@ def npos_max(M: int) -> int:
 class Route:
     """LDS pointers of the routing tables (allocated by the kernel)."""
 
-    def __init__(self, M, pick, w, eid, posof, slot, npos):
+    def __init__(self, M, pick, w, eid, posof, slot, npos, rmask):
         self.M, self.pick, self.w, self.eid = M, pick, w, eid
-        self.posof, self.slot, self.npos = posof, slot, npos
+        self.posof, self.slot, self.npos, self.rmask = posof, slot, npos, rmask
         self.NP = npos_max(M)
 
     def n(self):
@@ -86,6 +86,8 @@ def routing(c, M, logits, rowv, R: Route):
     flags rowv i32 [M]. Wave m does row m; wave 0 builds the position list."""
     lane, wave, tid = c["lane"], c["wave"], c["tid"]
     NT = S.NT
+    D.PROBE["on"] = D.PROBE.get("stage") == "route"
+    D.probe(c, 9)
     if wave < M:
         rl = D.rsrc(logits)
         m = wave
@@ -94,6 +96,8 @@ def routing(c, M, logits, rowv, R: Route):
         sg = D.ldf(rl, m * LGN + NE, cm=D.CM_DEV)
         vals, picks = [], []
         for j in range_constexpr(TOPK):
+            if const_expr(j == 1):
+                D.probe(c, 10)  # logits loaded, first max done
             best, bk = v[0], fx.Int32(0)
             for k in range_constexpr(1, 4):
                 gt = v[k] > best  # strict: the lower index wins a tie
@@ -112,19 +116,29 @@ def routing(c, M, logits, rowv, R: Route):
         tot = ws[0]
         for j in range_constexpr(1, TOPK):
             tot = tot + ws[j]
+        D.probe(c, 11)  # top-8 done
         if lane == 0:
             for j in range_constexpr(TOPK):
                 fx.ptr_store(ws[j] / tot, R.w + (m * NSLOT + j))
                 fx.ptr_store(valid.select(picks[j], fx.Int32(-1)), R.pick + (m * TOPK + j))
             fx.ptr_store(D.sigmoid(sg), R.w + (m * NSLOT + TOPK))
+        # row m's expert set as 8 words of 32 bits (lane l < 8 builds word l from the
+        # wave-uniform picks; no memory round trip); a padding row selects none
+        word = fx.Int32(0)
+        for j in range_constexpr(TOPK):
+            hit = valid & ((picks[j] >> 5) == lane)
+            word = word | hit.select(fx.Int32(1) << (picks[j] & 31), fx.Int32(0))
+        if lane < 8:
+            fx.ptr_store(word, R.rmask + (m * 8 + lane))
     gpu.barrier()
+    D.probe(c, 12)
     if wave == 0:
-        # lane l owns experts 4 l .. 4 l + 3
-        bits = [fx.Int32(0) for _ in range(4)]
-        for q in range_constexpr(M * TOPK):
-            e = fx.ptr_load(R.pick + q)
-            for b in range_constexpr(4):
-                bits[b] = bits[b] | (e == 4 * lane + b).select(fx.Int32(1), fx.Int32(0))
+        # lane l owns experts 4 l .. 4 l + 3: bits 4 (l % 8) .. + 3 of word l // 8
+        wd = fx.Int32(0)
+        for m in range_constexpr(M):
+            wd = wd | fx.ptr_load(R.rmask + (m * 8 + lane // 8))
+        nib = (wd >> (4 * (lane % 8))) & 15
+        bits = [(nib >> b) & 1 for b in range(4)]
         cnt = bits[0] + bits[1] + bits[2] + bits[3]
         inc = cnt
         for off in (1, 2, 4, 8, 16, 32):
@@ -147,6 +161,7 @@ def routing(c, M, logits, rowv, R: Route):
         if k < n:
             fx.ptr_store(fx.Int32(-1), R.slot + k)
     gpu.barrier()
+    D.probe(c, 13)
     npos = fx.ptr_load(R.npos)
     if tid < M * TOPK:
         e = fx.ptr_load(R.pick + tid)
@@ -156,6 +171,7 @@ def routing(c, M, logits, rowv, R: Route):
     if tid < M:
         fx.ptr_store(fx.Int32(TOPK), R.slot + (tid * R.NP + npos - 1))
     gpu.barrier()
+    D.probe(c, 14)
 
 
 @D.traced

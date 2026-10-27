@@ -80,7 +80,16 @@ for k, v in rows.items():
           f"{stt.median(r[2] for r in v):10.2f} {sum(r[0] for r in v):11.1f}")
 print(f"sum of spans + barriers {acc:.1f} us")
 pr = probes.double().cpu() / 100.0 - t0
-if PSTAGE == "gdn":
+if PSTAGE == "route":
+    b = max(i for i, n in enumerate(names) if n == "e1")
+    rel = p[b, :, 1].max().item()
+    labels = {9: "start", 10: "loads + 1st max", 11: "top-8", 12: "barrier 1",
+              13: "list + barrier 2", 14: "slots + barrier 3"}
+    for k, nm in labels.items():
+        v = pr[:, k]
+        v = v[v > rel - 50]  # waves that stamped it (rows < M only for 10, 11)
+        print(f"route {nm:18} med {v.median() - rel:6.2f} max {v.max() - rel:6.2f} us")
+elif PSTAGE == "gdn":
     act = pr[:, 4] > pr[:, 4].max() - 200  # waves that ran a task in the last GDN layer
     for k, nm in ((4, "task start"), (5, "inputs+conv"), (6, "state loaded"), (7, "task end")):
         v = pr[act, k]
