@@ -3,8 +3,9 @@
 MK_TP=2 (one process per GPU, `srun -n2`; SLURM_PROCID is the rank) turns a test into
 its TP2 run: each rank packs its shard and runs its own Engine; the ranks meet over a
 gloo group (peer-buffer handshake, token broadcast, logits gather, rank checks).
-MK_AR selects the all-reduce partials ("fp32" or "bf16"). Without MK_TP everything is
-the TP1 path.
+MK_AR selects the all-reduce partials ("fp32" or "bf16"), MK_AR_LOCAL=1 the timing-only
+build without peer traffic (Cfg.ar_local). Without MK_TP everything is the TP1 path.
+The process group runs gloo for CPU tensors and RCCL for GPU tensors (benchmarks).
 """
 
 from __future__ import annotations
@@ -26,6 +27,7 @@ class Ctx:
     rank: int
     group: object
     ar_dtype: str
+    ar_local: bool = False
 
     @property
     def main(self):
@@ -35,18 +37,19 @@ class Ctx:
 def init() -> Ctx:
     tp = int(os.environ.get("MK_TP", "1"))
     ar = os.environ.get("MK_AR", "fp32")
+    local = os.environ.get("MK_AR_LOCAL", "0") == "1"
     if tp == 1:
         return Ctx(1, 0, None, ar)
     rank = int(os.environ["SLURM_PROCID"])
     torch.cuda.set_device(rank)
     dist.init_process_group(
-        "gloo",
+        "cpu:gloo,cuda:nccl",
         init_method=f"tcp://127.0.0.1:{os.environ.get('MK_PORT', '29541')}",
         rank=rank,
         world_size=tp,
         timeout=datetime.timedelta(seconds=1800),
     )
-    return Ctx(tp, rank, dist.group.WORLD, ar)
+    return Ctx(tp, rank, dist.group.WORLD, ar, local)
 
 
 def packed(ctx: Ctx, W, **kw) -> Packed:
@@ -60,7 +63,9 @@ class TPEngine:
 
     def __init__(self, ctx: Ctx, PK: Packed, M: int, **kw):
         self.ctx = ctx
-        self.eng = Engine(PK, M, group=ctx.group, ar_dtype=ctx.ar_dtype, **kw)
+        self.eng = Engine(
+            PK, M, group=ctx.group, ar_dtype=ctx.ar_dtype, ar_local=ctx.ar_local, **kw
+        )
         self.ranks_equal = True
         self.steps = 0
 
@@ -99,3 +104,23 @@ def agree(ctx: Ctx, ok: bool) -> bool:
     f = torch.tensor([int(ok)], dtype=torch.int32)
     dist.all_reduce(f, op=dist.ReduceOp.MIN, group=ctx.group)
     return bool(f.item())
+
+
+def raw(eng):
+    """The rank's Engine (no host work per step)."""
+    return eng.eng if isinstance(eng, TPEngine) else eng
+
+
+def next_token(ctx: Ctx, logits: torch.Tensor) -> torch.Tensor:
+    """Greedy tokens from the ranks' vocab slices, on the device: each rank's (max, index),
+    one RCCL all-gather, the first rank holding the largest value (the argmax of the
+    concatenated logits)."""
+    if ctx.tp == 1:
+        return logits.argmax(-1)
+    v, i = logits.max(-1)
+    mine = torch.stack([v, i.float()], -1).contiguous()  # [M, 2]; i < 2^24 is exact
+    allv = torch.empty(ctx.tp, *mine.shape, device=mine.device)
+    dist.all_gather_into_tensor(allv, mine, group=ctx.group)
+    r = allv[:, :, 0].argmax(0)  # first maximum: the lowest rank
+    idx = allv[:, :, 1].gather(0, r[None])[0].long()
+    return idx + r * logits.shape[-1]

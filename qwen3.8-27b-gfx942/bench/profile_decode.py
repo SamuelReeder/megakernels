@@ -4,6 +4,8 @@ Stage b runs from the release of barrier b to the arrival at barrier b + 1. Repo
 stage kind, the median over layers of: span (first release -> last arrival), the mean
 per-CTA busy time, and the barrier cost (last arrival -> last release).
 Usage: python bench/profile_decode.py MODEL_DIR M CTX [TIMELINE.json]
+TP2: MK_TP=2 MK_AR=fp32|bf16 [MK_AR_LOCAL=1] srun -n2 ... (mk/tp.py): each rank profiles
+its own launch (the timeline file gets a .r<rank> suffix).
 """
 import os
 import statistics as stt
@@ -16,8 +18,7 @@ from mk import dev as D  # noqa: E402
 from mk import kernel as KK  # noqa: E402
 from mk import reference as R  # noqa: E402
 from mk.dims import NL  # noqa: E402
-from mk.pack import Packed  # noqa: E402
-from mk.runner import Engine  # noqa: E402
+from mk import tp as TP  # noqa: E402
 
 path, M, CTX = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
 CUS = torch.cuda.get_device_properties(0).multi_processor_count
@@ -29,15 +30,19 @@ probes = torch.zeros(CUS * 8, 16, dtype=torch.int64, device="cuda")
 if PSTAGE:
     D.PROBE.update(addr=probes.data_ptr(), stage=PSTAGE, waves=8)
 
+ctx = TP.init()
 W = R.Weights(path, "mxfp4", keep_raw=True, dequant=False)
-eng = Engine(Packed(W), M, maxlen=((CTX + 64) // 64 + 1) * 64)
+eng = TP.raw(TP.engine(ctx, TP.packed(ctx, W), M, maxlen=((CTX + 64) // 64 + 1) * 64))
 del W
+print(f"tp {ctx.tp} rank {ctx.rank} ar {ctx.ar_dtype}{' local' if ctx.ar_local else ''} cfg {eng.cfg}",
+      flush=True)
 tok = torch.zeros(M, dtype=torch.long, device="cuda")
 for t in range(CTX):
     eng.step(tok)
 torch.cuda.synchronize()
 prof.zero_()
 probes.zero_()
+TP.agree(ctx, True)  # both ranks start the profiled step together
 eng.step(tok)
 torch.cuda.synchronize()
 p = prof.double().cpu() / 100.0     # us
@@ -58,7 +63,7 @@ for b in range(NB - 1):
 if len(sys.argv) > 4:      # optional: dump (arrive, release) per barrier and CTA for tools/timeline.py
     import json
     json.dump({"M": M, "ctx": CTX, "gpu": torch.cuda.get_device_name(0), "cus": CUS, "stages": names,
-               "us": [[[round(v, 2) for v in cta] for cta in bar] for bar in p.tolist()]}, open(sys.argv[4], "w"))
+               "us": [[[round(v, 2) for v in cta] for cta in bar] for bar in p.tolist()]}, open(sys.argv[4] + (f".r{ctx.rank}" if ctx.tp > 1 else ""), "w"))
 total = p[NB - 1, :, 0].max().item()
 print(f"embed (start -> first arrival) {p[0, :, 0].max().item():.1f} us; step total {total:.1f} us")
 print(f"{'stage':6} {'n':>3} {'span us':>8} {'busy us':>8} {'barrier us':>10} {'sum span us':>11}")

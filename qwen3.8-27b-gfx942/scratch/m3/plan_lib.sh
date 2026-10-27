@@ -21,6 +21,13 @@ two() {
   srun --jobid="$JOB" --overlap -n2 --ntasks-per-node=2 --time=180 --container-image=$IMG \
     --container-mounts=$MOUNTS bash "$SRC/scratch/m3/task.sh" "$OUT" "$name" MK_TP=2 MK_PORT=$PORT "$@"
 }
+VLLM_IMG=/home/AMD/sareeder/mk/images/vllm-rocm-nightly-00b6c4c5.sqsh
+vllm_step() {  # one process on both GPUs in the vLLM nightly image, foreground
+  local name=$1
+  shift
+  srun --jobid="$JOB" --overlap -n1 --time=180 --container-image=$VLLM_IMG --container-writable \
+    --container-mounts=$MOUNTS bash "$SRC/scratch/m3/task.sh" "$OUT" "$name" NOVENV=1 "$@"
+}
 echo "plan $1 start $(date -u +%T) job $JOB"
 . "$1"
 wait

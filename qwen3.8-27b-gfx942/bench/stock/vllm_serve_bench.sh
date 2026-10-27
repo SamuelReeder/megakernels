@@ -1,13 +1,16 @@
 #!/bin/bash
-# Runs INSIDE the vLLM container on one gfx942 GPU.
+# Runs INSIDE the vLLM container on TP gfx942 GPUs (env TP, default 1).
 # usage: vllm_serve_bench.sh <model_dir_name> <out_tag> [extra vllm serve args...]
-# Starts `vllm serve` (TP1, graphs on = default, prefix caching off), then runs
+# OUT_ROOT (default ~/mk/stock/results) holds the results; caches go to /tmp.
+# Starts `vllm serve` (TP $TP, graphs on = default, prefix caching off), then runs
 # `vllm bench serve` (random 512 in / 256 out, ignore-eos) at max-concurrency 1,2,4,8,
 # plus 2 extra concurrency-1 repeats (3 total) for run-to-run variation.
 set -u
 MODELS=/home/AMD/sareeder/mk/models
 M=$MODELS/$1
-OUT=/home/AMD/sareeder/mk/stock/results/$2
+TP=${TP:-1}
+OUT=${OUT_ROOT:-/home/AMD/sareeder/mk/stock/results}/$2
+export XDG_CACHE_HOME=/tmp/xdg VLLM_CACHE_ROOT=/tmp/vllm_cache TRITON_CACHE_DIR=/tmp/triton
 shift 2
 mkdir -p "$OUT"
 PORT=$((20000 + ${SLURM_JOB_ID:-0} % 10000)) # per-job port: jobs on one node share the host network
@@ -30,7 +33,7 @@ fi
 } > "$OUT/env.txt" 2>&1
 cat "$OUT/env.txt"
 
-vllm serve "$M" --served-model-name m --tensor-parallel-size 1 --max-model-len 4096 \
+vllm serve "$M" --served-model-name m --tensor-parallel-size $TP --max-model-len 4096 \
   --no-enable-prefix-caching --language-model-only --port $PORT "$@" > "$OUT/server.log" 2>&1 &
 PID=$!
 ready=0
