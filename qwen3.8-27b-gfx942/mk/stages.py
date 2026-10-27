@@ -7,6 +7,7 @@ Activation hand-offs between stages:
   y      fp32 [M][N]       raw GEMV output
 All global hand-off traffic uses device scope (CM_DEV).
 """
+
 from __future__ import annotations
 
 import flydsl.expr as fx
@@ -14,9 +15,9 @@ from flydsl.expr import const_expr, gpu, range_constexpr
 from flydsl.expr.typing import T
 
 from . import dev as D
-from .dims import CONV_DIM, FFN, H, INP_N
+from .dims import CONV_DIM, FFN, INP_N, VOCAB, H
 
-NT = 512   # threads per CTA (set by the kernel builder before tracing)
+NT = 512  # threads per CTA (set by the kernel builder before tracing)
 
 
 @D.traced
@@ -49,7 +50,7 @@ def rstd_from_ssq(c, M, ssq, red, eps):
 
 @D.traced
 def prologue_norm(c, g, xq, xs, red, h, ssq, lnw, eps):
-    """x = h * rstd * (1 + w) (zero-centred RMSNorm) for the CTA's K chunk slots,
+    """X = h * rstd * (1 + w) (zero-centred RMSNorm) for the CTA's K chunk slots,
     quantized per (token, 128 K). h: the bf16 copy of the residual (rstd comes from the
     fp32 sums of squares). The h loads go out before the rstd reduction."""
     M, K = g.M, g.K
@@ -69,7 +70,16 @@ def prologue_norm(c, g, xq, xs, red, h, ssq, lnw, eps):
             t = j // (g.Kc // 8)
             kc = j % (g.Kc // 8) * 8
             k0 = cb + kc
-            raw.append((sl, i, t, kc, D.ld(rh, (t * K + k0) // 2, 4, cm=D.CM_DEV), D.ld(rw, k0 // 2, 4)))
+            raw.append(
+                (
+                    sl,
+                    i,
+                    t,
+                    kc,
+                    D.ld(rh, (t * K + k0) // 2, 4, cm=D.CM_DEV),
+                    D.ld(rw, k0 // 2, 4),
+                )
+            )
     D.probe(c, 6)
     rstd_from_ssq(c, M, ssq, red, eps)
     D.probe(c, 7)
@@ -97,7 +107,9 @@ def store_quant8(c, g, xq, xs, x, t, k0, live):
     qi, sc = D.pow2_scale(fx.max(am, fx.Float32(1e-30)))
     lo, hi = D.quant8(x, qi)
     if live:
-        fx.ptr_store(fx.Vector.from_elements([lo, hi], fx.Int32), xq + (t * g.XR + k0) // 4)
+        fx.ptr_store(
+            fx.Vector.from_elements([lo, hi], fx.Int32), xq + (t * g.XR + k0) // 4
+        )
         if k0 % 128 == 0:
             fx.ptr_store(sc, xs + (t * g.XSR + k0 // 128))
 
@@ -118,9 +130,11 @@ def prologue_act(c, g, xq, xs, act):
         for i in range_constexpr((nch + NT - 1) // NT):
             j = fx.min(tid + NT * i, nch - 1)
             t = j // (g.Kc // 8)
-            kc = j % (g.Kc // 8) * 8                 # column within the chunk
+            kc = j % (g.Kc // 8) * 8  # column within the chunk
             k = t * g.K + ch * g.Kc + kc
-            raw.append((sl, i, t, kc, [D.ld(ra, k + o, 4, T.f32, D.CM_DEV) for o in (0, 4)]))
+            raw.append(
+                (sl, i, t, kc, [D.ld(ra, k + o, 4, T.f32, D.CM_DEV) for o in (0, 4)])
+            )
     for sl, i, t, kc, v in raw:
         x = [v[0][0], v[0][1], v[0][2], v[0][3], v[1][0], v[1][1], v[1][2], v[1][3]]
         store_quant8(c, g, xq, xs, x, t, sl * g.Kc + kc, tid + NT * i < nch)
@@ -133,15 +147,30 @@ class EpiRes:
     pre(grp) loads h_in; the GEMV issues it with its partial loads."""
 
     def __init__(self, c, M, h_in, h_out, ssq_out, hb_out):
-        self.c, self.M, self.h_in, self.h_out, self.ssq_out, self.hb_out = c, M, h_in, h_out, ssq_out, hb_out
+        self.c, self.M, self.h_in, self.h_out, self.ssq_out, self.hb_out = (
+            c,
+            M,
+            h_in,
+            h_out,
+            ssq_out,
+            hb_out,
+        )
 
     def pre(self, grp):
         ri = D.rsrc(self.h_in)
-        return [D.ldf(ri, fx.min(4 * self.c["gl"] + r, self.M - 1) * H + grp * 16 + self.c["col"], cm=D.CM_DEV)
-                for r in range(4)]
+        return [
+            D.ldf(
+                ri,
+                fx.min(4 * self.c["gl"] + r, self.M - 1) * H + grp * 16 + self.c["col"],
+                cm=D.CM_DEV,
+            )
+            for r in range(4)
+        ]
 
     def __call__(self, grp, tots, pre):
-        _epi_res(self.c, self.M, grp, tots[0], pre, self.h_out, self.ssq_out, self.hb_out)
+        _epi_res(
+            self.c, self.M, grp, tots[0], pre, self.h_out, self.ssq_out, self.hb_out
+        )
 
 
 @D.traced
@@ -165,32 +194,48 @@ def _epi_res(c, M, grp, tot, hin, h_out, ssq_out, hb_out):
 class EpiConv:
     """in_proj epilogue: y[:, n] = tot for the z / b / a columns; for the q / k / v
     channels (n < CONV_DIM) the causal depthwise conv (4 taps over the 3 stored inputs
-    and this one) + SiLU, and the conv state [M][CONV_DIM][4] (3 used) shifts by one.
-    Each channel has one last arriver, so its state is read and written by one thread.
-    pre(grp) loads the state and the taps with the GEMV's partial loads."""
+    and this one) + SiLU, and the conv state shifts by one. Row t's state is the bf16
+    [3][CONV_DIM] (oldest first) at conv + sidx[t] conv_s0 bytes; slot 0 (a padding
+    row) is not written. Each channel has one last arriver, so its state is read and
+    written by one thread. pre(grp) loads the state and the taps with the GEMV's partial
+    loads."""
 
-    def __init__(self, c, M, y, conv, convw):
+    def __init__(self, c, M, y, conv, convw, sidx, conv_s0):
         self.c, self.M, self.y, self.conv, self.convw = c, M, y, conv, convw
+        self.sidx, self.conv_s0 = sidx, conv_s0
+
+    def rows(self):
+        """(slot, state address) of the lane's 4 rows 4 gl + r (clamped to M - 1). The
+        rows of a wave differ and their slots can lie more than 4 GB apart, so the state
+        goes through per-lane global addresses."""
+        rsx = D.rsrc(self.sidx)
+        out = []
+        for r in range_constexpr(4):
+            sl = D.ld(rsx, fx.min(4 * self.c["gl"] + r, self.M - 1))
+            out.append((sl, self.conv + fx.Int64(sl) * self.conv_s0))
+        return out
 
     def pre(self, grp):
         n = fx.min(grp * 16 + self.c["col"], CONV_DIM - 1)
-        rs = D.rsrc(self.conv)
-        st = [D.ld(rs, (fx.min(4 * self.c["gl"] + r, self.M - 1) * CONV_DIM + n) * 4, 4, T.f32)
-              for r in range(4)]
-        return st, D.ld(D.rsrc(self.convw), n * 2, 2)
+        rows = self.rows()
+        st = []
+        for sl, base in rows:
+            w = [D.gld32(base + ((k * CONV_DIM + n) // 2) * 4) for k in range(3)]
+            st.append([(n % 2 == 0).select(D.bf_lo(x), D.bf_hi(x)) for x in w])
+        return rows, st, D.ld(D.rsrc(self.convw), n * 2, 2)
 
     def __call__(self, grp, tots, pre):
-        _epi_conv(self.c, self.M, grp, tots[0], pre, self.y, self.conv)
+        _epi_conv(self.c, self.M, grp, tots[0], pre, self.y)
 
 
 @D.traced
-def _epi_conv(c, M, grp, tot, pre, y, conv):
-    st, wv = pre
+def _epi_conv(c, M, grp, tot, pre, y):
+    rows, st, wv = pre
     col = c["col"]
     n = grp * 16 + col
     isconv = grp < CONV_DIM // 16
     taps = [D.bf_lo(wv[0]), D.bf_hi(wv[0]), D.bf_lo(wv[1]), D.bf_hi(wv[1])]
-    ry, rs = D.rsrc(y), D.rsrc(conv)
+    ry = D.rsrc(y)
     for r in range_constexpr(4):
         t = 4 * c["gl"] + r
         v = tot[r]
@@ -198,9 +243,10 @@ def _epi_conv(c, M, grp, tot, pre, y, conv):
         out = isconv.select(D.silu(acc), v)
         if t < M:
             D.st(out, ry, t * INP_N + n, D.CM_DEV)
-            if isconv:
-                D.st(fx.Vector.from_elements([st[r][1], st[r][2], v, fx.Float32(0.0)], fx.Float32), rs,
-                     (t * CONV_DIM + n) * 4)
+            sl, base = rows[r]
+            if isconv & (sl != 0):
+                for k, x in ((0, st[r][1]), (1, st[r][2]), (2, v)):
+                    D.gst_bf16(x, base + (k * CONV_DIM + n) * 2)
 
 
 @D.traced
@@ -211,7 +257,7 @@ def epi_act(c, M, grp, tot, act):
     ra = D.rsrc(act)
     for r in range_constexpr(4):
         t = 4 * c["gl"] + r
-        up = D.gather_f(tot[r], lane + 8)            # lane col + 8 holds the up row
+        up = D.gather_f(tot[r], lane + 8)  # lane col + 8 holds the up row
         if (t < M) & (col < 8):
             D.st(D.silu(tot[r]) * up, ra, t * FFN + grp * 8 + col, D.CM_DEV)
 
@@ -250,13 +296,24 @@ def prologue_scaled(c, g, xq, xs, y, ssq, norm_eps, per_head):
             hs = None
             if const_expr(per_head > 0):
                 hd = k0 // per_head
-                hs = [D.ld(rq, (t * (g.K // per_head) + hd) * 8, 4, T.f32, D.CM_DEV),
-                      D.ld(rq, (t * (g.K // per_head) + hd) * 8 + 4, 4, T.f32, D.CM_DEV)]
+                hs = [
+                    D.ld(rq, (t * (g.K // per_head) + hd) * 8, 4, T.f32, D.CM_DEV),
+                    D.ld(rq, (t * (g.K // per_head) + hd) * 8 + 4, 4, T.f32, D.CM_DEV),
+                ]
             raw.append((sl, i, t, kc, a, b, hs))
     for sl, i, t, kc, a, b, hs in raw:
         x = [a[0], a[1], a[2], a[3], b[0], b[1], b[2], b[3]]
         if const_expr(per_head > 0):
-            s8 = hs[0][0] + hs[0][1] + hs[0][2] + hs[0][3] + hs[1][0] + hs[1][1] + hs[1][2] + hs[1][3]
+            s8 = (
+                hs[0][0]
+                + hs[0][1]
+                + hs[0][2]
+                + hs[0][3]
+                + hs[1][0]
+                + hs[1][1]
+                + hs[1][2]
+                + hs[1][3]
+            )
             rs = D.rsq(s8 / fx.Float32(float(per_head)) + fx.Float32(norm_eps))
             x = [v * rs for v in x]
         store_quant8(c, g, xq, xs, x, t, sl * g.Kc + kc, tid + NT * i < nch)
@@ -281,7 +338,16 @@ def prologue_norm_bf16(c, g, xq, red, h, ssq, lnw, eps):
             t = j // (g.Kc // 8)
             kc = j % (g.Kc // 8) * 8
             k0 = cb + kc
-            raw.append((sl, i, t, kc, D.ld(rh, (t * K + k0) // 2, 4, cm=D.CM_DEV), D.ld(rw, k0 // 2, 4)))
+            raw.append(
+                (
+                    sl,
+                    i,
+                    t,
+                    kc,
+                    D.ld(rh, (t * K + k0) // 2, 4, cm=D.CM_DEV),
+                    D.ld(rw, k0 // 2, 4),
+                )
+            )
     D.probe(c, 6)
     rstd_from_ssq(c, M, ssq, red, eps)
     D.probe(c, 7)
@@ -292,16 +358,23 @@ def prologue_norm_bf16(c, g, xq, red, h, ssq, lnw, eps):
             f += [D.bf_lo(wv[e]), D.bf_hi(wv[e])]
             hv += [D.bf_lo(hw[e]), D.bf_hi(hw[e])]
         x = [hv[e] * rs * (fx.Float32(1.0) + f[e]) for e in range(8)]
-        words = [fx.Vector.from_elements([x[2 * q], x[2 * q + 1]], fx.Float32).to(fx.BFloat16).bitcast(fx.Int32)[0]
-                 for q in range(4)]
+        words = [
+            fx.Vector.from_elements([x[2 * q], x[2 * q + 1]], fx.Float32)
+            .to(fx.BFloat16)
+            .bitcast(fx.Int32)[0]
+            for q in range(4)
+        ]
         if tid + NT * i < nch:
-            fx.ptr_store(fx.Vector.from_elements(words, fx.Int32), xq + (t * g.XR + (sl * g.Kc + kc) * 2) // 4)
+            fx.ptr_store(
+                fx.Vector.from_elements(words, fx.Int32),
+                xq + (t * g.XR + (sl * g.Kc + kc) * 2) // 4,
+            )
     gpu.barrier()
 
 
 @D.traced
 def embed_stage(c, M, tok_ptr, emb, h_out, ssq_out, hb_out):
-    """h = embed[tok] (bf16 -> fp32) and its 16-column sums of squares. CTA b handles
+    """H = embed[tok] (bf16 -> fp32) and its 16-column sums of squares. CTA b handles
     groups b, b + CUS, ... (thread: token t = tid // 16, column tid % 16)."""
     tid, bid = c["tid"], c["bid"]
     lane = c["lane"]
@@ -309,8 +382,12 @@ def embed_stage(c, M, tok_ptr, emb, h_out, ssq_out, hb_out):
     t = tid // 16
     col = tid % 16
     if t < M:
-        tok = D.ld(D.rsrc(tok_ptr), t)
-        re = D.rsrc(emb + fx.Int64(tok) * (H * 2))     # the table is > 2 GiB: 64-bit row base
+        tok = fx.min(
+            fx.max(D.ld(D.rsrc(tok_ptr), t), 0), VOCAB - 1
+        )  # padding rows hold anything
+        re = D.rsrc(
+            emb + fx.Int64(tok) * (H * 2)
+        )  # the table is > 2 GiB: 64-bit row base
         ro, rq = D.rsrc(h_out), D.rsrc(ssq_out)
         for gi in range(bid, ng, c["cus"]):
             k = gi * 16 + col
@@ -321,3 +398,23 @@ def embed_stage(c, M, tok_ptr, emb, h_out, ssq_out, hb_out):
             s = D.xor_sum(v * v, lane, (1, 2, 4, 8))
             if col == 0:
                 D.st(s, rq, t * ng + gi, D.CM_DEV)
+
+
+@D.traced
+def final_norm_stage(c, M, h, ssq, red, lnw, out, eps):
+    """out[t][k] = bf16(h[t][k] * rstd[t] * (1 + w[k])): the model's final norm, for a
+    serving engine's own LM head. CTA b handles 16-column groups b, b + CUS, ...
+    (thread: token t = tid // 16, column tid % 16)."""
+    rstd_from_ssq(c, M, ssq, red, eps)
+    tid, bid = c["tid"], c["bid"]
+    t = tid // 16
+    col = tid % 16
+    if t < M:
+        rstd = fx.ptr_load(red + t)
+        rh, rw, ro = D.rsrc(h), D.rsrc(lnw), D.rsrc(out)
+        for gi in range(bid, H // 16, c["cus"]):
+            k = gi * 16 + col
+            w = D.ld(rw, k // 2)
+            wk = (k % 2 == 0).select(D.bf_lo(w), D.bf_hi(w))
+            v = D.ldf(rh, t * H + k, cm=D.CM_DEV) * rstd * (fx.Float32(1.0) + wk)
+            D.st(fx.Float32(v).to(fx.BFloat16), ro, t * H + k)

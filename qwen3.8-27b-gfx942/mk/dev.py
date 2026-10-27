@@ -4,6 +4,7 @@ Memory scopes (gfx94x CPol): CM_DEV = sc1 makes a store/load coherent across the
 XCDs (device scope). Every hand-off between CTAs uses CM_DEV on both sides.
 Spin loops contain s_sleep: a side effect that keeps LLVM from deleting the loop.
 """
+
 from __future__ import annotations
 
 import flydsl.expr as fx
@@ -18,7 +19,7 @@ from .vendor import buffer_ops as bo
 
 CM_DEV = 16
 CM_NT = 2
-LINE = 32          # i32 per 128 B cache line
+LINE = 32  # i32 per 128 B cache line
 
 traced = ASTRewriter.transform
 
@@ -28,11 +29,25 @@ def rsrc(addr):
 
 
 def gptr(addr):
-    return llvm.IntToPtrOp(ir.Type.parse("!llvm.ptr<1>"), fx.Int64(addr).ir_value()).result
+    return llvm.IntToPtrOp(
+        ir.Type.parse("!llvm.ptr<1>"), fx.Int64(addr).ir_value()
+    ).result
+
+
+def gld32(addr):
+    """The i32 at a per-lane 64-bit global address (4-aligned): for data whose rows
+    differ across a wave and lie more than 4 GB apart, where a buffer resource would
+    have to be divergent."""
+    return fx.Int32(llvm.load(T.i32, gptr(addr), alignment=4))
+
+
+def gst_bf16(v, addr):
+    """Store f32 v as bf16 at a per-lane 64-bit global address."""
+    llvm.store(fx.Float32(v).to(fx.BFloat16).ir_value(), gptr(addr), alignment=2)
 
 
 def ld(r, i, n=1, dtype=None, cm=0):
-    """n (1, 2, 4) elements of `dtype` (default i32) at element offset i."""
+    """N (1, 2, 4) elements of `dtype` (default i32) at element offset i."""
     dt = T.i32 if dtype is None else dtype
     v = bo.buffer_load(r, i, vec_width=n, dtype=dt, cache_modifier=cm)
     if n == 1:
@@ -49,16 +64,30 @@ def st(v, r, i, cm=0):
 
 
 def opaque_s(v):
-    """v (wave-uniform i32) through an asm s_mov with side effects: the compiler cannot
+    """V (wave-uniform i32) through an asm s_mov with side effects: the compiler cannot
     hoist what depends on the result out of the enclosing loop."""
-    return fx.Int32(llvm.InlineAsmOp(T.i32, [fx.Int32(v).ir_value()], "s_mov_b32 $0, $1", "=s,s",
-                                     has_side_effects=True).result)
+    return fx.Int32(
+        llvm.InlineAsmOp(
+            T.i32,
+            [fx.Int32(v).ir_value()],
+            "s_mov_b32 $0, $1",
+            "=s,s",
+            has_side_effects=True,
+        ).result
+    )
 
 
 def opaque_v(v):
     """Per-lane i32 version of opaque_s (v_mov)."""
-    return fx.Int32(llvm.InlineAsmOp(T.i32, [fx.Int32(v).ir_value()], "v_mov_b32 $0, $1", "=v,v",
-                                     has_side_effects=True).result)
+    return fx.Int32(
+        llvm.InlineAsmOp(
+            T.i32,
+            [fx.Int32(v).ir_value()],
+            "v_mov_b32 $0, $1",
+            "=v,v",
+            has_side_effects=True,
+        ).result
+    )
 
 
 def uniform(v):
@@ -67,7 +96,9 @@ def uniform(v):
 
 def gather(v, src_lane):
     """Lane src_lane's i32 value (ds_bpermute)."""
-    return fx.Int32(rocdl.ds_bpermute(T.i32, fx.Int32(src_lane) * 4, fx.Int32(v).ir_value()))
+    return fx.Int32(
+        rocdl.ds_bpermute(T.i32, fx.Int32(src_lane) * 4, fx.Int32(v).ir_value())
+    )
 
 
 def gather_f(v, src_lane):
@@ -77,14 +108,24 @@ def gather_f(v, src_lane):
 # Butterfly steps inside a 16-lane row as DPP (no LDS round trip). Steps 1 and 2 are
 # exact xor partners; 4 and 8 use the row mirrors, which pair the right lanes once the
 # smaller steps are done (so only a prefix 1, 2, 4, 8 of a full reduction uses DPP).
-_DPP = ((1, "quad_perm:[1,0,3,2]"), (2, "quad_perm:[2,3,0,1]"), (4, "row_half_mirror"), (8, "row_mirror"))
+_DPP = (
+    (1, "quad_perm:[1,0,3,2]"),
+    (2, "quad_perm:[2,3,0,1]"),
+    (4, "row_half_mirror"),
+    (8, "row_mirror"),
+)
 
 
 def _dpp(op, v, ctrl):
     # s_nop 1: a DPP read of a VGPR that a VALU op just wrote needs 2 wait states
-    return fx.Float32(llvm.InlineAsmOp(
-        T.f32, [fx.Float32(v).ir_value()],
-        f"s_nop 1\n{op}_dpp $0, $1, $1 {ctrl} row_mask:0xf bank_mask:0xf", "=v,v").result)
+    return fx.Float32(
+        llvm.InlineAsmOp(
+            T.f32,
+            [fx.Float32(v).ir_value()],
+            f"s_nop 1\n{op}_dpp $0, $1, $1 {ctrl} row_mask:0xf bank_mask:0xf",
+            "=v,v",
+        ).result
+    )
 
 
 def _reduce(v, lane, offs, op, comb):
@@ -117,22 +158,33 @@ def fma(a, b, c):
 
 
 def fma4(a, b, c):
-    return fx.Vector.from_elements([fmath.fma(a[r], b[r], c[r]) for r in range(4)], fx.Float32)
+    return fx.Vector.from_elements(
+        [fmath.fma(a[r], b[r], c[r]) for r in range(4)], fx.Float32
+    )
 
 
 def rsq(x):
-    return fx.Float32(llvm.call_intrinsic(T.f32, "llvm.amdgcn.rsq.f32", [fx.Float32(x).ir_value()],
-                                          [], []))
+    return fx.Float32(
+        llvm.call_intrinsic(
+            T.f32, "llvm.amdgcn.rsq.f32", [fx.Float32(x).ir_value()], [], []
+        )
+    )
 
 
 def exp2(x):
-    return fx.Float32(llvm.call_intrinsic(T.f32, "llvm.amdgcn.exp2.f32", [fx.Float32(x).ir_value()],
-                                          [], []))
+    return fx.Float32(
+        llvm.call_intrinsic(
+            T.f32, "llvm.amdgcn.exp2.f32", [fx.Float32(x).ir_value()], [], []
+        )
+    )
 
 
 def log2(x):
-    return fx.Float32(llvm.call_intrinsic(T.f32, "llvm.amdgcn.log.f32", [fx.Float32(x).ir_value()],
-                                          [], []))
+    return fx.Float32(
+        llvm.call_intrinsic(
+            T.f32, "llvm.amdgcn.log.f32", [fx.Float32(x).ir_value()], [], []
+        )
+    )
 
 
 def logf1p_exp(x):
@@ -176,8 +228,10 @@ def fp8_pack4(a, b, c, d):
 
 def quant8(f, qi):
     """8 f32 x qi -> 2 dwords of e4m3fnuz."""
-    return (fp8_pack4(f[0] * qi, f[1] * qi, f[2] * qi, f[3] * qi),
-            fp8_pack4(f[4] * qi, f[5] * qi, f[6] * qi, f[7] * qi))
+    return (
+        fp8_pack4(f[0] * qi, f[1] * qi, f[2] * qi, f[3] * qi),
+        fp8_pack4(f[4] * qi, f[5] * qi, f[6] * qi, f[7] * qi),
+    )
 
 
 def memrealtime():
@@ -186,9 +240,10 @@ def memrealtime():
 
 @traced
 def poll_ge(r, slot, val):
-    """Spin until word `slot` (device scope) >= val."""
+    """Spin until word `slot` (device scope) >= val, in wrap-around order (epochs
+    are i32 counters that overflow after about 6.7 M steps)."""
     v = ld(r, slot, cm=CM_DEV)
-    while v < val:
+    while (v - val) < 0:
         rocdl.s_sleep(1)
         v = ld(r, slot, cm=CM_DEV)
 
@@ -235,11 +290,17 @@ def atomic_add_dev(addr, v):
     stream for tens of us. Ordering comes from the protocol instead: the payload is
     stored with sc1 and drained (s_waitcnt vmcnt(0)) before the atomic, and readers
     load it with sc1."""
-    return fx.Int32(fx.atomic_add(gptr(addr), fx.Int32(v), syncscope=fx.rocdl.SyncScope.Agent,
-                                  ordering=fx.AtomicOrdering.Monotonic))
+    return fx.Int32(
+        fx.atomic_add(
+            gptr(addr),
+            fx.Int32(v),
+            syncscope=fx.rocdl.SyncScope.Agent,
+            ordering=fx.AtomicOrdering.Monotonic,
+        )
+    )
 
 
-PROBE = {"addr": None}   # debug: global address of an i64 array [CTA * 8 + wave][16]
+PROBE = {"addr": None}  # debug: global address of an i64 array [CTA * 8 + wave][16]
 
 
 def probe(c, slot):
@@ -253,5 +314,10 @@ def probe(c, slot):
 def _probe(lane, wid, slot, addr):
     t = memrealtime()
     if lane == 0:
-        st(fx.Vector.from_elements([fx.Int32(t & 0xFFFFFFFF), fx.Int32(t >> 32)], fx.Int32),
-           rsrc(addr), (wid * 16 + slot) * 2)
+        st(
+            fx.Vector.from_elements(
+                [fx.Int32(t & 0xFFFFFFFF), fx.Int32(t >> 32)], fx.Int32
+            ),
+            rsrc(addr),
+            (wid * 16 + slot) * 2,
+        )

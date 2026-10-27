@@ -109,4 +109,14 @@ python tools/plot_results.py
 ## Limits
 
 Decode only (the prompt goes in one token per step), greedy argmax outside the kernel, one GPU,
-M ≤ 16 rows, gfx942 only. No serving-engine integration yet.
+M ≤ 16 rows, gfx942 only.
+
+## vLLM integration
+
+Branch [`users/sareeder/qwen38-gfx942-specialized-decode`](https://github.com/SamuelReeder/vllm/tree/users/sareeder/qwen38-gfx942-specialized-decode)
+runs this kernel inside vLLM (`--specialized-decode monokernel`) on the specialized-decode
+library of [vllm#61311](https://github.com/vllm-project/vllm/pull/61311). The kernel reads
+vLLM's paged KV cache (TRITON_ATTN or ROCM_ATTN layout) and its GDN conv and SSM state in
+place; vLLM keeps prefill, the LM head and sampling. On one MI300X with the MXFP4
+checkpoint, TPOT is 7.8 / 8.1 / 8.8 / 10.5 ms at batch 1 / 2 / 4 / 8, against 41-43 ms for
+vLLM's own path (MXFP4 emulation on gfx942).

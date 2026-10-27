@@ -24,11 +24,11 @@ def main():
     t0 = time.time()
     W = R.Weights(path, "mxfp4", keep_raw=True, layers=LAYERS)
     PK = Packed(W, layers=LAYERS)
-    eng = Engine(PK, M, maxlen=512, layers=LAYERS)
+    eng = Engine(PK, M, maxlen=512, layers=LAYERS, xpack=bool(int(__import__("os").environ.get("MK_XPACK", "0"))), block=int(__import__("os").environ.get("MK_BLOCK", "208")))
     print(f"load+pack+build {time.time() - t0:.0f}s")
     st = R.State.new(M, 512)
     st_x = R.State.new(M, 512)
-    torch.manual_seed(0)
+    torch.manual_seed(int(__import__("os").environ.get("MK_SEED", "0")))
     tok = torch.randint(0, 200000, (M,), device="cuda")
 
     def cmp(a, b):
