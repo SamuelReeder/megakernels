@@ -1,0 +1,57 @@
+[r0 14:30:04] banff-cyxtera-s70-4.adc.amd.com 2.13.0+rocm10.0.0 7.15.26333 env {'ROCR_VISIBLE_DEVICES': '0,1', 'VLLM_ROCM_USE_AITER': '1', 'HIP_PATH': '/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel', 'HIP_FORCE_DEV_KERNARG': '1', 'HSA_NO_SCRATCH_RECLAIM': '1', 'HIP_DEVICE_LIB_PATH': '/usr/local/lib/python3.12/dist-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode', 'HIP_CLANG_PATH': '/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin', 'HSA_ENABLE_IPC_MODE_LEGACY': '1'}
+[r0 14:30:04] /dev/shm free MB 1031933
+/usr/local/lib/python3.12/dist-packages/tvm_ffi/_optional_torch_c_dlpack.py:181: UserWarning: Failed to JIT torch c dlpack extension, EnvTensorAllocator will not be enabled.
+We recommend installing via `pip install torch-c-dlpack-ext`
+  warnings.warn(
+W1027 14:30:25.119638 1772167 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 167008720 (priority and CU-mask from the descriptor are not preserved)
+W1027 14:30:25.425015 1772167 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 167008720 (priority and CU-mask from the descriptor are not preserved)
+W1027 14:30:25.883775 1772167 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 167008720 (priority and CU-mask from the descriptor are not preserved)
+W1027 14:30:26.234878 1772167 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 167008720 (priority and CU-mask from the descriptor are not preserved)
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /usr/local/lib/python3.12/dist-packages/aiter/jit/module_aiter_core.so
+[aiter] import [module_custom_all_reduce] under /usr/local/lib/python3.12/dist-packages/aiter/jit/module_custom_all_reduce.so
+[aiter] CustomAllreduce input pool: torch.empty (expandable_segments=False, AITER_CUSTOM_AR_RAW_INPUT_POOL=False)
+[r0 14:30:29] vllm 0.32.1rc1.dev505+g00b6c4c56 initialized
+[r0 14:30:29] nccl init done
+[r0 14:30:29] ca_comm: absent
+[r0 14:30:29] qr_comm: disabled
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[r0 14:30:31] {"eager_med_us": 67.5550028681755, "eager_p99_us": 127.25299596786499, "graph_med_us": 9.073671884834766, "graph_p99_us": 9.229656308889389, "variant": "rccl", "M": 1, "dtype": "torch.float32"}
+[aiter] Registering 256 cuda graph addresses
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[r0 14:30:31] {"eager_med_us": 52.88099870085716, "eager_p99_us": 76.13500207662582, "graph_med_us": 5.641093943268061, "graph_p99_us": 5.729109514504671, "variant": "vllm_tp_all_reduce", "M": 1, "dtype": "torch.float32"}
+[aiter] Registering 256 cuda graph addresses
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[r0 14:30:31] {"eager_med_us": 39.9320013821125, "eager_p99_us": 57.17099830508232, "graph_med_us": 5.638593807816505, "graph_p99_us": 5.734125152230263, "variant": "vllm_aiter_ar_comm", "M": 1, "dtype": "torch.float32"}
+[r0 14:30:31] ca_comm: absent
+[r0 14:30:31] qr_comm: disabled
+[r0 14:30:32] {"eager_med_us": 64.5890012383461, "eager_p99_us": 102.95700281858444, "graph_med_us": 16.07539877295494, "graph_p99_us": 16.163093969225883, "variant": "rccl", "M": 8, "dtype": "torch.float32"}
+[aiter] Registering 128 cuda graph addresses
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[r0 14:30:32] {"eager_med_us": 54.48500066995621, "eager_p99_us": 81.34699612855911, "graph_med_us": 9.100296534597874, "graph_p99_us": 9.222140535712242, "variant": "vllm_tp_all_reduce", "M": 8, "dtype": "torch.float32"}
+[aiter] Registering 128 cuda graph addresses
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[r0 14:30:32] {"eager_med_us": 40.9340001642704, "eager_p99_us": 59.737998992204666, "graph_med_us": 9.098734706640244, "graph_p99_us": 9.168578311800957, "variant": "vllm_aiter_ar_comm", "M": 8, "dtype": "torch.float32"}
+[r0 14:30:32] ca_comm: absent
+[r0 14:30:32] qr_comm: disabled
+[r0 14:30:33] {"eager_med_us": 64.78899717330933, "eager_p99_us": 101.19199752807617, "graph_med_us": 10.112312622368336, "graph_p99_us": 10.200640186667442, "variant": "rccl", "M": 1, "dtype": "torch.bfloat16"}
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[r0 14:30:33] {"eager_med_us": 40.85399955511093, "eager_p99_us": 60.01799926161766, "graph_med_us": 3.338609356433153, "graph_p99_us": 3.428820287808776, "variant": "vllm_tp_all_reduce", "M": 1, "dtype": "torch.bfloat16"}
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[r0 14:30:33] {"eager_med_us": 31.551998108625412, "eager_p99_us": 46.82699963450432, "graph_med_us": 3.338929731398821, "graph_p99_us": 3.4883280750364065, "variant": "vllm_aiter_ar_comm", "M": 1, "dtype": "torch.bfloat16"}
+[r0 14:30:33] ca_comm: absent
+[r0 14:30:33] qr_comm: disabled
+[r0 14:30:34] {"eager_med_us": 54.726000875234604, "eager_p99_us": 83.71199667453766, "graph_med_us": 14.894874766469002, "graph_p99_us": 14.982569962739944, "variant": "rccl", "M": 8, "dtype": "torch.bfloat16"}
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[r0 14:30:34] {"eager_med_us": 40.65399989485741, "eager_p99_us": 58.775000274181366, "graph_med_us": 5.855343770235777, "graph_p99_us": 5.903882905840874, "variant": "vllm_tp_all_reduce", "M": 8, "dtype": "torch.bfloat16"}
+/usr/local/lib/python3.12/dist-packages/torch/distributed/c10d_logger.py:83: UserWarning: barrier(): using the device under current context. You can specify `device_id` in `init_process_group` to mute this warning.
+  return func(*args, **kwargs)
+[r0 14:30:34] {"eager_med_us": 31.874001026153564, "eager_p99_us": 46.386998146772385, "graph_med_us": 5.863484460860491, "graph_p99_us": 5.941156297922134, "variant": "vllm_aiter_ar_comm", "M": 8, "dtype": "torch.bfloat16"}

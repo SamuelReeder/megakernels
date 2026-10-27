@@ -1,0 +1,7 @@
+rank 0 step env exit 0
+rank 1 step spike exit 0
+rank 0 step spike exit 0
+rank 0 step coll-torch exit 0
+rank 1 step coll-torch exit 0
+rank 0 step coll-vllm exit 0
+rank 1 step coll-vllm exit 0

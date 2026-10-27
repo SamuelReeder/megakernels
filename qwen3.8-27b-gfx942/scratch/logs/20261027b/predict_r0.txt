@@ -1,0 +1,65 @@
+host banff-cyxtera-s70-4.adc.amd.com AMD Instinct MI300X cus 304 tp 2 rounds 128
+
+M=1 ar: exact True True ranks_equal True True
+  round (stamps) ar med 3.68 p99 4.57 max 38.64 us; local med 2.75 p99 3.16 us
+  all-reduce phase (stamps) med 0.99 p99 2.12 us; local phase med 0.19
+  launch/128 (events) ar 3.64 p99 3.71; local 2.85 us
+  added cost per all-reduce: med 0.93 us, p99 1.82 us, events 0.80 us
+  [40 %                            ] W 4.54 F 3.02 a(med) 0.93 -> TP2 5.41 ms vs TP1 7.56: +28.4 % faster
+  [40 %                            ] W 4.54 F 3.02 a(p99) 1.82 -> TP2 5.52 ms vs TP1 7.56: +26.9 % faster
+  [bytes / LM-head rate 3.85 TB/s  ] W 4.02 F 3.54 a(med) 0.93 -> TP2 5.67 ms vs TP1 7.56: +25.0 % faster
+  [bytes / LM-head rate 3.85 TB/s  ] W 4.02 F 3.54 a(p99) 1.82 -> TP2 5.78 ms vs TP1 7.56: +23.5 % faster
+
+M=1 ar_bf: exact True True ranks_equal True True
+  round (stamps) ar_bf med 3.56 p99 3.86 max 4.34 us; local med 2.75 p99 3.16 us
+  all-reduce phase (stamps) med 1.00 p99 1.37 us; local phase med 0.19
+  launch/128 (events) ar_bf 3.56 p99 3.58; local 2.85 us
+  added cost per all-reduce: med 0.81 us, p99 1.11 us, events 0.71 us
+  [40 %                            ] W 4.54 F 3.02 a(med) 0.81 -> TP2 5.40 ms vs TP1 7.56: +28.6 % faster
+  [40 %                            ] W 4.54 F 3.02 a(p99) 1.11 -> TP2 5.43 ms vs TP1 7.56: +28.1 % faster
+  [bytes / LM-head rate 3.85 TB/s  ] W 4.02 F 3.54 a(med) 0.81 -> TP2 5.65 ms vs TP1 7.56: +25.2 % faster
+  [bytes / LM-head rate 3.85 TB/s  ] W 4.02 F 3.54 a(p99) 1.11 -> TP2 5.69 ms vs TP1 7.56: +24.7 % faster
+
+M=2 ar: exact True True ranks_equal True True
+  round (stamps) ar med 4.48 p99 4.92 max 5.60 us; local med 2.84 p99 3.28 us
+  all-reduce phase (stamps) med 1.75 p99 2.00 us; local phase med 0.32
+  launch/128 (events) ar 4.53 p99 4.58; local 2.89 us
+  added cost per all-reduce: med 1.64 us, p99 2.08 us, events 1.64 us
+
+M=2 ar_bf: exact True True ranks_equal True True
+  round (stamps) ar_bf med 3.80 p99 4.52 max 38.64 us; local med 2.84 p99 3.28 us
+  all-reduce phase (stamps) med 1.08 p99 1.91 us; local phase med 0.32
+  launch/128 (events) ar_bf 3.75 p99 3.80; local 2.89 us
+  added cost per all-reduce: med 0.96 us, p99 1.68 us, events 0.86 us
+
+M=4 ar: exact True True ranks_equal True True
+  round (stamps) ar med 6.47 p99 6.88 max 7.58 us; local med 2.92 p99 3.60 us
+  all-reduce phase (stamps) med 3.54 p99 4.02 us; local phase med 0.36
+  launch/128 (events) ar 6.44 p99 6.49; local 2.96 us
+  added cost per all-reduce: med 3.55 us, p99 3.96 us, events 3.47 us
+
+M=4 ar_bf: exact True True ranks_equal True True
+  round (stamps) ar_bf med 4.76 p99 5.23 max 5.93 us; local med 2.92 p99 3.60 us
+  all-reduce phase (stamps) med 1.92 p99 2.35 us; local phase med 0.36
+  launch/128 (events) ar_bf 4.75 p99 4.78; local 2.96 us
+  added cost per all-reduce: med 1.84 us, p99 2.31 us, events 1.78 us
+
+M=8 ar: exact True True ranks_equal True True
+  round (stamps) ar med 9.94 p99 10.75 max 11.08 us; local med 2.92 p99 3.56 us
+  all-reduce phase (stamps) med 6.95 p99 7.77 us; local phase med 0.36
+  launch/128 (events) ar 9.96 p99 9.99; local 3.01 us
+  added cost per all-reduce: med 7.02 us, p99 7.83 us, events 6.95 us
+  [40 %                            ] W 6.16 F 4.10 a(med) 7.02 -> TP2 8.08 ms vs TP1 10.26: +21.2 % faster
+  [40 %                            ] W 6.16 F 4.10 a(p99) 7.83 -> TP2 8.18 ms vs TP1 10.26: +20.2 % faster
+  [bytes / LM-head rate 3.39 TB/s  ] W 4.57 F 5.69 a(med) 7.02 -> TP2 8.88 ms vs TP1 10.26: +13.5 % faster
+  [bytes / LM-head rate 3.39 TB/s  ] W 4.57 F 5.69 a(p99) 7.83 -> TP2 8.98 ms vs TP1 10.26: +12.5 % faster
+
+M=8 ar_bf: exact True True ranks_equal True True
+  round (stamps) ar_bf med 6.49 p99 7.36 max 41.25 us; local med 2.92 p99 3.56 us
+  all-reduce phase (stamps) med 3.49 p99 3.78 us; local phase med 0.36
+  launch/128 (events) ar_bf 6.50 p99 6.55; local 3.01 us
+  added cost per all-reduce: med 3.57 us, p99 4.44 us, events 3.49 us
+  [40 %                            ] W 6.16 F 4.10 a(med) 3.57 -> TP2 7.64 ms vs TP1 10.26: +25.5 % faster
+  [40 %                            ] W 6.16 F 4.10 a(p99) 4.44 -> TP2 7.75 ms vs TP1 10.26: +24.5 % faster
+  [bytes / LM-head rate 3.39 TB/s  ] W 4.57 F 5.69 a(med) 3.57 -> TP2 8.43 ms vs TP1 10.26: +17.8 % faster
+  [bytes / LM-head rate 3.39 TB/s  ] W 4.57 F 5.69 a(p99) 4.44 -> TP2 8.55 ms vs TP1 10.26: +16.7 % faster
