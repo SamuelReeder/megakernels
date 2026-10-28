@@ -1,0 +1,10 @@
+[r1 18:27:39] banff-cyxtera-s70-4.adc.amd.com AMD Instinct MI300X gfx942:sramecc+:xnack- 304 CUs visible 2 ROCR 0,1 peer [True]
+[r1 18:27:39] peer buffer ['0x7692eae00000', '0x76a2f1400000']
+[r1 18:27:40] {"launch_per_round_med": 2.7863983996212482, "launch_per_round_p99": 3.458890598267317, "total_ms": 72.31111145019531, "exact": true, "M": 1, "mode": "local", "stamps": false}
+[r1 18:27:40] {"round_med": 2.800048828125, "round_p99": 3.4000244140625, "round_max": 33.800048828125, "phase_med": 0.199951171875, "phase_p99": 0.2000732421875, "exact": true, "M": 1, "mode": "local", "stamps": true}
+[r1 18:27:41] {"launch_per_round_med": 3.643687581643462, "launch_per_round_p99": 3.6975624971091747, "total_ms": 93.46513366699219, "exact": true, "ranks_equal": true, "M": 1, "mode": "ar", "stamps": false}
+[r1 18:27:41] {"round_med": 3.739990234375, "round_p99": 4.219970703125, "round_max": 67.35009765625, "phase_med": 1.0, "phase_p99": 1.3399658203125, "exact": true, "ranks_equal": true, "M": 1, "mode": "ar", "stamps": true}
+[r1 18:27:41] {"launch_per_round_med": 2.951156347990036, "launch_per_round_p99": 3.8159608375281096, "total_ms": 76.31620788574219, "exact": true, "M": 8, "mode": "local", "stamps": false}
+[r1 18:27:41] {"round_med": 2.9600830078125, "round_p99": 3.4000244140625, "round_max": 37.7799072265625, "phase_med": 0.3599853515625, "phase_p99": 0.4000244140625, "exact": true, "M": 8, "mode": "local", "stamps": true}
+[r1 18:27:42] {"launch_per_round_med": 10.018344037234783, "launch_per_round_p99": 10.068148374557495, "total_ms": 256.86578369140625, "exact": true, "ranks_equal": true, "M": 8, "mode": "ar", "stamps": false}
+[r1 18:27:42] {"round_med": 9.8399658203125, "round_p99": 10.510009765625, "round_max": 71.27001953125, "phase_med": 6.9500732421875, "phase_p99": 7.3699951171875, "exact": true, "ranks_equal": true, "M": 8, "mode": "ar", "stamps": true}

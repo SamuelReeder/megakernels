@@ -1,0 +1,17 @@
+tp2bf16_bench_m1 rank 0 exit 0 01:14:34
+tp2bf16_bench_m1 rank 1 exit 0 01:14:34
+tp2bf16_bench_m2 rank 1 exit 0 01:15:51
+tp2bf16_bench_m2 rank 0 exit 0 01:15:51
+tp2bf16_bench_m4 rank 0 exit 0 01:17:14
+tp2bf16_bench_m4 rank 1 exit 0 01:17:15
+tp2bf16_bench_m8 rank 1 exit 0 01:19:34
+tp2bf16_bench_m8 rank 0 exit 0 01:19:34
+tp2fp32local_bench_m1 rank 0 exit 0 01:20:49
+tp2fp32local_bench_m1 rank 1 exit 0 01:20:49
+tp2fp32local_bench_m8 rank 1 exit 0 01:22:08
+tp2fp32local_bench_m8 rank 0 exit 0 01:22:08
+tp2bf16local_bench_m1 rank 1 exit 0 01:23:23
+tp2bf16local_bench_m1 rank 0 exit 0 01:23:23
+tp2bf16local_bench_m8 rank 0 exit 0 01:24:46
+tp2bf16local_bench_m8 rank 1 exit 0 01:24:46
+tp1_prof_m1 rank 0 exit 0 01:25:45

@@ -1,0 +1,23 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-27T21:38:53Z rank 0 env MK_TP=1 MK_AR= MK_SEED=4
+# python tests/test_decode.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 1 64 16
+load+pack+build 38s tp 1 ar -
+step 0: kernel~emulate cos 0.994338 top1 1.00 | kernel~exact cos 0.997282 top1 1.00 | emulate~exact cos 0.997565 top1 1.00
+step 1: kernel~emulate cos 0.999595 top1 1.00 | kernel~exact cos 0.999688 top1 1.00 | emulate~exact cos 0.999838 top1 1.00
+step 2: kernel~emulate cos 0.999276 top1 1.00 | kernel~exact cos 0.999562 top1 1.00 | emulate~exact cos 0.999690 top1 1.00
+step 3: kernel~emulate cos 0.999726 top1 1.00 | kernel~exact cos 0.999504 top1 1.00 | emulate~exact cos 0.999747 top1 1.00
+step 4: kernel~emulate cos 0.999701 top1 1.00 | kernel~exact cos 0.999778 top1 1.00 | emulate~exact cos 0.999720 top1 1.00
+step 5: kernel~emulate cos 0.999638 top1 1.00 | kernel~exact cos 0.999472 top1 1.00 | emulate~exact cos 0.999816 top1 1.00
+step 6: kernel~emulate cos 0.999718 top1 1.00 | kernel~exact cos 0.999831 top1 1.00 | emulate~exact cos 0.999874 top1 1.00
+step 7: kernel~emulate cos 0.999660 top1 1.00 | kernel~exact cos 0.999703 top1 1.00 | emulate~exact cos 0.999735 top1 1.00
+step 8: kernel~emulate cos 0.999532 top1 1.00 | kernel~exact cos 0.999618 top1 1.00 | emulate~exact cos 0.999682 top1 1.00
+step 9: kernel~emulate cos 0.996506 top1 1.00 | kernel~exact cos 0.999266 top1 1.00 | emulate~exact cos 0.998032 top1 1.00
+step 10: kernel~emulate cos 0.999613 top1 1.00 | kernel~exact cos 0.999733 top1 1.00 | emulate~exact cos 0.999787 top1 1.00
+step 11: kernel~emulate cos 0.999384 top1 1.00 | kernel~exact cos 0.999720 top1 1.00 | emulate~exact cos 0.999687 top1 1.00
+step 12: kernel~emulate cos 0.999649 top1 1.00 | kernel~exact cos 0.999709 top1 1.00 | emulate~exact cos 0.999654 top1 1.00
+step 13: kernel~emulate cos 0.998493 top1 1.00 | kernel~exact cos 0.999330 top1 1.00 | emulate~exact cos 0.999249 top1 1.00
+step 14: kernel~emulate cos 0.999428 top1 1.00 | kernel~exact cos 0.999259 top1 1.00 | emulate~exact cos 0.999487 top1 1.00
+step 15: kernel~emulate cos 0.999441 top1 1.00 | kernel~exact cos 0.999711 top1 1.00 | emulate~exact cos 0.999756 top1 1.00
+kernel~emulate: worst cos 0.994338 top1 1.000
+kernel~exact:   worst cos 0.997282 top1 1.000
+emulate~exact:  worst cos 0.997565 top1 1.000
+PASS

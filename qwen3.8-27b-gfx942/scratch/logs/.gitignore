@@ -1,0 +1,5 @@
+# large raw outputs stay on disk (and in /cluster/logs/qwen38-tp2), not in git
+server.log
+tl_*.json*
+*.pt
+22_final_isa.s

@@ -1,0 +1,39 @@
+[r1 14:30:05] banff-cyxtera-s70-4.adc.amd.com 2.13.0+rocm10.0.0 7.15.26333 env {'ROCR_VISIBLE_DEVICES': '0,1', 'VLLM_ROCM_USE_AITER': '1', 'HIP_PATH': '/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel', 'HIP_FORCE_DEV_KERNARG': '1', 'HSA_NO_SCRATCH_RECLAIM': '1', 'HIP_DEVICE_LIB_PATH': '/usr/local/lib/python3.12/dist-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode', 'HIP_CLANG_PATH': '/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin', 'HSA_ENABLE_IPC_MODE_LEGACY': '1'}
+[r1 14:30:05] /dev/shm free MB 1031933
+/usr/local/lib/python3.12/dist-packages/tvm_ffi/_optional_torch_c_dlpack.py:181: UserWarning: Failed to JIT torch c dlpack extension, EnvTensorAllocator will not be enabled.
+We recommend installing via `pip install torch-c-dlpack-ext`
+  warnings.warn(
+W1027 14:30:25.131595 1772166 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 177388544 (priority and CU-mask from the descriptor are not preserved)
+W1027 14:30:25.427560 1772166 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 177388544 (priority and CU-mask from the descriptor are not preserved)
+W1027 14:30:25.886899 1772166 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 177388544 (priority and CU-mask from the descriptor are not preserved)
+W1027 14:30:26.229991 1772166 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 177388544 (priority and CU-mask from the descriptor are not preserved)
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /usr/local/lib/python3.12/dist-packages/aiter/jit/module_aiter_core.so
+[aiter] import [module_custom_all_reduce] under /usr/local/lib/python3.12/dist-packages/aiter/jit/module_custom_all_reduce.so
+[aiter] CustomAllreduce input pool: torch.empty (expandable_segments=False, AITER_CUSTOM_AR_RAW_INPUT_POOL=False)
+[r1 14:30:29] vllm 0.32.1rc1.dev505+g00b6c4c56 initialized
+[r1 14:30:29] nccl init done
+[r1 14:30:29] ca_comm: absent
+[r1 14:30:29] qr_comm: disabled
+[r1 14:30:31] {"eager_med_us": 67.47499853372574, "eager_p99_us": 121.27900123596191, "graph_med_us": 9.073671884834766, "graph_p99_us": 10.897242464125156, "variant": "rccl", "M": 1, "dtype": "torch.float32"}
+[aiter] Registering 256 cuda graph addresses
+[r1 14:30:31] {"eager_med_us": 52.841998636722565, "eager_p99_us": 76.29500329494476, "graph_med_us": 5.64078101888299, "graph_p99_us": 7.807953283190727, "variant": "vllm_tp_all_reduce", "M": 1, "dtype": "torch.float32"}
+[aiter] Registering 256 cuda graph addresses
+[r1 14:30:31] {"eager_med_us": 40.011998265981674, "eager_p99_us": 58.13299864530563, "graph_med_us": 5.639531183987856, "graph_p99_us": 8.121163584291935, "variant": "vllm_aiter_ar_comm", "M": 1, "dtype": "torch.float32"}
+[r1 14:30:31] ca_comm: absent
+[r1 14:30:31] qr_comm: disabled
+[r1 14:30:32] {"eager_med_us": 64.66899812221527, "eager_p99_us": 108.28900337219238, "graph_med_us": 16.074765473604202, "graph_p99_us": 16.691813245415688, "variant": "rccl", "M": 8, "dtype": "torch.float32"}
+[aiter] Registering 128 cuda graph addresses
+[r1 14:30:32] {"eager_med_us": 54.44499850273132, "eager_p99_us": 80.78599721193314, "graph_med_us": 9.099671617150307, "graph_p99_us": 10.968031361699104, "variant": "vllm_tp_all_reduce", "M": 8, "dtype": "torch.float32"}
+[aiter] Registering 128 cuda graph addresses
+[r1 14:30:32] {"eager_med_us": 40.894001722335815, "eager_p99_us": 61.8630014359951, "graph_med_us": 9.098734706640244, "graph_p99_us": 11.602296493947506, "variant": "vllm_aiter_ar_comm", "M": 8, "dtype": "torch.float32"}
+[r1 14:30:32] ca_comm: absent
+[r1 14:30:32] qr_comm: disabled
+[r1 14:30:33] {"eager_med_us": 64.90899622440338, "eager_p99_us": 102.63600200414658, "graph_med_us": 10.113249532878399, "graph_p99_us": 10.511672124266624, "variant": "rccl", "M": 1, "dtype": "torch.bfloat16"}
+[r1 14:30:33] {"eager_med_us": 40.814001113176346, "eager_p99_us": 59.696998447179794, "graph_med_us": 3.339554648846388, "graph_p99_us": 4.619366955012083, "variant": "vllm_tp_all_reduce", "M": 1, "dtype": "torch.bfloat16"}
+[r1 14:30:33] {"eager_med_us": 31.592998653650284, "eager_p99_us": 45.70499807596207, "graph_med_us": 3.3373592887073755, "graph_p99_us": 4.4580623507499695, "variant": "vllm_aiter_ar_comm", "M": 1, "dtype": "torch.bfloat16"}
+[r1 14:30:33] ca_comm: absent
+[r1 14:30:33] qr_comm: disabled
+[r1 14:30:34] {"eager_med_us": 54.76599931716919, "eager_p99_us": 83.79299938678741, "graph_med_us": 14.894874766469002, "graph_p99_us": 15.771882608532906, "variant": "rccl", "M": 8, "dtype": "torch.bfloat16"}
+[r1 14:30:34] {"eager_med_us": 40.734000504016876, "eager_p99_us": 58.694999665021896, "graph_med_us": 5.854710936546326, "graph_p99_us": 7.468101568520069, "variant": "vllm_tp_all_reduce", "M": 8, "dtype": "torch.bfloat16"}
+[r1 14:30:34] {"eager_med_us": 31.833000481128693, "eager_p99_us": 48.39099943637848, "graph_med_us": 5.86285162717104, "graph_p99_us": 7.506632711738348, "variant": "vllm_aiter_ar_comm", "M": 8, "dtype": "torch.bfloat16"}

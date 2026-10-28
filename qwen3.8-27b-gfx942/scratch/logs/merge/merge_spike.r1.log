@@ -1,0 +1,16 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T09:33:14Z rank 1 env MK_TP=2 MK_AR= MK_SEED=
+# python scratch/ar_spike/run.py /cluster/logs/qwen38-tp2/merge 1 8
+[r1 09:33:19] banff-cyxtera-s70-4.adc.amd.com AMD Instinct MI300X gfx942:sramecc+:xnack- 304 CUs visible 2 ROCR 0,1 peer [True]
+[r1 09:33:19] peer buffer ['0x704f02c00000', '0x704f09000000']
+[r1 09:33:20] {"launch_per_round_med": 2.0421952940523624, "launch_per_round_p99": 2.551492303609848, "total_ms": 53.25912857055664, "exact": true, "M": 1, "mode": "local", "stamps": false}
+[r1 09:33:20] {"round_med": 2.1199951171875, "round_p99": 2.4000244140625, "round_max": 2.52001953125, "phase_med": 0.199951171875, "phase_p99": 0.2000732421875, "exact": true, "M": 1, "mode": "local", "stamps": true}
+[r1 09:33:20] {"launch_per_round_med": 3.465781221166253, "launch_per_round_p99": 3.51339066401124, "total_ms": 88.90363311767578, "exact": true, "ranks_equal": true, "M": 1, "mode": "ar", "stamps": false}
+[r1 09:33:20] {"round_med": 3.4300537109375, "round_p99": 3.8299560546875, "round_max": 55.6900634765625, "phase_med": 1.6400146484375, "phase_p99": 1.8499755859375, "exact": true, "ranks_equal": true, "M": 1, "mode": "ar", "stamps": true}
+[r1 09:33:21] {"launch_per_round_med": 4.996492061764002, "launch_per_round_p99": 5.057257600128651, "total_ms": 128.22386169433594, "exact": true, "ranks_equal": true, "M": 1, "mode": "ar_merged", "stamps": false}
+[r1 09:33:21] {"round_med": 4.93994140625, "round_p99": 5.8800048828125, "round_max": 39.97998046875, "phase_med": 0.2000732421875, "phase_p99": 0.320068359375, "exact": true, "ranks_equal": true, "M": 1, "mode": "ar_merged", "stamps": true}
+[r1 09:33:22] {"launch_per_round_med": 2.263953210785985, "launch_per_round_p99": 9.701522998511791, "total_ms": 60.08426284790039, "exact": true, "M": 8, "mode": "local", "stamps": false}
+[r1 09:33:22] {"round_med": 2.2799072265625, "round_p99": 2.6400146484375, "round_max": 37.080078125, "phase_med": 0.3599853515625, "phase_p99": 0.43994140625, "exact": true, "M": 8, "mode": "local", "stamps": true}
+[r1 09:33:22] {"launch_per_round_med": 9.869257919490337, "launch_per_round_p99": 9.902765974402428, "total_ms": 253.1549835205078, "exact": true, "ranks_equal": true, "M": 8, "mode": "ar", "stamps": false}
+[r1 09:33:23] {"round_med": 9.8399658203125, "round_p99": 10.159912109375, "round_max": 10.4000244140625, "phase_med": 8.090087890625, "phase_p99": 8.320068359375, "exact": true, "ranks_equal": true, "M": 8, "mode": "ar", "stamps": true}
+[r1 09:33:25] {"launch_per_round_med": 22.522101178765297, "launch_per_round_p99": 68.56867671012878, "total_ms": 593.7918701171875, "exact": true, "ranks_equal": true, "M": 8, "mode": "ar_merged", "stamps": false}
+[r1 09:33:27] {"round_med": 22.530029296875, "round_p99": 23.4700927734375, "round_max": 23.8701171875, "phase_med": 0.43994140625, "phase_p99": 0.60009765625, "exact": true, "ranks_equal": true, "M": 8, "mode": "ar_merged", "stamps": true}

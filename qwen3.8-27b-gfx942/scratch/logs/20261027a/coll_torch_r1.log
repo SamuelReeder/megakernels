@@ -1,0 +1,8 @@
+[r1 18:28:36] banff-cyxtera-s70-4.adc.amd.com 2.14.1+rocm7.2 7.2.53211 env {'HIPDNN_DEV_CONTAINER_BUILD_TYPE': 'fullbuild', 'ROCR_VISIBLE_DEVICES': '0,1', 'HIPDNN_DEV_CONTAINER_VERSION': '1', 'HIPDNN_DEV_CONTAINER_ASAN': 'disabled', 'HIP_PLATFORM': 'amd'}
+[r1 18:28:36] /dev/shm free MB 1031933
+[r1 18:28:36] no vllm: ModuleNotFoundError: No module named 'vllm'
+[r1 18:28:56] nccl init done
+[r1 18:28:57] {"eager_med_us": 44.18100044131279, "eager_p99_us": 134.79000329971313, "graph_med_us": 9.75179672241211, "graph_p99_us": 12.860195711255074, "variant": "rccl", "M": 1, "dtype": "torch.float32"}
+[r1 18:28:57] {"eager_med_us": 41.9359989464283, "eager_p99_us": 77.1770030260086, "graph_med_us": 16.137413680553436, "graph_p99_us": 16.16560108959675, "variant": "rccl", "M": 8, "dtype": "torch.float32"}
+[r1 18:28:57] {"eager_med_us": 33.316001296043396, "eager_p99_us": 44.18199881911278, "graph_med_us": 10.87625790387392, "graph_p99_us": 10.94923447817564, "variant": "rccl", "M": 1, "dtype": "torch.bfloat16"}
+[r1 18:28:57] {"eager_med_us": 36.96500137448311, "eager_p99_us": 45.184001326560974, "graph_med_us": 15.516296960413456, "graph_p99_us": 15.560781583189964, "variant": "rccl", "M": 8, "dtype": "torch.bfloat16"}

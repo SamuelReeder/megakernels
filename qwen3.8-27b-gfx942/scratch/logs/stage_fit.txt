@@ -1,0 +1,12 @@
+M=1: fit GEMV span = 6.52 us + MB / 3.66 TB/s, max residual 1.27 us
+  TP1 stamps total 7.927 ms (bench 7.56); TP2 without all-reduce 5.828 ms; removed 2.098 ms
+  fp32 a=0.93 us -> TP2 5.947 ms vs TP1 stamps 7.927: +25.0 %
+  fp32 a=1.15 us -> TP2 5.975 ms vs TP1 stamps 7.927: +24.6 %
+  bf16 a=0.81 us -> TP2 5.932 ms vs TP1 stamps 7.927: +25.2 %
+  bf16 a=0.81 us -> TP2 5.932 ms vs TP1 stamps 7.927: +25.2 %
+M=8: fit GEMV span = 11.93 us + MB / 3.41 TB/s, max residual 3.74 us
+  TP1 stamps total 10.258 ms (bench 10.26); TP2 without all-reduce 7.986 ms; removed 2.272 ms
+  fp32 a=7.02 us -> TP2 8.885 ms vs TP1 stamps 10.258: +13.4 %
+  fp32 a=7.07 us -> TP2 8.891 ms vs TP1 stamps 10.258: +13.3 %
+  bf16 a=3.57 us -> TP2 8.443 ms vs TP1 stamps 10.258: +17.7 %
+  bf16 a=3.57 us -> TP2 8.443 ms vs TP1 stamps 10.258: +17.7 %

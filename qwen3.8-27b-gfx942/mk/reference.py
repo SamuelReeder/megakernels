@@ -183,6 +183,27 @@ def lin(x32: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
     return xq @ w.float().t()
 
 
+AR_TP = 1  # emulate only: row GEMVs as AR_TP K-slice partials added in rank order
+AR_BF16 = False  # ... each partial rounded to bf16 first (ar_dtype "bf16")
+
+
+def lin_row(x32: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
+    """A row-parallel GEMV (out_proj, o_proj, down). Emulating a TP kernel (AR_TP > 1):
+    each rank's K-slice partial in fp32, rounded to bf16 for ar_dtype "bf16", and the
+    partials added in rank order in fp32, as the kernel's all-reduce adds them."""
+    if not (EMULATE and AR_TP > 1):
+        return lin(x32, w)
+    xq = quant_fp8(x32.float())
+    k = x32.shape[1] // AR_TP
+    out = None
+    for r in range(AR_TP):
+        p = xq[:, r * k : (r + 1) * k] @ w[:, r * k : (r + 1) * k].float().t()
+        if AR_BF16:
+            p = p.to(torch.bfloat16).float()
+        out = p if out is None else out + p
+    return out
+
+
 def lin_bf16(x32: torch.Tensor, w: torch.Tensor) -> torch.Tensor:
     """LM head: bf16 activations in both modes."""
     return x32.to(torch.bfloat16).float() @ w.float().t()
@@ -270,7 +291,7 @@ def gdn(W: Weights, i: int, x: torch.Tensor, st: State, g_i: int) -> torch.Tenso
     o = o * W.L(i, pre + "norm.weight").float()
     zz = z.reshape(M, NVH, DV)
     o = o * (zz * torch.sigmoid(zz))
-    return lin(o.reshape(M, VAL_DIM), W.L(i, pre + "out_proj.weight"))
+    return lin_row(o.reshape(M, VAL_DIM), W.L(i, pre + "out_proj.weight"))
 
 
 def attn(W: Weights, i: int, x: torch.Tensor, st: State, a_i: int) -> torch.Tensor:
@@ -297,20 +318,27 @@ def attn(W: Weights, i: int, x: torch.Tensor, st: State, a_i: int) -> torch.Tens
         pr = torch.softmax(s, -1)
         out[m] = torch.einsum("gql,gld->gqd", pr, V).reshape(NQ, HD)
     o = out.reshape(M, NQ * HD) * torch.sigmoid(gate)
-    return lin(o, W.L(i, pre + "o_proj.weight"))
+    return lin_row(o, W.L(i, pre + "o_proj.weight"))
 
 
 @torch.no_grad()
 def step(
-    W: Weights, tok: torch.Tensor, st: State, layers: int = NL, dump=None, emulate=False
+    W: Weights,
+    tok: torch.Tensor,
+    st: State,
+    layers: int = NL,
+    dump=None,
+    emulate=False,
+    ar_tp=1,
+    ar_bf16=False,
 ):
     """One decode step for M rows. tok [M] int64. Returns fp32 logits [M, VOCAB].
 
     Advances st.pos by one. `dump`, if a dict, receives per-layer h (fp32).
     emulate: quantize GEMV inputs as the megakernel does (else bf16, the model dtype).
     """
-    global EMULATE
-    EMULATE = emulate
+    global EMULATE, AR_TP, AR_BF16
+    EMULATE, AR_TP, AR_BF16 = emulate, ar_tp, ar_bf16
     h = W["model.language_model.embed_tokens.weight"][tok].float()
     g_i = a_i = 0
     for i in range(layers):
@@ -325,7 +353,7 @@ def step(
         gt = lin(x, W.L(i, "mlp.gate_proj.weight"))
         up = lin(x, W.L(i, "mlp.up_proj.weight"))
         act = gt * torch.sigmoid(gt) * up
-        h = h + lin(act, W.L(i, "mlp.down_proj.weight"))
+        h = h + lin_row(act, W.L(i, "mlp.down_proj.weight"))
         if dump is not None:
             dump[i] = h.clone()
     st.pos += 1

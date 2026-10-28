@@ -1,0 +1,48 @@
+== fp32 M=1: stamped step without layer 0 (median over reps x ranks): with AR 5470 us, ar_local 4995 us -> 3.77 us per all-reduce (126 after layer 0)
+   clock offset rank1-rank0 per rep (ms): [0.275, 0.275, 0.275, 0.275, 0.275]; one-way latency L (us): [0.78, 0.78, 0.8, 0.81, 0.8]
+   out   gemv  10.83/  8.23 wait   0.34/  0.00 xfer   1.18/  0.00 drain   0.73/  0.83 bar   2.38/  2.60 | sum  15.46/ 11.67 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +2.60 wait +0.34 xfer +1.18 drain -0.10 bar -0.23 | push->poll start 0.44/0.00, poll 1.04 (p90 1.92), per-CTA drain median 3.20/1.96 us
+         per epilogue: push -> poll end 1.72 us = peer-late wait 0.55 (in 68 % of groups) + own push/poll 1.17; 249 epilogue stamps per stage and rank
+   o     gemv  10.73/  8.31 wait   0.46/  0.00 xfer   1.16/  0.00 drain   0.73/  0.83 bar   2.38/  2.59 | sum  15.45/ 11.73 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +2.41 wait +0.46 xfer +1.15 drain -0.09 bar -0.21 | push->poll start 0.52/0.00, poll 0.96 (p90 2.28), per-CTA drain median 3.02/2.08 us
+         per epilogue: push -> poll end 1.78 us = peer-late wait 0.62 (in 62 % of groups) + own push/poll 1.17; 259 epilogue stamps per stage and rank
+   down  gemv  17.28/ 14.36 wait   0.35/  0.00 xfer   1.15/  0.00 drain   0.70/  1.01 bar   2.48/  2.71 | sum  21.97/ 18.08 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +2.92 wait +0.35 xfer +1.15 drain -0.30 bar -0.23 | push->poll start 0.52/0.00, poll 1.04 (p90 2.44), per-CTA drain median 2.20/1.92 us
+         per epilogue: push -> poll end 1.88 us = peer-late wait 0.65 (in 63 % of groups) + own push/poll 1.23; 242 epilogue stamps per stage and rank
+   all-reduce stages: (sum of means x layers) AR 2358 us, local 1875 us, added 483 us = 3.83 us per all-reduce
+== bf16 M=1: stamped step without layer 0 (median over reps x ranks): with AR 5797 us, ar_local 5047 us -> 5.96 us per all-reduce (126 after layer 0)
+   clock offset rank1-rank0 per rep (ms): [0.275, 0.275, 0.275, 0.275, 0.275]; one-way latency L (us): [0.81, 0.78, 0.8, 0.81, 0.79]
+   out   gemv  10.95/  8.24 wait   0.33/  0.00 xfer   1.22/  0.00 drain   0.74/  0.89 bar   2.40/  2.75 | sum  15.63/ 11.88 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +2.71 wait +0.33 xfer +1.22 drain -0.15 bar -0.35 | push->poll start 0.76/0.00, poll 0.68 (p90 1.84), per-CTA drain median 2.92/1.96 us
+         per epilogue: push -> poll end 1.78 us = peer-late wait 0.39 (in 51 % of groups) + own push/poll 1.39; 249 epilogue stamps per stage and rank
+   o     gemv  10.95/  8.61 wait   0.39/  0.00 xfer   1.21/  0.00 drain   0.74/  0.91 bar   2.41/  2.76 | sum  15.69/ 12.28 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +2.34 wait +0.39 xfer +1.20 drain -0.17 bar -0.35 | push->poll start 0.76/0.00, poll 0.68 (p90 2.24), per-CTA drain median 2.84/2.04 us
+         per epilogue: push -> poll end 1.84 us = peer-late wait 0.48 (in 51 % of groups) + own push/poll 1.36; 258 epilogue stamps per stage and rank
+   down  gemv  22.19/ 14.28 wait   0.62/  0.00 xfer   1.20/  0.00 drain   0.77/  1.12 bar   2.51/  2.83 | sum  27.29/ 18.23 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +7.91 wait +0.62 xfer +1.20 drain -0.35 bar -0.32 | push->poll start 0.72/0.00, poll 0.64 (p90 2.08), per-CTA drain median 2.20/1.92 us
+         per epilogue: push -> poll end 1.89 us = peer-late wait 0.65 (in 55 % of groups) + own push/poll 1.24; 241 epilogue stamps per stage and rank
+   all-reduce stages: (sum of means x layers) AR 2705 us, local 1904 us, added 801 us = 6.36 us per all-reduce
+== fp32 M=8: stamped step without layer 0 (median over reps x ranks): with AR 8307 us, ar_local 6717 us -> 12.62 us per all-reduce (126 after layer 0)
+   clock offset rank1-rank0 per rep (ms): [0.275, 0.275, 0.275, 0.275, 0.275]; one-way latency L (us): [2.38, 2.44, 2.4, 2.4, 2.32]
+   out   gemv  20.97/ 10.73 wait   0.61/  0.00 xfer   3.25/  0.00 drain   1.34/  1.72 bar   2.46/  2.72 | sum  28.63/ 15.17 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +10.25 wait +0.61 xfer +3.25 drain -0.39 bar -0.25 | push->poll start 3.96/0.00, poll 1.64 (p90 4.92), per-CTA drain median 7.76/2.48 us
+         per epilogue: push -> poll end 6.08 us = peer-late wait 0.65 (in 27 % of groups) + own push/poll 5.43; 246 epilogue stamps per stage and rank
+   o     gemv  19.90/ 10.75 wait   1.15/  0.00 xfer   3.14/  0.00 drain   1.34/  1.71 bar   2.45/  2.72 | sum  27.98/ 15.19 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +9.15 wait +1.15 xfer +3.14 drain -0.37 bar -0.27 | push->poll start 4.00/0.00, poll 1.56 (p90 5.60), per-CTA drain median 8.00/2.56 us
+         per epilogue: push -> poll end 6.24 us = peer-late wait 0.75 (in 33 % of groups) + own push/poll 5.49; 255 epilogue stamps per stage and rank
+   down  gemv  27.68/ 17.33 wait   1.03/  0.00 xfer   3.04/  0.00 drain   1.64/  1.81 bar   2.57/  2.79 | sum  35.95/ 21.93 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +10.35 wait +1.03 xfer +3.03 drain -0.17 bar -0.22 | push->poll start 3.64/0.00, poll 1.68 (p90 4.36), per-CTA drain median 2.12/2.00 us
+         per epilogue: push -> poll end 5.94 us = peer-late wait 0.66 (in 27 % of groups) + own push/poll 5.28; 247 epilogue stamps per stage and rank
+   all-reduce stages: (sum of means x layers) AR 4058 us, local 2337 us, added 1721 us = 13.66 us per all-reduce
+== bf16 M=8: stamped step without layer 0 (median over reps x ranks): with AR 7864 us, ar_local 6719 us -> 9.08 us per all-reduce (126 after layer 0)
+   clock offset rank1-rank0 per rep (ms): [0.275, 0.275, 0.275, 0.275, 0.275]; one-way latency L (us): [1.47, 1.49, 1.49, 1.5, 1.46]
+   out   gemv  16.26/ 11.02 wait   0.68/  0.00 xfer   1.90/  0.00 drain   1.48/  1.75 bar   2.60/  2.74 | sum  22.92/ 15.51 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +5.25 wait +0.68 xfer +1.90 drain -0.27 bar -0.14 | push->poll start 1.20/0.00, poll 2.08 (p90 4.12), per-CTA drain median 5.00/2.52 us
+         per epilogue: push -> poll end 3.64 us = peer-late wait 0.90 (in 61 % of groups) + own push/poll 2.74; 249 epilogue stamps per stage and rank
+   o     gemv  15.60/ 10.75 wait   0.73/  0.00 xfer   1.84/  0.00 drain   1.49/  1.76 bar   2.59/  2.77 | sum  22.25/ 15.28 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +4.85 wait +0.73 xfer +1.84 drain -0.27 bar -0.17 | push->poll start 1.16/0.00, poll 2.24 (p90 4.40), per-CTA drain median 5.46/2.48 us
+         per epilogue: push -> poll end 3.67 us = peer-late wait 0.98 (in 60 % of groups) + own push/poll 2.70; 255 epilogue stamps per stage and rank
+   down  gemv  26.26/ 17.59 wait   0.96/  0.00 xfer   1.93/  0.00 drain   1.39/  1.86 bar   2.68/  2.85 | sum  33.22/ 22.30 us (AR/local, mean over layers x ranks x reps)
+         delta gemv +8.67 wait +0.96 xfer +1.93 drain -0.47 bar -0.17 | push->poll start 1.12/0.00, poll 1.16 (p90 3.24), per-CTA drain median 2.12/2.00 us
+         per epilogue: push -> poll end 2.88 us = peer-late wait 0.98 (in 62 % of groups) + own push/poll 1.90; 246 epilogue stamps per stage and rank
+   all-reduce stages: (sum of means x layers) AR 3526 us, local 2378 us, added 1148 us = 9.11 us per all-reduce

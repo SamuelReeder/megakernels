@@ -1,0 +1,12 @@
+median of 3 repeats (64 steps, ctx 512); TPOT = greedy feedback, fixed = launches only
+ M  TP1 TPOT   fixed | fp32 TPOT   fixed  speedup | bf16 TPOT   fixed  speedup
+ 1     7.895   7.891 |     5.852   5.777    25.9% |     6.137   6.064    22.3%
+ 2     8.358   8.358 |     6.434   6.366    23.0% |     6.577   6.491    21.3%
+ 4     9.163   9.166 |     7.562   7.473    17.5% |     7.369   7.287    19.6%
+ 8    10.526  10.512 |     8.635   8.552    18.0% |     8.235   8.177    21.8%
+
+all-reduce cost under load = (fixed-token TPOT with the all-reduce - with ar_local) / 128
+fp32 M=1: fixed 5.777 ms, ar_local 5.426 ms -> 2.74 us per all-reduce (spike 0.93-1.15, ratio 2.4-2.9x)
+fp32 M=8: fixed 8.552 ms, ar_local 7.357 ms -> 9.34 us per all-reduce (spike 7.02-7.07, ratio 1.3-1.3x)
+bf16 M=1: fixed 6.064 ms, ar_local 5.636 ms -> 3.35 us per all-reduce (spike 0.81-0.81, ratio 4.1-4.1x)
+bf16 M=8: fixed 8.177 ms, ar_local 7.366 ms -> 6.34 us per all-reduce (spike 3.57-3.57, ratio 1.8-1.8x)

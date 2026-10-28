@@ -7,7 +7,7 @@ kernel, a Python runtime, tests and benchmarks.
 | Model | Hardware | Result | Directory |
 |---|---|---|---|
 | Qwen3.5-0.8B (Gated DeltaNet + attention hybrid) | RTX 5080 (sm_120) | **955 tok/s** int8, **555 tok/s** bf16; 2.1× / 1.6× llama.cpp Q8_0 / BF16, 1.33× vLLM bf16; **1205 tok/s** int8 with MTP speculative decoding | [`qwen3.5-0.8b/`](qwen3.5-0.8b/) |
-| Qwen3.8-27B (Gated DeltaNet + attention hybrid), MXFP4 | MI300X (gfx942), FlyDSL | **132 tok/s** at batch 1; **2.06×** vLLM FP8 + AITER on the same GPU, 1.68-2.07× at batch 1-8 | [`qwen3.8-27b-gfx942/`](qwen3.8-27b-gfx942/) |
+| Qwen3.8-27B (Gated DeltaNet + attention hybrid), MXFP4 | MI300X (gfx942), FlyDSL | **132 tok/s** at batch 1; **2.06×** vLLM FP8 + AITER on the same GPU, 1.68-2.07× at batch 1-8; TP2 on two MI300X: **179 tok/s**, 1.41-1.79× vLLM TP2 FP8 + AITER | [`qwen3.8-27b-gfx942/`](qwen3.8-27b-gfx942/) |
 | Qwen3.6-35B-A3B (Gated DeltaNet + attention hybrid, 256-expert top-8 MoE), FP8 | MI300X (gfx942), FlyDSL | **292 tok/s** at batch 1; **1.49×** vLLM FP8 + AITER on the same GPU, 1.17-1.49× at batch 1-8; inside vLLM 1.2-2.1× vLLM's own path | [`qwen3.6-35b-a3b-gfx942/`](qwen3.6-35b-a3b-gfx942/) |
 
 ![Decode throughput vs llama.cpp](qwen3.5-0.8b/docs/throughput.png)

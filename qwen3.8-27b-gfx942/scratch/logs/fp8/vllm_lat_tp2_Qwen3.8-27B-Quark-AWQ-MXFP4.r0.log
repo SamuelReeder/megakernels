@@ -1,0 +1,21 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T04:55:44Z rank 0 env MK_TP=1 MK_AR= MK_SEED=
+# bash bench/stock/vllm_latency_bench.sh Qwen3.8-27B-Quark-AWQ-MXFP4 vllm_lat_tp2_Qwen3.8-27B-Quark-AWQ-MXFP4
+date: 2026-10-28T00:55:44-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+vllm 0.32.1rc1.dev505+g00b6c4c56
+torch 2.13.0+rocm10.0.0 hip 7.15.26333
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0,1
+HSA_ENABLE_IPC_MODE_LEGACY=1
+HSA_NO_SCRATCH_RECLAIM=1
+VLLM_CACHE_ROOT=/tmp/vllm_cache
+VLLM_ROCM_USE_AITER=1
+TP 2 STEPS 64 args: 
+[b1] engine TPOT 24.776 ms (median latency 1.6639 s with 65 outputs, 0.0782 s with 1)
+[b2] engine TPOT 25.617 ms (median latency 1.7929 s with 65 outputs, 0.1534 s with 1)
+[b4] engine TPOT 25.472 ms (median latency 1.8743 s with 65 outputs, 0.2440 s with 1)
+[b8] engine TPOT 25.799 ms (median latency 2.0888 s with 65 outputs, 0.4377 s with 1)

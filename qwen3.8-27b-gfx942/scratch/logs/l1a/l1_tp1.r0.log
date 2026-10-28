@@ -1,0 +1,5 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T00:03:01Z rank 0 env MK_TP=1 MK_AR= MK_SEED=
+# python scratch/m3/dbg.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 8 1 3
+tp 1 ar fp32 seed 0 M 8 tok [235221, 132577, 49271, 175292, 145673, 85004, 31143, 60893] | split 1: residual rel err max 1.80e-07 median 7.29e-08 | logits cos min 0.99999994
+tp 1 ar fp32 seed 1 M 8 tok [2672, 202770, 187599, 51007, 69216, 103326, 3051, 223281] | split 1: residual rel err max 1.57e-07 median 6.54e-08 | logits cos min 1.00000000
+tp 1 ar fp32 seed 2 M 8 tok [144069, 41574, 14690, 155670, 108947, 174359, 95860, 198391] | split 1: residual rel err max 7.34e-04 median 9.60e-08 | logits cos min 0.99999940

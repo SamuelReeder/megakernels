@@ -1,0 +1,116 @@
+{
+ "host": "banff-cyxtera-s70-4.adc.amd.com",
+ "torch": "2.13.0+rocm10.0.0",
+ "tag": "vllm-noaiter",
+ "runs": [
+  {
+   "eager_med_us": 45.54399847984314,
+   "eager_p99_us": 78.98099720478058,
+   "graph_med_us": 9.058953262865543,
+   "graph_p99_us": 9.492140263319016,
+   "variant": "rccl",
+   "M": 1,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 29.347999021410942,
+   "eager_p99_us": 44.46199908852577,
+   "graph_med_us": 4.121976438909769,
+   "graph_p99_us": 4.198398441076279,
+   "variant": "vllm_tp_all_reduce",
+   "M": 1,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 23.13300035893917,
+   "eager_p99_us": 36.083001643419266,
+   "graph_med_us": 4.1404529474675655,
+   "graph_p99_us": 4.854288883507252,
+   "variant": "vllm_ca_comm",
+   "M": 1,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 45.38499936461449,
+   "eager_p99_us": 72.64699786901474,
+   "graph_med_us": 15.685750171542168,
+   "graph_p99_us": 16.03717915713787,
+   "variant": "rccl",
+   "M": 8,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 28.425000607967377,
+   "eager_p99_us": 43.41999813914299,
+   "graph_med_us": 7.487843744456768,
+   "graph_p99_us": 11.14718709141016,
+   "variant": "vllm_tp_all_reduce",
+   "M": 8,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 32.15400129556656,
+   "eager_p99_us": 50.27500167489052,
+   "graph_med_us": 7.474991958588362,
+   "graph_p99_us": 10.938898660242558,
+   "variant": "vllm_ca_comm",
+   "M": 8,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 61.42200157046318,
+   "eager_p99_us": 101.31300240755081,
+   "graph_med_us": 10.027430020272732,
+   "graph_p99_us": 13.996867462992668,
+   "variant": "rccl",
+   "M": 1,
+   "dtype": "torch.bfloat16"
+  },
+  {
+   "eager_med_us": 42.93899983167648,
+   "eager_p99_us": 63.144996762275696,
+   "graph_med_us": 3.9782109670341015,
+   "graph_p99_us": 5.8838436380028725,
+   "variant": "vllm_tp_all_reduce",
+   "M": 1,
+   "dtype": "torch.bfloat16"
+  },
+  {
+   "eager_med_us": 33.07599946856499,
+   "eager_p99_us": 50.195999443531036,
+   "graph_med_us": 4.000445362180471,
+   "graph_p99_us": 6.509023252874613,
+   "variant": "vllm_ca_comm",
+   "M": 1,
+   "dtype": "torch.bfloat16"
+  },
+  {
+   "eager_med_us": 63.225001096725464,
+   "eager_p99_us": 93.69400143623352,
+   "graph_med_us": 14.949999749660492,
+   "graph_p99_us": 15.005749650299549,
+   "variant": "rccl",
+   "M": 8,
+   "dtype": "torch.bfloat16"
+  },
+  {
+   "eager_med_us": 32.47400000691414,
+   "eager_p99_us": 43.540000915527344,
+   "graph_med_us": 5.615101661533117,
+   "graph_p99_us": 6.609578151255846,
+   "variant": "vllm_tp_all_reduce",
+   "M": 8,
+   "dtype": "torch.bfloat16"
+  },
+  {
+   "eager_med_us": 25.17700009047985,
+   "eager_p99_us": 37.56700083613396,
+   "graph_med_us": 5.594117101281881,
+   "graph_p99_us": 6.18766387924552,
+   "variant": "vllm_ca_comm",
+   "M": 8,
+   "dtype": "torch.bfloat16"
+  }
+ ],
+ "vllm": "0.32.1rc1.dev505+g00b6c4c56"
+}
