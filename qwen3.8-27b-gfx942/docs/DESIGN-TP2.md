@@ -588,6 +588,23 @@ batch 2 (one measurement each; the latency difference method is sensitive to the
 time of the 1-token run). The kernel numbers repeat the milestone 4 values within 0.05 ms
 (TP2 fp32 5.896 against 5.852 at M = 1).
 
+FP8 repeated 3 times (2026-10-28, banff-cyxtera-s70-4, job 68197384, `scratch/logs/fp8x3/`,
+three independent `vllm_latency_bench.sh` runs; each value is already the median of 10
+iterations), engine-level TPOT in ms, median (range):
+
+| Batch | vLLM TP2 FP8, 3 runs | TP2 kernel, same allocation (`scratch/logs/opt1/`, before round 1) | ratio |
+|---:|---:|---:|---:|
+| 1 | 9.822 (9.721 to 9.858) | 5.766 | 1.70x |
+| 2 | 10.716 (10.578 to 11.055) | 6.340 | 1.69x |
+| 4 | 10.660 (10.468 to 11.349) | 7.424 | 1.44x |
+| 8 | 11.152 (11.006 to 12.185) | 8.562 | 1.30x |
+
+vLLM's time includes its per-step scheduler, sampler and output processing; the kernel's
+host loop is an argmax and a token copy. The spread between runs (up to 1.2 ms at batch 8)
+comes from the 65-token latency, not from the 1-token run. Batch 4 is still at or below
+batch 2 in two of the three runs; the medians differ by 0.06 ms, inside the spread.
+The final table with the optimized kernel is in section 11, optimization log.
+
 ## 12. Rejected alternatives
 
 | Alternative | Reason |
