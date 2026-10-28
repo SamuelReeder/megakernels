@@ -89,9 +89,6 @@ T_QN, T_KN, T_KV = range(10, 13)  # attention layers
 # sidx[M]; an attention layer's block table bt[M][maxblocks] and slot mapping slot[M].
 T_IDX, T_SLOT = 16, 17
 
-import os as _os  # MEASURE-ONLY
-
-_ONE_WAIT = _os.environ.get("MK_ONE_WAIT", "0") == "1"  # MEASURE-ONLY
 _STREAM = fx.Stream(None)  # the launch's default: the current stream
 CNT_STRIDE = 65536  # i32 counters per counter region
 EPOCH_WORD_LINE = 8  # the epoch word is line cus + EPOCH_WORD_LINE of the flag buffer
@@ -312,8 +309,6 @@ def build(cfg: Cfg):
             D.grid_arrive(rf, e, tid, bid)
             buf = spec.first_loads(w) if spec is not None else None
             D.grid_wait(rf, e, tid, bid, CUS)
-            if const_expr(not _ONE_WAIT):  # MEASURE-ONLY toggle (MK_ONE_WAIT=1)
-                D.grid_wait(rf, e, tid, bid, CUS)
             if const_expr(PROFILE["addr"] is not None):
                 stamp(slot + 1)
             if const_expr(apb is not None):
