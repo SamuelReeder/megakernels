@@ -256,7 +256,6 @@ def build(cfg: Cfg):
             D.grid_arrive(rf, e, tid, bid)
             buf = spec.first_loads(w) if spec is not None else None
             D.grid_wait(rf, e, tid, bid, CUS)
-            D.grid_wait(rf, e, tid, bid, CUS)
             if const_expr(PROFILE["addr"] is not None):
                 stamp(slot + 1)
             return w, buf
