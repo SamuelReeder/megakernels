@@ -1,0 +1,81 @@
+52 tokens
+Loading weights:   0%|          | 0/1026 [00:00<?, ?it/s]Loading weights:   0%|          | 1/1026 [00:00<04:00,  4.26it/s]Loading weights:   0%|          | 2/1026 [00:00<02:43,  6.27it/s]Loading weights:   1%|▏         | 13/1026 [00:00<00:31, 31.90it/s]Loading weights:   2%|▏         | 17/1026 [00:00<00:37, 26.77it/s]Loading weights:   3%|▎         | 32/1026 [00:00<00:18, 54.02it/s]Loading weights:   5%|▍         | 49/1026 [00:01<00:15, 64.51it/s]Loading weights:   5%|▌         | 56/1026 [00:01<00:16, 57.20it/s]Loading weights:   6%|▌         | 63/1026 [00:01<00:16, 59.30it/s]Loading weights:   8%|▊         | 82/1026 [00:01<00:12, 76.80it/s]Loading weights:   9%|▉         | 90/1026 [00:01<00:14, 62.53it/s]Loading weights:  10%|▉         | 101/1026 [00:01<00:14, 64.10it/s]Loading weights:  12%|█▏        | 118/1026 [00:02<00:13, 65.51it/s]Loading weights:  12%|█▏        | 125/1026 [00:02<00:15, 58.48it/s]Loading weights:  13%|█▎        | 131/1026 [00:02<00:15, 58.19it/s]Loading weights:  15%|█▍        | 151/1026 [00:02<00:11, 77.96it/s]Loading weights:  15%|█▌        | 159/1026 [00:02<00:12, 67.53it/s]Loading weights:  17%|█▋        | 170/1026 [00:02<00:13, 65.54it/s]Loading weights:  18%|█▊        | 187/1026 [00:03<00:11, 75.92it/s]Loading weights:  19%|█▉        | 195/1026 [00:03<00:13, 62.13it/s]Loading weights:  20%|█▉        | 202/1026 [00:03<00:13, 60.90it/s]Loading weights:  21%|██▏       | 220/1026 [00:03<00:10, 73.30it/s]Loading weights:  22%|██▏       | 228/1026 [00:03<00:11, 67.76it/s]Loading weights:  23%|██▎       | 239/1026 [00:03<00:11, 67.17it/s]Loading weights:  25%|██▍       | 256/1026 [00:04<00:10, 75.99it/s]Loading weights:  26%|██▌       | 264/1026 [00:04<00:11, 64.78it/s]Loading weights:  26%|██▋       | 271/1026 [00:04<00:11, 63.66it/s]Loading weights:  28%|██▊       | 289/1026 [00:04<00:10, 70.99it/s]Loading weights:  29%|██▉       | 296/1026 [00:04<00:11, 65.19it/s]Loading weights:  30%|███       | 308/1026 [00:04<00:10, 68.45it/s]Loading weights:  32%|███▏      | 325/1026 [00:05<00:09, 71.41it/s]Loading weights:  32%|███▏      | 333/1026 [00:05<00:11, 62.61it/s]Loading weights:  33%|███▎      | 340/1026 [00:05<00:11, 61.70it/s]Loading weights:  35%|███▍      | 358/1026 [00:05<00:08, 76.64it/s]Loading weights:  36%|███▌      | 366/1026 [00:05<00:09, 67.04it/s]Loading weights:  37%|███▋      | 376/1026 [00:05<00:08, 72.70it/s]Loading weights:  37%|███▋      | 384/1026 [00:06<00:09, 66.66it/s]Loading weights:  38%|███▊      | 394/1026 [00:06<00:10, 60.75it/s]Loading weights:  39%|███▉      | 401/1026 [00:06<00:11, 53.67it/s]Loading weights:  40%|███▉      | 407/1026 [00:06<00:11, 53.74it/s]Loading weights:  42%|████▏     | 427/1026 [00:06<00:08, 72.83it/s]Loading weights:  42%|████▏     | 435/1026 [00:06<00:09, 63.63it/s]Loading weights:  43%|████▎     | 446/1026 [00:07<00:09, 62.16it/s]Loading weights:  45%|████▌     | 463/1026 [00:07<00:08, 68.28it/s]Loading weights:  46%|████▌     | 470/1026 [00:07<00:09, 57.54it/s]Loading weights:  46%|████▋     | 476/1026 [00:07<00:09, 55.50it/s]Loading weights:  48%|████▊     | 496/1026 [00:07<00:07, 69.57it/s]Loading weights:  49%|████▉     | 503/1026 [00:08<00:09, 55.27it/s]Loading weights:  50%|█████     | 515/1026 [00:08<00:08, 63.44it/s]Loading weights:  52%|█████▏    | 532/1026 [00:08<00:07, 67.94it/s]Loading weights:  53%|█████▎    | 539/1026 [00:08<00:09, 50.80it/s]Loading weights:  55%|█████▌    | 565/1026 [00:08<00:06, 70.09it/s]Loading weights:  56%|█████▌    | 573/1026 [00:09<00:06, 67.15it/s]Loading weights:  57%|█████▋    | 584/1026 [00:09<00:06, 68.82it/s]Loading weights:  59%|█████▊    | 601/1026 [00:09<00:06, 64.51it/s]Loading weights:  59%|█████▉    | 608/1026 [00:09<00:06, 63.19it/s]Loading weights:  60%|█████▉    | 615/1026 [00:09<00:06, 63.32it/s]Loading weights:  62%|██████▏   | 634/1026 [00:09<00:05, 78.29it/s]Loading weights:  63%|██████▎   | 642/1026 [00:10<00:05, 66.55it/s]Loading weights:  64%|██████▎   | 653/1026 [00:10<00:05, 64.48it/s]Loading weights:  65%|██████▌   | 670/1026 [00:10<00:05, 69.96it/s]Loading weights:  66%|██████▌   | 677/1026 [00:10<00:05, 60.08it/s]Loading weights:  67%|██████▋   | 684/1026 [00:10<00:05, 60.96it/s]Loading weights: 100%|██████████| 1026/1026 [00:10<00:00, 94.18it/s]
+[transformers] `causal_conv1d_fn` is falling back to its reference PyTorch implementation because `causal_conv1d` is not installed. This is correct but much slower; install `causal_conv1d` for the optimized kernel.
+MIOpen(HIP): Error [LockFilePath] File system operation error in LockFile. Error code: generic:30. Description: 'filesystem error: cannot create directories: Read-only file system [/home/AMD/sareeder/.config/miopen/miopen-lockfiles]'
+MIOpen Error: filesystem error: cannot create directories: Read-only file system [/home/AMD/sareeder/.config/miopen/miopen-lockfiles]
+Traceback (most recent call last):
+  File "/tmp/mk36s3_68197522/src/qwen3.6-35b-a3b-gfx942/tests/ref_vs_hf.py", line 89, in <module>
+    main()
+  File "/tmp/mk36s3_68197522/src/qwen3.6-35b-a3b-gfx942/tests/ref_vs_hf.py", line 63, in main
+    hf_logits = hf(input_ids=torch.tensor([ids], device="cuda"), use_cache=False)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 943, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/models/qwen3_5_moe/modeling_qwen3_5_moe.py", line 2047, in forward
+    outputs = self.model(
+              ^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 943, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/models/qwen3_5_moe/modeling_qwen3_5_moe.py", line 1752, in forward
+    outputs = self.language_model(
+              ^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/utils/generic.py", line 1081, in wrapper
+    output = func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/utils/output_capturing.py", line 287, in wrapper
+    outputs = func(self, *args, **kwargs)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/models/qwen3_5_moe/modeling_qwen3_5_moe.py", line 1388, in forward
+    hidden_states = decoder_layer(
+                    ^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/modeling_layers.py", line 111, in __call__
+    return super().__call__(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/models/qwen3_5_moe/modeling_qwen3_5_moe.py", line 961, in forward
+    hidden_states = self.linear_attn(
+                    ^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1783, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/torch/nn/modules/module.py", line 1794, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/integrations/accelerate.py", line 1010, in wrapped
+    output = forward_func(self, *args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/models/qwen3_5_moe/modeling_qwen3_5_moe.py", line 578, in forward
+    mixed_qkv = causal_conv1d_fn(
+                ^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/integrations/hub_kernels.py", line 1051, in wrapped
+    return implementation(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/mk36s3_68197522/venv/lib/python3.12/site-packages/transformers/models/qwen3_5_moe/modeling_qwen3_5_moe.py", line 268, in causal_conv1d_fn
+    out = F.conv1d(
+          ^^^^^^^^^
+RuntimeError: miopenStatusUnknownError

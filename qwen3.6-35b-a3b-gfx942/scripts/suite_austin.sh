@@ -19,7 +19,9 @@ echo "arch $arch"
 W=/tmp/mk36s3_$SLURM_JOB_ID
 mkdir -p "$W" && cd "$W" || exit 1
 trap 'rm -rf "$W"' EXIT
-export PIP_CACHE_DIR=$W/pipcache HF_HOME=$W/hf FLYDSL_RUNTIME_ENABLE_CACHE=0
+# the home directory is not mounted: MIOpen (HF's conv1d in tests/ref_vs_hf.py) needs a
+# writable user database and cache, else miopenStatusUnknownError
+export HOME=$W PIP_CACHE_DIR=$W/pipcache HF_HOME=$W/hf FLYDSL_RUNTIME_ENABLE_CACHE=0
 git clone -q https://github.com/SamuelReeder/megakernels.git src && git -C src checkout -q "$REV" || exit 1
 cd src/qwen3.6-35b-a3b-gfx942 || exit 1
 MK_ENV=$W/venv bash scripts/setup_env.sh || exit 1

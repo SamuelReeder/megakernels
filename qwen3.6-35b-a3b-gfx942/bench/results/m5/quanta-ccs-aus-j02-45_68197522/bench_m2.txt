@@ -1,0 +1,5 @@
+load+pack+build 9s
+rep 0: TPOT 3.866 ms (258.7 tok/s/user, 517.4 tok/s total), kernel median 3.913 ms
+rep 1: TPOT 3.868 ms (258.5 tok/s/user, 517.1 tok/s total), kernel median 3.909 ms
+rep 2: TPOT 3.867 ms (258.6 tok/s/user, 517.2 tok/s total), kernel median 3.908 ms
+{"M": 2, "ctx": 512, "steps": 256, "node": "quanta-ccs-aus-j02-45.adc.amd.com", "gpu": "AMD Instinct MI325X", "date": "2026-10-28 02:50:14", "cfg": "Cfg(M=2, cus=304, maxlen=832, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 3.865786075592041, "kernel_ms_median": 3.9130709171295166, "kernel_ms_min": 3.8441660404205322}, {"tpot_ms": 3.8679566383361816, "kernel_ms_median": 3.9091439247131348, "kernel_ms_min": 3.8467700481414795}, {"tpot_ms": 3.8670194149017334, "kernel_ms_median": 3.9077820777893066, "kernel_ms_min": 3.8411219120025635}]}

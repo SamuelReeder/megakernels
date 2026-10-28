@@ -1,0 +1,43 @@
+/tmp/mk36s3_68197522/src/qwen3.6-35b-a3b-gfx942/mk/reference.py:164: UserWarning: Specified kernel cache directory could not be created! This disables kernel caching. Specified directory is /home/AMD/sareeder/.cache/torch/kernels. This warning will appear only once per process. (Triggered internally at /__w/pytorch/pytorch/aten/src/ATen/native/hip/jit_utils.cpp:1506.)
+  return torch.exp2(7.0 - e), torch.exp2(e - 7.0)
+load+pack+build 10s  kernel cfg Cfg(M=2, cus=304, maxlen=512, block=208, maxblocks=3, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=True, fence=False)
+step 0: kernel~emulate cos 0.991756 top1 0.50 | kernel~exact cos 0.989826 top1 1.00 (gap 0.000) | emulate~exact cos 0.987571 top1 0.50 | router cos 0.999787 expert-set diffs 0 (near-ties 0)
+step 1: kernel~emulate cos 0.998144 top1 1.00 | kernel~exact cos 0.998613 top1 1.00 (gap 0.000) | emulate~exact cos 0.998393 top1 1.00 | router cos 0.999974 expert-set diffs 0 (near-ties 0)
+step 2: kernel~emulate cos 0.998805 top1 1.00 | kernel~exact cos 0.999221 top1 1.00 (gap 0.000) | emulate~exact cos 0.999210 top1 1.00 | router cos 0.999985 expert-set diffs 0 (near-ties 0)
+step 3: kernel~emulate cos 0.997287 top1 1.00 | kernel~exact cos 0.998104 top1 1.00 (gap 0.000) | emulate~exact cos 0.996715 top1 1.00 | router cos 0.999985 expert-set diffs 0 (near-ties 0)
+step 4: kernel~emulate cos 0.998706 top1 1.00 | kernel~exact cos 0.998596 top1 1.00 (gap 0.000) | emulate~exact cos 0.998406 top1 1.00 | router cos 0.999985 expert-set diffs 0 (near-ties 0)
+step 5: kernel~emulate cos 0.996763 top1 1.00 | kernel~exact cos 0.998054 top1 1.00 (gap 0.000) | emulate~exact cos 0.997727 top1 1.00 | router cos 0.999981 expert-set diffs 1 (near-ties 0)
+step 6: kernel~emulate cos 0.997212 top1 1.00 | kernel~exact cos 0.998607 top1 1.00 (gap 0.000) | emulate~exact cos 0.997755 top1 1.00 | router cos 0.999982 expert-set diffs 0 (near-ties 0)
+step 7: kernel~emulate cos 0.998731 top1 1.00 | kernel~exact cos 0.998714 top1 1.00 (gap 0.000) | emulate~exact cos 0.999098 top1 1.00 | router cos 0.999991 expert-set diffs 0 (near-ties 0)
+step 8: kernel~emulate cos 0.998068 top1 1.00 | kernel~exact cos 0.997960 top1 1.00 (gap 0.000) | emulate~exact cos 0.998501 top1 1.00 | router cos 0.999988 expert-set diffs 1 (near-ties 0)
+step 9: kernel~emulate cos 0.998787 top1 1.00 | kernel~exact cos 0.998959 top1 1.00 (gap 0.000) | emulate~exact cos 0.998983 top1 1.00 | router cos 0.999993 expert-set diffs 0 (near-ties 0)
+step 10: kernel~emulate cos 0.996714 top1 1.00 | kernel~exact cos 0.998149 top1 1.00 (gap 0.000) | emulate~exact cos 0.998614 top1 1.00 | router cos 0.999966 expert-set diffs 0 (near-ties 0)
+step 11: kernel~emulate cos 0.997018 top1 1.00 | kernel~exact cos 0.997677 top1 1.00 (gap 0.000) | emulate~exact cos 0.998415 top1 1.00 | router cos 0.999974 expert-set diffs 0 (near-ties 0)
+step 12: kernel~emulate cos 0.992900 top1 1.00 | kernel~exact cos 0.995971 top1 1.00 (gap 0.000) | emulate~exact cos 0.996668 top1 1.00 | router cos 0.999952 expert-set diffs 2 (near-ties 0)
+step 13: kernel~emulate cos 0.994025 top1 1.00 | kernel~exact cos 0.995366 top1 1.00 (gap 0.000) | emulate~exact cos 0.997303 top1 1.00 | router cos 0.999952 expert-set diffs 1 (near-ties 0)
+step 14: kernel~emulate cos 0.983865 top1 1.00 | kernel~exact cos 0.996306 top1 1.00 (gap 0.000) | emulate~exact cos 0.987840 top1 1.00 | router cos 0.999791 expert-set diffs 1 (near-ties 0)
+step 15: kernel~emulate cos 0.989048 top1 1.00 | kernel~exact cos 0.996179 top1 1.00 (gap 0.000) | emulate~exact cos 0.991820 top1 1.00 | router cos 0.999913 expert-set diffs 1 (near-ties 0)
+step 16: kernel~emulate cos 0.990738 top1 1.00 | kernel~exact cos 0.995768 top1 1.00 (gap 0.000) | emulate~exact cos 0.994347 top1 1.00 | router cos 0.999924 expert-set diffs 1 (near-ties 0)
+step 17: kernel~emulate cos 0.987480 top1 1.00 | kernel~exact cos 0.995460 top1 1.00 (gap 0.000) | emulate~exact cos 0.990471 top1 1.00 | router cos 0.999923 expert-set diffs 1 (near-ties 0)
+step 18: kernel~emulate cos 0.988116 top1 1.00 | kernel~exact cos 0.995984 top1 1.00 (gap 0.000) | emulate~exact cos 0.991389 top1 1.00 | router cos 0.999894 expert-set diffs 1 (near-ties 0)
+step 19: kernel~emulate cos 0.992549 top1 1.00 | kernel~exact cos 0.995955 top1 1.00 (gap 0.000) | emulate~exact cos 0.997188 top1 1.00 | router cos 0.999927 expert-set diffs 1 (near-ties 0)
+step 20: kernel~emulate cos 0.989817 top1 1.00 | kernel~exact cos 0.996588 top1 1.00 (gap 0.000) | emulate~exact cos 0.994661 top1 1.00 | router cos 0.999925 expert-set diffs 1 (near-ties 0)
+step 21: kernel~emulate cos 0.987512 top1 1.00 | kernel~exact cos 0.997506 top1 1.00 (gap 0.000) | emulate~exact cos 0.992556 top1 1.00 | router cos 0.999915 expert-set diffs 1 (near-ties 0)
+step 22: kernel~emulate cos 0.960802 top1 1.00 | kernel~exact cos 0.984779 top1 1.00 (gap 0.000) | emulate~exact cos 0.985330 top1 1.00 | router cos 0.999692 expert-set diffs 1 (near-ties 0)
+step 23: kernel~emulate cos 0.993112 top1 1.00 | kernel~exact cos 0.997674 top1 1.00 (gap 0.000) | emulate~exact cos 0.996720 top1 1.00 | router cos 0.999915 expert-set diffs 0 (near-ties 0)
+step 24: kernel~emulate cos 0.997706 top1 1.00 | kernel~exact cos 0.998633 top1 1.00 (gap 0.000) | emulate~exact cos 0.998729 top1 1.00 | router cos 0.999952 expert-set diffs 0 (near-ties 0)
+step 25: kernel~emulate cos 0.997649 top1 1.00 | kernel~exact cos 0.998797 top1 1.00 (gap 0.000) | emulate~exact cos 0.999011 top1 1.00 | router cos 0.999968 expert-set diffs 0 (near-ties 0)
+step 26: kernel~emulate cos 0.997168 top1 0.50 | kernel~exact cos 0.998751 top1 1.00 (gap 0.000) | emulate~exact cos 0.998905 top1 0.50 | router cos 0.999974 expert-set diffs 1 (near-ties 0)
+step 27: kernel~emulate cos 0.998676 top1 1.00 | kernel~exact cos 0.999181 top1 1.00 (gap 0.000) | emulate~exact cos 0.999029 top1 1.00 | router cos 0.999984 expert-set diffs 0 (near-ties 0)
+step 28: kernel~emulate cos 0.997838 top1 1.00 | kernel~exact cos 0.999594 top1 1.00 (gap 0.000) | emulate~exact cos 0.998173 top1 1.00 | router cos 0.999939 expert-set diffs 2 (near-ties 0)
+step 29: kernel~emulate cos 0.998659 top1 1.00 | kernel~exact cos 0.999232 top1 1.00 (gap 0.000) | emulate~exact cos 0.999142 top1 1.00 | router cos 0.999989 expert-set diffs 0 (near-ties 0)
+step 30: kernel~emulate cos 0.998631 top1 1.00 | kernel~exact cos 0.998888 top1 1.00 (gap 0.000) | emulate~exact cos 0.999225 top1 1.00 | router cos 0.999986 expert-set diffs 1 (near-ties 0)
+step 31: kernel~emulate cos 0.996888 top1 1.00 | kernel~exact cos 0.997349 top1 1.00 (gap 0.000) | emulate~exact cos 0.998787 top1 1.00 | router cos 0.999985 expert-set diffs 1 (near-ties 0)
+kernel~emulate: worst cos 0.960802 top1 0.969
+kernel~exact:   worst cos 0.984779 top1 1.000
+emulate~exact:  worst cos 0.985330 top1 0.969
+routing vs emulate (drifted inputs; information): 19 expert-set differences that are not near-ties
+top-1 changes with an exact logit gap > 0.5: 0
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where the kernel's tables differ from reference.route on the kernel's logits: 0
+PASS
