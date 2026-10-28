@@ -632,3 +632,17 @@ milestone 3 (section 9).
 Decided after milestone 3: the gates of section 9 (hard: median per-step error <= 1.2 x
 TP1, KL within 10 % of TP1, rank equality, determinism, batch invariance; report only: c1
 and the TP1 bound). The 1-layer check stays, against the reference in TP2's sum order.
+
+Decided 2026-10-28 (review of section 11): the agent decides from here on, takes the
+conservative option, and records each decision below with its evidence and the rejected
+alternative. Optimization order: deferred poll (two variants at most), the second
+`grid_wait` of `barrier_then`, the SGPR spill gap, K-chunk tuning, 16-byte pushes, and the
+prologue merge only if the wait is still the largest part. Optimization stops when two
+candidates in a row gain less than 1 % at M = 1 and M = 8. A candidate that breaks a hard
+gate is reverted and logged.
+
+- `ar_dtype = "bf16"` stays an option, not the default. Evidence: it fails the hard gate of
+  median per-step error (section 9, milestone 3: bound 13/18 against fp32 18/18; c1 13/18).
+  The cause of its later down-stage push at M = 1 (section 11, timing split: +4.7 us on the
+  last push of every down stage, same GEMV code, same stream time) is still open; it is not
+  investigated, because bf16 cannot become the default. Rejected: investigate it now.

@@ -192,11 +192,24 @@ class EpiRes:
         _epi_res(self.c, self.M, grp, tot, pre, self.h_out, self.ssq_out, self.hb_out)
 
 
+_AR_OPAQUE = __import__("os").environ.get("MK_AR_OPAQUE", "0") == "1"  # MEASURE-ONLY
+
+
+def _peer_bases(A):
+    """The peer bases and the own base; MK_AR_OPAQUE=1 (measure-only candidate) passes
+    them through opaque moves, so the peer address math stays inside the epilogue
+    instead of being hoisted out of the layer loop (SGPR pressure)."""
+    if _AR_OPAQUE:
+        return [D.opaque64(b) for b in A["bases"]], D.opaque64(A["own"])
+    return A["bases"], A["own"]
+
+
 def _ar_ctx(c, grp, tag, half):
     A = dict(D.TRACE["ar"], **c["ar"])
     off = fx.Int64(half * A["region"])
-    dst = [preg(A["bases"][p] + off, 0, "ar") for p in range(A["tp"])]
-    own = preg(A["own"] + off, 0, "ar")
+    bases, own_b = _peer_bases(A)
+    dst = [preg(bases[p] + off, 0, "ar") for p in range(A["tp"])]
+    own = preg(own_b + off, 0, "ar")
     rows = [4 * c["gl"] + r for r in range(4)]
     k = ((fx.Int32(tag) - A["epoch"] - 1) * c["cus"] * 8 + c["bid"] * 8 + c["wave"]) * 4
     return A, dst, own, rows, grp * 16 + c["col"], k
@@ -289,8 +302,9 @@ def all_reduce(c, M, grp, tot, tag, half):
     tag = fx.Int32(tag)
     mb = Mailbox(tag)
     off = fx.Int64(half * A["region"])
-    dst = [preg(A["bases"][p] + off, 0, "ar") for p in range(tp)]
-    own = preg(A["own"] + off, 0, "ar")
+    bases, own_b = _peer_bases(A)
+    dst = [preg(bases[p] + off, 0, "ar") for p in range(tp)]
+    own = preg(own_b + off, 0, "ar")
     out = []
     apw = D.ARPROBE["wave"]
     if const_expr(apw is not None):
