@@ -74,6 +74,9 @@ for name in ["ref_vs_hf.txt", "eval_text.txt"] + [f"test_decode_m{m}.txt" for m 
     ls = lines(name)
     if ls and ls[-1] != "PASS":
         bad.append(f"{name}: last line {ls[-1]!r}")
+    # the frozen suite's test_decode.py (41443a0) can print PASS with a NaN step
+    if any(" cos nan" in x for x in ls):
+        bad.append(f"{name}: NaN logits")
 
 
 def bench(path):
