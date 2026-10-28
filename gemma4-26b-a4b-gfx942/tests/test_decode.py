@@ -57,7 +57,7 @@ def main():
                    st_x.pos.clone())
     eng.load_kv(st_x, CTX)
     cur = ids[:, CTX]
-    rows, hard, hard_e, i5_bad, code_bad, rdiff = [], 0, 0, 0, 0, 0
+    rows, hard, hard_e, i5_bad, code_bad, rdiff, nonfinite = [], 0, 0, 0, 0, 0, 0
     pes = [W.L(i, "router.per_expert_scale") for i in range(LAYERS)]
     for s in range(STEPS):
         dump = {}
@@ -65,6 +65,10 @@ def main():
         ex = R.step(W, cur, st_x, layers=LAYERS, mode="exact")
         out = eng.step(cur).clone()
         torch.cuda.synchronize()
+        # min() over the cosines can skip a NaN: count non-finite logits on their own
+        # (as qwen3.8-27b-gfx942/tests/test_decode.py since c77297d)
+        nonfinite += int(not bool(torch.isfinite(out).all() and torch.isfinite(emu).all()
+                                  and torch.isfinite(ex).all()))
         rh = eng.route_hash[:LAYERS]
         i5_bad += int(not (bool((rh == rh[:, :1]).all()) and bool((rh != 0).all())))
         # per layer: the kernel's tables = reference.route_logits of its own logits
@@ -105,6 +109,7 @@ def main():
     print(f"I5: steps where two CTAs built different routing tables: {i5_bad}")
     print(f"routing code: steps where a layer's tables differ from route_logits of the "
           f"kernel's logits: {code_bad}")
+    print(f"steps with non-finite logits (kernel or reference): {nonfinite}")
     # fp8 activation rounding is chaotic over 30 layers (routing flips): two correct fp8
     # implementations (kernel, emulating reference) drift apart as far as each drifts
     # from the exact model, and the emulating reference itself changes top-1 tokens at
@@ -121,6 +126,7 @@ def main():
         and (1 - mean(1, 1)) <= 2 * (1 - mean(2, 1)) + 1 / n
         and i5_bad == 0
         and code_bad == 0
+        and nonfinite == 0
     )
     print("PASS" if ok else "FAIL")
     sys.exit(0 if ok else 1)
