@@ -1,0 +1,7 @@
+plan /cluster/logs/qwen38-tp2/m4b/plan.sh start 01:13:18 job 68193288
+srun: forcing job termination
+srun: got SIGCONT
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 68193288.20 ON banff-cyxtera-s70-4 CANCELLED AT 2026-10-27T22:15:29 ***
+srun: forcing job termination
+srun: error: banff-cyxtera-s70-4: tasks 0-1: Killed

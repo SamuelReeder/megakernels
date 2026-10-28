@@ -372,6 +372,84 @@ What can grow, and its cost:
 4. Tuning candidates, each logged here with its effect: `CHUNKS` for out/o/down at TP2,
    16-byte pushes (two columns a lane through a DPP exchange), the prologue merge of section 5.
 
+### Milestone 4 results (2026-10-28, banff-cyxtera-s70-4, job 68193288): STOP
+
+`STOP: all-reduce under load slower than the section 13 limit` (the measured cost at M = 1 is
+more than twice the spike's, in both formats). The 15 % gate (T8) holds: TP2 fp32 is 25.9 %
+faster than TP1 at M = 1. No optimization was tried after the STOP.
+
+Speed, same node, TP1 on one GPU alone (`scratch/logs/m4_bench_summary.txt`; raw
+`scratch/logs/m4a/`, `m4b/`). `bench/bench_decode.py`, ctx 512, 64 steps, median of 3 runs.
+TPOT includes the greedy token: TP2 takes it from the ranks' vocab slices with one RCCL
+all-gather of (max, index) per step (`mk/tp.py next_token`). "Fixed" holds the tokens
+fixed: launches only.
+
+| M | TP1 TPOT (fixed) ms | TP2 fp32 TPOT (fixed) ms | vs TP1 | TP2 bf16 TPOT (fixed) ms | vs TP1 |
+|---:|---|---|---:|---|---:|
+| 1 | 7.895 (7.891) | 5.852 (5.777) | -25.9 % | 6.137 (6.064) | -22.3 % |
+| 2 | 8.358 (8.358) | 6.434 (6.366) | -23.0 % | 6.577 (6.491) | -21.3 % |
+| 4 | 9.163 (9.166) | 7.562 (7.473) | -17.5 % | 7.369 (7.287) | -19.6 % |
+| 8 | 10.526 (10.512) | 8.635 (8.552) | -18.0 % | 8.235 (8.177) | -21.8 % |
+
+TP1 on this node today: 7.895 ms at M = 1 against 7.56 ms on 2026-10-22 (same node, 4 %
+slower; the comparison above uses the same day and node).
+
+All-reduce cost under load: (fixed TPOT with the all-reduce - fixed TPOT of the same kernel
+with `ar_local`) / 128.
+
+| Format | M | Under load, us per all-reduce | Spike (idle GPUs), us | Section 13 limit |
+|---|---:|---:|---:|---|
+| fp32 | 1 | 2.74 | 0.93-1.15 | 2.3: exceeded |
+| fp32 | 8 | 9.34 | 7.02-7.07 | - |
+| bf16 | 1 | 3.35 | 0.81 | 1.6: exceeded |
+| bf16 | 8 | 6.34 | 3.57 | - |
+
+The `ar_local` runs vary by up to 0.35 ms between repeats (bf16 M = 1: 5.458, 5.636,
+5.736 ms), so the bf16 M = 1 value is uncertain to about +-1.5 us; fp32 repeats agree within
+0.04 ms.
+
+Per-stage profile (one stamped step per variant, rank 0; `scratch/logs/m4c/stages_summary.txt`,
+timelines `scratch/logs/m4c/tl_*.json*` and `m4b/tl_tp1_m1.json`, not in git):
+- Fixed cost per GEMV stage, M = 1, against the section 10 fit (a + bytes / 2 / B): inp
+  14.11 us (fit 12.64), qkv 12.81 (11.85), gu 19.78 (19.46), and without the all-reduce
+  (`ar_local`) out 8.98 (8.80), o 9.21 (8.80), down 14.91 (12.99). All within 1.9 us of the
+  fit: the fixed-cost stop condition (3 us) does not apply. At M = 8 inp is 4.2 us and qkv
+  3.0 us above the fit (not a gate).
+- Where the all-reduce cost appears (M = 1, fp32): out +1.6 us, o +1.2 us in the span; for
+  down in the barrier after it (6.08 us against 4.20 with `ar_local`; bf16 9.51 us). One
+  stamped step per variant is noisy (the other stages differ by up to 1.8 us between the
+  variants), so these split the cost only roughly.
+- Not measured yet: the per-wave probe stamps of the push and the poll (item 2 above).
+
+Candidate causes (not verified, no fix tried): the grid arrival drains every outstanding
+store (`s_waitcnt vmcnt(0)`), so it waits for the system-scope stores to the peer to
+complete over XGMI; each all-reduce waits for the slower GPU's last arriver of the group (the
+cross-GPU skew of the stage end), which the spike did not have; at M = 1 bf16 is slower than
+fp32 although it moves half the bytes, so the cost at M = 1 is latency, not bandwidth.
+
+Stock vLLM TP2, nightly image `vllm-rocm-nightly-00b6c4c5` (vLLM 0.32.1rc1.dev505,
+`VLLM_ROCM_USE_AITER=1`, CUDA graphs, `vllm bench serve` 512 in / 256 out), median TPOT ms
+(`scratch/logs/m4c/vllm_aiter_tp2_Qwen3.8-27B-Quark-AWQ-MXFP4/`,
+`scratch/logs/m4d/vllm_aiter_tp2_Qwen3.8-27B/`):
+
+| Checkpoint | batch 1 (3 runs) | 2 | 4 | 8 |
+|---|---|---:|---:|---:|
+| MXFP4 (vLLM emulates MXFP4 on gfx942) | 25.15 (25.14-25.17) | 25.32 | 25.52 | 26.25 |
+| BF16 (in place of FP8) | 9.81 (9.77-9.82) | 10.61 | 12.21 | 13.32 |
+| FP8 | not run: `~/mk/models/Qwen3.8-27B-FP8` was present on 2026-10-27 and is missing on 2026-10-28; the home quota is full and downloads are not allowed | | | |
+
+TP2 kernel (fp32) against stock vLLM TP2 BF16: 9.81 / 5.852 = 1.68x at batch 1, 13.32 /
+8.635 = 1.54x at batch 8. The two methods differ (server TPOT against engine steps, see
+`bench/RESULTS.md`).
+
+Bugs found during milestone 4 (fixed, both in the harness or the timing-only build):
+- `bench/profile_decode.py` allocated its stamp buffers before `TP.init` selected the rank's
+  GPU; rank 1's kernel stored to GPU 0 memory and its first step hung (`scratch/logs/pdiag/`
+  and `scratch/logs/m4b/`).
+- `ar_local` builds still ran the embedding exchange; without the layer all-reduces the
+  ranks drift apart and the one embedding region was overwritten before it was read (hang
+  in `m4a`). The timing-only build now skips the exchange.
+
 ## 12. Rejected alternatives
 
 | Alternative | Reason |

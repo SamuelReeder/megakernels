@@ -1,0 +1,17 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T02:29:09Z rank 1 env MK_TP=2 MK_AR=bf16 MK_SEED=
+# python bench/profile_decode.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 1 512 /cluster/logs/qwen38-tp2/m4c/tl_tp2bf16l0_m1.json
+tp 2 rank 1 ar bf16 cfg Cfg(M=1, cus=304, maxlen=640, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=1603584, ssm_s0=1603584, lm_head=True, tp=2, ar_dtype='bf16', ar_local=False, chunks=())
+first step done
+512 steps done
+embed (start -> first arrival) 3.1 us; step total 6079.5 us
+stage    n  span us  busy us barrier us sum span us
+inp     48     14.0      9.9       9.43       667.3
+gdn     48      4.4      2.3       3.85       210.6
+out     48     11.2      4.8       3.76       547.1
+gu      64     19.2     16.4       3.53      1233.8
+down    64     16.6     10.0       4.92      1109.5
+qkv     16     12.5      9.6       9.44       199.3
+attn    16     24.8      1.4       3.95       398.2
+o       16     12.3      5.2       3.32       196.0
+lm       1    325.0    281.6       6.71       325.0
+sum of spans + barriers 6482.1 us
