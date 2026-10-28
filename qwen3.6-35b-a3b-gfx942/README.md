@@ -46,7 +46,9 @@ Second day (`bench/results/m5/banff-cyxtera-s70-4_68196706/`, 2026-10-28, commit
 perplexity 1.584, TPOT 3.41 / 4.02 / 4.99 / 6.41 ms at batch 1 / 2 / 4 / 8 (within 1 %
 of day 1).
 
-Second node: pending (job 68196707).
+Second node (`bench/results/m5/quanta-ccs-aus-j02-45_68197689/`, 2026-10-28, AMD Instinct MI325X on quanta-ccs-aus-j02-45,
+commit `41443a0`): every test passes, batch-invariant and bitwise deterministic,
+perplexity 1.584, TPOT 3.30 / 3.86 / 4.75 / 5.96 ms at batch 1 / 2 / 4 / 8 (against day 1 on an MI300X: -3.6 % / -3.1 % / -4.5 % / -6.4 %).
 
 One other MI300X (ctr-cx63-mi300x-12) gave non-deterministic results for this kernel and
 for the Qwen3.8 kernel. On that GPU the plain PyTorch reference was not reproducible

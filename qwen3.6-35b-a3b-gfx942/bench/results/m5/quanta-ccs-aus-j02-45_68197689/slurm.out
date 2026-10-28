@@ -1,0 +1,90 @@
+srun: job 68197689 queued and waiting for resources
+srun: job 68197689 has been allocated resources
+SLURM_JOB_ID=68197689 node quanta-ccs-aus-j02-45 2026-10-28T02:55:41-04:00
+tmpfs           1.2T     0  1.2T   0% /tmp
+arch gfx942
+torch 2.14.1+rocm7.2 hip 7.2.53211 dev AMD Instinct MI325X cus 304 arch gfx942:sramecc+:xnack-
+flydsl 0.4.0 numpy 2.5.4
+[90mHint: A new version of huggingface_hub (2.3.0) is available! You are using version 2.2.0.
+To update, run: hf update[0m
+[90mHint: The `hf-cli` skill is not installed. Run `hf skills add -g` to teach your AI agents how to use the `hf` CLI.[0m
+Fetching 56 files:   0%|          | 0/56 [00:00<?, ?it/s]Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 56 files:   2%|▏         | 1/56 [00:00<00:08,  6.73it/s]Fetching 56 files:  12%|█▎        | 7/56 [00:00<00:01, 29.83it/s]Fetching 56 files:  20%|█▉        | 11/56 [00:12<01:02,  1.39s/it]Fetching 56 files:  21%|██▏       | 12/56 [00:12<00:53,  1.22s/it]Fetching 56 files:  25%|██▌       | 14/56 [00:15<00:53,  1.27s/it]Fetching 56 files:  29%|██▊       | 16/56 [00:17<00:50,  1.27s/it]Fetching 56 files:  30%|███       | 17/56 [00:18<00:46,  1.19s/it]Fetching 56 files:  32%|███▏      | 18/56 [00:19<00:46,  1.21s/it]Fetching 56 files:  34%|███▍      | 19/56 [00:21<00:49,  1.33s/it]Fetching 56 files:  36%|███▌      | 20/56 [00:22<00:45,  1.27s/it]Fetching 56 files:  38%|███▊      | 21/56 [00:22<00:34,  1.01it/s]Fetching 56 files:  39%|███▉      | 22/56 [00:23<00:28,  1.21it/s]Fetching 56 files:  41%|████      | 23/56 [00:26<00:46,  1.41s/it]Fetching 56 files:  43%|████▎     | 24/56 [00:26<00:37,  1.16s/it]Fetching 56 files:  45%|████▍     | 25/56 [00:27<00:30,  1.03it/s]Fetching 56 files:  46%|████▋     | 26/56 [00:28<00:34,  1.15s/it]Fetching 56 files:  48%|████▊     | 27/56 [00:30<00:41,  1.43s/it]Fetching 56 files:  50%|█████     | 28/56 [00:31<00:33,  1.19s/it]Fetching 56 files:  52%|█████▏    | 29/56 [00:33<00:36,  1.33s/it]Fetching 56 files:  54%|█████▎    | 30/56 [00:33<00:29,  1.15s/it]Fetching 56 files:  55%|█████▌    | 31/56 [00:35<00:33,  1.35s/it]Fetching 56 files:  57%|█████▋    | 32/56 [00:36<00:27,  1.14s/it]Fetching 56 files:  59%|█████▉    | 33/56 [00:36<00:21,  1.06it/s]Fetching 56 files:  61%|██████    | 34/56 [00:36<00:15,  1.38it/s]Fetching 56 files:  64%|██████▍   | 36/56 [00:37<00:10,  1.86it/s]Fetching 56 files:  66%|██████▌   | 37/56 [00:40<00:19,  1.00s/it]Fetching 56 files:  68%|██████▊   | 38/56 [00:41<00:18,  1.04s/it]Fetching 56 files:  70%|██████▉   | 39/56 [00:41<00:14,  1.15it/s]Fetching 56 files:  73%|███████▎  | 41/56 [00:42<00:10,  1.44it/s]Fetching 56 files:  75%|███████▌  | 42/56 [00:42<00:08,  1.70it/s]Fetching 56 files:  77%|███████▋  | 43/56 [00:43<00:08,  1.46it/s]Fetching 56 files:  80%|████████  | 45/56 [00:43<00:04,  2.25it/s]Fetching 56 files:  82%|████████▏ | 46/56 [00:44<00:04,  2.03it/s]Fetching 56 files:  84%|████████▍ | 47/56 [00:45<00:05,  1.60it/s]Fetching 56 files:  88%|████████▊ | 49/56 [00:45<00:02,  2.56it/s]Fetching 56 files:  89%|████████▉ | 50/56 [00:46<00:02,  2.73it/s]Fetching 56 files:  93%|█████████▎| 52/56 [00:47<00:01,  2.20it/s]Fetching 56 files:  95%|█████████▍| 53/56 [00:48<00:01,  1.74it/s]Fetching 56 files:  96%|█████████▋| 54/56 [00:49<00:01,  1.50it/s]Fetching 56 files:  98%|█████████▊| 55/56 [00:49<00:00,  1.81it/s]Fetching 56 files: 100%|██████████| 56/56 [00:49<00:00,  1.13it/s]
+Fetching 40 files:   0%|          | 0/40 [00:00<?, ?it/s]Still waiting to acquire lock on /tmp/mk36s3_68197689/models/Qwen3.6-35B-A3B/.cache/huggingface/.gitignore.lock (elapsed: 0.1 seconds)
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+Fetching 40 files:   2%|▎         | 1/40 [00:00<00:09,  4.16it/s]Fetching 40 files:  18%|█▊        | 7/40 [00:00<00:01, 22.18it/s]Fetching 40 files:  25%|██▌       | 10/40 [00:15<00:58,  1.96s/it]Fetching 40 files:  28%|██▊       | 11/40 [00:19<01:07,  2.32s/it]Fetching 40 files:  32%|███▎      | 13/40 [00:28<01:20,  2.97s/it]Fetching 40 files:  35%|███▌      | 14/40 [00:28<01:05,  2.51s/it]Fetching 40 files:  38%|███▊      | 15/40 [00:31<01:04,  2.58s/it]Fetching 40 files:  40%|████      | 16/40 [00:35<01:08,  2.84s/it]Fetching 40 files:  42%|████▎     | 17/40 [00:35<00:51,  2.24s/it]Fetching 40 files:  45%|████▌     | 18/40 [00:41<01:06,  3.04s/it]Fetching 40 files:  48%|████▊     | 19/40 [00:42<00:54,  2.60s/it]Fetching 40 files:  50%|█████     | 20/40 [00:47<01:02,  3.15s/it]Fetching 40 files:  52%|█████▎    | 21/40 [00:47<00:44,  2.36s/it]Fetching 40 files:  55%|█████▌    | 22/40 [00:49<00:41,  2.33s/it]Fetching 40 files:  57%|█████▊    | 23/40 [00:49<00:28,  1.68s/it]Fetching 40 files:  62%|██████▎   | 25/40 [00:54<00:29,  1.94s/it]Fetching 40 files:  65%|██████▌   | 26/40 [00:58<00:35,  2.55s/it]Fetching 40 files:  68%|██████▊   | 27/40 [01:00<00:31,  2.40s/it]Fetching 40 files:  70%|███████   | 28/40 [01:01<00:23,  1.92s/it]Fetching 40 files:  72%|███████▎  | 29/40 [01:01<00:15,  1.43s/it]Fetching 40 files:  75%|███████▌  | 30/40 [01:02<00:13,  1.37s/it]Fetching 40 files:  78%|███████▊  | 31/40 [01:02<00:09,  1.02s/it]Fetching 40 files:  80%|████████  | 32/40 [01:02<00:06,  1.31it/s]Fetching 40 files:  82%|████████▎ | 33/40 [01:03<00:04,  1.48it/s]Fetching 40 files:  85%|████████▌ | 34/40 [01:05<00:06,  1.04s/it]Fetching 40 files:  88%|████████▊ | 35/40 [01:06<00:05,  1.05s/it]Fetching 40 files:  90%|█████████ | 36/40 [01:08<00:04,  1.25s/it]Fetching 40 files:  92%|█████████▎| 37/40 [01:12<00:06,  2.12s/it]Fetching 40 files:  95%|█████████▌| 38/40 [01:13<00:03,  1.77s/it]Fetching 40 files:  98%|█████████▊| 39/40 [01:13<00:01,  1.31s/it]Fetching 40 files: 100%|██████████| 40/40 [01:13<00:00,  1.05it/s]Fetching 40 files: 100%|██████████| 40/40 [01:13<00:00,  1.84s/it]
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/bench_m1.txt
+rep 0: TPOT 3.301 ms (302.9 tok/s/user, 302.9 tok/s total), kernel median 3.354 ms
+rep 1: TPOT 3.302 ms (302.9 tok/s/user, 302.9 tok/s total), kernel median 3.354 ms
+rep 2: TPOT 3.301 ms (303.0 tok/s/user, 303.0 tok/s total), kernel median 3.354 ms
+{"M": 1, "ctx": 512, "steps": 256, "node": "quanta-ccs-aus-j02-45.adc.amd.com", "gpu": "AMD Instinct MI325X", "date": "2026-10-28 03:10:31", "cfg": "Cfg(M=1, cus=304, maxlen=832, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 3.30133318901062, "kernel_ms_median": 3.3535048961639404, "kernel_ms_min": 3.3438899517059326}, {"tpot_ms": 3.3019344806671143, "kernel_ms_median": 3.3539459705352783, "kernel_ms_min": 3.3451719284057617}, {"tpot_ms": 3.3008275032043457, "kernel_ms_median": 3.353666067123413, "kernel_ms_min": 3.3468151092529297}]}
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/bench_m1_ctx2048.txt
+load+pack+build 9s
+rep 0: TPOT 3.400 ms (294.2 tok/s/user, 294.2 tok/s total), kernel median 3.455 ms
+rep 1: TPOT 3.399 ms (294.2 tok/s/user, 294.2 tok/s total), kernel median 3.457 ms
+{"M": 1, "ctx": 2048, "steps": 256, "node": "quanta-ccs-aus-j02-45.adc.amd.com", "gpu": "AMD Instinct MI325X", "date": "2026-10-28 03:12:39", "cfg": "Cfg(M=1, cus=304, maxlen=2368, block=208, maxblocks=12, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 3.3995070457458496, "kernel_ms_median": 3.455018997192383, "kernel_ms_min": 3.4484078884124756}, {"tpot_ms": 3.398979425430298, "kernel_ms_median": 3.4569408893585205, "kernel_ms_min": 3.451011896133423}]}
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/bench_m1_ctx4096.txt
+load+pack+build 9s
+rep 0: TPOT 3.455 ms (289.4 tok/s/user, 289.4 tok/s total), kernel median 3.498 ms
+rep 1: TPOT 3.453 ms (289.6 tok/s/user, 289.6 tok/s total), kernel median 3.502 ms
+{"M": 1, "ctx": 4096, "steps": 256, "node": "quanta-ccs-aus-j02-45.adc.amd.com", "gpu": "AMD Instinct MI325X", "date": "2026-10-28 03:13:28", "cfg": "Cfg(M=1, cus=304, maxlen=4416, block=208, maxblocks=22, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 3.455143928527832, "kernel_ms_median": 3.498404026031494, "kernel_ms_min": 3.4814178943634033}, {"tpot_ms": 3.4529197216033936, "kernel_ms_median": 3.5016489028930664, "kernel_ms_min": 3.486825942993164}]}
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/bench_m2.txt
+rep 0: TPOT 3.864 ms (258.8 tok/s/user, 517.7 tok/s total), kernel median 3.905 ms
+rep 1: TPOT 3.862 ms (258.9 tok/s/user, 517.8 tok/s total), kernel median 3.902 ms
+rep 2: TPOT 3.864 ms (258.8 tok/s/user, 517.6 tok/s total), kernel median 3.903 ms
+{"M": 2, "ctx": 512, "steps": 256, "node": "quanta-ccs-aus-j02-45.adc.amd.com", "gpu": "AMD Instinct MI325X", "date": "2026-10-28 03:10:59", "cfg": "Cfg(M=2, cus=304, maxlen=832, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 3.863569498062134, "kernel_ms_median": 3.9051780700683594, "kernel_ms_min": 3.852138042449951}, {"tpot_ms": 3.8622446060180664, "kernel_ms_median": 3.90181303024292, "kernel_ms_min": 3.842242956161499}, {"tpot_ms": 3.8642702102661133, "kernel_ms_median": 3.9033749103546143, "kernel_ms_min": 3.851938009262085}]}
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/bench_m4.txt
+rep 0: TPOT 4.752 ms (210.4 tok/s/user, 841.7 tok/s total), kernel median 4.663 ms
+rep 1: TPOT 4.754 ms (210.4 tok/s/user, 841.5 tok/s total), kernel median 4.666 ms
+rep 2: TPOT 4.754 ms (210.3 tok/s/user, 841.3 tok/s total), kernel median 4.669 ms
+{"M": 4, "ctx": 512, "steps": 256, "node": "quanta-ccs-aus-j02-45.adc.amd.com", "gpu": "AMD Instinct MI325X", "date": "2026-10-28 03:11:30", "cfg": "Cfg(M=4, cus=304, maxlen=832, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 4.752007484436035, "kernel_ms_median": 4.662521839141846, "kernel_ms_min": 4.6432929039001465}, {"tpot_ms": 4.753581523895264, "kernel_ms_median": 4.665966987609863, "kernel_ms_min": 4.634278774261475}, {"tpot_ms": 4.754335880279541, "kernel_ms_median": 4.668612003326416, "kernel_ms_min": 4.6235032081604}]}
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/bench_m8.txt
+rep 0: TPOT 5.963 ms (167.7 tok/s/user, 1341.5 tok/s total), kernel median 5.644 ms
+rep 1: TPOT 5.961 ms (167.8 tok/s/user, 1342.1 tok/s total), kernel median 5.637 ms
+rep 2: TPOT 5.958 ms (167.8 tok/s/user, 1342.8 tok/s total), kernel median 5.660 ms
+{"M": 8, "ctx": 512, "steps": 256, "node": "quanta-ccs-aus-j02-45.adc.amd.com", "gpu": "AMD Instinct MI325X", "date": "2026-10-28 03:12:05", "cfg": "Cfg(M=8, cus=304, maxlen=832, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 5.963342666625977, "kernel_ms_median": 5.644245147705078, "kernel_ms_min": 5.552987098693848}, {"tpot_ms": 5.960984230041504, "kernel_ms_median": 5.636753082275391, "kernel_ms_min": 5.55382776260376}, {"tpot_ms": 5.957715034484863, "kernel_ms_median": 5.659708023071289, "kernel_ms_min": 5.544494152069092}]}
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/determinism_m1.txt
+row 0 alone vs inside M=4: bitwise equal True (steps that differ: 0)
+row 0 alone vs inside M=8: bitwise equal True (steps that differ: 0)
+row 0 alone vs inside M=8 with rows 4..7 padding: bitwise equal True
+PASS
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/determinism_m8.txt
+row 0 alone vs inside M=4: bitwise equal True (steps that differ: 0)
+row 0 alone vs inside M=8: bitwise equal True (steps that differ: 0)
+row 0 alone vs inside M=8 with rows 4..7 padding: bitwise equal True
+PASS
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/env.txt
+gfx942
+113-M3250101-100
+torch 2.14.1+rocm7.2 hip 7.2.53211 flydsl 0.4.0 AMD Instinct MI325X 304 CUs
+41443a0d1a90ee33d4faa5ce756c76f6d17df75b
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/eval_text.txt
+passage 3: ppl kernel 1.126 fp8 1.122 bf16 1.117 | top1 kernel=fp8 1.000 kernel=bf16 0.989 fp8=bf16 0.989 | KL(bf16||kernel) 0.0028 KL(bf16||fp8) 0.0032 | batch-invariant True
+passage 4: ppl kernel 2.682 fp8 2.715 bf16 2.737 | top1 kernel=fp8 0.976 kernel=bf16 0.988 fp8=bf16 0.976 | KL(bf16||kernel) 0.0041 KL(bf16||fp8) 0.0023 | batch-invariant True
+all: ppl kernel 1.584 fp8 1.585 bf16 1.584
+PASS
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/ref_vs_hf.txt
+emulate ref (BF16) vs HF     cos min 0.997265 mean 0.999630 | top1 1.0000 | KL mean 1.38e-03 max 2.11e-02
+exact ref (FP8) vs HF BF16   cos min 0.991976 mean 0.997945 | top1 1.0000 | KL mean 6.94e-03 max 4.57e-02
+emulate ref (FP8) vs HF BF16 cos min 0.990203 mean 0.997233 | top1 0.9615 | KL mean 8.85e-03 max 6.88e-02
+PASS
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/test_decode_m1.txt
+top-1 changes with an exact logit gap > 0.5: 0
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where the kernel's tables differ from reference.route on the kernel's logits: 0
+PASS
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/test_decode_m2.txt
+top-1 changes with an exact logit gap > 0.5: 0
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where the kernel's tables differ from reference.route on the kernel's logits: 0
+PASS
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/test_decode_m4.txt
+top-1 changes with an exact logit gap > 0.5: 0
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where the kernel's tables differ from reference.route on the kernel's logits: 0
+PASS
+== bench/results/m5/quanta-ccs-aus-j02-45_68197689/test_decode_m8.txt
+top-1 changes with an exact logit gap > 0.5: 0
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where the kernel's tables differ from reference.route on the kernel's logits: 0
+PASS
