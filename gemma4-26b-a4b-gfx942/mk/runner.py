@@ -83,8 +83,7 @@ class Engine:
         self.cf = Cache(True, max(layers - ns, 1), M, maxlen, block_f, device, 2)
         if fence is None:  # MK_FENCE=1: L2 fences at every grid barrier (debug)
             fence = os.environ.get("MK_FENCE", "0") == "1"
-        # combine_last wins at M = 1 only (bench/results/m4/combine_vs_m.txt)
-        flags = dict(combine_last=M == 1)
+        flags = {}
         for kv in filter(None, os.environ.get("MK_CFG", "").split(",")):
             k, v = kv.split("=")
             flags[k] = bool(int(v))
@@ -101,7 +100,7 @@ class Engine:
         # router_publish: the gate_up inputs, fp8 [2M][H] and scales [2M][H / 128]
         self.xg = z(2 * M * H // 4, dt=torch.int32)
         self.xgs = z(2 * M * (H // 128))
-        # combine_last: the next layer's qkv input, fp8 [M][H] and scales [M][H / 128]
+        # combine_rows: the next layer's qkv input, fp8 [M][H] and scales [M][H / 128]
         self.xq = z(M * H // 4, dt=torch.int32)
         self.xqs = z(M * (H // 128))
         self.y = z(M, QKV_F)

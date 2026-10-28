@@ -1,0 +1,19 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+  worst at row 2 (pos 63) head 7 dim 5: kernel -0.89190 model -0.89543
+PASS
+M=1 3.778 3.778 3.836 
+attn (us from the last release of its barrier; n tasks 86)
+attn start          end: min -105.8 med -105.4 max 2.0 us (n 86)
+attn q/k prep       end: min -103.5 med -102.8 max 9.7 us (n 86)
+attn QK             end: min -100.5 med -99.6 max 39.0 us (n 86)
+attn softmax+PV     end: min -96.5 med -95.6 max 46.5 us (n 86)
+attn record+atomic  end: min -95.7 med -94.7 max 48.8 us (n 86)
+attn merge          end: min -3214.1 med -769.6 max 53.6 us (n 59)
+M=8 6.745 6.755 6.767 
+attn (us from the last release of its barrier; n tasks 710)
+attn start          end: min -208.8 med -208.6 max 2.1 us (n 710)
+attn q/k prep       end: min -206.2 med -204.4 max 12.3 us (n 710)
+attn QK             end: min -203.3 med -197.7 max 56.4 us (n 710)
+attn softmax+PV     end: min -199.1 med -191.8 max 63.7 us (n 710)
+attn record+atomic  end: min -198.3 med -190.7 max 64.7 us (n 710)
+attn merge          end: min -5041.5 med -387.7 max 69.1 us (n 256)

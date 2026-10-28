@@ -95,11 +95,11 @@ class Cfg:
     # publish h1 and the quantized gate_up inputs (stages.publish_row), which the gate_up
     # prologue copies; else every CTA runs both whole-row prologues
     router_publish: bool = True
-    # the CTA that completes the last expert-down group rebuilds h and publishes the next
-    # layer's qkv input (stages.publish_qkv), which the qkv prologue copies (layers > 0);
-    # else every CTA rebuilds h in the qkv prologue. One CTA rebuilding M rows costs more
-    # than it saves for M > 1: the Engine turns it on at M = 1 only.
-    combine_last: bool = True
+    # down stage: CTAs cus - M + m wait for all expert-down groups (a device counter), then
+    # rebuild row m of h and publish the next layer's quantized qkv input
+    # (stages.combine_row), which the qkv prologue copies (layers > 0); else every CTA
+    # rebuilds all rows of h in the qkv prologue
+    combine_rows: bool = True
     debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
     fence: bool = False  # L2 write-back / invalidate at every grid barrier (dev.grid_*)
 
@@ -191,7 +191,7 @@ def build(cfg: Cfg):
         eid: fx.Array[fx.Int32, NP + 3, 16]
         posof: fx.Array[fx.Int32, NE, 16]
         slot: fx.Array[fx.Int32, M * NP, 16]
-        npos: fx.Array[fx.Int32, 4, 16]  # [0] npos, [1] combine flag
+        npos: fx.Array[fx.Int32, 4, 16]
         rmask: fx.Array[fx.Int32, M * 8, 16]  # routing: row m's expert set (bits)
 
     def tab64(r, i):
@@ -216,8 +216,6 @@ def build(cfg: Cfg):
         st_lds = alloc.allocate(StageLds)
         gl_, xl_ = st_lds.g.peek(), st_lds.x.peek()
         xq, xs = gl_.xq.ptr, gl_.xs.ptr
-        if tid == 0:
-            fx.ptr_store(fx.Int32(0), sm.npos.ptr + 1)  # combine flag (Cfg.combine_last)
         rg = D.rsrc(glob)
         rt = D.rsrc(tab)
         G = [tab64(rg, k) for k in range(NGLOB)]
@@ -284,7 +282,7 @@ def build(cfg: Cfg):
                 _attn_layer(env, GEO[True], "f")
             else:
                 _attn_layer(env, GEO[False], "s")
-            _moe(env, R, sm.npos.ptr + 1, nlayers)
+            _moe(env, R, nlayers)
         c.clear()
         c.update(c0)
         e_end = epoch + 1 + nlayers * STAGES_PER_LAYER
@@ -323,8 +321,8 @@ def _attn_layer(env, geo, kind):
     _attn_layer_t(**env, geo=geo, kind=kind)
 
 
-def _moe(env, R, flag, nlayers):
-    _moe_t(**env, R=R, flag=flag, nlayers=nlayers)
+def _moe(env, R, nlayers):
+    _moe_t(**env, R=R, nlayers=nlayers)
 
 
 @D.traced
@@ -335,10 +333,13 @@ def _attn_layer_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_t
     rope = G[G_ROPE_F] if geo.full else G[G_ROPE_S]
     # qkv: rebuild h (the previous layer's raw outputs), input_layernorm, fp8
     w, buf = barrier_then(qkv, T(T_QKV_T), T(T_QKV_S), e0)
-    if const_expr(cfg.combine_last):
+    if const_expr(cfg.combine_rows):
+        if (c["bid"] == 0) & (c["tid"] == 0):
+            # the previous layer's combine CTAs have passed the done counter
+            D.st(fx.Int32(0), D.rsrc(cnt("done")), 0, D.CM_DEV)
         if li == 0:
             _qkv_rebuild(c, M, qkv, xq, xs, red, G, T, Tp)
-        else:  # the previous layer's combine published x (and h)
+        else:  # the previous layer's combine CTAs published x (and h)
             S.prologue_gu_copy(c, qkv, xq, xs, G[G_XQ], G[G_XQS], M)
     else:
         _qkv_rebuild(c, M, qkv, xq, xs, red, G, T, Tp)
@@ -366,7 +367,7 @@ def _qkv_rebuild(c, M, qkv, xq, xs, red, G, T, Tp):
 
 @D.traced
 def _moe_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw, cfg, li,
-           R, flag, nlayers):
+           R, nlayers):
     rtr, e1, e2 = SP["router"], SP["e1"], SP["e2"]
     M = rtr.M
     # debug_route: every layer's router logits stay ([NL][M][LGN]); else one buffer
@@ -406,20 +407,19 @@ def _moe_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw
     pos0 = e2.cta_pos0(c["bid"], R.n())
     MO.prologue_act_moe(c, e2, xq, xs, G[G_ACT], R, pos0)
     w2 = e2.setup(c, xq, xs, T(T_E2_T), T(T_E2_S))
-    if const_expr(cfg.combine_last):
+    if const_expr(cfg.combine_rows):
+        more = li + 1 < nlayers  # the last layer's h is rebuilt by the final stage
         e2.run(c, w2, R, part, cnt("e2"),
-               S.EpiDE(c, M, G[G_E], G[G_SSQE], G[G_D], G[G_SSQD], cnt("done"), flag, e2.G),
+               S.EpiDE(c, M, G[G_E], G[G_SSQE], G[G_D], G[G_SSQD], cnt("done"), more),
                pos0)
-        gpu.barrier()
-        if (fx.ptr_load(flag) != 0) & (li + 1 < nlayers):
-            # this CTA completed the layer's last group: d and e are whole
-            hh, k0, live = S.rebuild_h(c, M, red, G[G_H1], G[G_D], G[G_E], G[G_SSQD],
-                                       G[G_SSQE], T(T_POST1), T(T_POST2), T(T_POSTF),
-                                       T(T_LS), G[G_H], "comb", True)
-            S.publish_qkv(c, M, red, hh, k0, live, Tn(T_IN_LN), G[G_XQ], G[G_XQS])
-        gpu.barrier()
-        if c["tid"] == 0:
-            fx.ptr_store(fx.Int32(0), flag)
+        m = c["bid"] - (cfg.cus - M)
+        if more & (m >= 0):
+            if c["tid"] == 0:
+                D.poll_ge(D.rsrc(cnt("done")), 0, fx.Int32(e2.G))
+            gpu.barrier()  # every expert-down group has stored d, e and their sums
+            S.combine_row(c, m, red, G[G_H1], G[G_D], G[G_E], G[G_SSQD], G[G_SSQE],
+                          T(T_POST1), T(T_POST2), T(T_POSTF), T(T_LS), Tn(T_IN_LN), G[G_H],
+                          G[G_XQ], G[G_XQS])
     else:
         e2.run(c, w2, R, part, cnt("e2"),
                S.EpiDE(c, M, G[G_E], G[G_SSQE], G[G_D], G[G_SSQD]), pos0)

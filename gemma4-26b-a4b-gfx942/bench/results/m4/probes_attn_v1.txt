@@ -1,0 +1,17 @@
+== M=1
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+attn (us from the last release of its barrier; n tasks 86)
+attn start          end: min -101.2 med -100.6 max 2.5 us (n 86)
+attn q/k prep       end: min -98.9 med -98.3 max 6.1 us (n 86)
+attn QK             end: min -96.5 med -95.4 max 14.4 us (n 86)
+attn softmax+PV     end: min -92.8 med -91.1 max 21.5 us (n 86)
+attn record+atomic  end: min -92.1 med -90.4 max 22.5 us (n 86)
+attn merge          end: min -2270.3 med -392.0 max 27.2 us (n 55)
+== M=8
+attn (us from the last release of its barrier; n tasks 710)
+attn start          end: min -182.7 med -182.5 max 1.6 us (n 710)
+attn q/k prep       end: min -180.1 med -178.2 max 7.6 us (n 710)
+attn QK             end: min -177.5 med -172.0 max 19.3 us (n 710)
+attn softmax+PV     end: min -173.2 med -164.5 max 29.1 us (n 710)
+attn record+atomic  end: min -172.5 med -163.7 max 30.5 us (n 710)
+attn merge          end: min -5388.9 med -532.7 max 35.5 us (n 287)

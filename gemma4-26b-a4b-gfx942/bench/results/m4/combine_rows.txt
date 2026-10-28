@@ -1,0 +1,15 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+== M=1 combine_rows=0 vs 1
+M=1 steps=96: bitwise equal True (steps that differ: 0)
+PASS
+== M=8 combine_rows=0 vs 1
+M=8 steps=96: bitwise equal True (steps that differ: 0)
+PASS
+M=1 MK_CFG=combine_rows=0 3.624 3.623 3.632 
+M=1 MK_CFG= 3.584 3.583 3.585 
+M=2 MK_CFG=combine_rows=0 4.107 4.112 4.124 
+M=2 MK_CFG= 4.055 4.062 4.070 
+M=4 MK_CFG=combine_rows=0 4.831 4.850 4.859 
+M=4 MK_CFG= 4.780 4.795 4.798 
+M=8 MK_CFG=combine_rows=0 6.123 6.164 6.194 
+M=8 MK_CFG= 5.894 5.917 5.949 

@@ -122,14 +122,13 @@ def _epi_ssq_t(c, M, grp, tot, out, ssq):
 
 class EpiDE:
     """Expert-down epilogue (moe._reduce_down): tots = [e, d]; stores both raw with their
-    16-column sums of squares. done / flag (Cfg.combine_last): then counts the group on
-    the device counter `done`; the wave that completes all G groups sets the LDS `flag`
-    of its CTA, which then rebuilds h for the next layer (combine)."""
+    16-column sums of squares. done (Cfg.combine_rows): then, if `count`, adds the group
+    to the device counter `done` that the combine CTAs wait on."""
 
-    def __init__(self, c, M, e, ssq_e, d, ssq_d, done=None, flag=None, G=0):
+    def __init__(self, c, M, e, ssq_e, d, ssq_d, done=None, count=None):
         self.c, self.M = c, M
         self.e, self.ssq_e, self.d, self.ssq_d = e, ssq_e, d, ssq_d
-        self.done, self.flag, self.G = done, flag, G
+        self.done, self.count = done, count
 
     def pre(self, grp):
         return None
@@ -137,19 +136,14 @@ class EpiDE:
     def __call__(self, grp, tots, pre):
         _epi_de(self.c, self.M, grp, tots[0], tots[1], self.e, self.ssq_e, self.d, self.ssq_d)
         if const_expr(self.done is not None):
-            _count_done(self.c, self.done, self.flag, self.G)
+            _count_done(self.c, self.done, self.count)
 
 
 @D.traced
-def _count_done(c, done, flag, G):
+def _count_done(c, done, count):
     rocdl.s_waitcnt(vmcnt=0)  # this group's stores before its count
-    old = fx.Int32(0)
-    if c["lane"] == 0:
-        old = D.atomic_add_dev(done, 1)
-    if (D.uniform(old) + 1) == G:
-        if c["lane"] == 0:
-            D.st(fx.Int32(0), D.rsrc(done), 0, D.CM_DEV)  # next use: behind a barrier
-            fx.ptr_store(fx.Int32(1), flag)
+    if count & (c["lane"] == 0):
+        D.atomic_add_dev(done, 1)
 
 
 @D.traced
@@ -262,8 +256,7 @@ def _sq8(v, live):
 
 
 @D.traced
-def rebuild_h(c, M, red, h1, d, e, ssq_d, ssq_e, w1, w2, wpf, ls, h_out, name="",
-              store_any=False):
+def rebuild_h(c, M, red, h1, d, e, ssq_d, ssq_e, w1, w2, wpf, ls, h_out, name=""):
     """The residual at a layer start (docs/DESIGN.md "Stages"):
     h = (h1 + rms(rms(d) w1 + rms(e) w2) wpf) * layer_scalar, per row in fp32 (rms(x) = x
     * rsqrt(mean(x^2) + eps)). Returns ([M] lists of the thread's 8 values, k0, live)
@@ -298,7 +291,7 @@ def rebuild_h(c, M, red, h1, d, e, ssq_d, ssq_e, w1, w2, wpf, ls, h_out, name=""
         ht = [(hv[t][q] + s[t][q] * rs * af[q]) * lsv for q in range(8)]
         hh.append(ht)
         parts.append(_sq8(ht, live))
-        if ((c["bid"] == 0) | store_any) & live:
+        if (c["bid"] == 0) & live:
             D.st(fx.Vector.from_elements(ht[:4], fx.Float32), ro, t * H + k0, D.CM_DEV)
             D.st(fx.Vector.from_elements(ht[4:], fx.Float32), ro, t * H + k0 + 4, D.CM_DEV)
     _rows_rstd(c, M, parts, red, 3)
@@ -322,15 +315,34 @@ def prologue_qkv(c, g, xq, xs, red, hh, k0, live, lnw):
 
 
 @D.traced
-def publish_qkv(c, M, red, hh, k0, live, lnw, xg, xgs):
-    """Combine (Cfg.combine_last): the next layer's qkv input x = h * rstd(h) *
-    input_layernorm quantized as prologue_qkv would (same bits) -> xg fp8 [M][H] and
-    xgs scales [M][H / 128] (global)."""
+def combine_row(c, m, red, h1, d, e, ssq_d, ssq_e, w1, w2, wpf, ls, lnw, h_out, xg, xgs):
+    """Down stage, CTA cus - M + m (Cfg.combine_rows): row m of rebuild_h (the same
+    arithmetic and sum orders: the same bits) -> h_out, and the next layer's qkv input
+    x = h * rstd(h) * input_layernorm quantized as prologue_qkv does -> xg fp8 [M][H] and
+    xgs scales [M][H / 128]."""
+    k0, live = _oct(c)
+    _rstd_row(c, ssq_d, red, 0, m)
+    _rstd_row(c, ssq_e, red, 1, m)
+    dv = _ld8(D.rsrc(d), m * H + k0)
+    ev = _ld8(D.rsrc(e), m * H + k0)
+    hv = _ld8(D.rsrc(h1), m * H + k0)
+    a1, a2, af = _w8(D.rsrc(w1), k0), _w8(D.rsrc(w2), k0), _w8(D.rsrc(wpf), k0)
     wv = _w8(D.rsrc(lnw), k0)
-    rq, rsc = D.rsrc(xg), D.rsrc(xgs)
-    for t in range_constexpr(M):
-        rs = fx.ptr_load(red + (64 + 24 + t))
-        _quant8_g(c, [hh[t][q] * rs * wv[q] for q in range(8)], rq, rsc, t, k0, live)
+    lsv = D.bf_lo(D.ld(D.rsrc(ls), 0))
+    gpu.barrier()
+    rdt, ret = fx.ptr_load(red + 64), fx.ptr_load(red + (64 + 8))
+    s = [dv[q] * rdt * a1[q] + ev[q] * ret * a2[q] for q in range(8)]
+    _rows_rstd(c, 1, [_sq8(s, live)], red, 2)
+    rs = fx.ptr_load(red + (64 + 16))
+    ht = [(hv[q] + s[q] * rs * af[q]) * lsv for q in range(8)]
+    ro = D.rsrc(h_out)
+    if live:
+        D.st(fx.Vector.from_elements(ht[:4], fx.Float32), ro, m * H + k0, D.CM_DEV)
+        D.st(fx.Vector.from_elements(ht[4:], fx.Float32), ro, m * H + k0 + 4, D.CM_DEV)
+    _rows_rstd(c, 1, [_sq8(ht, live)], red, 3)
+    rh = fx.ptr_load(red + (64 + 24))
+    _quant8_g(c, [ht[q] * rh * wv[q] for q in range(8)], D.rsrc(xg), D.rsrc(xgs), m, k0,
+              live)
 
 
 @D.traced
