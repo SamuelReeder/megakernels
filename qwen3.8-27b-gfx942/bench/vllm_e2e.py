@@ -3,6 +3,7 @@
 Greedy generation of fixed prompts (tokens and logprobs saved for the comparison), then
 decode speed: TPOT = (time(256 tokens) - time(1 token)) / 255 for batches of 1 to 8.
 Usage: python bench/vllm_e2e.py MODEL_DIR on|off OUT.json [MAX_TOKENS]
+Env: MK_TP (tensor parallel size), MK_ATTN (attention backend).
 """
 import json
 import os
@@ -30,6 +31,8 @@ def main():
               gpu_memory_utilization=0.85, max_num_seqs=8, seed=0)
     if mode == "on":
         kw["specialized_decode"] = "monokernel"
+    if os.environ.get("MK_TP"):  # tensor parallel size (TP2: both GPUs, one process)
+        kw["tensor_parallel_size"] = int(os.environ["MK_TP"])
     if os.environ.get("MK_ATTN"):
         kw["attention_backend"] = os.environ["MK_ATTN"]
     t0 = time.time()
