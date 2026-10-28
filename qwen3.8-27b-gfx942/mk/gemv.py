@@ -322,13 +322,19 @@ class Gemv:
                 old = D.atomic_add_dev(cnt + self.cgroup(p0 + j) * 4, 1)
             olds.append(D.uniform(old))
         D.probe(c, 3)
+        deferred = getattr(epilogue, "deferred", False)
         for j in range_constexpr(self.NPW):
             if (j < np_) & ((olds[j] + 1) == self.cg_total(self.cgroup(p0 + j))):
                 # the last arriver resets the counter for the next layer: every other
                 # arrival is in, and the next use is behind a grid barrier
                 if w["lane"] == 0:
                     D.st(fx.Int32(0), D.rsrc(cnt), self.cgroup(p0 + j), D.CM_DEV)
-                self.la_reduce(w["lane"], self.cgroup(p0 + j), rp, epilogue, c)
+                self.la_reduce(w["lane"], self.cgroup(p0 + j), rp, epilogue, c, deferred)
+        if const_expr(deferred):
+            # deferred poll: every group's push is out before the first poll
+            for j in range_constexpr(self.NPW):
+                if (j < np_) & ((olds[j] + 1) == self.cg_total(self.cgroup(p0 + j))):
+                    self.la_finish(epilogue, self.cgroup(p0 + j))
         D.probe(c, 2)
 
     def nseg(self, p):
@@ -367,12 +373,19 @@ class Gemv:
                 total = total + n
         return total
 
+    def la_finish(self, epilogue, cg):
+        """Deferred poll: the poll and the stores of a group whose push la_reduce issued
+        (a method, so the dynamic if above does not carry the epilogue as state)."""
+        epilogue.finish(cg)
+
     @D.traced
-    def la_reduce(self, lane, cg, rp, epilogue, c=None):
+    def la_reduce(self, lane, cg, rp, epilogue, c=None, push_only=False):
         """Sum every segment of the counter group's pieces (fixed order) -> epilogue.
         A batch of groups' segment loads goes out together (dead segments masked)."""
         # the epilogue's own input loads (if any) go out with the partial loads
-        pre = epilogue.pre(cg) if hasattr(epilogue, "pre") else None
+        pre = None
+        if const_expr(not push_only and hasattr(epilogue, "pre")):
+            pre = epilogue.pre(cg)
         tots = []
         nb = 4
         for j0 in range_constexpr(0, self.gpc, nb):
@@ -400,7 +413,9 @@ class Gemv:
                         [ok.select(tot[r] + v[r], tot[r]) for r in range(4)], fx.Float32
                     )
                 tots.append(tot)
-        if pre is None:
+        if const_expr(push_only):
+            epilogue.push(cg, tots)
+        elif const_expr(pre is None):
             epilogue(cg, tots)
         else:
             epilogue(cg, tots, pre)

@@ -161,6 +161,10 @@ class EpiRes:
             hb_out,
         )
         self.ar = ar if D.TRACE["ar"] is not None else None
+        # deferred poll (Cfg.ar_defer): the GEMV pushes every group it completes first
+        # (push), then polls and stores them (finish), so the round trips overlap
+        A = D.TRACE["ar"]
+        self.deferred = self.ar is not None and A["defer"] and not A["local"]
 
     def pre(self, grp):
         ri = D.rsrc(self.h_in)
@@ -178,6 +182,96 @@ class EpiRes:
         if const_expr(self.ar is not None):
             tot = all_reduce(self.c, self.M, grp, tot, *self.ar)
         _epi_res(self.c, self.M, grp, tot, pre, self.h_out, self.ssq_out, self.hb_out)
+
+    def push(self, grp, tots):
+        ar_push(self.c, self.M, grp, tots[0], *self.ar)
+
+    def finish(self, grp):
+        pre = self.pre(grp)
+        tot = ar_poll(self.c, self.M, grp, *self.ar)
+        _epi_res(self.c, self.M, grp, tot, pre, self.h_out, self.ssq_out, self.hb_out)
+
+
+def _ar_ctx(c, grp, tag, half):
+    A = dict(D.TRACE["ar"], **c["ar"])
+    off = fx.Int64(half * A["region"])
+    dst = [preg(A["bases"][p] + off, 0, "ar") for p in range(A["tp"])]
+    own = preg(A["own"] + off, 0, "ar")
+    rows = [4 * c["gl"] + r for r in range(4)]
+    k = ((fx.Int32(tag) - A["epoch"] - 1) * c["cus"] * 8 + c["bid"] * 8 + c["wave"]) * 4
+    return A, dst, own, rows, grp * 16 + c["col"], k
+
+
+@D.traced
+def ar_push(c, M, grp, tot, tag, half):
+    """The push half of all_reduce (deferred poll): this rank's partial to every rank."""
+    A, dst, own, rows, n, k = _ar_ctx(c, grp, tag, half)
+    tp, rank, lane, col = A["tp"], A["rank"], c["lane"], c["col"]
+    tv = [fx.Float32(tot[r]) for r in range(4)]
+    tag = fx.Int32(tag)
+    apw = D.ARPROBE["wave"]
+    if const_expr(apw is not None):
+        t_push = D.memrealtime()
+    if const_expr(A["dtype"] == "fp32"):
+        for r in range_constexpr(4):
+            if rows[r] < M:
+                for p in range_constexpr(tp):
+                    Mailbox(tag).put(dst[p], (rank * M + rows[r]) * H + n, tv[r])
+    else:
+        even = col % 2 == 0
+        for r in range_constexpr(4):
+            nb = D.gather_f(tv[r], lane ^ 1)
+            if (rows[r] < M) & even:
+                for p in range_constexpr(tp):
+                    Mailbox(tag).put_bf(
+                        dst[p],
+                        2 * ((rank * M + rows[r]) * (H // 2) + n // 2),
+                        [tv[r], nb],
+                    )
+    if const_expr(apw is not None):
+        if lane == 0:
+            D.st_stamps(fx.Int64(apw), k, t_push, t_push)
+
+
+@D.traced
+def ar_poll(c, M, grp, tag, half):
+    """The poll half of all_reduce (deferred poll): every rank's partial from the own
+    region (the own one included, pushed by ar_push), summed in rank order."""
+    A, dst, own, rows, n, k = _ar_ctx(c, grp, tag, half)
+    tp, lane, col = A["tp"], c["lane"], c["col"]
+    mb = Mailbox(fx.Int32(tag))
+    apw = D.ARPROBE["wave"]
+    fp = A["dtype"] == "fp32"
+    W = H if fp else H // 2
+    specs = [
+        (own, (s * M + fx.min(rows[r], M - 1)) * W + (n if fp else n // 2), 1)
+        for r in range(4)
+        for s in range(tp)
+    ]
+    if const_expr(apw is not None):
+        t_ps = D.memrealtime()
+    ws = mb.poll(specs)
+    if const_expr(apw is not None):
+        t_pe = D.memrealtime()
+    out = []
+    even = col % 2 == 0
+    for r in range_constexpr(4):
+        if const_expr(fp):
+            vals = [fx.Int32(ws[r * tp + s][0]).bitcast(fx.Float32) for s in range(tp)]
+        else:
+            vals = [
+                even.select(D.bf_lo(ws[r * tp + s][0]), D.bf_hi(ws[r * tp + s][0]))
+                for s in range(tp)
+            ]
+        a = vals[0]
+        for s in range_constexpr(1, tp):
+            a = a + vals[s]
+        out.append(a)
+    if const_expr(apw is not None):
+        if lane == 0:
+            D.st_stamps(fx.Int64(apw), k + 1, t_ps, t_pe)
+            D.st_stamps(fx.Int64(apw), k + 2, t_pe, fx.Int64(grp))
+    return fx.Vector.from_elements(out, fx.Float32)
 
 
 @D.traced

@@ -32,6 +32,9 @@ def main():
     a, b, c = (run(e, toks) for e in engs)
     same = torch.equal(a, b) and torch.equal(a, c)
     print(f"M={M} steps={steps}: 3 runs bitwise equal: {same}")
+    # a build change that must not change any bit: compare this hash across builds
+    sha = __import__("hashlib").sha256(a.float().cpu().numpy().tobytes()).hexdigest()[:16]
+    print(f"logits sha256 {sha}")
     if ctx.tp > 1:
         req = all(e.ranks_equal for e in engs)
         print(f"tp {ctx.tp} ar {ctx.ar_dtype}: ranks bitwise equal every step: {req}")
