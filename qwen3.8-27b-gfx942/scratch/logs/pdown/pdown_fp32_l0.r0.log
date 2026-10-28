@@ -1,0 +1,41 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T05:36:23Z rank 0 env MK_TP=2 MK_AR=fp32 MK_SEED=
+# python bench/profile_decode.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 1 512
+tp 2 rank 0 ar fp32 cfg Cfg(M=1, cus=304, maxlen=640, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=1603584, ssm_s0=1603584, lm_head=True, tp=2, ar_dtype='fp32', ar_local=False, chunks=())
+first step done
+512 steps done
+embed (start -> first arrival) 3.4 us; step total 6039.0 us
+stage    n  span us  busy us barrier us sum span us
+inp     48     14.2     10.2       5.50       682.2
+gdn     48      4.4      2.3       3.70       209.1
+out     48     10.6      5.0       3.74       745.2
+gu      64     19.8     16.8       3.68      1270.7
+down    64     16.2     11.0       4.49      1039.1
+qkv     16     12.9     10.0       5.47       205.5
+attn    16     25.5      1.4       3.72       403.8
+o       16     10.2      4.9       3.09       169.1
+lm       1    340.1    301.8       4.95       340.1
+sum of spans + barriers 6413.6 us
+down timeline (us from its barrier's last release): 
+  first release  med   -1.2 max   -1.2
+  prologue       med -1066135590772.1 max -1066135590772.1
+  loads issued   med   20.3 max   21.4
+  rstd done      med   21.1 max   21.9
+  quantized      med -1066135590772.1 max -1066135590772.1
+  stream start   med   -0.2 max    0.8
+  stream end     med    7.2 max    9.3
+  hand-off end   med    9.3 max   18.2
+  next arrival   med    9.1 max   16.2
+  next release   med   20.1 max   21.1
+down stream start : min 5678.7 med 5678.8 max 5679.7 us
+down stream end   : min 5682.1 med 5686.1 max 5688.3 us
+down hand-off end : min 5685.3 med 5688.3 max 5697.2 us
+down stream time per wave: min 3.4 med 7.3 max 9.4 us
+down hand-off per wave: med 2.2 max 9.4 us
+down drain + atomics per wave: med 1.8 max 3.3 us
+down reductions per wave: med 0.4 max 7.6 us
+stream by XCD (bid%8) median: [7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3, 7.3]
+stream by XCD max: [8.6, 8.8, 8.6, 9.2, 9.2, 9.4, 9.4, 9.2]
+stream by wave median: [6.9, 6.6, 6.7, 6.7, 7.7, 7.7, 7.7, 7.7]
+start spread by XCD: [0.5, 0.6, 0.7, 0.6, 1.1, 0.9, 0.7, 0.7]
+stream quantiles 10/50/90/99: [5.9, 7.3, 8.1, 8.7]
+slowest 10% by bid/38: [41, 40, 27, 21, 27, 20, 35, 29] by xcd: [28, 31, 22, 26, 31, 31, 34, 37]

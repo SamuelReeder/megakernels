@@ -376,7 +376,8 @@ What can grow, and its cost:
 
 `STOP: all-reduce under load slower than the section 13 limit` (the measured cost at M = 1 is
 more than twice the spike's, in both formats). The 15 % gate (T8) holds: TP2 fp32 is 25.9 %
-faster than TP1 at M = 1. No optimization was tried after the STOP.
+faster than TP1 at M = 1. No optimization was tried after the STOP. Resolved 2026-10-28: the
+measured end-to-end result replaces the prediction that the limit protected (section 13).
 
 Speed, same node, TP1 on one GPU alone (`scratch/logs/m4_bench_summary.txt`; raw
 `scratch/logs/m4a/`, `m4b/`). `bench/bench_decode.py`, ctx 512, 64 steps, median of 3 runs.
@@ -436,7 +437,7 @@ Stock vLLM TP2, nightly image `vllm-rocm-nightly-00b6c4c5` (vLLM 0.32.1rc1.dev50
 |---|---|---:|---:|---:|
 | MXFP4 (vLLM emulates MXFP4 on gfx942) | 25.15 (25.14-25.17) | 25.32 | 25.52 | 26.25 |
 | BF16 (in place of FP8) | 9.81 (9.77-9.82) | 10.61 | 12.21 | 13.32 |
-| FP8 | not run: `~/mk/models/Qwen3.8-27B-FP8` was present on 2026-10-27 and is missing on 2026-10-28; the home quota is full and downloads are not allowed | | | |
+| FP8 | missing on 2026-10-28 (deleted in a disk clean-up); restored and measured below | | | |
 
 TP2 kernel (fp32) against stock vLLM TP2 BF16: 9.81 / 5.852 = 1.68x at batch 1, 13.32 /
 8.635 = 1.54x at batch 8. The two methods differ (server TPOT against engine steps, see
@@ -449,6 +450,134 @@ Bugs found during milestone 4 (fixed, both in the harness or the timing-only bui
 - `ar_local` builds still ran the embedding exchange; without the layer all-reduces the
   ranks drift apart and the one embedding region was overwritten before it was read (hang
   in `m4a`). The timing-only build now skips the exchange.
+
+### All-reduce timing split (2026-10-28, banff-cyxtera-s70-4, job 68195787)
+
+Method: debug probes `dev.ARPROBE` (off by default, compile-time). Per CTA and barrier:
+arrive (thread 0), drained (after the CTA's `s_waitcnt vmcnt(0)` and `s_barrier`: every
+store of every wave acknowledged, peer stores included), released. Per wave: push, poll
+start, poll end of its last all-reduce epilogue in each stage (lane 0). Driver
+`scratch/m3/arsplit.py`: 512 warm-up steps, then 5 stamped steps per variant, both ranks,
+fp32 and bf16, with the all-reduce and with `ar_local`, M = 1 and 8. Analysis
+`scratch/m3/arsplit_an.py` and `scratch/m3/arsplit_parts.py`; output
+`scratch/logs/ars/split.txt` and `parts.txt` (raw stamps `*.pt` stay in
+`/cluster/logs/qwen38-tp2/ars/`).
+
+- Clocks: each GPU's 100 MHz counter has its own origin. The offset comes from the
+  all-reduce itself (NTP style, symmetric latency assumed): 0.275 ms, the same in every
+  step. The minimum one-way latency push -> peer poll end is L = 0.80 us at M = 1 (fp32 and
+  bf16), 2.4 us at M = 8 fp32, 1.5 us at M = 8 bf16.
+- Layer 0 is excluded: it absorbs the launch skew of the two processes (about 1 ms in a
+  stamped step, because the host syncs the ranks before that step). In back-to-back steps
+  the launch queue hides this skew.
+- Probe cost: the probes inflate the added cost per all-reduce (stamped / unstamped):
+  fp32 3.77 / 2.74 us at M = 1, 12.6 / 9.34 us at M = 8; bf16 5.96 / 3.35 and 9.08 / 6.34 us.
+  The shares below are of the stamped cost; scaling them to the unstamped cost is an
+  inference, not a measurement.
+- Closure: the sum of the stage segments (out, o, down) matches the whole-step difference:
+  3.83 / 3.77, 6.36 / 5.96, 13.66 / 12.62, 9.11 / 9.08 us per all-reduce (fp32 M = 1, bf16
+  M = 1, fp32 M = 8, bf16 M = 8).
+
+Segments of an all-reduce stage, rank-0 clock: gemv = stage start -> the rank's last push
+(the GEMV stream, with every epilogue's push and poll inside it); wait = the slower rank's
+last push - this rank's; xfer = last poll end - the slower rank's last push; drain = last
+poll end -> last CTA drained; bar = drained -> released. Mean over the layers of each kind
+after layer 0 (out 47, o 16, down 63), 2 ranks, 5 steps; AR / `ar_local`, us:
+
+| M, format | stage | gemv | wait | xfer | drain | bar | added |
+|---|---|---|---|---|---|---|---:|
+| 1, fp32 | out | 10.83 / 8.23 | 0.34 / 0 | 1.18 / 0 | 0.73 / 0.83 | 2.38 / 2.60 | 3.79 |
+| 1, fp32 | o | 10.73 / 8.31 | 0.46 / 0 | 1.16 / 0 | 0.73 / 0.83 | 2.38 / 2.59 | 3.72 |
+| 1, fp32 | down | 17.28 / 14.36 | 0.35 / 0 | 1.15 / 0 | 0.70 / 1.01 | 2.48 / 2.71 | 3.89 |
+| 1, bf16 | down | 22.19 / 14.28 | 0.62 / 0 | 1.20 / 0 | 0.77 / 1.12 | 2.51 / 2.83 | 9.06 |
+
+Per epilogue (one group, one wave), push -> poll end at M = 1: 1.72 to 1.89 us in both
+formats = peer-late wait 0.4 to 0.65 us (the peer's push + L comes after this rank's poll
+start, in 51 to 68 % of the groups) + own push / poll 1.2 to 1.4 us. Push issue (push ->
+poll start) 0.44 to 0.52 us fp32, 0.72 to 0.76 us bf16. At M = 8 fp32 the push issue is
+3.6 to 4.0 us (8 system-scope 8-byte stores per lane, 4 rows x 2 ranks), bf16 1.1 to 1.2 us.
+About 250 of the 320 groups' epilogues are the last one of their wave, so some waves run two
+or more epilogues in a stage.
+
+The split (`scratch/logs/ars/parts.txt`). push / poll = xfer + the own push / poll share of
+the gemv growth; slower GPU = wait + the peer-late share of the gemv growth; drain and
+barrier = the growth of those segments. The gemv growth is split by the per-epilogue ratio
+of peer-late wait to own push / poll.
+
+| M, format | added per all-reduce (stamped) | push / poll | slower GPU | peer-store drain | barrier |
+|---|---:|---:|---:|---:|---:|
+| 1, fp32 | 3.83 us | +2.97 (78 %) | +1.28 (33 %) | -0.20 (-5 %) | -0.23 (-6 %) |
+| 1, bf16 | 6.36 us | +4.81 (76 %) | +2.13 (34 %) | -0.25 (-4 %) | -0.33 (-5 %) |
+| 8, fp32 | 13.66 us | +12.16 (89 %) | +2.01 (15 %) | -0.28 (-2 %) | -0.24 (-2 %) |
+| 8, bf16 | 9.11 us | +6.69 (73 %) | +2.95 (32 %) | -0.37 (-4 %) | -0.16 (-2 %) |
+
+Findings:
+1. The peer-store drain at the barrier costs nothing measurable: the time from the last
+   poll end to the last CTA drained is shorter with the all-reduce than with `ar_local`.
+   [Inference] The peer stores are acknowledged during the poll round trip, so the drain
+   finds nothing outstanding.
+2. The largest part is the push / poll itself, and most of it sits inside the GEMV stream:
+   the last arriver of a group runs the epilogue in the middle of its unit stream and waits
+   about 1.8 us for the round trip before it streams its next units. The stage's last push
+   then comes 2.4 to 2.9 us later than with `ar_local` (M = 1, fp32), plus about 1.2 us
+   for the last partial's transport and poll (xfer).
+3. The wait for the slower GPU is about one third at M = 1. It is jitter per stage, not a
+   slow GPU: with `ar_local` the two GPUs take the same time per step (4.99 and 5.01 ms
+   median at M = 1 fp32). The peer is late for 51 to 68 % of the groups, by 0.4 to 0.65 us
+   on average.
+4. Why bf16 is slower than fp32 at M = 1: per epilogue the cost is the same (1.8 us; bf16
+   issues its pushes 0.25 us slower, through the lane exchange, and polls 0.3 us faster).
+   The whole difference is in the down stage: its last push comes 4.7 us later than with
+   fp32, in every layer (median 21.9 against 17.2 us), and even its first push comes 2.2 us
+   later. Out and o are equal in both formats. The cause inside down is not found yet.
+   Excluded: the GEMV loop code (the MFMA loop blocks are instruction-for-instruction
+   equal in the fp32, bf16 and `ar_local` ISA, `scratch/logs/isa/`), VGPR spills (1 in every
+   build), the per-wave stream time of the last down layer (7.3 us median in both,
+   `scratch/logs/pdown/`). The AR builds have more SGPR spills than `ar_local` (fp32 608,
+   bf16 733, against 373 and 350; spilled to VGPR lanes). With the probes the down
+   difference is about 5 us per layer; unstamped, bf16 costs 0.6 us more than fp32 per
+   all-reduce at M = 1.
+
+Next optimization (not started; for review): the largest part is the epilogue's round trip
+inside the GEMV stream. Candidate: the last arriver pushes in the epilogue but does not
+poll there; it streams its remaining units and polls its pending groups at the end of its
+stream, before the barrier arrival. This removes the in-stream wait and keeps the barrier
+count and the protocol (the same tags, regions and sum order). The prologue merge of
+section 5 also removes it, but it adds peer reads to every CTA's next prologue.
+
+### FP8 baseline and engine-level comparison (2026-10-28, banff-cyxtera-s70-4, job 68195787)
+
+`Qwen/Qwen3.8-27B-FP8` restored to `~/mk/models/Qwen3.8-27B-FP8` (29 GB, `hf download`,
+after a test write; `~/mk/models/dl_Qwen3.8-27B-FP8.log`). All runs on one node in one
+allocation (`scratch/logs/fp8/`).
+
+Timing methods:
+- Kernel: `bench/bench_decode.py`, a 512-token prompt fed through the kernel, then 64 greedy
+  steps back to back; TPOT = wall time of the 64 steps / 64 (CUDA events), host argmax and
+  token feedback included; median of 3 runs.
+- vLLM, engine level: `bench/stock/vllm_latency_bench.sh` runs `vllm bench latency`
+  (offline `LLM` engine, CUDA graphs, prefix caching off, nightly image, AITER on) with a
+  512-token prompt and 1 or 65 output tokens; TPOT = (median latency with 65 - median with
+  1) / 64, 10 iterations each. It covers the same context range (512 to 576) and includes
+  vLLM's per-step scheduler, sampler and output processing, which the kernel benchmark does
+  not have (the kernel's host loop is an argmax and a copy).
+- vLLM, server: `vllm bench serve`, 512 in / 256 out, median TPOT (for reference; it adds
+  HTTP and detokenization).
+
+Engine-level TPOT, ms:
+
+| Batch | TP2 kernel (fp32 partials) | TP1 kernel (1 GPU) | vLLM TP2 FP8 | FP8 / TP2 kernel | vLLM TP2 BF16 | vLLM TP2 MXFP4 (emulated) |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 5.896 | 7.865 | 9.814 | **1.66x** | 9.325 | 24.78 |
+| 2 | 6.501 | 8.353 | 10.825 | **1.67x** | 10.626 | 25.62 |
+| 4 | 7.645 | 9.119 | 10.385 | **1.36x** | 11.847 | 25.47 |
+| 8 | 8.686 | 10.468 | 11.905 | **1.37x** | 13.216 | 25.80 |
+
+vLLM TP2 FP8 server TPOT (`vllm_aiter_tp2_Qwen3.8-27B-FP8/`): 10.16 (10.15 to 10.17, 3
+runs), 10.52, 10.95, 11.48 ms at batch 1, 2, 4, 8. The FP8 engine value at batch 4 is below
+batch 2 (one measurement each; the latency difference method is sensitive to the prefill
+time of the 1-token run). The kernel numbers repeat the milestone 4 values within 0.05 ms
+(TP2 fp32 5.896 against 5.852 at M = 1).
 
 ## 12. Rejected alternatives
 

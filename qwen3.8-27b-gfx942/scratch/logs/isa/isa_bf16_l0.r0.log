@@ -1,0 +1,31 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T05:31:31Z rank 0 env MK_TP=2 MK_AR=bf16 MK_SEED=
+# python bench/bench_decode.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 1 8 4 1
+load+pack+build 27s tp 2 ar bf16 cfg Cfg(M=1, cus=304, maxlen=128, block=208, maxblocks=1, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=1603584, ssm_s0=1603584, lm_head=True, tp=2, ar_dtype='bf16', ar_local=False, chunks=())
+/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/distributed/c10d_logger.py:83: FutureWarning: `torch.distributed.all_gather_into_tensor` is deprecated. Please use `torch.distributed.all_gather_single` instead.
+  return func(*args, **kwargs)
+[flydsl.compile] FLYDSL_DUMP_IR=1 dir=/cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400
+[flydsl.compile] dump 00_origin -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/00_origin.mlir
+[flydsl.compile] dump 01_fly_rewrite_func_signature -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/01_fly_rewrite_func_signature.mlir
+[flydsl.compile] dump 02_fly_canonicalize -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/02_fly_canonicalize.mlir
+[flydsl.compile] dump 03_fly_rocdl_expand_ops -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/03_fly_rocdl_expand_ops.mlir
+[flydsl.compile] dump 04_fly_layout_lowering -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/04_fly_layout_lowering.mlir
+[flydsl.compile] dump 05_fly_int_swizzle_simplify -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/05_fly_int_swizzle_simplify.mlir
+[flydsl.compile] dump 06_canonicalize -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/06_canonicalize.mlir
+[flydsl.compile] dump 07_fly_convert_atom_call_to_ssa_form -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/07_fly_convert_atom_call_to_ssa_form.mlir
+[flydsl.compile] dump 08_fly_promote_regmem_to_vectorssa -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/08_fly_promote_regmem_to_vectorssa.mlir
+[flydsl.compile] dump 09_convert_fly_to_rocdl -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/09_convert_fly_to_rocdl.mlir
+[flydsl.compile] dump 10_canonicalize -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/10_canonicalize.mlir
+[flydsl.compile] dump 11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl.mlir
+[flydsl.compile] dump 12_rocdl_attach_target -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/12_rocdl_attach_target.mlir
+[flydsl.compile] dump 13_convert_scf_to_cf -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/13_convert_scf_to_cf.mlir
+[flydsl.compile] dump 14_convert_cf_to_llvm -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/14_convert_cf_to_llvm.mlir
+[flydsl.compile] dump 15_gpu_to_llvm -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/15_gpu_to_llvm.mlir
+[flydsl.compile] dump 16_convert_vector_to_llvm -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/16_convert_vector_to_llvm.mlir
+[flydsl.compile] dump 17_convert_arith_to_llvm -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/17_convert_arith_to_llvm.mlir
+[flydsl.compile] dump 18_convert_func_to_llvm -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/18_convert_func_to_llvm.mlir
+[flydsl.compile] dump 19_reconcile_unrealized_casts -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/19_reconcile_unrealized_casts.mlir
+[flydsl.compile] dump 20_gpu_module_to_binary -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/20_gpu_module_to_binary.mlir
+[flydsl.compile] dump 21_llvm_ir -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/21_llvm_ir.ll
+[flydsl.compile] dump 22_final_isa -> /cluster/logs/qwen38-tp2/isa/isa_bf16_l0/qwen38_decode_m1_228c3400/22_final_isa.s
+rep 0: TPOT 6.194 ms (161.4 tok/s/user), fixed-token TPOT 5.985 ms, kernel median 6.039 ms
+{"M": 1, "ctx": 8, "steps": 4, "tp": 2, "rank": 0, "ar": "bf16", "ar_local": false, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-28 05:32:38", "runs": [{"tpot_ms": 6.19447135925293, "tpot_fixed_ms": 5.984679222106934, "kernel_ms_median": 6.038602828979492, "kernel_ms_min": 5.9280290603637695}]}

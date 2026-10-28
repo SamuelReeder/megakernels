@@ -1,0 +1,51 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T05:20:01Z rank 0 env MK_TP=1 MK_AR= MK_SEED=
+# bash bench/stock/vllm_serve_bench.sh Qwen3.8-27B-FP8 vllm_aiter_tp2_Qwen3.8-27B-FP8
+date: 2026-10-28T01:20:01-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 2
+rocm sdk: amd-aiter 0.1.26;rocm 10.0.0;rocm-bootstrap 0.3.0;rocm_mq 0.1.0 /home/AMD/sareeder/worktrees/rocmlibs-merge-queue-rfc/.github/merge-queue;rocm-sdk-core 10.0.0;rocm-sdk-devel 10.0.0;rocm-sdk-device-gfx1100 10.0.0;rocm-sdk-device-gfx1101 10.0.0;rocm-sdk-device-gfx1150 10.0.0;rocm-sdk-device-gfx1151 10.0.0;rocm-sdk-device-gfx1200 10.0.0;rocm-sdk-device-gfx1201 10.0.0;rocm-sdk-device-gfx90a 10.0.0;rocm-sdk-device-gfx942 10.0.0;rocm-sdk-device-gfx950 10.0.0;rocm-sdk-libraries 10.0.0;triton 3.8.0+git669b31ac
+vllm 0.32.1rc1.dev505+g00b6c4c56
+torch 2.13.0+rocm10.0.0 hip 7.15.26333
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0,1
+HSA_ENABLE_IPC_MODE_LEGACY=1
+HSA_NO_SCRATCH_RECLAIM=1
+VLLM_CACHE_ROOT=/tmp/vllm_cache
+VLLM_ROCM_USE_AITER=1
+serve args: 
+server ready 2026-10-28T01:23:29-04:00
+[warmup] Output token throughput (tok/s):         505.07    
+[warmup] Median TTFT (ms):                        1055.50   
+[warmup] Median TPOT (ms):                        11.48     
+[warmup] Median ITL (ms):                         11.46     
+[c1] Output token throughput (tok/s):         96.18     
+[c1] Median TTFT (ms):                        70.17     
+[c1] Median TPOT (ms):                        10.15     
+[c1] Median ITL (ms):                         10.15     
+[c2] Output token throughput (tok/s):         182.25    
+[c2] Median TTFT (ms):                        124.64    
+[c2] Median TPOT (ms):                        10.52     
+[c2] Median ITL (ms):                         10.35     
+[c4] Output token throughput (tok/s):         341.62    
+[c4] Median TTFT (ms):                        214.15    
+[c4] Median TPOT (ms):                        10.95     
+[c4] Median ITL (ms):                         10.76     
+[c8] Output token throughput (tok/s):         625.34    
+[c8] Median TTFT (ms):                        344.57    
+[c8] Median TPOT (ms):                        11.48     
+[c8] Median ITL (ms):                         11.47     
+[c1_rep2] Output token throughput (tok/s):         96.21     
+[c1_rep2] Median TTFT (ms):                        67.57     
+[c1_rep2] Median TPOT (ms):                        10.16     
+[c1_rep2] Median ITL (ms):                         10.13     
+[c1_rep3] Output token throughput (tok/s):         95.87     
+[c1_rep3] Median TTFT (ms):                        70.15     
+[c1_rep3] Median TPOT (ms):                        10.17     
+[c1_rep3] Median ITL (ms):                         10.23     
+done /home/AMD/sareeder/mk/models/Qwen3.8-27B-FP8 2026-10-28T01:27:47-04:00

@@ -14,10 +14,14 @@ Per all-reduce stage (out / o / down) and rank, with times on rank 0's clock:
   arrive last CTA arrival at the next barrier (before the drain)
   drain  last CTA "drained" (after s_waitcnt vmcnt(0): every store acknowledged)
   end    last CTA release of the next barrier
-segments: gemv = ready - start, wait = max(ready over ranks) - ready (waiting for the
-slower GPU), xfer = done - max(ready) (transport + poll of the last partial), tail =
-arrive - done, drain = drain - arrive, bar = end - drain. ar_local runs have no peer, so
-wait = 0 and xfer = done - ready.
+segments: gemv = ready - start (the GEMV stream, with every epilogue's push / poll inside
+it), wait = max(ready over ranks) - ready (waiting for the slower GPU), xfer = done -
+max(ready) (transport + poll of the last partial), drain = drain - done (the remaining
+epilogue stores, every wave of the CTA at the barrier, s_waitcnt vmcnt(0)), bar = end -
+drain. ar_local runs have no peer, so wait = 0 and xfer = done - ready. ("arrive" is
+thread 0's arrival only, so it is not a segment boundary.) Layer 0 is skipped.
+Per group (one epilogue): push -> poll end = peer-late wait (the peer's push + L after
+this rank's poll start) + own push / poll.
 """
 import statistics as st
 import sys
@@ -26,7 +30,8 @@ import torch
 
 D, M = sys.argv[1], int(sys.argv[2])
 AR_STAGES = ("out", "o", "down")
-SEGS = ("gemv", "wait", "xfer", "tail", "drain", "bar")
+SEGS = ("gemv", "wait", "xfer", "drain", "bar")
+SKIP = 5  # layer 0's stages: they absorb the launch skew of the two processes (up to ~1 ms)
 
 
 def load(fmt, local):
@@ -60,7 +65,7 @@ def stage_segs(rk, coupled):
     out = {s: {k: [] for k in SEGS} for s in AR_STAGES}
     per = {s: {k: [] for k in ("push_ps", "ps_pe", "drain_cta_med")} for s in AR_STAGES}
     for b, nm in enumerate(names):
-        if nm not in AR_STAGES:
+        if nm not in AR_STAGES or b < SKIP:
             continue
         t = []
         for r in (0, 1):
@@ -82,15 +87,42 @@ def stage_segs(rk, coupled):
         for x in t:
             r0 = rmax if coupled else x["ready"]
             seg = dict(gemv=x["ready"] - x["start"], wait=r0 - x["ready"], xfer=x["done"] - r0,
-                       tail=x["arrive"] - x["done"], drain=x["drain"] - x["arrive"], bar=x["end"] - x["drain"])
+                       drain=x["drain"] - x["done"], bar=x["end"] - x["drain"])
             for k in SEGS:
                 out[nm][k].append(seg[k] / 100)
     return out, per
 
 
 def step_us(rk):
-    """Whole stamped step per rank: first release of barrier 0 to last release of the last."""
-    return [((x["bar"][-1, :, 2].max() - x["bar"][0, :, 2].min()) / 100).item() for x in rk]
+    """Stamped step without layer 0, per rank: release of barrier SKIP to the last release."""
+    out = []
+    for x in rk:
+        bar = x["bar"].double()
+        last = max(b for b in range(bar.shape[0]) if bar[b, 0, 2] > 0)
+        out.append(((bar[last, :, 2].max() - bar[SKIP, :, 2].min()) / 100).item())
+    return out
+
+
+def group_split(rk):
+    """{stage: [(peer-late wait, own push/poll) us per group and rank]}."""
+    d, L = offset(rk)
+    res = {s: [] for s in AR_STAGES}
+    for b, nm in enumerate(rk[0]["names"]):
+        if nm not in AR_STAGES or b < SKIP:
+            continue
+        G = []
+        for r in (0, 1):
+            w = rk[r]["wave"][b].double()
+            w = w[w[:, 0] > 0]
+            if r == 1:
+                w[:, :3] -= d
+            G.append({int(x[3]): x[:3].tolist() for x in w})
+        for r in (0, 1):
+            for g, (pu, ps, pe) in G[r].items():
+                if g in G[1 - r]:
+                    late = max(0.0, G[1 - r][g][0] + L - ps)
+                    res[nm].append((late / 100, (pe - pu - late) / 100))
+    return res
 
 
 def run(fmt, local):
@@ -99,18 +131,26 @@ def run(fmt, local):
     acc = {s: {k: [] for k in SEGS} for s in AR_STAGES}
     per = {s: {k: [] for k in ("push_ps", "ps_pe", "drain_cta_med")} for s in AR_STAGES}
     steps, offs = [], []
+    grp = {s: [] for s in AR_STAGES}
     for i in range(reps):
         rk = [dict(names=x["stages"], **x["reps"][i]) for x in ranks]
         o, p = stage_segs(rk, not local)
         if not local:
             offs.append(offset(rk))
+            for s, v in group_split(rk).items():
+                grp[s] += v
         for s in AR_STAGES:
             for k in SEGS:
                 acc[s][k] += o[s][k]
             for k in p[s]:
                 per[s][k] += p[s][k]
         steps.append(step_us(rk))
-    return acc, per, steps, offs
+    return acc, per, steps, offs, grp
+
+
+def n_layers(s):
+    """Layers of this all-reduce stage kind after layer 0."""
+    return {"out": 47, "o": 16, "down": 63}[s]
 
 
 def med(v):
@@ -118,10 +158,11 @@ def med(v):
 
 
 for fmt in ("fp32", "bf16"):
-    a, pa, sa, offs = run(fmt, False)
-    l, pl, sl, _ = run(fmt, True)
-    print(f"== {fmt} M={M}: stamped step us (rank 0 / 1, per rep): with AR {[[round(v) for v in s] for s in sa]}, "
-          f"ar_local {[[round(v) for v in s] for s in sl]}")
+    a, pa, sa, offs, grp = run(fmt, False)
+    l, pl, sl, _, _ = run(fmt, True)
+    ta, tl = st.median(sum(sa, [])), st.median(sum(sl, []))
+    print(f"== {fmt} M={M}: stamped step without layer 0 (median over reps x ranks): with AR {ta:.0f} us, "
+          f"ar_local {tl:.0f} us -> {(ta - tl) / 126:.2f} us per all-reduce (126 after layer 0)")
     print(f"   clock offset rank1-rank0 per rep (ms): {[round(d / 1e5, 3) for d, _ in offs]}; "
           f"one-way latency L (us): {[round(L / 100, 2) for _, L in offs]}")
     tot_a = tot_l = 0.0
@@ -134,8 +175,12 @@ for fmt in ("fp32", "bf16"):
               + f" | push->poll start {med(pa[s]['push_ps']):.2f}/{med(pl[s]['push_ps']):.2f}"
               + f", poll {med(pa[s]['ps_pe']):.2f} (p90 {sorted(pa[s]['ps_pe'])[int(0.9 * len(pa[s]['ps_pe']))]:.2f})"
               + f", per-CTA drain median {med(pa[s]['drain_cta_med']):.2f}/{med(pl[s]['drain_cta_med']):.2f} us")
-        n = len(a[s]["gemv"]) // (2 * len(sa))  # layers of this kind
+        gl, go = [x[0] for x in grp[s]], [x[1] for x in grp[s]]
+        print(f"         per epilogue: push -> poll end {st.mean(gl) + st.mean(go):.2f} us = peer-late wait "
+              f"{st.mean(gl):.2f} (in {100 * sum(x > 0 for x in gl) / len(gl):.0f} % of groups) + own push/poll "
+              f"{st.mean(go):.2f}; {len(gl) / (2 * len(sa)) / (n_layers(s)):.0f} epilogue stamps per stage and rank")
+        n = n_layers(s)
         tot_a += sum(ra.values()) * n
         tot_l += sum(rl.values()) * n
     print(f"   all-reduce stages: (sum of means x layers) AR {tot_a:.0f} us, local {tot_l:.0f} us, "
-          f"added {tot_a - tot_l:.0f} us = {(tot_a - tot_l) / 128:.2f} us per all-reduce")
+          f"added {tot_a - tot_l:.0f} us = {(tot_a - tot_l) / 126:.2f} us per all-reduce")
