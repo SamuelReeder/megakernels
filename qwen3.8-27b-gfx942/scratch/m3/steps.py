@@ -13,7 +13,7 @@ print(f"{'run':22s} {'kx med':>9s} {'kx mean':>9s} {'ex med':>9s} {'ex mean':>9s
 agg = {}
 for M, seeds in ((1, (0, 1, 2)), (2, (0,)), (4, (0,)), (8, (0, 1, 2))):
     for s in seeds:
-        for v in ("tp1", "tp2fp32", "tp2bf16"):
+        for v in ("tp1", "tp2", "tp2fp32", "tp2bf16"):
             r = steps(f"{v}_dec_m{M}_s{s}")
             if r is None: continue
             kx, ex, ke = r

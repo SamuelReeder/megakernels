@@ -731,3 +731,24 @@ pushes in the base; each variant 2 interleaved runs of 3 reps, median of 6):
 
 Optimization stops here: every listed candidate is measured. Kept: deferred poll, single
 `grid_wait`, 16-byte pushes. Rejected: opaque peer bases (SGPR), K chunks, prologue merge.
+
+Final kernel (after rounds 1-3), run 1: banff-cyxtera-s70-4, 2026-10-28, job 68197384
+(`scratch/logs/final/`, `summary.txt`; TP1 on GPU 0 of the same node):
+
+| Gate (section 9) | Result |
+|---|---|
+| Median per-step 1 - cos to exact, 128 steps (M 1 x 3 seeds, 2, 4, 8 x 3 seeds) | TP2 0.000406, TP1 0.000377, ratio 1.07 (<= 1.2): PASS |
+| eval_text KL(bf16 \|\| kernel) | TP2 0.04279, TP1 0.03904, +9.6 % (<= +10 %): PASS |
+| Ranks bitwise equal, every step of every TP2 run | PASS |
+| Determinism (3 runs), M = 1 and 8 | PASS; logits sha256 dc59fa9ecba1e506, eca6810ec44f5829 (same as round 1) |
+| Batch-invariant rows | PASS |
+
+| M | TP1 ms | TP2 ms | TP2 faster by |
+|---:|---:|---:|---:|
+| 1 | 7.734 | 5.593 | 27.7 % |
+| 2 | 8.173 | 5.972 | 26.9 % |
+| 4 | 8.919 | 6.727 | 24.6 % |
+| 8 | 10.307 | 7.912 | 23.2 % |
+
+Against stock vLLM TP2 FP8 on the same node and day (3-run medians above): 9.822 / 5.593 =
+1.76x at batch 1, 10.716 / 5.972 = 1.79x, 10.660 / 6.727 = 1.58x, 11.152 / 7.912 = 1.41x.

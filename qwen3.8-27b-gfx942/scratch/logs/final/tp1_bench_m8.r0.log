@@ -1,0 +1,7 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T10:28:48Z rank 0 env MK_TP=1 MK_AR= MK_SEED=
+# python bench/bench_decode.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 8 512 64 3
+load+pack+build 6s tp 1 ar fp32 cfg Cfg(M=8, cus=304, maxlen=640, block=208, maxblocks=4, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=())
+rep 0: TPOT 10.275 ms (97.3 tok/s/user), fixed-token TPOT 10.307 ms, kernel median 9.942 ms
+rep 1: TPOT 10.317 ms (96.9 tok/s/user), fixed-token TPOT 10.280 ms, kernel median 9.905 ms
+rep 2: TPOT 10.360 ms (96.5 tok/s/user), fixed-token TPOT 10.321 ms, kernel median 9.973 ms
+{"M": 8, "ctx": 512, "steps": 64, "tp": 1, "rank": 0, "ar": "fp32", "ar_local": false, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-28 10:29:48", "runs": [{"tpot_ms": 10.274685859680176, "tpot_fixed_ms": 10.307311058044434, "kernel_ms_median": 9.942459106445312, "kernel_ms_min": 9.661293029785156}, {"tpot_ms": 10.316946029663086, "tpot_fixed_ms": 10.279891014099121, "kernel_ms_median": 9.905214309692383, "kernel_ms_min": 9.796162605285645}, {"tpot_ms": 10.35986042022705, "tpot_fixed_ms": 10.321269989013672, "kernel_ms_median": 9.973249435424805, "kernel_ms_min": 9.836775779724121}]}
