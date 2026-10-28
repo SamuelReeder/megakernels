@@ -4,7 +4,7 @@ Numerics (docs/DESIGN.md):
 - residual stream, norms, raw projection outputs, router logits, softmax: fp32
 - exact mode: every GEMV input rounded to bf16 (the model dtype), fp32 accumulation
 - emulate mode: GEMV inputs quantized as the megakernel does (e4m3fnuz, one power-of-two
-  scale per (row, 64 K)); the router input stays bf16 in both modes
+  scale per (row, 128 K)); the router input stays bf16 in both modes
 - q enters QK^T in bf16; the KV cache holds bf16
 - fp32 mode: no bf16 rounding anywhere (fp32 KV cache, fp32 sqrt(H) embedding scale), to
   compare with HF transformers run in fp32
@@ -32,6 +32,7 @@ from .dims import (
     LAYER_TYPES,
     NKV_F,
     NKV_S,
+    NDS,
     NL,
     NQ,
     ROPE,
@@ -46,7 +47,7 @@ from .dims import (
 )
 
 L = "model.language_model.layers.{}."
-QBLK = 64  # K per activation scale of the fp8 GEMV
+QBLK = 128  # K per activation scale of the fp8 GEMV
 
 
 def check_config(path: str):
@@ -136,11 +137,14 @@ def pow2_scale(amax):
 
 
 def quant_fp8(x32: torch.Tensor, blk: int = QBLK) -> torch.Tensor:
-    """Megakernel GEMV input: e4m3fnuz with one pow2 scale per (row, blk K)."""
+    """Megakernel GEMV input: e4m3fnuz with one pow2 scale per (row, blk K). K that is not
+    a multiple of blk is zero-padded first (the kernel's padded expert down input)."""
     M, K = x32.shape
-    xb = x32.reshape(M, K // blk, blk)
+    Kp = -(-K // blk) * blk
+    xp = torch.nn.functional.pad(x32, (0, Kp - K))
+    xb = xp.reshape(M, Kp // blk, blk)
     qi, sc = pow2_scale(xb.abs().amax(-1, keepdim=True).clamp_min(1e-30))
-    return ((xb * qi).to(torch.float8_e4m3fnuz).float() * sc).reshape(M, K)
+    return ((xb * qi).to(torch.float8_e4m3fnuz).float() * sc).reshape(M, Kp)[:, :K]
 
 
 def lin(x32: torch.Tensor, ws) -> torch.Tensor:
@@ -239,28 +243,75 @@ def attn(W: Weights, i: int, x: torch.Tensor, st: State, li: int) -> torch.Tenso
     return lin(out.reshape(M, NQ * hd), W.lin(i, pre + "o_proj"))
 
 
+def route_logits(logits: torch.Tensor, pes: torch.Tensor):
+    """Routing from router logits [N, NE]: softmax, top-8 (rank order), renormalized,
+    times per_expert_scale[expert]. -> (ids [N, TOPK] int64, weights fp32)."""
+    probs = torch.softmax(logits.float(), -1)
+    top, ids = torch.topk(probs, TOPK, dim=-1)
+    return ids, top / top.sum(-1, keepdim=True) * pes.float()[ids]
+
+
 def route(W: Weights, i: int, h1: torch.Tensor):
-    """Router: (ids [M, TOPK] int64 ascending by probability rank, weights fp32)."""
+    """Router of layer i on h1 [N, H]: (ids, weights, logits fp32 [N, NE])."""
     xr = rms(h1) * (H**-0.5) * W.L(i, "router.scale").float()
     logits = bf(xr) @ W.L(i, "router.proj.weight").float().t()
-    probs = torch.softmax(logits, -1)
-    top, ids = torch.topk(probs, TOPK, dim=-1)
-    wts = top / top.sum(-1, keepdim=True) * W.L(i, "router.per_expert_scale").float()[ids]
+    ids, wts = route_logits(logits, W.L(i, "router.per_expert_scale"))
     return ids, wts, logits
 
 
 def moe(W: Weights, i: int, xe: torch.Tensor, ids, wts) -> torch.Tensor:
-    """sum_k w_k expert_k(xe), summed per row in ascending expert id (the kernel's order)."""
-    M = xe.shape[0]
-    out = torch.zeros(M, H, device=xe.device)
-    order = torch.argsort(ids, -1)
-    for m in range(M):
-        for k in order[m].tolist():
-            e = int(ids[m, k])
-            g, u, d = W.expert(i, e)
-            a = gelu_tanh(lin(xe[m : m + 1], g)) * lin(xe[m : m + 1], u)
-            out[m] += wts[m, k] * lin(a, d)[0]
+    """sum over k = 0..7 in rank order of w_k expert_k(xe) (the kernel's slot order),
+    fp32. Rows are computed per expert, all rows that selected it at once."""
+    N = xe.shape[0]
+    ys = torch.zeros(N, TOPK, H, device=xe.device)
+    for e in ids.unique().tolist():
+        r, k = (ids == e).nonzero(as_tuple=True)
+        g, u, d = W.expert(i, e)
+        x = xe[r]
+        ys[r, k] = lin(gelu_tanh(lin(x, g)) * lin(x, u), d)
+    out = torch.zeros(N, H, device=xe.device)
+    for k in range(TOPK):
+        out = out + wts[:, k : k + 1] * ys[:, k]
     return out
+
+
+def dense_mlp(W: Weights, i: int, xd: torch.Tensor) -> torch.Tensor:
+    """The dense MLP (2112) as the kernel runs it: NDS pseudo-experts of EFF columns
+    (their down inputs quantized separately in emulate mode), summed in order."""
+    (gw, gs), (uw, us), (dw, ds) = (W.lin(i, f"mlp.{n}") for n in ("gate_proj", "up_proj",
+                                                                       "down_proj"))
+    out = torch.zeros(xd.shape[0], H, device=xd.device)
+    for k in range(NDS):
+        sl = slice(k * EFF, (k + 1) * EFF)
+        sc = lambda s: None if s is None else s.reshape(-1)[sl]  # noqa: E731
+        a = gelu_tanh(lin(xd, (gw[sl], sc(gs)))) * lin(xd, (uw[sl], sc(us)))
+        out = out + lin(a, (dw[:, sl], ds))
+    return out
+
+
+def ffn(W: Weights, i: int, h: torch.Tensor, a: torch.Tensor, dump=None):
+    """Everything after the attention output a of layer i, for any batch of rows."""
+    h1 = h + rms(a, W.L(i, "post_attention_layernorm.weight"))
+    d = dense_mlp(W, i, rms(h1, W.L(i, "pre_feedforward_layernorm.weight")))
+    ids, wts, logits = route(W, i, h1)
+    e = moe(W, i, rms(h1, W.L(i, "pre_feedforward_layernorm_2.weight")), ids, wts)
+    y = rms(d, W.L(i, "post_feedforward_layernorm_1.weight")) + rms(
+        e, W.L(i, "post_feedforward_layernorm_2.weight")
+    )
+    h = (h1 + rms(y, W.L(i, "post_feedforward_layernorm.weight"))) * W.L(
+        i, "layer_scalar"
+    ).float()
+    if dump is not None:
+        dump[i] = dict(h=h.clone(), h1=h1.clone(), ids=ids.clone(), wts=wts.clone(),
+                       logits=logits.clone())
+    return h
+
+
+def embed(W: Weights, tok: torch.Tensor) -> torch.Tensor:
+    if MODE == "fp32":  # HF in fp32 scales by the fp32 sqrt(H)
+        return W.embed[tok].float() * math.sqrt(H)
+    # bf16 x bf16(sqrt H) = 53.0, rounded to bf16 as vLLM and HF bf16 do
+    return (W.embed[tok].float() * EMBED_SCALE).to(torch.bfloat16).float()
 
 
 @torch.no_grad()
@@ -268,16 +319,14 @@ def hidden_step(W: Weights, tok: torch.Tensor, st: State, layers: int = NL, dump
                 mode="exact") -> torch.Tensor:
     """One decode step for M rows. tok [M] int64. Returns the final-normed hidden state
     [M, H] (bf16 values in fp32, except in fp32 mode), what the kernel writes. Advances
-    st.pos by one. dump, if a dict, receives per-layer h and the router's (ids, weights,
-    logits). mode: "exact" (bf16 GEMV inputs), "emulate" (the kernel's fp8 inputs), "fp32"
-    (no bf16 rounding anywhere: for the HF fp32 comparison; use an fp32 State)."""
+    st.pos by one. dump, if a dict, receives per-layer h, h1 and the router's (ids,
+    weights, logits). mode: "exact" (bf16 GEMV inputs), "emulate" (the kernel's fp8
+    inputs), "fp32" (no bf16 rounding anywhere: for the HF fp32 comparison; use an fp32
+    State)."""
     global MODE
     assert mode in ("exact", "emulate", "fp32")
     MODE = mode
-    if mode == "fp32":  # HF in fp32 scales by the fp32 sqrt(H)
-        h = W.embed[tok].float() * math.sqrt(H)
-    else:  # bf16 x bf16(sqrt H) = 53.0, rounded to bf16 as vLLM and HF bf16 do
-        h = (W.embed[tok].float() * EMBED_SCALE).to(torch.bfloat16).float()
+    h = embed(W, tok)
     si = fi = 0
     for i in range(layers):
         x = rms(h, W.L(i, "input_layernorm.weight"))
@@ -286,26 +335,66 @@ def hidden_step(W: Weights, tok: torch.Tensor, st: State, layers: int = NL, dump
             fi += 1
         else:
             si += 1
-        h1 = h + rms(a, W.L(i, "post_attention_layernorm.weight"))
-        # dense MLP
-        xd = rms(h1, W.L(i, "pre_feedforward_layernorm.weight"))
-        gate = lin(xd, W.lin(i, "mlp.gate_proj"))
-        up = lin(xd, W.lin(i, "mlp.up_proj"))
-        d = lin(gelu_tanh(gate) * up, W.lin(i, "mlp.down_proj"))
-        # routed experts
-        ids, wts, logits = route(W, i, h1)
-        e = moe(W, i, rms(h1, W.L(i, "pre_feedforward_layernorm_2.weight")), ids, wts)
-        y = rms(d, W.L(i, "post_feedforward_layernorm_1.weight")) + rms(
-            e, W.L(i, "post_feedforward_layernorm_2.weight")
-        )
-        h = (h1 + rms(y, W.L(i, "post_feedforward_layernorm.weight"))) * W.L(
-            i, "layer_scalar"
-        ).float()
-        if dump is not None:
-            dump[i] = dict(h=h.clone(), ids=ids.clone(), wts=wts.clone(), logits=logits.clone())
+        h = ffn(W, i, h, a, dump)
     st.pos += 1
     x = rms(h, W["model.language_model.norm.weight"])
     return bf(x)
+
+
+@torch.no_grad()
+def prefill(W: Weights, ids: torch.Tensor, st: State, layers: int = NL, qblk: int = 256):
+    """Exact-mode prefill of ids [M, L] into an empty State (positions 0..L-1, all rows
+    at once): the same layer math as hidden_step, with causal (and, on sliding layers,
+    window) masking. Leaves st.pos = L; returns the final-normed hidden states [M, L, H]
+    (bf16 values in fp32)."""
+    global MODE
+    MODE = "exact"
+    assert int(st.pos.abs().sum()) == 0
+    M, L = ids.shape
+    dev = ids.device
+    h = embed(W, ids.reshape(-1))
+    p = torch.arange(L, device=dev)
+    si = fi = 0
+    for i in range(layers):
+        full = is_full(i)
+        hd, nkv = (HD_F, NKV_F) if full else (HD_S, NKV_S)
+        li = fi if full else si
+        x = rms(h, W.L(i, "input_layernorm.weight"))
+        pre = "self_attn."
+        q = lin(x, W.lin(i, pre + "q_proj")).reshape(M, L, NQ, hd)
+        k = lin(x, W.lin(i, pre + "k_proj")).reshape(M, L, nkv, hd)
+        v = k if full else lin(x, W.lin(i, pre + "v_proj")).reshape(M, L, nkv, hd)
+        q = rms(q, W.L(i, pre + "q_norm.weight"))
+        k = rms(k, W.L(i, pre + "k_norm.weight"))
+        v = rms(v)
+        cos, sin = rope_cos_sin(p, full)
+        q = bf(torch.stack([apply_rope(q[m], cos, sin) for m in range(M)]))
+        k = torch.stack([apply_rope(k[m], cos, sin) for m in range(M)])
+        kc, vc = (st.kf, st.vf) if full else (st.ks, st.vs)
+        kc[li, :, :, :L] = k.permute(0, 2, 1, 3).to(kc.dtype)
+        vc[li, :, :, :L] = v.permute(0, 2, 1, 3).to(vc.dtype)
+        g = NQ // nkv
+        out = torch.empty(M, L, NQ, hd, device=dev)
+        for m in range(M):
+            K, V = kc[li, m, :, :L].float(), vc[li, m, :, :L].float()  # [nkv, L, hd]
+            for q0 in range(0, L, qblk):
+                qi = p[q0 : q0 + qblk]
+                qh = q[m, q0 : q0 + qblk].reshape(-1, nkv, g, hd)
+                s = torch.einsum("ijgd,jld->jgil", qh, K)
+                vis = p[None, :] <= qi[:, None]
+                if not full:
+                    vis &= p[None, :] > qi[:, None] - WINDOW
+                s = s.masked_fill(~vis, float("-inf"))
+                o = torch.einsum("jgil,jld->ijgd", torch.softmax(s, -1), V)
+                out[m, q0 : q0 + qblk] = o.reshape(-1, NQ, hd)
+        a = lin(out.reshape(M * L, NQ * hd), W.lin(i, pre + "o_proj"))
+        if full:
+            fi += 1
+        else:
+            si += 1
+        h = ffn(W, i, h, a)
+    st.pos += L
+    return bf(rms(h, W["model.language_model.norm.weight"])).reshape(M, L, H)
 
 
 def logits_of(W: Weights, hidden: torch.Tensor) -> torch.Tensor:

@@ -133,9 +133,9 @@ def _bf_words(ws):
 
 
 def _pack_bf2(a, b):
-    return (
-        fx.Vector.from_elements([a, b], fx.Float32).to(fx.BFloat16).bitcast(fx.Int32)[0]
-    )
+    """q, K, V to bf16 with round to nearest even (dev.pack_bf2), as torch and vLLM round:
+    the cache holds the bits vLLM's own path would write."""
+    return D.pack_bf2(a, b)
 
 
 def _lds_st_i32(base_f32, idx, words):

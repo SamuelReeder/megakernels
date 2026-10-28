@@ -25,7 +25,10 @@ ROT_F = 64  # rotated angle pairs: int(0.25 * 512 // 2); pairs (d, d + 256), d <
 
 FFN = 2112  # dense MLP (GeGLU, gelu tanh)
 NE, TOPK, EFF = 128, 8, 704  # routed experts, experts per token, expert size
-
+# the kernel runs the dense MLP as NDS pseudo-experts of EFF columns (2112 = 3 x 704)
+NDS = FFN // EFF
+assert NDS * EFF == FFN
+EFFP = 768  # EFF padded to the GEMV's 128-column superstep (down projection K)
 QKV_S = NQ * HD_S + 2 * NKV_S * HD_S  # 8192: [q 4096 | k 2048 | v 2048]
 QKV_F = NQ * HD_F + NKV_F * HD_F  # 9216: [q 8192 | k 1024]
 O_S, O_F = NQ * HD_S, NQ * HD_F  # o_proj inputs: 4096, 8192

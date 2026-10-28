@@ -1,5 +1,9 @@
 """Flat unit-stream GEMV of the megakernel.
 
+Copied from qwen3.6-35b-a3b-gfx942/mk/gemv.py at megakernels e2a6fb8 (copy and diverge,
+docs/DESIGN.md D2). Changed here: the fp8 kind has one scale per output row (the Gemma 4
+FP8 checkpoint's per-channel scales), 16 fp32 per unit instead of 2.
+
 out[m, n] = sum_k x[m, k] W[n, k] for M <= 16 rows.
 
 Units: a unit is (group of 16 output rows, superstep of 128 K). K is cut into C
@@ -15,8 +19,12 @@ It then adds 1 to the group's counter (device-scope atomic); the wave that makes
 the count a multiple of the group's segment total sums all segments in fixed
 order (deterministic) and runs the epilogue for the group ("last arriver").
 
-Weights "mx": mk4 tiles (mk/fp4.py), fp8 MFMA, x fp8 with a pow2 scale per
-(token, superstep). Weights "bf16": pack_bf16 tiles, bf16 MFMA, x bf16, no scales.
+Weight formats (`kind`; docs/DESIGN.md "Weight formats and the GEMV interface"):
+  "fp8":  fp8_tiles (2 KiB e4m3fnuz per unit) + 16 fp32 scales per unit (one per row);
+          fp8 MFMA; x fp8 with a pow2 scale per (token, superstep).
+  "bf16": pack_bf16 tiles (4 KiB per unit), bf16 MFMA, x bf16, no scales.
+A new format (MXFP4: Qwen3.8's "mx") adds a branch to esize / load / compute / setup
+and a packer; the stages do not change.
 """
 
 from __future__ import annotations
@@ -28,12 +36,55 @@ from flydsl.expr import const_expr, range_constexpr, rocdl
 from flydsl.expr.typing import T
 
 from . import dev as D
-from . import fp4
 
-H4 = fp4.device_helpers()
-# K chunks of the GEMVs (default 1); the packer follows
-CHUNKS = dict(out=2, o=2, down=4, lm=8)
 PAD_TILES = 16  # spare tiles after a packed matrix (>= 3 P - 1)
+
+
+def mfma_fp8(a, b, c):
+    """D = A x B + C, 16x16x32 fp8 (operands: i64 of 8 e4m3fnuz)."""
+    return fx.Vector(
+        rocdl.mfma_f32_16x16x32_fp8_fp8(T.vec(4, T.f32), [a, b, c, 0, 0, 0])
+    )
+
+
+def _imin(a, b):
+    """Return min of host ints, or of a device int and an int."""
+    if isinstance(a, int) and isinstance(b, int):
+        return min(a, b)
+    return fx.min(a, b)
+
+
+def fp8_load(rt, rs, u, lane):
+    """Unit u of an fp8 matrix: the lane's 2 x 16 B of the 2 KiB tile (load q holds
+    MFMA steps 2 q, 2 q + 1) and the scale of the lane's row (lane % 16)."""
+    t0 = D.ld(rt, (u * 128 + lane) * 4, 4, cm=D.CM_NT)
+    t1 = D.ld(rt, (u * 128 + 64 + lane) * 4, 4, cm=D.CM_NT)
+    return (t0, t1), D.ld(rs, u * 16 + lane % 16, 1, T.f32)
+
+
+def fp8_compute(w, arow, xo, xsr, ops):
+    """One fp8 unit: 4 MFMAs (32 K each) into one accumulator, then x the weight scale
+    of the lane's row and the x scale of each token."""
+    (t0, t1), ws = ops
+    acc = fx.Vector.filled(4, 0.0, fx.Float32)
+    for d in range_constexpr(4):
+        a = fx.Vector(
+            fx.ptr_load(
+                w["xq"] + (arow + 32 * d) // 4,
+                result_type=fx.Vector.make_type(2, fx.Int32),
+            )
+        ).bitcast(fx.Int64)[0]
+        tq = t0 if d < 2 else t1
+        b = fx.Vector.from_elements(
+            [tq[2 * (d % 2)], tq[2 * (d % 2) + 1]], fx.Int32
+        ).bitcast(fx.Int64)[0]
+        acc = mfma_fp8(a, b, acc)
+    wsc = ws
+    xs = fx.Vector.from_elements(
+        [fx.ptr_load(w["xs"] + ((4 * w["gl"] + r) * xsr + xo)) * wsc for r in range(4)],
+        fx.Float32,
+    )
+    return acc * xs
 
 
 @dataclass(frozen=True)
@@ -45,7 +96,7 @@ class Gemv:
     cus: int
     waves: int = 8
     C: int = 1  # K chunks
-    kind: str = "mx"  # "mx" | "bf16"
+    kind: str = "fp8"  # "fp8" | "bf16"
     P: int = 2  # units per pipeline block
     gpc: int = 1  # groups per counter (last-arriver granularity)
 
@@ -86,7 +137,7 @@ class Gemv:
 
     @property
     def esize(self):
-        return 1 if self.kind == "mx" else 2
+        return 1 if self.kind == "fp8" else 2
 
     @property
     def XR(self):
@@ -100,11 +151,21 @@ class Gemv:
 
     # ---- unit split: wave gw streams [gw U / NW, (gw + 1) U / NW). (Weighting the
     # waves of a CTA differently was measured: no gain; see docs/DESIGN.md.)
+    # A GEMV with fewer units than waves (the router, in_proj b/a: "small") gives wave
+    # gw < U unit gw instead, so a piece's segments sit in consecutive waves.
+    @property
+    def small(self):
+        return self.U < self.NW
+
     def wave_lo(self, gw):
+        if self.small:
+            return _imin(gw, self.U)
         return (gw * self.U) // self.NW
 
     def wave_of(self, u):
         """Global wave whose range holds unit u."""
+        if self.small:
+            return u
         return ((u + 1) * self.NW - 1) // self.U
 
     @property
@@ -125,6 +186,9 @@ class Gemv:
         assert (self.U + 1) * self.NW < 2**31
         assert self.G % self.gpc == 0
         assert max(self.nseg_host(p) for p in range(self.C * self.G)) <= self.SEGMAX
+        if self.small and self.C > 1:
+            # a CTA's 8 units then lie in one chunk (slots == 1)
+            assert (self.G * self.KSc) % self.waves == 0 and self.slots == 1
         return self
 
     def part_floats(self):
@@ -132,6 +196,8 @@ class Gemv:
 
     # ------------------------------------------------------------ device
     def cta_range(self, bid):
+        if self.small:
+            return _imin(bid * self.waves, self.U), _imin((bid + 1) * self.waves, self.U)
         return (bid * self.U) // self.cus, ((bid + 1) * self.U) // self.cus
 
     def chunk0(self, bid):
@@ -141,10 +207,8 @@ class Gemv:
     # PAD_TILES spare tiles: unit u's data is tile u, so a load needs no index math.
     def load(self, w, u):
         """Unit u's weight data for this lane."""
-        if const_expr(self.kind == "mx"):
-            tile = D.ld(w["rt"], (u * 64 + w["lane"]) * 4, 4, cm=D.CM_NT)
-            sw = D.ld(w["rs"], u * 16 + w["col"])
-            return tile, sw
+        if const_expr(self.kind == "fp8"):
+            return fp8_load(w["rt"], w["rs"], u, w["lane"])
         # bf16 (LM head, > 2 GiB): a 64-bit tile base per unit (wave-uniform)
         rt = D.rsrc(w["tbase"] + fx.Int64(u) * 4096)
         return [D.ld(rt, (q * 64 + w["lane"]) * 4, 4, cm=D.CM_NT) for q in range(4)]
@@ -155,32 +219,8 @@ class Gemv:
         their result is dropped with a select; a multiply by 0 would keep NaN/inf)."""
         arow = w["arow"] + xo * (128 * self.esize)
         z4 = fx.Vector.filled(4, 0.0, fx.Float32)
-        if const_expr(self.kind == "mx"):
-            tile, sw = ops
-            tacc = z4
-            for d in range_constexpr(4):
-                a = fx.Vector(
-                    fx.ptr_load(
-                        w["xq"] + (arow + 32 * d) // 4,
-                        result_type=fx.Vector.make_type(2, fx.Int32),
-                    )
-                ).bitcast(fx.Int64)[0]
-                t = H4["mfma"](a, H4["dec_dword"](tile[d]), z4)
-                tacc = D.fma4(
-                    t,
-                    fx.Vector.filled(
-                        4, H4["e8m0_f32"]((sw >> (8 * d)) & 0xFF), fx.Float32
-                    ),
-                    tacc,
-                )
-            xs = fx.Vector.from_elements(
-                [
-                    fx.ptr_load(w["xs"] + ((4 * w["gl"] + r) * self.XSR + xo))
-                    for r in range(4)
-                ],
-                fx.Float32,
-            )
-            return tacc * xs
+        if const_expr(self.kind == "fp8"):
+            return fp8_compute(w, arow, xo, self.XSR, ops)
         acc = z4
         for q in range_constexpr(4):
             for h in range_constexpr(2):
@@ -207,7 +247,7 @@ class Gemv:
         lane, gl, col = c["lane"], c["gl"], c["col"]
         bid = c["bid"]
         w = dict(lane=lane, gl=gl, col=col, xq=xq, xs=xs, tbase=tiles)
-        if const_expr(self.kind == "mx"):
+        if const_expr(self.kind == "fp8"):
             w["rt"], w["rs"] = D.rsrc(tiles), D.rsrc(scales)
         # A operand: token = lane % 16 (clamped to M - 1; its scale row is 0 past M)
         w["arow"] = fx.min(col, self.M - 1) * self.XR + 8 * gl * self.esize // 1
@@ -307,7 +347,8 @@ class Gemv:
         # completed
         rocdl.s_waitcnt(vmcnt=0)
         p0 = u0 // KSc
-        np_ = (u1 - 1) // KSc + 1 - p0
+        # a wave with no units (U < NW: the router, in_proj b/a) counts no piece
+        np_ = (u1 > u0).select((u1 - 1) // KSc + 1 - p0, fx.Int32(0))
         olds = []
         for j in range_constexpr(self.NPW):
             old = fx.Int32(0)

@@ -1,5 +1,8 @@
 """Device-side helpers of the megakernel (FlyDSL, gfx942).
 
+Copied from qwen3.6-35b-a3b-gfx942/mk/dev.py at megakernels e2a6fb8 (copy and diverge,
+docs/DESIGN.md D2). Added here: tanh, gelu_tanh, bf16_rne, pack_bf2.
+
 Memory scopes (gfx94x CPol): CM_DEV = sc1 makes a store/load coherent across the
 XCDs (device scope). Every hand-off between CTAs uses CM_DEV on both sides.
 Spin loops contain s_sleep: a side effect that keeps LLVM from deleting the loop.
@@ -11,7 +14,7 @@ import flydsl.expr as fx
 from flydsl._mlir import ir
 from flydsl._mlir.dialects import llvm
 from flydsl.compiler.ast_rewriter import ASTRewriter
-from flydsl.expr import gpu, rocdl
+from flydsl.expr import const_expr, gpu, rocdl
 from flydsl.expr import math as fmath
 from flydsl.expr.typing import T
 
@@ -149,6 +152,44 @@ def xor_max(v, lane, offs):
     return _reduce(v, lane, offs, "v_max_f32", fx.max)
 
 
+def _dpp_rows(op, v, ctrl, rows):
+    """DPP op on the lanes of the rows in mask `rows` only; the other lanes keep v (the
+    output is tied to the input)."""
+    return fx.Float32(
+        llvm.InlineAsmOp(
+            T.f32,
+            [fx.Float32(v).ir_value()],
+            f"s_nop 1\n{op}_dpp $0, $1, $1 {ctrl} row_mask:{rows} bank_mask:0xf",
+            "=v,0",
+        ).result
+    )
+
+
+def _wave_uniform(v, op):
+    """Reduce v over the 64 lanes with DPP only (gfx9): the 16-lane butterfly, then
+    row_bcast:15 and row_bcast:31 carry the row results up to lane 63, which is read
+    as a wave-uniform scalar. Fixed order: ((r0 . r1) . (r2 . r3)) per lane slot."""
+    for _, ctrl in _DPP:
+        v = _dpp(op, v, ctrl)
+    v = _dpp_rows(op, v, "row_bcast:15", "0xa")
+    v = _dpp_rows(op, v, "row_bcast:31", "0xc")
+    w = llvm.call_intrinsic(
+        T.i32, "llvm.amdgcn.readlane.i32",
+        [fx.Float32(v).bitcast(fx.Int32).ir_value(), fx.Int32(63).ir_value()], [], [],
+    )
+    return fx.Int32(w).bitcast(fx.Float32)
+
+
+def wave_max(v):
+    """Max of v over the wave, as a wave-uniform value (no LDS round trip)."""
+    return _wave_uniform(v, "v_max_f32")
+
+
+def wave_sum(v):
+    """Sum of v over the wave in a fixed order, as a wave-uniform value."""
+    return _wave_uniform(v, "v_add_f32")
+
+
 def absf(v):
     return fx.Float32(fmath.absf(v))
 
@@ -204,6 +245,30 @@ def silu(x):
     return fx.Float32(x) * sigmoid(x)
 
 
+def tanh(x):
+    """1 - 2 / (exp(2 x) + 1): +-1 at the overflow ends, absolute error about 1e-7."""
+    return fx.Float32(1.0) - fx.Float32(2.0) / (expf(fx.Float32(x) * 2.0) + fx.Float32(1.0))
+
+
+def gelu_tanh(x):
+    """gelu with the tanh approximation (HF gelu_pytorch_tanh)."""
+    x = fx.Float32(x)
+    u = x * (fx.Float32(1.0) + fx.Float32(0.044715) * x * x) * 0.7978845608028654
+    return fx.Float32(0.5) * x * (fx.Float32(1.0) + tanh(u))
+
+
+def bf16_rne(x):
+    """f32 -> bf16 bits (low 16 bits of an i32), round to nearest even, as torch and vLLM
+    round (finite inputs)."""
+    b = fx.Float32(x).bitcast(fx.Int32)
+    return ((b + 0x7FFF + ((b >> 16) & 1)) >> 16) & 0xFFFF
+
+
+def pack_bf2(a, b):
+    """Two f32 -> one i32 of two bf16 (a in the low half), round to nearest even."""
+    return bf16_rne(a) | (bf16_rne(b) << 16)
+
+
 def bf_lo(w):
     return (fx.Int32(w) << 16).bitcast(fx.Float32)
 
@@ -248,12 +313,19 @@ def poll_ge(r, slot, val):
         v = ld(r, slot, cm=CM_DEV)
 
 
+def _asm(text):
+    llvm.InlineAsmOp(None, [], text, "", has_side_effects=True)
+
+
 @traced
-def grid_arrive(rf, epoch, tid, bid):
+def grid_arrive(rf, epoch, tid, bid, fence=False):
     """Barrier arrival: drain this CTA's memory ops (its stores become visible), then
     store epoch to the CTA's flag line. Issue prefetch loads after this, not before:
     s_waitcnt vmcnt(0) also waits for loads (measured: prefetching before the arrival
-    is slower)."""
+    is slower). fence: also write back this XCD's dirty L2 lines first (agent-scope
+    release, buffer_wbl2 sc1)."""
+    if const_expr(fence):
+        _asm("buffer_wbl2 sc1")
     rocdl.s_waitcnt(vmcnt=0)
     gpu.barrier()
     if tid == 0:
@@ -261,10 +333,11 @@ def grid_arrive(rf, epoch, tid, bid):
 
 
 @traced
-def grid_wait(rf, epoch, tid, bid, cus):
+def grid_wait(rf, epoch, tid, bid, cus, fence=False):
     """Barrier completion. Leader x < 8 waits for the CTAs b % 8 == x (its XCD under
     round-robin dispatch) and stores epoch to line cus + x; every CTA waits for the
-    8 leader lines. Epochs only grow."""
+    8 leader lines. Epochs only grow. fence: then invalidate this XCD's non-local L2
+    lines and the CU's L1 (agent-scope acquire, buffer_inv sc1)."""
     if bid < 8:
         nx = (cus - bid + 7) // 8
         if tid < nx:
@@ -275,11 +348,17 @@ def grid_wait(rf, epoch, tid, bid, cus):
     if tid < 8:
         poll_ge(rf, (cus + tid) * LINE, epoch)
     gpu.barrier()
+    if const_expr(fence):
+        _asm("buffer_inv sc1")
+        rocdl.s_waitcnt(vmcnt=0)
 
 
 def grid_barrier(rf, epoch, tid, bid, cus):
     grid_arrive(rf, epoch, tid, bid)
     grid_wait(rf, epoch, tid, bid, cus)
+
+
+FENCE = {"on": False}  # debug (Cfg.fence): agent-scope release / acquire around atomics
 
 
 def atomic_add_dev(addr, v):
@@ -289,8 +368,11 @@ def atomic_add_dev(addr, v):
     (buffer_wbl2) and invalidate (buffer_inv) the whole L2, which stalls the weight
     stream for tens of us. Ordering comes from the protocol instead: the payload is
     stored with sc1 and drained (s_waitcnt vmcnt(0)) before the atomic, and readers
-    load it with sc1."""
-    return fx.Int32(
+    load it with sc1. FENCE["on"] adds the explicit release / acquire (debug)."""
+    if FENCE["on"]:
+        _asm("buffer_wbl2 sc1")
+        rocdl.s_waitcnt(vmcnt=0)
+    old = fx.Int32(
         fx.atomic_add(
             gptr(addr),
             fx.Int32(v),
@@ -298,6 +380,10 @@ def atomic_add_dev(addr, v):
             ordering=fx.AtomicOrdering.Monotonic,
         )
     )
+    if FENCE["on"]:
+        rocdl.s_waitcnt(vmcnt=0)
+        _asm("buffer_inv sc1")
+    return old
 
 
 PROBE = {"addr": None}  # debug: global address of an i64 array [CTA * 8 + wave][16]
