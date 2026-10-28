@@ -702,3 +702,17 @@ round 1 result: 5.599 / 6.094 / 7.026 / 8.141 ms at M = 1 / 2 / 4 / 8):
   every word keeps its tag), and the poll reads the pair of pairs. TPOT 5.599 -> 5.588
   (M = 1, -0.2 %), 8.141 -> 7.895 (M = 8, -3.0 %). Logits bitwise equal (same hashes as
   round 1 at M = 1 and 8, ranks equal). Now the only fp32 path.
+
+Optimization round 3 (2026-10-28, same node and allocation, `scratch/logs/opt3/`; 16-byte
+pushes in the base; each variant 2 interleaved runs of 3 reps, median of 6):
+
+- K chunks, rejected. TPOT ms (base / lm = 4 / lm = 4 + out = 1 + o = 1): M = 1 5.575 /
+  5.527 (-0.8 %) / 5.518 (-1.0 %); M = 2 5.979 / 5.942 / 5.950; M = 4 6.712 / 6.650 / 6.697;
+  M = 8 7.883 / 7.849 (-0.4 %) / 7.979 (+1.2 %). lm = 4 gains less than 1 % at M = 1 and
+  M = 8; the other variant is slower at M = 8. TP2 keeps TP1's chunk table.
+- Timing split of the round 3 base (`scratch/logs/opt3/parts.txt`, `split.txt`): the added
+  cost per all-reduce is 2.78 us at M = 1 (was 3.77 us before rounds 1-3, same method) and
+  7.17 us at M = 8. Push/poll is still the largest part (85 % at M = 1, 89 % at M = 8);
+  the wait for the slower GPU is 23 % / 15 %; drain and barrier are below zero. Per
+  epilogue at M = 1: push -> poll end 2.4 us, of which 0.4-0.6 us is the peer arriving
+  later (in 39-44 % of the groups). So the prologue merge is tried next (rule above).
