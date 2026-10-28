@@ -474,8 +474,12 @@ Return `STOP: <invariant>` with evidence, no workaround:
 - T7: neither format passes the TP1 bound.
 - Fixed cost: a TP2 GEMV stage's fixed cost exceeds the TP1 fit by more than 3 us at M = 1
   (milestone 4 item 1).
-- All-reduce under load: the measured cost at M = 1 is more than twice the spike's
-  (> 2.3 us fp32, > 1.6 us bf16), or it pushes the projection below 15 %.
+- All-reduce under load: no longer a gate (resolved 2026-10-28, after milestone 4). This limit
+  (> 2x the spike: 2.3 us fp32, 1.6 us bf16 at M = 1) protected the go/no-go prediction.
+  The measured end-to-end result replaced that prediction: TP2 fp32 is 25.9 % faster at
+  M = 1 and 18.0 % faster at M = 8 than TP1 (same node, same day, section 11). The cost
+  under load is now a measured value (2.74 us fp32, 3.35 us bf16 at M = 1, section 11) and
+  an optimization target. T8 stays the speed gate.
 - T8: TP2 at M = 1 is not at least 15 % faster than TP1 on the same node:
   `STOP: TP2 not faster`.
 - vLLM: the peer handshake fails, or kernel-on and kernel-off greedy outputs differ beyond

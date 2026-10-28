@@ -198,10 +198,16 @@ def all_reduce(c, M, grp, tot, tag, half):
     dst = [preg(A["bases"][p] + off, 0, "ar") for p in range(tp)]
     own = preg(A["own"] + off, 0, "ar")
     out = []
+    apw = D.ARPROBE["wave"]
+    if const_expr(apw is not None):
+        t_push = D.memrealtime()
     if const_expr(A["local"]):  # timing only: no peer traffic
         for r in range_constexpr(4):
             v = D.bf16r(tv[r]) if A["dtype"] == "bf16" else tv[r]
             out.append(v + v)
+        if const_expr(apw is not None):
+            t_ps = D.memrealtime()
+            t_pe = t_ps
     elif const_expr(A["dtype"] == "fp32"):
         for r in range_constexpr(4):
             if rows[r] < M:
@@ -212,7 +218,11 @@ def all_reduce(c, M, grp, tot, tag, half):
             for r in range(4)
             for s in range(tp)
         ]
+        if const_expr(apw is not None):
+            t_ps = D.memrealtime()
         ws = mb.poll(specs)
+        if const_expr(apw is not None):
+            t_pe = D.memrealtime()
         for r in range_constexpr(4):
             a = fx.Int32(ws[r * tp][0]).bitcast(fx.Float32)
             for s in range_constexpr(1, tp):
@@ -235,7 +245,11 @@ def all_reduce(c, M, grp, tot, tag, half):
             for r in range(4)
             for s in range(tp)
         ]
+        if const_expr(apw is not None):
+            t_ps = D.memrealtime()
         ws = mb.poll(specs)
+        if const_expr(apw is not None):
+            t_pe = D.memrealtime()
         for r in range_constexpr(4):
             vals = [
                 even.select(D.bf_lo(ws[r * tp + s][0]), D.bf_hi(ws[r * tp + s][0]))
@@ -245,6 +259,11 @@ def all_reduce(c, M, grp, tot, tag, half):
             for s in range_constexpr(1, tp):
                 a = a + vals[s]
             out.append(a)
+    if const_expr(apw is not None):
+        k = ((tag - A["epoch"] - 1) * c["cus"] * 8 + c["bid"] * 8 + c["wave"]) * 4
+        if lane == 0:
+            D.st_stamps(fx.Int64(apw), k, t_push, t_ps)
+            D.st_stamps(fx.Int64(apw), k + 2, t_pe, fx.Int64(grp))
     return fx.Vector.from_elements(out, fx.Float32)
 
 

@@ -267,6 +267,7 @@ def build(cfg: Cfg):
                 rank=rank,
                 bases=[tab64(rp, p) for p in range(TP)],
                 own=tab64(rp, rank),
+                epoch=epoch,  # debug probes index barriers by tag - epoch - 1
             )
 
         def stamp(slot):
@@ -298,12 +299,23 @@ def build(cfg: Cfg):
             if const_expr(PROFILE["addr"] is not None):
                 slot = ((e - epoch - 1) * CUS + bid) * 2
                 stamp(slot)
+            apb = D.ARPROBE["bar"]
+            if const_expr(apb is not None):
+                t_arr = D.memrealtime()
+                D.drain_cta()
+                t_drn = D.memrealtime()
             D.grid_arrive(rf, e, tid, bid)
             buf = spec.first_loads(w) if spec is not None else None
             D.grid_wait(rf, e, tid, bid, CUS)
             D.grid_wait(rf, e, tid, bid, CUS)
             if const_expr(PROFILE["addr"] is not None):
                 stamp(slot + 1)
+            if const_expr(apb is not None):
+                t_rel = D.memrealtime()
+                k = ((e - epoch - 1) * CUS + bid) * 4
+                if tid == 0:
+                    D.st_stamps(fx.Int64(apb), k, t_arr, t_drn)
+                    D.st_stamps(fx.Int64(apb), k + 2, t_rel, fx.Int64(0))
             return w, buf
 
         # ---- embedding (+ zero the attention counters: their totals change with pos)
