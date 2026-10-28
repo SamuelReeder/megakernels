@@ -125,16 +125,20 @@ echo "README line:"
 echo "$LINE"
 [ "$DRY" = 0 ] || exit 0
 
-grep -qE '^Second node: pending \(job [0-9]+\)\.$' README.md || {
-  echo "README has no 'Second node: pending (job N).' line" >&2
-  exit 1
-}
+# The first finished job replaces the pending line; a later one adds its paragraph after
+# the last "Second node (" paragraph.
 python3 - "$LINE" <<'PY'
 import re, sys
 
 t = open("README.md").read()
-t = re.sub(r"^Second node: pending \(job \d+\)\.$", lambda _: sys.argv[1], t, count=1, flags=re.M)
-open("README.md", "w").write(t)
+new, n = re.subn(r"^Second node: pending \(job \d+\)\.$", lambda _: sys.argv[1], t, count=1, flags=re.M)
+if n == 0:
+    starts = [m.start() for m in re.finditer(r"^Second node \(", t, flags=re.M)]
+    if not starts:
+        sys.exit("README has neither 'Second node: pending (job N).' nor a 'Second node (' paragraph")
+    end = t.index("\n\n", starts[-1])
+    new = t[:end] + "\n\n" + sys.argv[1] + t[end:]
+open("README.md", "w").write(new)
 PY
 git add "$OUT" README.md
 git commit -q -m "qwen3.6-35b-a3b-gfx942: second-node suite run ($NAME)"
