@@ -43,6 +43,7 @@ from .gemv import fp8_compute, fp8_load
 LGN = 272  # router GEMV rows: 256 experts, the shared gate, 15 zero rows
 NSLOT = TOPK + 1  # 8 routed slots + the shared expert
 NEG = -3.0e38
+NSUB = 4  # S6 sub-counters per group (two-level counting, MoeGemv._cg)
 
 
 def i2f(i):
@@ -378,22 +379,36 @@ class MoeGemv:
         for k in range_constexpr(self.PMAX):
             pi = p0 + k
             cg = self._cg(pi)
-            total = npos * self.C
             if const_expr(self.mode == "gu"):
                 total = fx.Int32(self.C)
+            else:
+                sub = pi // self.ppe % NSUB
+                total = self.C * ((npos - sub + NSUB - 1) // NSUB)
             if (pi < p1) & ((olds[k] + 1) == total):
                 if w["lane"] == 0:
                     D.st(fx.Int32(0), D.rsrc(cnt), cg, D.CM_DEV)
                 if const_expr(self.mode == "gu"):
                     self._reduce_gu(w, R, rp, pi // self.ppe, pi % G, fin)
                 else:
-                    self._reduce_down(w, R, rp, pi % G, fin)
+                    # level 2: the last of the min(npos, NSUB) sub-counters of gg reduces
+                    gg = pi % G
+                    old2 = fx.Int32(0)
+                    if w["lane"] == 0:
+                        old2 = D.atomic_add_dev(cnt + (NSUB * G + gg) * 4, 1)
+                    if (D.uniform(old2) + 1) == fx.min(npos, NSUB):
+                        if w["lane"] == 0:
+                            D.st(fx.Int32(0), D.rsrc(cnt), NSUB * G + gg, D.CM_DEV)
+                        self._reduce_down(w, R, rp, gg, fin)
         D.probe(c, 2)
 
     def _cg(self, pi):
+        """Counter of piece pi. gu: (position, group), C arrivals. down: (pos % NSUB,
+        group), C arrivals per position of the sub-set; the sub-counters' last arrivers
+        meet at counter NSUB G + group (spreads the atomics of one group over NSUB
+        addresses: measured contention at M = 8)."""
         if self.mode == "gu":
             return (pi // self.ppe) * self.G + pi % self.G
-        return pi % self.G
+        return (pi // self.ppe % NSUB) * self.G + pi % self.G
 
     def _p2(self, g, j, ch, col, m):
         return (((g * NSLOT + j) * self.C + ch) * 16 + col) * 16 + m
