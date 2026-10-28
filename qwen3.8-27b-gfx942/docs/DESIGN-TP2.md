@@ -605,6 +605,61 @@ comes from the 65-token latency, not from the 1-token run. Batch 4 is still at o
 batch 2 in two of the three runs; the medians differ by 0.06 ms, inside the spread.
 The final table with the optimized kernel is in section 11, optimization log.
 
+### Milestone 6: vLLM at TP2 (2026-10-28, banff-cyxtera-s70-4, job 68197384)
+
+Branch `users/sareeder/qwen38-gfx942-tp2` of vLLM (fork `SamuelReeder/vllm`), on top of
+`users/sareeder/qwen38-gfx942-specialized-decode`. Commits: the exported TP-aware kernel
+(`scripts/export_vllm.py`; the mailbox comes from DSv4.1's `sync.py`, and the export fails
+if `mk/sync.py` differs from it), TP2 in the spec and runtime (`PeerBuffer` of DSv4.1 at
+model load after a `tp_agree`; one flag buffer and one peer buffer for all widths; per-rank
+cache checks; weights packed from vLLM's local shards, checked on CPU against
+`mk/pack.py` for both ranks), and an opt-in check that both ranks plan the same step
+(`VLLM_SPECIALIZED_DECODE_CHECK_PATHS=1`). Ruff 0.14 clean on every changed file.
+Conformance kit and Qwen spec tests on the node, in the nightly image with the branch
+overlaid: 71 passed (`scratch/logs/m6b/m6_kit.r0.log`), including the kit at TP2.
+
+Kernel on against kernel off, `bench/vllm_e2e.py` (8 prompts, greedy, 128 tokens; TPOT =
+(time of 256 tokens - time of 1 token) / 255, median of 3; both runs MRv2, MXFP4
+checkpoint; `scratch/logs/m6a/`, `m6b/`, `m6c/`, `m6d/`):
+
+| Batch | TPOT kernel on (3 runs) | kernel off (3 runs) | speedup | TP1 kernel on, same overlay method (2 runs) |
+|---:|---:|---:|---:|---:|
+| 1 | 5.56 (5.55 to 5.59) | 24.48 (24.42 to 24.51) | 4.40x | 7.68 / 7.72 |
+| 2 | 6.04 (6.02 to 6.06) | 24.76 (24.72 to 24.82) | 4.10x | 8.19 / 8.54 |
+| 4 | 6.86 (6.84 to 6.88) | 25.10 (25.06 to 25.13) | 3.66x | 8.94 / 8.99 |
+| 8 | 8.13 (8.08 to 8.17) | 25.75 (25.69 to 26.00) | 3.17x | 10.47 / 10.53 |
+
+(Kernel-on runs: `m6a/on`, `m6b/on_r1`, `m6b/on_r2`; off: `m6a/off`, `m6b/off_r1`,
+`m6b/off_r2`. vLLM's own path emulates MXFP4 on gfx942, so "off" is slow.)
+
+Greedy outputs. Kernel on against kernel off: 0 of 8 prompts token-identical; the first
+differing token is at positions 3, 1, 48, 2, 23, 28, 1, 16. The TP1 kernel inside vLLM
+gives the same picture against its kernel-off run (0 of 8; positions 25, 16, 24, 1, 9, 33,
+1, 20; `scratch/logs/tp1_e2e_ref/`): the kernel's fp8 activations are not vLLM's bf16
+emulation, and section 9 (not token identity) is the accuracy oracle. The largest logprob
+difference over the common prefixes is 0.38 at TP2 and 0.43 at TP1.
+
+Rank equality inside vLLM (T2), `scratch/m6/rankcheck/` (a sitecustomize hook that
+all-gathers the kernel's output after every launch, CUDA-graph replays included): 4233
+launches, 0 with any differing bit between the ranks, and both ranks end at epoch
+1358793 = 4233 x 321 (`scratch/logs/m6d/rankcheck_r*.txt`). The path check ran in
+`m6a/on_check` with no failure.
+
+Run-to-run repeatability inside vLLM at TP2 (open, not a kernel defect as far as measured):
+- kernel off, TP2: two runs give 6 or 7 of 8 identical prompts (first logprob difference
+  at positions 16, 66, 98), with vLLM's custom all-reduce and with RCCL only (`m6c/`);
+- kernel on, TP2: 6 of 8 identical; the first logprob difference is at decode position 1
+  or 2, never at position 0 (the prefill token);
+- kernel on, TP1: 8 of 8 identical in two runs and against the run of 2026-10-23
+  (`m6b/tp1on_r*`);
+- standalone, the same TP2 kernel is bitwise deterministic (section 9) and its ranks are
+  equal in vLLM (above).
+vLLM's own TP2 path is thus not repeatable, and the fp8 activations of the kernel turn a
+small input difference into a different token sooner. A check that the GDN states before
+the first kernel launch differ between runs (checksums in the same hook) did not run: the
+node's container scratch (/var/tmp) was full (`scratch/logs/m6d/driver_m6d3.log`). It is
+planned for the second node (milestone 5).
+
 ## 12. Rejected alternatives
 
 | Alternative | Reason |
