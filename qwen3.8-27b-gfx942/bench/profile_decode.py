@@ -21,6 +21,7 @@ from mk.dims import NL  # noqa: E402
 from mk import tp as TP  # noqa: E402
 
 path, M, CTX = sys.argv[1], int(sys.argv[2]), int(sys.argv[3])
+ctx = TP.init()  # first: it selects this rank's GPU, which the buffers below must be on
 CUS = torch.cuda.get_device_properties(0).multi_processor_count
 NB = KK.barriers_per_step(NL) + 1
 prof = torch.zeros(NB, CUS, 2, dtype=torch.int64, device="cuda")
@@ -30,7 +31,6 @@ probes = torch.zeros(CUS * 8, 16, dtype=torch.int64, device="cuda")
 if PSTAGE:
     D.PROBE.update(addr=probes.data_ptr(), stage=PSTAGE, waves=8)
 
-ctx = TP.init()
 W = R.Weights(path, "mxfp4", keep_raw=True, dequant=False)
 eng = TP.raw(TP.engine(ctx, TP.packed(ctx, W), M, maxlen=((CTX + 64) // 64 + 1) * 64))
 del W
@@ -39,7 +39,11 @@ print(f"tp {ctx.tp} rank {ctx.rank} ar {ctx.ar_dtype}{' local' if ctx.ar_local e
 tok = torch.zeros(M, dtype=torch.long, device="cuda")
 for t in range(CTX):
     eng.step(tok)
+    if t == 0:
+        torch.cuda.synchronize()
+        print("first step done", flush=True)
 torch.cuda.synchronize()
+print(f"{CTX} steps done", flush=True)
 prof.zero_()
 probes.zero_()
 TP.agree(ctx, True)  # both ranks start the profiled step together
