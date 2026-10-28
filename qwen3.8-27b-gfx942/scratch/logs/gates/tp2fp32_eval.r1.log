@@ -1,0 +1,3 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T06:04:16Z rank 1 env MK_TP=2 MK_AR=fp32 MK_SEED=
+# python tests/eval_text.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 /home/AMD/sareeder/mk/models/Qwen3.8-27B
+5 passages, [145, 98, 77, 189, 83] tokens

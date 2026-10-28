@@ -545,6 +545,15 @@ stream, before the barrier arrival. This removes the in-stream wait and keeps th
 count and the protocol (the same tags, regions and sum order). The prologue merge of
 section 5 also removes it, but it adds peer reads to every CTA's next prologue.
 
+Hard gates after the probe change (probes off; `scratch/logs/gates/`, 2026-10-28, job
+68195787), TP2 fp32 against TP1 on the same node and seed 0: median per-step 1 - cos to
+exact 0.000341 against 0.000342 (ratio 1.00; per M 0.97, 1.06, 1.20, 1.02 at M = 1, 2, 4, 8);
+`eval_text` KL 0.04279 against 0.03904 (+9.6 %); ranks bitwise-equal every step;
+determinism M = 1 and 8 PASS; batch-invariant rows. All pass. The test_decode values equal
+the milestone 3 values to six digits (for example 1 - worst cos 0.000897 at M = 1), so the
+probes-off build computes the same bits. Report only: the old test_decode criterion fails at
+M = 1 as in milestone 3.
+
 ### FP8 baseline and engine-level comparison (2026-10-28, banff-cyxtera-s70-4, job 68195787)
 
 `Qwen/Qwen3.8-27B-FP8` restored to `~/mk/models/Qwen3.8-27B-FP8` (29 GB, `hf download`,
