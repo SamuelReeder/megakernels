@@ -1,10 +1,10 @@
 # Qwen3.6-35B-A3B decode megakernel for gfx942 (FlyDSL)
 
-Status: milestone 3 (correct kernel). The kernel runs all 40 layers at M = 1, 2, 4, 8
-and passes `tests/test_decode.py`, `tests/test_determinism.py` and `tests/eval_text.py`
-(`bench/results/m3`). It is not yet tuned for speed. The design reuses the Qwen3.8-27B
-kernel (`../qwen3.8-27b-gfx942/`) for every stage that the two models share, and adds a
-mixture-of-experts (MoE) block in place of the dense MLP.
+Status: milestone 4 (speed). The kernel passes the milestone 3 tests and decodes at
+3.42 / 3.99 / 4.97 / 6.36 ms per token at M = 1 / 2 / 4 / 8 (512-token context), 1.49x
+to 1.17x the fastest stock engine on the same GPU ("Optimization log"). The design
+reuses the Qwen3.8-27B kernel (`../qwen3.8-27b-gfx942/`) for every stage that the two
+models share, and adds a mixture-of-experts (MoE) block in place of the dense MLP.
 
 ## Fixed point
 
@@ -99,8 +99,8 @@ tables.
 | S1 | in_proj (GDN) | norm(h0) -> fp8 x and bf16 x | fp8 GEMV 12288 x 2048 (qkv, z); bf16 GEMV 64 x 2048 (b, a) | `EpiConv` (conv + SiLU on q/k/v, conv state shift), raw z, b, a | y_in fp32 [M][12352] |
 | S1 | qkv (attention) | norm(h0) -> fp8 x | fp8 GEMV 9216 x 2048 (q+gate 8192, k 512, v 512) | raw | y_qkv fp32 [M][9216] |
 | S2 | GDN tasks | none | M x 32 x 8 wave tasks (Qwen3.8 `gdn_task`) | none | y, per-head ssq |
-| S2 | attention tasks | none | M x 2 x chunks wave tasks; KV write | merge of (m, kv head) | og fp32 [M][4096] |
-| S3 | out_proj / o_proj | scaled(y) or og -> fp8 x | fp8 GEMV 2048 x 4096 | `EpiRes` | h1, ssq1, bf16 copy |
+| S2 | attention tasks | none | M x 2 x chunks wave tasks; KV write | none | partial records [M][2][chunk] (max, sum, o of 8 heads) |
+| S3 | out_proj / o_proj | scaled(y), or the merge of the head's records x sigmoid(gate) (`prologue_attn`) -> fp8 x | fp8 GEMV 2048 x 4096 | `EpiRes` | h1, ssq1, bf16 copy |
 | S4 | router | norm(h1) -> bf16 x | bf16 GEMV 272 x 2048 (256 router rows, 1 shared-gate row, 15 zero rows) | raw | logits fp32 [M][272] |
 | S5 | experts gate_up | routing; norm(h1) -> fp8 x | grouped fp8 GEMV, (U + 1) x 1024 x 2048 | `EpiAct` per (position, group) | act fp32 [M][9][512] |
 | S6 | experts down | act of the CTA's <= 2 positions -> fp8 x | grouped fp8 GEMV, (U + 1) x 2048 x 512 | `EpiMoe`: weighted slot sum + `EpiRes` | h0, ssq0, bf16 copy |
@@ -134,10 +134,11 @@ Terms:
    row m: top-8 of the 256 fp32 logits (8 rounds of a wave max; ties go to the lower
    expert id), weights w[m][j] = exp(l_j - l_0) / sum over the 8 in fp32 (equal to HF's
    softmax, top-8, renormalize), shared weight w[m][8] = sigmoid(l_256).
-3. The CTA builds a 256-bit selection mask (OR over the valid rows), the position list
-   (expert ids in ascending order, then the shared expert), U, and slot_of[m][p] (the
-   slot j that row m uses for position p, or -1). The tables stay in a reserved LDS
-   region (about 1.2 KB at M = 8) for S5 and S6.
+3. Wave m stores row m's 256-bit expert set (8 words, built from its wave-uniform
+   picks; a padding row selects none). Wave 0 ORs the rows' words, builds the position
+   list (expert ids in ascending order, then the shared expert), U, and slot_of[m][p]
+   (the slot j that row m uses for position p, or -1). The tables stay in a reserved
+   LDS region (about 1.5 KB at M = 8) for S5 and S6.
 4. A padding row (vLLM marks it with slot index 0 / slot < 0) selects no routed expert.
    Its outputs are don't-care. Without this rule, a batch of 3 padded to 4 would stream
    8 extra experts per layer.
@@ -196,8 +197,11 @@ S6 (down): the S6 prologue loads, for each of the CTA's <= 2 positions and each 
 act[m][slot_of[m][p]] and quantizes it to fp8 (pow2 scale per 128 K) into LDS. Rows
 that did not select p get zero fp8 values and a zero scale. A wave that finishes piece
 (p, g, c) stores, for each row m that selected p, its 16 values to
-`part[g][slot][c][col][m]` (slot = slot_of[m][p]). A counter per group g counts
-(U + 1) x C arrivals. The last arriver of g loads, per lane, the 9 slots x C float4
+`part[g][slot][c][col][m]` (slot = slot_of[m][p]). Counting has two levels: counter
+(p mod 4, g) counts C arrivals per position of its sub-set; the last arriver of each
+non-empty sub-counter increments counter g, which counts min(U + 1, 4) arrivals. (One
+counter per g with (U + 1) x C arrivals serialized about 40 atomics on one address at
+M = 8.) The last arriver of g loads, per lane, the 9 slots x C float4
 values of its rows, and computes for each row m:
 
 ```
@@ -333,6 +337,58 @@ The tests allow near-ties (see "Correctness oracle").
 | One CTA per expert | At M = 1 only 9 experts: 9 of 304 CUs stream |
 | fp32 q in the attention LDS | 72 KB > 64 KB |
 
+## Stock baselines (milestone 4)
+
+One MI300X (banff-cyxtera-s70-4), 2026-10-27, 512 random input tokens, 256 output
+tokens, TP1, prefix caching off, engine-default graphs. vLLM: nightly image
+`vllm-rocm-nightly-00b6c4c5` (vLLM 0.32.1rc1.dev505+g00b6c4c56), `vllm bench serve` at
+max-concurrency B. SGLang 0.5.10.post1 (mi30x image), `sglang.bench_one_batch`.
+Median TPOT in ms (batch 1: median of 3 runs). Raw data and env: `bench/results/stock/`,
+table: `bench/results/stock_summary.md`, scripts: `bench/stock/`.
+
+| Checkpoint | Engine | B = 1 | B = 2 | B = 4 | B = 8 |
+|---|---|---|---|---|---|
+| FP8 | vLLM | 6.42 | 6.67 | 7.20 | 8.95 |
+| FP8 | vLLM + `VLLM_ROCM_USE_AITER=1` | **5.11** | **5.51** | **6.17** | **7.44** |
+| FP8 | SGLang | 7.79 | 7.98 | 8.51 | 9.23 |
+| BF16 | vLLM | 5.26 | 5.78 | 7.00 | 9.86 |
+| BF16 | vLLM + AITER | 4.93 | 5.38 | 6.48 | 8.81 |
+| BF16 | SGLang | 6.13 | 6.09 | 6.83 | 8.79 |
+
+The fastest FP8 baseline (vLLM + AITER) is the reference for the speedups.
+
+## Optimization log (milestone 4)
+
+Start: the milestone 3 kernel, 3.72 ms at M = 1 and 6.71 ms at M = 8
+(`bench/results/m3/bench_untuned_m*.txt`). End: 3.42 / 3.99 / 4.97 / 6.36 ms at
+M = 1 / 2 / 4 / 8 (`bench/results/m4/bench_v5_m*.txt`), 1.49x / 1.38x / 1.24x / 1.17x
+vLLM + AITER on the FP8 checkpoint.
+
+Tools: `bench/profile_decode.py` (per-stage span, busy and barrier time from per-CTA
+stamps; `PROBE=<stage>` adds per-wave stamps), `scripts/isa_stats` (VGPRs, spills).
+The profile measures one greedy step after a 512-token random prompt per row (distinct
+rows: an early version decoded token 0 in every row, which gave U = 9 at M = 8 and
+hid the MoE cost). Stage numbers: median over layers, us.
+
+| Change | Measured effect | Kept |
+|---|---|---|
+| LM head K chunks 8 -> 1 (`c_lm`) | LM head 315 -> 224 us at M = 1: with 8 chunks each wave ended 51 pieces (51 partial hand-offs, 78 us). TPOT sweep 8/4/2/1: 3.361 / 3.310 / 3.283 / 3.263 ms (ctr node, before the other changes) | yes |
+| Attention merge in the o_proj prologue (`mixer.prologue_attn`), o_proj K chunks 2 -> 16 (one head per CTA) | attention stage 34.4 -> 20.6 us (the last-arriver merge read 8 records in 4 dependent rounds, 10 us), o_proj 13.7 -> 19.5 us; -8 us per attention layer. Bitwise the same merge order | yes |
+| e2 first piece loaded between the grid arrive and wait (routing tables already in LDS) | S6 8.3 vs 8.4 us at M = 1 (A/B in one build, `MK_CFG`) | no, removed |
+| Router logits loaded before the S5 norm prologue, routing after it | S5 17.6 vs 17.7 us | no, removed |
+| Routing reductions with offsets 1, 2, 4, 8 first (DPP) instead of 32 first (6 ds_bpermute) | S5 17.7 -> 15.2 us at M = 1 | yes |
+| DPP-only wave reductions (`dev.wave_max`, `wave_sum`: row butterfly, row_bcast:15 / :31, readlane 63) in the routing, attention softmax, q/k norm and rstd | TPOT 3.465 -> 3.404 ms (M = 1), 6.53 -> 6.44 ms (M = 8) | yes |
+| Routing expert set from per-row 256-bit LDS masks instead of a 64-iteration pick loop | routing at M = 8 7.3 -> 4.6 us (`PROBE=route`), S5 37.0 -> 34.6 us | yes |
+| Two-level S6 counters (4 sub-counters per group) | S6 at M = 8 24.8 -> 20.3 us (atomic contention: 40 arrivals per counter); M = 1 8.4 -> 8.7 us | yes |
+| K chunks: out 1 or 4, in_proj 2, qkv 2, S6 2, router 2 | within 1 % at M = 1 and M = 8, or slower (out 4: +4 %, S6 2: +6 % / +11 %) (`bench/results/m4/chunk_sweep.txt`) | no |
+
+Where the time goes now (`bench/results/m4/profile_v4_m*.txt` plus the later changes):
+at M = 1 each of the 241 stages costs a fixed 7 to 10 us (prologue, partial hand-off
+with a device atomic, grid barrier) against about 0.8 ms of weight stream in total. At
+M = 8 the MoE stages take 54 us per layer: the expert gate_up stream is bandwidth-bound
+(about 20 us), the rest is routing (4.6 us), the norm prologue and hand-offs. The kernel
+spills about 50 VGPRs in the attention task (`scripts/isa_stats`); not removed.
+
 ## Invariants
 
 - I1: every CTA is resident (grid = CU count; LDS <= 64 KB and VGPRs <= 256 per lane,
@@ -408,7 +464,8 @@ The implementation stops with `STOP: <violated invariant>` and evidence when:
   are linear in h once rstd is known), which removes S4 (40 barriers); (b) the GDN core
   in the in_proj tail (Qwen3.8 open question); (c) readiness counters in place of some
   barriers. Each needs its own correctness argument for P2.
-- The C values of S5 and S6 (more pieces against more partials per hand-off). Measure.
+- The C values of S5 and S6: measured in milestone 4, the defaults stay (see
+  "Optimization log").
 - The distribution of U on real text at M = 8. Log U per layer in `tests/eval_text.py`.
 - Reading weights in place (row-major [N][K], no copy) with a permuted K order in the
   A operand. Saves about 34 GB in vLLM. Needs a stream bandwidth microbenchmark against
