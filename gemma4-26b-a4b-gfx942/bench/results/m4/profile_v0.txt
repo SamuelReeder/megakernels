@@ -1,0 +1,21 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+M=1 ctx=512: embed (start -> first arrival) 3.4 us; step total 3509.9 us (CUDA events around this single launch, launch latency included: 4400.8 us)
+stage    n  span us  busy us barrier us sum span us
+qkv     30     14.0     11.8       4.30       428.3
+attn    30     15.2      3.1       2.00       517.6
+o       30     14.7      6.4       1.98       439.9
+router  30      5.9      3.0       1.86       177.6
+e1      30     24.7     20.4       2.52       743.1
+e2      30     15.8     10.8       3.05       479.4
+lm       1    293.4    275.3       3.18       293.4
+sum of spans + barriers 3556.9 us
+M=8 ctx=512: embed (start -> first arrival) 3.6 us; step total 6488.1 us (CUDA events around this single launch, launch latency included: 7780.4 us)
+stage    n  span us  busy us barrier us sum span us
+qkv     30     30.2     26.0       9.65       909.7
+attn    30     25.6     10.4       2.48       808.1
+o       30     12.9      8.4       1.92       409.3
+router  30     13.3     10.4       2.32       398.7
+e1      30     55.0     50.8       3.33      1746.7
+e2      30     36.0     25.2       6.20      1093.4
+lm       1    351.9    346.1       8.15       351.9
+sum of spans + barriers 6533.4 us

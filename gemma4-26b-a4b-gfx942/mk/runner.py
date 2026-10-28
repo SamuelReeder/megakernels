@@ -83,18 +83,27 @@ class Engine:
         self.cf = Cache(True, max(layers - ns, 1), M, maxlen, block_f, device, 2)
         if fence is None:  # MK_FENCE=1: L2 fences at every grid barrier (debug)
             fence = os.environ.get("MK_FENCE", "0") == "1"
-        over = dict(kv.split("=") for kv in filter(None, os.environ.get("MK_CFG", "").split(",")))
+        # combine_last wins at M = 1 only (bench/results/m4/combine_vs_m.txt)
+        flags = dict(combine_last=M == 1)
+        for kv in filter(None, os.environ.get("MK_CFG", "").split(",")):
+            k, v = kv.split("=")
+            flags[k] = bool(int(v))
         self.cfg = KK.Cfg(
             M, cus, maxlen, block_s, self.cs.nb, self.cs.strides, block_f, self.cf.nb,
             self.cf.strides, lm_head, debug_route=debug_route, fence=fence,
-            **{"c_" + k: v for k, v in PK.chunks.items()},
-            **{k: bool(int(v)) for k, v in over.items()},
+            **{"c_" + k: v for k, v in PK.chunks.items()}, **flags,
         )
         self.launch = KK.build(self.cfg)
         z = lambda *s, dt=torch.float32: torch.zeros(*s, dtype=dt, device=device)  # noqa: E731
         self.buf = {k: z(M, H) for k in ("h", "h1", "a", "d", "e")}
         self.ssq = {k: z(M, H // 16) for k in ("a", "d", "e")}
         self.rstd1 = z(M)
+        # router_publish: the gate_up inputs, fp8 [2M][H] and scales [2M][H / 128]
+        self.xg = z(2 * M * H // 4, dt=torch.int32)
+        self.xgs = z(2 * M * (H // 128))
+        # combine_last: the next layer's qkv input, fp8 [M][H] and scales [M][H / 128]
+        self.xq = z(M * H // 4, dt=torch.int32)
+        self.xqs = z(M * (H // 128))
         self.y = z(M, QKV_F)
         self.o = z(M, NQ * HD_F)
         self.part = z(self.cfg.part_floats())
@@ -130,6 +139,10 @@ class Engine:
         for k, g in (("a", KK.G_SSQA), ("d", KK.G_SSQD), ("e", KK.G_SSQE)):
             gp[g] = self.ssq[k].data_ptr()
         gp[KK.G_RSTD1] = self.rstd1.data_ptr()
+        gp[KK.G_XG] = self.xg.data_ptr()
+        gp[KK.G_XGS] = self.xgs.data_ptr()
+        gp[KK.G_XQ] = self.xq.data_ptr()
+        gp[KK.G_XQS] = self.xqs.data_ptr()
         gp[KK.G_Y] = self.y.data_ptr()
         gp[KK.G_O] = self.o.data_ptr()
         gp[KK.G_PART] = self.part.data_ptr()

@@ -1,0 +1,9 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+M=1 MK_CFG=combine_last=0 3.629 3.644 3.632 
+M=1 MK_CFG= 3.550 3.556 3.557 
+M=2 MK_CFG=combine_last=0 4.098 4.109 4.110 
+M=2 MK_CFG= 4.120 4.124 4.131 
+M=4 MK_CFG=combine_last=0 4.859 4.870 4.912 
+M=4 MK_CFG= 4.912 4.917 4.927 
+M=8 MK_CFG=combine_last=0 6.140 6.179 6.212 
+M=8 MK_CFG= 6.422 6.480 6.452 

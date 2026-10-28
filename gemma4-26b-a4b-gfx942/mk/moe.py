@@ -520,6 +520,8 @@ def prologue_act_moe(c, g, xq, xs, act, R, pos0):
 
     M, K = g.M, g.K
     tid = c["tid"]
+    D.PROBE["on"] = D.PROBE.get("stage") == g.name
+    D.probe(c, 5)
     npos = R.n()
     nz = 32 * g.XSR
     for i in range_constexpr((nz + NT - 1) // NT):
@@ -544,3 +546,4 @@ def prologue_act_moe(c, g, xq, xs, act, R, pos0):
         x = [v[0][0], v[0][1], v[0][2], v[0][3], v[1][0], v[1][1], v[1][2], v[1][3]]
         S.store_quant8_at(c, xq, xs, x, sl * 16 + m, g.XR, g.XSR, kc, tid + NT * i < nch)
     gpu.barrier()
+    D.probe(c, 8)

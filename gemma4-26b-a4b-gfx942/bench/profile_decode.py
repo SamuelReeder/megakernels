@@ -103,7 +103,10 @@ elif PSTAGE == "attn":
             print(f"attn {labels[k - 4]:14} end: min {v.min() - rel:.1f} med {v.median() - rel:.1f} "
                   f"max {v.max() - rel:.1f} us (n {len(v)})")
 elif PSTAGE:
-    b = max(i for i, n in enumerate(names) if n == PSTAGE)  # the probed (last) instance
+    kind = PSTAGE.split("_")[0]  # qkv_s / qkv_f -> qkv, o_s / o_f -> o
+    full = PSTAGE.endswith("_f")
+    b = max(i for i, n in enumerate(names)  # the probed (last) instance of its layer type
+            if n == kind and (i // 6 % 6 == 5) == full)
     rel = p[b, :, 1].max().item()
     print(f"{PSTAGE} timeline (us from its barrier's last release):")
     for nm, v in (("first release", p[b, :, 1].min()), ("prologue", pr[:, 5]),
