@@ -192,27 +192,11 @@ class EpiRes:
         _epi_res(self.c, self.M, grp, tot, pre, self.h_out, self.ssq_out, self.hb_out)
 
 
-_AR_OPAQUE = __import__("os").environ.get("MK_AR_OPAQUE", "0") == "1"  # MEASURE-ONLY
-
-
-_AR_V16 = __import__("os").environ.get("MK_AR_V16", "0") == "1"  # MEASURE-ONLY
-
-
-def _peer_bases(A):
-    """The peer bases and the own base; MK_AR_OPAQUE=1 (measure-only candidate) passes
-    them through opaque moves, so the peer address math stays inside the epilogue
-    instead of being hoisted out of the layer loop (SGPR pressure)."""
-    if _AR_OPAQUE:
-        return [D.opaque64(b) for b in A["bases"]], D.opaque64(A["own"])
-    return A["bases"], A["own"]
-
-
 def _ar_ctx(c, grp, tag, half):
     A = dict(D.TRACE["ar"], **c["ar"])
     off = fx.Int64(half * A["region"])
-    bases, own_b = _peer_bases(A)
-    dst = [preg(bases[p] + off, 0, "ar") for p in range(A["tp"])]
-    own = preg(own_b + off, 0, "ar")
+    dst = [preg(A["bases"][p] + off, 0, "ar") for p in range(A["tp"])]
+    own = preg(A["own"] + off, 0, "ar")
     rows = [4 * c["gl"] + r for r in range(4)]
     k = ((fx.Int32(tag) - A["epoch"] - 1) * c["cus"] * 8 + c["bid"] * 8 + c["wave"]) * 4
     return A, dst, own, rows, grp * 16 + c["col"], k
@@ -230,7 +214,7 @@ def ar_push(c, M, grp, tot, tag, half):
     apw = D.ARPROBE["wave"]
     if const_expr(apw is not None):
         t_push = D.memrealtime()
-    if const_expr(A["dtype"] == "fp32" and _AR_V16):
+    if const_expr(A["dtype"] == "fp32"):
         # 16-byte pushes: the even lane stores its pair and its odd neighbour's
         even = col % 2 == 0
         for r in range_constexpr(4):
@@ -242,11 +226,6 @@ def ar_push(c, M, grp, tot, tag, half):
                         (rank * M + rows[r]) * H + n,
                         [tv[r].bitcast(fx.Int32), fx.Float32(nb).bitcast(fx.Int32)],
                     )
-    elif const_expr(A["dtype"] == "fp32"):
-        for r in range_constexpr(4):
-            if rows[r] < M:
-                for p in range_constexpr(tp):
-                    Mailbox(tag).put(dst[p], (rank * M + rows[r]) * H + n, tv[r])
     else:
         even = col % 2 == 0
         for r in range_constexpr(4):
@@ -273,10 +252,9 @@ def ar_poll(c, M, grp, tag, half):
     mb = Mailbox(fx.Int32(tag))
     apw = D.ARPROBE["wave"]
     fp = A["dtype"] == "fp32"
-    v16 = fp and _AR_V16
     W = H if fp else H // 2
     even = col % 2 == 0
-    if const_expr(v16):  # the even column's 16-byte pair of pairs
+    if const_expr(fp):  # the even column's 16-byte pair of pairs
         specs = [
             (own, (s * M + fx.min(rows[r], M - 1)) * W + n - col % 2, 2)
             for r in range(4)
@@ -295,15 +273,13 @@ def ar_poll(c, M, grp, tag, half):
         t_pe = D.memrealtime()
     out = []
     for r in range_constexpr(4):
-        if const_expr(v16):
+        if const_expr(fp):
             vals = [
                 fx.Int32(even.select(ws[r * tp + s][0], ws[r * tp + s][1])).bitcast(
                     fx.Float32
                 )
                 for s in range(tp)
             ]
-        elif const_expr(fp):
-            vals = [fx.Int32(ws[r * tp + s][0]).bitcast(fx.Float32) for s in range(tp)]
         else:
             vals = [
                 even.select(D.bf_lo(ws[r * tp + s][0]), D.bf_hi(ws[r * tp + s][0]))
