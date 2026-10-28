@@ -1,7 +1,7 @@
 #!/bin/bash
 # Runs INSIDE the vLLM container. Benchmarks each checkpoint once its download is complete,
 # preferring the order given (default: FP8, BF16).
-# usage: vllm_all.sh [ckpt ...]
+# usage: vllm_all.sh [ckpt ...]; EXTRA_ARGS (space-separated) go to `vllm serve`
 set -u
 D=$(dirname "$(readlink -f "$0")")
 export HF_HUB_OFFLINE=1
@@ -27,7 +27,8 @@ while [ ${#pending[@]} -gt 0 ]; do
     c=${pending[$i]}
     ready "$c" || continue
     echo "===== $c $(date -Is)"
-    bash "$D/vllm_serve_bench.sh" "$c" "vllm${VARIANT:+_$VARIANT}_$c"
+    # shellcheck disable=SC2086
+    bash "$D/vllm_serve_bench.sh" "$c" "vllm${VARIANT:+_$VARIANT}_$c" ${EXTRA_ARGS:-}
     unset "pending[$i]"; pending=("${pending[@]}"); ran=1; idle=0; break
   done
   if [ $ran = 0 ]; then # do not hold the GPU idle for more than 30 min waiting for downloads

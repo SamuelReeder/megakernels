@@ -378,7 +378,7 @@ def _moe_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw
     w, buf = barrier_then(rtr, T(T_RT), T(T_RT), e0 + 3)
     if const_expr(cfg.router_publish):
         NR = -(-min(rtr.U, rtr.NW) // WAVES)  # CTAs with router units (a "small" GEMV)
-        assert rtr.small and NR + M <= cfg.cus
+        assert rtr.small and cfg.cus >= NR + M
         bid = c["bid"]
         if bid < NR:
             S.prologue_router(c, rtr, xq, red, G[G_H], G[G_A], G[G_SSQA], T(T_PA_LN),

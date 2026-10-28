@@ -126,22 +126,23 @@ layer = qkv | attn | o_proj | router | gate_up | down
 | Stage | Prologue (every CTA) | Work | Last-arriver epilogue | Output |
 |---|---|---|---|---|
 | embed | none | CTA b: 16-column groups b, b + 304, ... | none | `h1` = bf16(embed x 53.0), `d` = `e` = 0 |
-| qkv | `rebuild_h`: h = (h1 + post_ff_ln(post_ff_ln_1(d) + post_ff_ln_2(e))) x layer_scalar of the previous layer (row 0 of the table: ones, 1.0); x = input_ln(h), fp8 | fp8 GEMV 8192 (sliding) or 9216 (full) x 2816 | raw | y [M][QKV_N]; CTA 0 stores h |
+| qkv | layer 0: `rebuild_h` (h = h1, the scaled embedding); x = input_ln(h), fp8. Layers > 0: copy x, published by the previous layer's combine CTAs | fp8 GEMV 8192 (sliding) or 9216 (full) x 2816 | raw | y [M][QKV_N] |
 | attn | none | wave tasks (row, KV head, q-head group, 64 positions); K / V into the cache | merge of the records | o fp32 [M][16 HD] |
 | o_proj | o to fp8 | fp8 GEMV 2816 x 4096 / 8192 | raw + 16-column sums of squares | a, ssq_a |
-| router | h1 = h + post_attn_ln(a); x = bf16(rms(h1) x 2816^-0.5 x scale) | bf16 GEMV 128 x 2816 | raw | fp32 logits; CTA 0 stores h1, rstd(h1) |
-| gate_up | routing (every CTA); rows 0..M-1: fp8(pre_ff_ln_2(h1)), rows M..2M-1: fp8(pre_ff_ln(h1)) | grouped fp8 GEMV, (U + 3) x 1408 x 2816 | GeGLU per (position, group) | act fp32 [M][11][768] |
-| down | act of the CTA's <= 2 positions, fp8 | grouped fp8 GEMV, (U + 3) x 2816 x 768 | e = sum over slots j < 8 of w_j x part_j, d = part_8 + part_9 + part_10; raw + sums of squares | e, d, ssq_e, ssq_d |
+| router | CTAs with router units: h1 = h + post_attn_ln(a); x = bf16(rms(h1) x 2816^-0.5 x scale). CTAs NR .. NR + M - 1 (`publish_row`): row m of h1, rstd(h1), and the two gate_up inputs, fp8, to global memory | bf16 GEMV 128 x 2816 | raw | fp32 logits; h1, rstd(h1), gate_up inputs |
+| gate_up | routing (every CTA); copy the published inputs (rows 0..M-1: fp8(pre_ff_ln_2(h1)), rows M..2M-1: fp8(pre_ff_ln(h1))) | grouped fp8 GEMV, (U + 3) x 1408 x 2816 | GeGLU per (position, group) | act fp32 [M][11][768] |
+| down | act of the CTA's <= 2 positions, fp8 | grouped fp8 GEMV, (U + 3) x 2816 x 768 | e = sum over slots j < 8 of w_j x part_j, d = part_8 + part_9 + part_10; raw + sums of squares; count the group. Then CTAs cus - M + m (not after the last layer) wait for all groups and run `combine_row`: row m of h (as `rebuild_h`), x = input_ln(h) of the next layer, fp8 | e, d, ssq_e, ssq_d; h, next qkv input |
 | final | `rebuild_h` from the last layer; x = bf16(norm(h)) | bf16 LM head GEMV 262144 x 2816 (or CTA 0 stores x) | 30 tanh(z / 30) | fp32 logits or bf16 hidden |
 
 Barriers: 1 + 6 x 30 = 181 per step (Qwen3.6: 241, Qwen3.8: 321).
 
-Whole-row prologues: every CTA computes the full rows of h (qkv, final) and h1 (router) from
-the raw outputs: thread t < 352 holds columns 8 t .. 8 t + 7 of every row; the row sums go
-through a DPP wave sum and a fixed-order sum over the 8 waves. All CTAs run the same
-instructions on the same data, so they hold the same bits; CTA 0 publishes h and h1 for the
-stages that read them after the next barrier. The values of a row do not depend on M or on the
-other rows (P2).
+Whole-row work: h (layer 0 and final stage: every CTA; other layers: one combine CTA per row)
+and h1 (router CTAs: all rows; publisher CTAs: one row each) are computed from the raw stage
+outputs: thread t < 352 holds columns 8 t .. 8 t + 7 of a row; the row sums go through a DPP
+wave sum and a fixed-order sum over the 8 waves. Every producer of a row runs the same
+arithmetic in the same order, so all copies of a row hold the same bits (checked:
+`tests/ab_bitwise.py` against the all-CTA prologues, `bench/results/m4/`). The values of a row
+do not depend on M or on the other rows (P2).
 
 ## MoE stages
 
@@ -281,6 +282,49 @@ routing drift) gives kernel~emulate 0.9968.
 - Speed (`bench/bench_decode.py`, 512-token prompt, 256 steps, LM head included): TPOT 3.68 /
   4.25 / 5.02 / 6.54 ms at M = 1 / 2 / 4 / 8; 3.81 ms and 3.90 ms at M = 1 after 2048 and 4096
   tokens.
+
+## Milestone 4: speed
+
+### Stock baselines (same node, banff-cyxtera-s70-4, 2026-10-28)
+
+`bench/stock/` (logs and JSON in `bench/results/stock/`): vLLM 0.32.1rc1.dev505+g00b6c4c56
+(image `vllm-rocm-nightly-00b6c4c5`), `vllm bench serve`, 512 input / 256 output tokens,
+concurrency = batch; SGLang 0.5.10.post1 `bench_one_batch`, the same lengths. Median TPOT, ms:
+
+| Engine | Checkpoint | 1 | 2 | 4 | 8 |
+|---|---|---|---|---|---|
+| vLLM (default, TRITON_ATTN) | FP8 | 4.54 | 4.74 | 5.24 | 5.98 |
+| vLLM (default) | BF16 | 4.44 | 4.98 | 6.35 | 7.43 |
+| vLLM + AITER | BF16 | 4.89 | 5.45 | 6.77 | 7.93 |
+| vLLM + AITER | FP8 | fails: AITER's FP8 MoE has no `GELU_TANH` | | | |
+| SGLang | BF16 | 9.16 | 9.83 | 10.45 | 11.76 |
+| SGLang | FP8 | fails: `This GEMM is not supported!` (compressed-tensors FP8) | | | |
+
+The fastest stock engine at every batch with the FP8 checkpoint is vLLM's default path.
+
+### Optimization log
+
+Each change is measured with `bench/bench_decode.py` (512-token prompt, 128 steps, 2 or 3
+repeats) and, if it only moves work, checked bitwise against the old configuration
+(`tests/ab_bitwise.py`, `Cfg` flags through `MK_CFG`). Logs in `bench/results/m4/`.
+
+| Change | M = 1 | M = 8 | Result |
+|---|---|---|---|
+| Start (milestone 3 kernel) | 3.65 ms | 6.49 ms | `profile_v0.txt`: e1 55 us, e2 36 us, qkv 30 us per layer at M = 8 |
+| K-chunk sweep of o, e1, e2 (`MK_CHUNKS`) | o = 2: -1.5 % | all worse | kept the defaults (`chunk_sweep.txt`) |
+| o_proj prologue merges the attention records, one head per chunk (`attn_merge_o`) | +6.7 % | +4.3 % | rejected, removed (`flags_alone.txt`) |
+| Router publishers: only the CTAs with router units run the router prologue; M other CTAs publish h1 and the quantized gate_up inputs, which the gate_up prologue copies (`router_publish`) | -0.5 % | -5.6 % | kept; bitwise equal (`ab_v2.txt`) |
+| One CTA (the last expert-down arriver) rebuilds h and publishes the qkv input (`combine_last`) | -1.8 % | +4 % with router_publish | replaced (`combine_vs_m.txt`) |
+| M CTAs wait for all expert-down groups (device counter), each rebuilds one row of h and publishes its qkv input; the qkv prologue copies it (`combine_rows`) | -1.1 % | -3.4 % | kept; bitwise equal at M = 1 and 8 (`combine_rows.txt`) |
+| V loads one batch ahead in the attention task | 0 % | +6 % | rejected, reverted (`attn_vpipe*.txt`) |
+
+Where the time goes now (`profile_v1.txt`, per layer, spans include the stage's barrier wait):
+at M = 8 the expert stages read about 216 MB (gate_up) and 111 MB (down) per layer for about 52
+distinct experts, so e1 (55 us) and e2 (27 us busy) run near the HBM bandwidth; the LM head
+(1.48 GB bf16) takes 337 us. At M = 1 the weight stream is about 100 MB per layer (about 23 us at
+4.3 TB/s) but a layer takes about 100 us: 6 barriers (about 2 us each), the attention task's
+serial load chain (`probes_attn_v1.txt`: q/k prep 3.5 us, scores 6 us, P V 7 us, merge 5 us on
+the full-attention layer) and the stage prologues are the fixed cost.
 
 ## Decisions
 

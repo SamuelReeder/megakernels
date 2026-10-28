@@ -387,7 +387,7 @@ def prologue_router(c, g, xq, red, h, a, ssq_a, wpa, rscale, h1_out, rstd1_out, 
         ht = [hv[t][q] + av[t][q] * rat * wv[q] for q in range(8)]
         h1.append(ht)
         parts.append(_sq8(ht, live))
-        if const_expr(store):
+        if const_expr(store):  # noqa: SIM102 (trace-time test, then a run-time one)
             if (c["bid"] == 0) & live:
                 D.st(fx.Vector.from_elements(ht[:4], fx.Float32), ro, t * H + k0, D.CM_DEV)
                 D.st(fx.Vector.from_elements(ht[4:], fx.Float32), ro, t * H + k0 + 4,
@@ -401,7 +401,7 @@ def prologue_router(c, g, xq, red, h, a, ssq_a, wpa, rscale, h1_out, rstd1_out, 
         words = [D.pack_bf2(x[2 * q], x[2 * q + 1]) for q in range(4)]
         if live:
             fx.ptr_store(fx.Vector.from_elements(words, fx.Int32), xq + (t * g.XR + k0 * 2) // 4)
-    if const_expr(store):
+    if const_expr(store):  # noqa: SIM102 (trace-time test, then a run-time one)
         if (c["bid"] == 0) & (c["tid"] < M):
             D.st(fx.ptr_load(red + (64 + 8 + c["tid"])), D.rsrc(rstd1_out), c["tid"],
                  D.CM_DEV)
