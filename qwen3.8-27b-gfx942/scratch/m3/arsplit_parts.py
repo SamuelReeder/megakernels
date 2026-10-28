@@ -6,7 +6,7 @@
   barrier      = barrier segment growth
 The GEMV-segment growth (epilogues block their wave inside the stream) is split by the
 per-epilogue ratio of peer-late wait to own push/poll.
-Usage: python scratch/m3/arsplit_parts.py DIR"""
+Usage: python scratch/m3/arsplit_parts.py DIR [FORMAT ...]"""
 import statistics as st
 import sys
 
@@ -16,7 +16,7 @@ src = open(__file__.replace("arsplit_parts.py", "arsplit_an.py")).read()
 exec(src[src.index("AR_STAGES ="):src.index("for fmt in (")].replace("D, M = sys.argv[1], int(sys.argv[2])", ""))
 D = sys.argv[1]
 for M in (1, 8):
-    for fmt in ("fp32", "bf16"):
+    for fmt in sys.argv[2:] or ("fp32", "bf16"):
         globals()["M"] = M
         a, _, sa, _, grp = run(fmt, False)
         l, _, sl, _, _ = run(fmt, True)

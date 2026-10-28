@@ -1,0 +1,2 @@
+fp32 M=1: per all-reduce (stamped) 2.92 us (whole-step difference 2.78): pushpoll +2.47 us (85 %), slower +0.66 us (23 %), drain -0.20 us (-7 %), barrier -0.01 us (-0 %)
+fp32 M=8: per all-reduce (stamped) 7.21 us (whole-step difference 7.17): pushpoll +6.44 us (89 %), slower +1.11 us (15 %), drain -0.28 us (-4 %), barrier -0.07 us (-1 %)

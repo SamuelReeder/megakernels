@@ -10,7 +10,8 @@ Round r (barrier epoch e = epoch + 1 + r, tag e, parity region e & 1):
     sums in rank order 0 .. TP-1 (DSv4.1 sum_partials, fp32 here);
   - mode "local": sums the partial with itself (no peer traffic: the TP1 baseline).
   It stores the sum to out[r][m][col:col+2]; then the TP1 kernel's barrier
-  (arrive, wait, wait).
+  (arrive, wait). Mode "ar_merged": the put only; after the barrier every CTA polls all
+  M x 5120 pairs of every rank (the prologue merge of DESIGN-TP2 section 5).
 No rank overwrites unread peer data: a rank writes region parity p in round r + 2 only
 after it passed round r + 1, which needs every peer's round r + 1 put, which every peer
 issues after its own grid barrier that follows its round r reads.
@@ -101,7 +102,7 @@ class Mailbox:
 
 
 def build(M, cus, tp, rank, mode, stamps):
-    assert mode in ("ar", "ar_bf", "local") and 1 <= M <= 8
+    assert mode in ("ar", "ar_bf", "ar_merged", "local") and 1 <= M <= 8
     HALF = half_bytes(tp)
     NG = 2  # groups a CTA can own (320 groups on 304 CTAs)
     name = f"arspike_{zlib.crc32(repr((M, cus, tp, rank, mode, stamps)).encode()):08x}"
@@ -145,7 +146,18 @@ def build(M, cus, tp, rank, mode, stamps):
                 v = D.ldf(rs, (r * M + m) * H + col, 2)
                 v0 = fx.Float32(v[0])
                 v1 = fx.Float32(v[1])
-                if const_expr(mode == "ar"):
+                if const_expr(mode == "ar_merged"):
+                    # the prologue merge (DESIGN-TP2 section 5): push only; every CTA
+                    # polls all columns after the barrier
+                    mb = Mailbox(e)
+                    par = fx.Int64(e & 1) * fx.Int64(HALF)
+                    for p in range_constexpr(tp):
+                        mb.put_words(
+                            bases[p] + par,
+                            (rank * M + m) * H + col,
+                            [v0.bitcast(fx.Int32), v1.bitcast(fx.Int32)],
+                        )
+                elif const_expr(mode == "ar"):
                     mb = Mailbox(e)
                     par = fx.Int64(e & 1) * fx.Int64(HALF)
                     for p in range_constexpr(tp):
@@ -184,16 +196,40 @@ def build(M, cus, tp, rank, mode, stamps):
                 else:
                     a0 = v0 + v0
                     a1 = v1 + v1
-                D.st(
-                    fx.Vector.from_elements([a0, a1], fx.Float32),
-                    ro,
-                    (r * M + m) * H + col,
-                )
+                if const_expr(mode != "ar_merged"):
+                    D.st(
+                        fx.Vector.from_elements([a0, a1], fx.Float32),
+                        ro,
+                        (r * M + m) * H + col,
+                    )
             if const_expr(stamps):
                 stamp(r, 1)
             D.grid_arrive(rf, e, tid, bid)
             D.grid_wait(rf, e, tid, bid, cus)
-            D.grid_wait(rf, e, tid, bid, cus)
+            if const_expr(mode == "ar_merged"):
+                # every CTA reads every column pair of every rank (M x H / 2 pairs of
+                # pairs a source); CTA 0 stores the sums for the exactness check
+                mb = Mailbox(e)
+                par = fx.Int64(e & 1) * fx.Int64(HALF)
+                NPAIR = M * H // 2
+                for i in range_constexpr((NPAIR + NT - 1) // NT):
+                    j = fx.min(tid + NT * i, NPAIR - 1)
+                    mm = j // (H // 2)
+                    cc = j % (H // 2) * 2
+                    ws = mb.poll(
+                        [(bases[rank] + par, (s * M + mm) * H + cc, 2) for s in range(tp)]
+                    )
+                    a0 = fx.Int32(ws[0][0]).bitcast(fx.Float32)
+                    a1 = fx.Int32(ws[0][1]).bitcast(fx.Float32)
+                    for s in range_constexpr(1, tp):
+                        a0 = a0 + fx.Int32(ws[s][0]).bitcast(fx.Float32)
+                        a1 = a1 + fx.Int32(ws[s][1]).bitcast(fx.Float32)
+                    if (bid == 0) & (tid + NT * i < NPAIR):
+                        D.st(
+                            fx.Vector.from_elements([a0, a1], fx.Float32),
+                            ro,
+                            (r * M + mm) * H + cc,
+                        )
         if (bid == 0) & (tid == 0):
             D.st(epoch + rounds, rf, (cus + EPOCH_WORD_LINE) * D.LINE, D.CM_DEV)
 
