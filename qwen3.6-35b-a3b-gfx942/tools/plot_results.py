@@ -1,9 +1,10 @@
 """Render docs/throughput.png from raw results: per-user and total decode speed.
 
-Usage: python tools/plot_results.py MK_DIR [OUT.png]
-MK_DIR holds bench_m{1,2,4,8}.txt of bench/bench_decode.py (a suite run). The stock
-baselines come from bench/results/stock/ (same GPU model; see docs/DESIGN.md, "Stock
-baselines"). Per-user speed = 1000 / TPOT; total speed = batch x per-user speed.
+Usage: python tools/plot_results.py PATTERN [OUT.png]
+PATTERN is the path of the bench/bench_decode.py outputs with {b} for the batch size,
+e.g. bench/results/m4/bench_v5_m{b}.txt. The stock baselines come from
+bench/results/stock/ (same GPU model; see docs/DESIGN.md, "Stock baselines").
+Per-user speed = 1000 / TPOT; total speed = batch x per-user speed.
 """
 
 import json
@@ -23,11 +24,11 @@ COLOR = {"megakernel": "#2a78d6", "vLLM": "#1baf7a", "SGLang": "#eb6834"}
 BATCHES = (1, 2, 4, 8)
 
 
-def megakernel(d):
+def megakernel(pattern):
     """batch -> median TPOT (ms) over the repetitions of bench/bench_decode.py."""
     out = {}
     for b in BATCHES:
-        last = open(os.path.join(d, f"bench_m{b}.txt")).read().strip().splitlines()[-1]
+        last = open(pattern.format(b=b)).read().strip().splitlines()[-1]
         out[b] = statistics.median(r["tpot_ms"] for r in json.loads(last)["runs"])
     return out
 
@@ -68,10 +69,10 @@ def style(ax):
 
 
 def main():
-    mk_dir = sys.argv[1]
+    pattern = sys.argv[1]
     out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(ROOT, "docs", "throughput.png")
     series = [  # (engine, label, line style, batch -> TPOT ms)
-        ("megakernel", "megakernel FP8", "-", megakernel(mk_dir)),
+        ("megakernel", "megakernel FP8", "-", megakernel(pattern)),
         ("vLLM", "vLLM FP8 + AITER", "-", vllm("vllm_aiter_Qwen3.6-35B-A3B-FP8")),
         ("vLLM", "vLLM FP8", (0, (5, 3)), vllm("vllm_Qwen3.6-35B-A3B-FP8")),
         ("SGLang", "SGLang FP8", "-", sglang("sglang_Qwen3.6-35B-A3B-FP8")),

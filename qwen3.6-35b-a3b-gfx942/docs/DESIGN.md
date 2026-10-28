@@ -1,7 +1,7 @@
 # Qwen3.6-35B-A3B decode megakernel for gfx942 (FlyDSL)
 
 Status: milestone 4 (speed). The kernel passes the milestone 3 tests and decodes at
-3.42 / 3.99 / 4.97 / 6.36 ms per token at M = 1 / 2 / 4 / 8 (512-token context), 1.49x
+3.42 / 3.99 / 4.97 / 6.37 ms per token at M = 1 / 2 / 4 / 8 (512-token context), 1.49x
 to 1.17x the fastest stock engine on the same GPU ("Optimization log"). The design
 reuses the Qwen3.8-27B kernel (`../qwen3.8-27b-gfx942/`) for every stage that the two
 models share, and adds a mixture-of-experts (MoE) block in place of the dense MLP.
@@ -348,10 +348,10 @@ table: `bench/results/stock_summary.md`, scripts: `bench/stock/`.
 
 | Checkpoint | Engine | B = 1 | B = 2 | B = 4 | B = 8 |
 |---|---|---|---|---|---|
-| FP8 | vLLM | 6.42 | 6.67 | 7.20 | 8.95 |
+| FP8 | vLLM | 6.43 | 6.67 | 7.20 | 8.95 |
 | FP8 | vLLM + `VLLM_ROCM_USE_AITER=1` | **5.11** | **5.51** | **6.17** | **7.44** |
 | FP8 | SGLang | 7.79 | 7.98 | 8.51 | 9.23 |
-| BF16 | vLLM | 5.26 | 5.78 | 7.00 | 9.86 |
+| BF16 | vLLM | 5.24 | 5.78 | 7.00 | 9.86 |
 | BF16 | vLLM + AITER | 4.93 | 5.38 | 6.48 | 8.81 |
 | BF16 | SGLang | 6.13 | 6.09 | 6.83 | 8.79 |
 
@@ -360,7 +360,7 @@ The fastest FP8 baseline (vLLM + AITER) is the reference for the speedups.
 ## Optimization log (milestone 4)
 
 Start: the milestone 3 kernel, 3.72 ms at M = 1 and 6.71 ms at M = 8
-(`bench/results/m3/bench_untuned_m*.txt`). End: 3.42 / 3.99 / 4.97 / 6.36 ms at
+(`bench/results/m3/bench_untuned_m*.txt`). End: 3.42 / 3.99 / 4.97 / 6.37 ms at
 M = 1 / 2 / 4 / 8 (`bench/results/m4/bench_v5_m*.txt`), 1.49x / 1.38x / 1.24x / 1.17x
 vLLM + AITER on the FP8 checkpoint.
 
