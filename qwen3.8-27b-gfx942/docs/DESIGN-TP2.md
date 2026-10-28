@@ -663,3 +663,24 @@ gate is reverted and logged.
   The cause of its later down-stage push at M = 1 (section 11, timing split: +4.7 us on the
   last push of every down stage, same GEMV code, same stream time) is still open; it is not
   investigated, because bf16 cannot become the default. Rejected: investigate it now.
+
+Optimization round 1 (2026-10-28, banff-cyxtera-s70-4, job 68197384, `scratch/logs/opt1/`;
+`bench/bench_decode.py` ctx 512, 64 steps, median of 3 fixed-token TPOT, ms):
+
+- Deferred poll, kept. The GEMV's last arriver pushes every counter group it completes
+  first, then polls and stores them, so the round trips of a wave's groups overlap. TP2
+  fp32: 5.766 -> 5.683 (M = 1, -1.4 %), 6.340 -> 6.158 (M = 2, -2.9 %), 7.424 -> 7.088
+  (M = 4, -4.5 %), 8.562 -> 8.207 (M = 8, -4.1 %). Logits bitwise equal (determinism hash
+  dc59fa9ecba1e506 at M = 1, eca6810ec44f5829 at M = 8; ranks equal). The order of the
+  adds does not change, so the section 9 gates keep their values. It is now the only TP
+  all-reduce path (no Cfg switch). Second variant not tried: the remaining choice (one
+  combined poll over a wave's groups instead of one poll each after all pushes) only
+  changes how the already-overlapped polls are issued; the conservative option is the
+  simpler code. Rejected: keep the in-epilogue poll as an option (dead code).
+- Second `grid_wait` in `barrier_then`, removed. It came with the profiling commit 6f01725
+  without a comment; the second wait is always satisfied at once (epochs only grow), so it
+  only adds a leader store, a poll and a workgroup barrier per barrier. TP1: 7.840 -> 7.743
+  (M = 1, -1.2 %), 10.425 -> 10.366 (M = 8, -0.6 %); TP2 (before the deferred poll):
+  5.766 -> 5.698 (M = 1), 8.562 -> 8.539 (M = 8). Logits bitwise equal in both TP1 and TP2
+  (hashes 2a0a1919674a3562, 49c5e7cb71e4be94 for TP1). Separate TP1 commit 5e151e9 on
+  `master` of `repos/qwen38-gfx942-mk`; TP1 suite re-run in `scratch/logs/tp1fix/`.
