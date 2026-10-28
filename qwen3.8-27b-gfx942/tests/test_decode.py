@@ -46,12 +46,15 @@ def main():
         top = (a.argmax(-1) == b.argmax(-1)).float().mean().item()
         return cos, top
 
-    rows = []
+    rows, nonfinite = [], 0
     for s in range(STEPS):
         emu = R.step(W, tok, st, layers=LAYERS, emulate=True, ar_tp=split, ar_bf16=ar_bf16)
         ex = R.step(W, tok, st_x, layers=LAYERS, emulate=False)
         out = eng.step(tok).clone()
         torch.cuda.synchronize()
+        # min() over the cosines can skip a NaN, so count non-finite logits on their own
+        nonfinite += int(not bool(torch.isfinite(out).all() and torch.isfinite(emu).all()
+                                  and torch.isfinite(ex).all()))
         k_e, k_x, e_x = cmp(out, emu), cmp(out, ex), cmp(emu, ex)
         rows.append((k_e, k_x, e_x))
         print(f"step {s}: kernel~emulate cos {k_e[0]:.6f} top1 {k_e[1]:.2f} | kernel~exact cos {k_x[0]:.6f} "
@@ -62,12 +65,13 @@ def main():
     print(f"kernel~emulate: worst cos {worst(0):.6f} top1 {mean(0, 1):.3f}")
     print(f"kernel~exact:   worst cos {worst(1):.6f} top1 {mean(1, 1):.3f}")
     print(f"emulate~exact:  worst cos {worst(2):.6f} top1 {mean(2, 1):.3f}")
+    print(f"steps with non-finite logits (kernel or reference): {nonfinite}")
     # fp8 activation rounding is chaotic over 64 layers: two correct fp8 implementations
     # (kernel, emulating reference) drift apart as far as each drifts from the exact
     # (bf16-activation) model (with random tokens, worst-row cosines near 0.97 occur).
     # Pass: the kernel is as close to the exact model as the emulating reference is.
     ok = (worst(0) > 0.95 and (1 - worst(1)) <= 2 * (1 - worst(2)) + 1e-5
-          and mean(1, 1) >= mean(2, 1) - 0.1)
+          and mean(1, 1) >= mean(2, 1) - 0.1 and nonfinite == 0)
     if ctx.tp > 1:
         print(f"ranks bitwise equal every step: {eng.ranks_equal}")
         ok = TP.agree(ctx, ok and eng.ranks_equal)

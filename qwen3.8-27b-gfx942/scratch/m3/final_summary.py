@@ -42,6 +42,9 @@ print(f"G4 determinism M = 1, 8: {'PASS' if det else 'FAIL'}; logits sha256 "
       f"{[s[1] if s else None for s in sha]}")
 bi = re.findall(r"batch-invariant (\w+)", log("tp2_eval") or "")
 print(f"G5 batch-invariant rows (eval_text): {'PASS' if bi and all(b == 'True' for b in bi) else 'FAIL'}")
+nf = [int(m) for n in [f"{v}_dec_m{M}_s{s}" for v in ("tp1", "tp2") for M, s in runs]
+      for m in re.findall(r"non-finite logits \(kernel or reference\): (\d+)", log(n) or "")]
+print(f"non-finite steps in test_decode runs: {sum(nf)} ({len(nf)} runs report it)")
 print("speed (bench_decode ctx 512, 64 steps, median of 3 fixed-token TPOT, ms):")
 for M in (1, 2, 4, 8):
     t = {}
