@@ -4,6 +4,8 @@ A FlyDSL decode megakernel for Qwen3.8-27B on gfx942 (MI300X): one persistent la
 per decode step for the whole model (64 layers, LM head), MXFP4 weights, batch 1 to 8.
 Design, decisions and measurements: [docs/DESIGN.md](docs/DESIGN.md). Stock-engine
 baseline: [bench/stock/results.md](bench/stock/results.md).
+Tensor parallel 2 (two MI300X over XGMI, in-kernel all-reduce, `MK_TP=2` with
+`srun -n2`): [docs/DESIGN-TP2.md](docs/DESIGN-TP2.md).
 
 ## Layout
 
@@ -19,6 +21,8 @@ baseline: [bench/stock/results.md](bench/stock/results.md).
 | `mk/reference.py` | PyTorch reference of the decode step (exact and emulate modes) |
 | `tests/` | correctness, quality, determinism; `run_suite.sh` runs all of them |
 | `bench/` | decode benchmark, per-stage profiler, reproducibility script |
+| `mk/tp.py`, `mk/sync.py`, `mk/peer.py` | TP2 harness; copies of vLLM's DSv4.1 mailbox and `PeerBuffer` |
+| `scratch/` | TP2 work: all-reduce spike, run plans, analysis scripts, logs |
 
 ## Run on Alola
 
