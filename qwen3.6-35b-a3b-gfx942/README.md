@@ -41,7 +41,12 @@ Quality (`bench/results/m3/`): the kernel against the PyTorch reference
 (`mk/reference.py`, which matches HF transformers at cosine 1.000000 and top-1 100 %,
 `bench/results/m2/ref_vs_hf.txt`) at M = 1, 2, 4, 8 over all 40 layers; teacher-forced
 perplexity on five passages: kernel 1.589, FP8 reference 1.585, BF16 1.584.
-Reproducibility runs on a second node and a second day: `bench/results/m5/`.
+Second day (`bench/results/m5/banff-cyxtera-s70-4_68196706/`, 2026-10-28, commit
+`41443a0`, same node): every test passes, batch-invariant and bitwise deterministic,
+perplexity 1.584, TPOT 3.41 / 4.02 / 4.99 / 6.41 ms at batch 1 / 2 / 4 / 8 (within 1 %
+of day 1). A second healthy MI300X node is queued (SLURM job 68196707); the one other
+node tried gave non-deterministic results for this kernel and for the Qwen3.8 kernel
+(`bench/results/m5/ctr-cx63-mi300x-12_68192231/`).
 
 ## How it works
 

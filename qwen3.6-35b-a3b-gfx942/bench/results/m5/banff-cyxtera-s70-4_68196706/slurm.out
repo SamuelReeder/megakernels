@@ -1,0 +1,75 @@
+== bench/results/m5/banff-cyxtera-s70-4_68196706/bench_m1.txt
+rep 0: TPOT 3.406 ms (293.6 tok/s/user, 293.6 tok/s total), kernel median 3.482 ms
+rep 1: TPOT 3.412 ms (293.0 tok/s/user, 293.0 tok/s total), kernel median 3.497 ms
+rep 2: TPOT 3.417 ms (292.7 tok/s/user, 292.7 tok/s total), kernel median 3.500 ms
+{"M": 1, "ctx": 512, "steps": 256, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-28 05:33:35", "cfg": "Cfg(M=1, cus=304, maxlen=832, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 3.4062716960906982, "kernel_ms_median": 3.481844902038574, "kernel_ms_min": 3.476191997528076}, {"tpot_ms": 3.4124929904937744, "kernel_ms_median": 3.4972410202026367, "kernel_ms_min": 3.4768741130828857}, {"tpot_ms": 3.4166295528411865, "kernel_ms_median": 3.500166893005371, "kernel_ms_min": 3.4850521087646484}]}
+== bench/results/m5/banff-cyxtera-s70-4_68196706/bench_m1_ctx2048.txt
+load+pack+build 13s
+rep 0: TPOT 3.537 ms (282.7 tok/s/user, 282.7 tok/s total), kernel median 3.606 ms
+rep 1: TPOT 3.524 ms (283.7 tok/s/user, 283.7 tok/s total), kernel median 3.619 ms
+{"M": 1, "ctx": 2048, "steps": 256, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-28 05:36:29", "cfg": "Cfg(M=1, cus=304, maxlen=2368, block=208, maxblocks=12, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 3.53696608543396, "kernel_ms_median": 3.6058099269866943, "kernel_ms_min": 3.592740058898926}, {"tpot_ms": 3.5242981910705566, "kernel_ms_median": 3.618680000305176, "kernel_ms_min": 3.5988340377807617}]}
+== bench/results/m5/banff-cyxtera-s70-4_68196706/bench_m1_ctx4096.txt
+load+pack+build 14s
+rep 0: TPOT 3.653 ms (273.7 tok/s/user, 273.7 tok/s total), kernel median 3.733 ms
+rep 1: TPOT 3.656 ms (273.5 tok/s/user, 273.5 tok/s total), kernel median 3.736 ms
+{"M": 1, "ctx": 4096, "steps": 256, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-28 05:37:33", "cfg": "Cfg(M=1, cus=304, maxlen=4416, block=208, maxblocks=22, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 3.6533725261688232, "kernel_ms_median": 3.733423948287964, "kernel_ms_min": 3.7115728855133057}, {"tpot_ms": 3.6562020778656006, "kernel_ms_median": 3.736150026321411, "kernel_ms_min": 3.7236409187316895}]}
+== bench/results/m5/banff-cyxtera-s70-4_68196706/bench_m2.txt
+rep 0: TPOT 4.010 ms (249.4 tok/s/user, 498.8 tok/s total), kernel median 4.077 ms
+rep 1: TPOT 4.019 ms (248.8 tok/s/user, 497.6 tok/s total), kernel median 4.071 ms
+rep 2: TPOT 4.024 ms (248.5 tok/s/user, 497.1 tok/s total), kernel median 4.092 ms
+{"M": 2, "ctx": 512, "steps": 256, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-28 05:34:15", "cfg": "Cfg(M=2, cus=304, maxlen=832, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 4.009848117828369, "kernel_ms_median": 4.077414035797119, "kernel_ms_min": 4.003283977508545}, {"tpot_ms": 4.0192646980285645, "kernel_ms_median": 4.071199893951416, "kernel_ms_min": 4.015993118286133}, {"tpot_ms": 4.023562908172607, "kernel_ms_median": 4.09224796295166, "kernel_ms_min": 4.034635066986084}]}
+== bench/results/m5/banff-cyxtera-s70-4_68196706/bench_m4.txt
+rep 0: TPOT 4.982 ms (200.7 tok/s/user, 802.9 tok/s total), kernel median 4.922 ms
+rep 1: TPOT 4.993 ms (200.3 tok/s/user, 801.2 tok/s total), kernel median 4.922 ms
+rep 2: TPOT 5.001 ms (200.0 tok/s/user, 799.9 tok/s total), kernel median 4.924 ms
+{"M": 4, "ctx": 512, "steps": 256, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-28 05:34:57", "cfg": "Cfg(M=4, cus=304, maxlen=832, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 4.981924057006836, "kernel_ms_median": 4.921716213226318, "kernel_ms_min": 4.857047080993652}, {"tpot_ms": 4.992680549621582, "kernel_ms_median": 4.922036170959473, "kernel_ms_min": 4.821764945983887}, {"tpot_ms": 5.000604629516602, "kernel_ms_median": 4.923840045928955, "kernel_ms_min": 4.85720682144165}]}
+== bench/results/m5/banff-cyxtera-s70-4_68196706/bench_m8.txt
+rep 0: TPOT 6.404 ms (156.2 tok/s/user, 1249.3 tok/s total), kernel median 6.051 ms
+rep 1: TPOT 6.413 ms (155.9 tok/s/user, 1247.4 tok/s total), kernel median 6.032 ms
+rep 2: TPOT 6.427 ms (155.6 tok/s/user, 1244.8 tok/s total), kernel median 6.071 ms
+{"M": 8, "ctx": 512, "steps": 256, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-28 05:35:43", "cfg": "Cfg(M=8, cus=304, maxlen=832, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False)", "runs": [{"tpot_ms": 6.403716087341309, "kernel_ms_median": 6.0513529777526855, "kernel_ms_min": 5.906219005584717}, {"tpot_ms": 6.413486003875732, "kernel_ms_median": 6.0315070152282715, "kernel_ms_min": 5.92646598815918}, {"tpot_ms": 6.426832675933838, "kernel_ms_median": 6.07131814956665, "kernel_ms_min": 5.903091907501221}]}
+== bench/results/m5/banff-cyxtera-s70-4_68196706/determinism_m1.txt
+row 0 alone vs inside M=4: bitwise equal True (steps that differ: 0)
+row 0 alone vs inside M=8: bitwise equal True (steps that differ: 0)
+row 0 alone vs inside M=8 with rows 4..7 padding: bitwise equal True
+PASS
+== bench/results/m5/banff-cyxtera-s70-4_68196706/determinism_m8.txt
+row 0 alone vs inside M=4: bitwise equal True (steps that differ: 0)
+row 0 alone vs inside M=8: bitwise equal True (steps that differ: 0)
+row 0 alone vs inside M=8 with rows 4..7 padding: bitwise equal True
+PASS
+== bench/results/m5/banff-cyxtera-s70-4_68196706/env.txt
+gfx942
+113-M3000100-103
+torch 2.14.1+rocm7.2 hip 7.2.53211 flydsl 0.4.0 AMD Instinct MI300X 304 CUs
+41443a0
+== bench/results/m5/banff-cyxtera-s70-4_68196706/eval_text.txt
+passage 3: ppl kernel 1.126 fp8 1.122 bf16 1.117 | top1 kernel=fp8 1.000 kernel=bf16 0.989 fp8=bf16 0.989 | KL(bf16||kernel) 0.0028 KL(bf16||fp8) 0.0032 | batch-invariant True
+passage 4: ppl kernel 2.682 fp8 2.715 bf16 2.737 | top1 kernel=fp8 0.976 kernel=bf16 0.988 fp8=bf16 0.976 | KL(bf16||kernel) 0.0041 KL(bf16||fp8) 0.0023 | batch-invariant True
+all: ppl kernel 1.584 fp8 1.585 bf16 1.584
+PASS
+== bench/results/m5/banff-cyxtera-s70-4_68196706/ref_vs_hf.txt
+emulate ref (BF16) vs HF     cos min 0.997265 mean 0.999630 | top1 1.0000 | KL mean 1.38e-03 max 2.11e-02
+exact ref (FP8) vs HF BF16   cos min 0.991976 mean 0.997945 | top1 1.0000 | KL mean 6.94e-03 max 4.57e-02
+emulate ref (FP8) vs HF BF16 cos min 0.990203 mean 0.997233 | top1 0.9615 | KL mean 8.85e-03 max 6.88e-02
+PASS
+== bench/results/m5/banff-cyxtera-s70-4_68196706/test_decode_m1.txt
+top-1 changes with an exact logit gap > 0.5: 0
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where the kernel's tables differ from reference.route on the kernel's logits: 0
+PASS
+== bench/results/m5/banff-cyxtera-s70-4_68196706/test_decode_m2.txt
+top-1 changes with an exact logit gap > 0.5: 0
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where the kernel's tables differ from reference.route on the kernel's logits: 0
+PASS
+== bench/results/m5/banff-cyxtera-s70-4_68196706/test_decode_m4.txt
+top-1 changes with an exact logit gap > 0.5: 0
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where the kernel's tables differ from reference.route on the kernel's logits: 0
+PASS
+== bench/results/m5/banff-cyxtera-s70-4_68196706/test_decode_m8.txt
+top-1 changes with an exact logit gap > 0.5: 0
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where the kernel's tables differ from reference.route on the kernel's logits: 0
+PASS
