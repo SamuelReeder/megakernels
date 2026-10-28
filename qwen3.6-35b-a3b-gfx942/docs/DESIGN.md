@@ -1,8 +1,9 @@
 # Qwen3.6-35B-A3B decode megakernel for gfx942 (FlyDSL)
 
-Status: milestone 4 (speed). The kernel passes the milestone 3 tests and decodes at
-3.42 / 3.99 / 4.97 / 6.37 ms per token at M = 1 / 2 / 4 / 8 (512-token context), 1.49x
-to 1.17x the fastest stock engine on the same GPU ("Optimization log"). The design
+Status: milestones 1 to 7 done. The full suite passes on a second day and on a second node,
+an MI325X (`bench/results/m5/`). The kernel decodes at 3.42 / 3.99 / 4.97 / 6.37 ms per token
+at M = 1 / 2 / 4 / 8 (512-token context, MI300X), which is 1.49x to 1.17x the fastest stock
+engine on the same GPU ("Optimization log"). The design
 reuses the Qwen3.8-27B kernel (`../qwen3.8-27b-gfx942/`) for every stage that the two
 models share, and adds a mixture-of-experts (MoE) block in place of the dense MLP.
 
