@@ -446,6 +446,17 @@ Changed from the milestone 1 plan: the unit-level grouped-GEMV test
 items 3 and 4 (U from 8 at M = 1 to about 57 at M = 8, padding rows), not for chosen
 routings such as expert ids 0 and 255 or U = 64.
 
+Reproducibility gate (milestone 5, `scripts/finish_m5.sh`). A suite run from another node
+passes when these conditions are true:
+
+1. Every gate prints PASS, and no step has NaN logits.
+2. The node is not the day-1 node.
+3. The median TPOT at batch 1, 2, 4, 8 meets a limit against day 1
+   (`bench/results/m4/bench_v5_m*.txt`, MI300X):
+   - On the same GPU model, the TPOT is within 3 %.
+   - On another gfx942 model with 304 CUs (MI325X), the TPOT is at most 3 % slower. A
+     faster run passes, because MI325X has more memory bandwidth (approved 2026-10-28).
+
 ## Stop conditions
 
 The implementation stops with `STOP: <violated invariant>` and evidence when:
