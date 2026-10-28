@@ -52,6 +52,10 @@ reference at M = 1, 2, 4, 8 and contexts 512, 2048 and 4096 (past the 1024 windo
 pass (`bench/results/m4/suite/test_decode_*.txt`). Determinism: three runs bitwise
 equal at M = 1 and 8 over 1100 steps.
 
+Second node (`bench/results/m5/quanta-ccs-aus-j02-45_68199254/`): every test passes on an
+MI325X, with the same perplexities as on the MI300X; TPOT 3.45 / 4.03 / 5.03 / 6.45 ms at
+batch 1 / 2 / 4 / 8. A second-day run is queued (SLURM job 68198890).
+
 ## How it works
 
 ![Architecture: stages per layer, attention, the MoE block, the deferred residual](docs/architecture.svg)

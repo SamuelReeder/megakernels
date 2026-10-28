@@ -1,7 +1,7 @@
 # Gemma 4 26B-A4B decode megakernel for gfx942 (FlyDSL): design
 
-Status: milestones 1 to 4, 6 and 7 done; milestone 5 (second node, second day) queued
-(`scripts/repro_sbatch.sh`, see "Milestone 5"). The kernel runs every layer of a decode step
+Status: milestones 1 to 4, 6 and 7 done; milestone 5: second node done (MI325X), second
+day queued (see "Milestone 5"). The kernel runs every layer of a decode step
 in one persistent launch, passes the correctness suite (`bench/results/m4/suite/`) and runs
 inside vLLM ("Milestone 6"). Milestones 1 and 2 were signed off on 2026-10-27; from
 milestone 3 on, the decisions below were made without sign-off, each with its evidence and
@@ -385,11 +385,19 @@ read the LM head in vLLM (`lm_head = False`).
 
 ## Milestone 5: reproducibility
 
-`scripts/repro_sbatch.sh` runs `tests/run_suite.sh` from a source tarball of commit
-`d22bcd4` (the milestone 4 kernel; the later commits change the harness, not the kernel) on
-the node Slurm picks: job 68198889 excludes banff-cyxtera-s70-4 (second node), job 68198890
-starts on 2026-10-29 (second day). The only other GFX942 MARKHAM node, banff-cyxtera-s83-2,
-was fully allocated on 2026-10-28. Results go to `bench/results/m5/`.
+Second node (`bench/results/m5/quanta-ccs-aus-j02-45_68199254/`, 2026-10-28): the full
+suite (`scripts/suite_austin.sh`, commit `767d759`, the same kernel as milestone 4) on an
+AUSTIN node with an **MI325X** (gfx942, 304 CUs), checkpoints downloaded to node `/tmp`.
+Every test passes: test_decode at M = 1, 2, 4, 8 and contexts 512 / 2048 / 4096,
+determinism and batch invariance at M = 1 and 8, eval_text (perplexity 216.183 on the
+passages and 85.291 on the long text, the same values as on the MI300X), test_attention.
+TPOT with real-text prompts: 3.45 / 4.03 / 5.03 / 6.45 ms at M = 1 / 2 / 4 / 8 (MI300X:
+3.58 / 4.18 / 5.29 / 6.77 ms, `bench/results/m7/`); the MI325X has faster HBM.
+
+Second day and a second MI300X: `scripts/repro_sbatch.sh` runs `tests/run_suite.sh` from a
+source tarball of commit `d22bcd4` (milestone 4 kernel, random-prompt benchmark): job
+68198890 starts on 2026-10-29, job 68198889 waits for a MARKHAM MI300X other than
+banff-cyxtera-s70-4 (the only one, banff-cyxtera-s83-2, was fully allocated on 2026-10-28).
 
 ## Decisions
 
