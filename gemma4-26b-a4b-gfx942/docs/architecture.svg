@@ -1,0 +1,116 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" font-family="Helvetica, Arial, sans-serif">
+  <defs>
+    <marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0 1 L9 5 L0 9 z" fill="#52514e"/>
+    </marker>
+  </defs>
+  <rect width="1200" height="720" fill="#fcfcfb"/>
+  <text x="30" y="40" font-size="22" font-weight="700" fill="#0b0b0b">Gemma 4 26B-A4B: one launch per decode step, 304 persistent CTAs (one per MI300X CU)</text>
+  <text x="30" y="64" font-size="14" fill="#52514e">181 stages per step (embedding + 30 layers × 6), separated by grid barriers. 1 to 8 rows. FP8 weights (the RedHatAI FP8-dynamic checkpoint, repacked).</text>
+
+  <g font-size="12" text-anchor="middle" fill="#0b0b0b">
+    <text x="30" y="104" font-size="13" font-weight="700" text-anchor="start" fill="#52514e">ONE LAYER, SPLIT ACROSS ALL 304 CUs (25 sliding-window layers, 5 full-attention layers: 5, 11, 17, 23, 29)</text>
+    <rect x="30" y="116" width="90" height="48" rx="6" fill="#52514e"/><text x="75" y="136" fill="#fff" font-weight="700">embed</text><text x="75" y="153" fill="#fff" font-size="11">× bf16(√2816)</text>
+    <rect x="135" y="116" width="140" height="48" rx="6" fill="#7d4fc9"/><text x="205" y="136" fill="#fff" font-weight="700">qkv</text><text x="205" y="153" fill="#fff" font-size="11">input norm + FP8 GEMV</text>
+    <rect x="285" y="116" width="150" height="48" rx="6" fill="#c23b5a"/><text x="360" y="136" fill="#fff" font-weight="700">attention</text><text x="360" y="153" fill="#fff" font-size="11">q/k norm, RoPE, paged KV</text>
+    <rect x="445" y="116" width="120" height="48" rx="6" fill="#1baf7a"/><text x="505" y="136" fill="#fff" font-weight="700">o_proj</text><text x="505" y="153" fill="#fff" font-size="11">FP8 GEMV</text>
+    <rect x="575" y="116" width="130" height="48" rx="6" fill="#6b6a64"/><text x="640" y="136" fill="#fff" font-weight="700">router</text><text x="640" y="153" fill="#fff" font-size="11">bf16 GEMV, 128 logits</text>
+    <rect x="715" y="116" width="170" height="48" rx="6" fill="#eda100"/><text x="800" y="136" fill="#fff" font-weight="700">routing + gate_up</text><text x="800" y="153" fill="#fff" font-size="11">top-8 + dense MLP, GeGLU</text>
+    <rect x="895" y="116" width="150" height="48" rx="6" fill="#e87fa3"/><text x="970" y="136" fill="#fff" font-weight="700">down</text><text x="970" y="153" fill="#fff" font-size="11">weighted sum, combine</text>
+    <text x="1072" y="146" font-size="16" fill="#52514e" text-anchor="middle">×30</text>
+    <rect x="1100" y="116" width="80" height="48" rx="6" fill="#0b7d32"/><text x="1140" y="136" fill="#fff" font-weight="700">final</text><text x="1140" y="153" fill="#fff" font-size="11">norm</text>
+  </g>
+  <g stroke="#52514e" stroke-width="1.5" marker-end="url(#a)">
+    <line x1="120" y1="140" x2="133" y2="140"/><line x1="275" y1="140" x2="283" y2="140"/>
+    <line x1="435" y1="140" x2="443" y2="140"/><line x1="565" y1="140" x2="573" y2="140"/>
+    <line x1="705" y1="140" x2="713" y2="140"/><line x1="885" y1="140" x2="893" y2="140"/>
+    <line x1="1088" y1="140" x2="1098" y2="140"/>
+  </g>
+  <text x="30" y="190" font-size="12" fill="#52514e">Each arrow is a grid barrier. A GEMV's weight units (16 rows × 128 K of e4m3fnuz + 16 row scales) are divided among all 2,432 waves; the last arriver of each output group reduces in a fixed order.</text>
+  <text x="30" y="208" font-size="12" fill="#52514e">In vLLM the kernel ends at the final norm; vLLM's LM head applies the soft-cap 30 · tanh(z / 30). Standalone, the kernel also runs the 262K-vocab bf16 LM head and the soft-cap.</text>
+
+  <!-- attention panel -->
+  <rect x="30" y="230" width="370" height="460" rx="8" fill="#ffffff" stroke="#e1e0d9"/>
+  <text x="45" y="256" font-size="13" font-weight="700" fill="#52514e">ATTENTION OVER vLLM'S PAGED KV CACHE</text>
+  <g font-size="12" fill="#0b0b0b">
+    <text x="45" y="282">Task = (row, KV head, q-head group, 64 positions):</text>
+    <text x="45" y="300">one wave, flash-decoding partial record.</text>
+    <text x="45" y="326" font-weight="700">Sliding layers (25)</text>
+    <text x="45" y="344">16 q / 8 KV heads, head dim 256, window 1024:</text>
+    <text x="45" y="362">positions max(0, pos − 1023) .. pos, at most 17 tasks</text>
+    <text x="45" y="380">per (row, KV head). RoPE θ 1e4 on all dims.</text>
+    <text x="45" y="406" font-weight="700">Full layers (5)</text>
+    <text x="45" y="424">16 q / 2 KV heads, head dim 512, V = K (k_eq_v):</text>
+    <text x="45" y="442">K and V read from the cache's K / V halves.</text>
+    <text x="45" y="460">Proportional RoPE θ 1e6: 64 of 256 pairs rotate.</text>
+    <text x="45" y="486" font-weight="700">Both</text>
+    <text x="45" y="504">q, k RMSNorm with weight, v RMSNorm without;</text>
+    <text x="45" y="522">scale 1.0, no attention soft-cap. Scores on the</text>
+    <text x="45" y="540">bf16 MFMA, softmax and P·V in fp32. The new K / V</text>
+    <text x="45" y="558">go to vLLM's slot (round to nearest even).</text>
+    <text x="45" y="584">vLLM: TRITON_ATTN, 6 KV cache groups (5 sliding,</text>
+    <text x="45" y="602">1 full), blocks of 16 / 32; per-layer block table</text>
+    <text x="45" y="620">and slot mapping. Out-of-window blocks are never</text>
+    <text x="45" y="638">read (tests fill them with NaN). The last arriver of</text>
+    <text x="45" y="656">each (row, head, group) merges the records.</text>
+  </g>
+
+  <!-- MoE panel -->
+  <rect x="415" y="230" width="380" height="460" rx="8" fill="#ffffff" stroke="#e1e0d9"/>
+  <text x="430" y="256" font-size="13" font-weight="700" fill="#52514e">ROUTED EXPERTS + DENSE MLP, ONE GROUPED GEMV</text>
+  <g font-size="12" fill="#0b0b0b">
+    <text x="430" y="282">Routing in every CTA: rms(h1) · 2816^−0.5 · scale,</text>
+    <text x="430" y="300">bf16 router → 128 fp32 logits, softmax, top-8</text>
+    <text x="430" y="318">(ties: lower id), renormalize, × per_expert_scale.</text>
+    <text x="430" y="344">Positions = the U distinct experts of the rows</text>
+    <text x="430" y="362">+ 3 pseudo-experts: the dense GeGLU MLP (2112)</text>
+    <text x="430" y="380">split into 3 × 704 columns.</text>
+    <g font-size="11" text-anchor="middle">
+      <rect x="430" y="396" width="52" height="30" rx="4" fill="#eda100"/><text x="456" y="415" fill="#fff">e 9</text>
+      <rect x="488" y="396" width="52" height="30" rx="4" fill="#eda100"/><text x="514" y="415" fill="#fff">e 41</text>
+      <rect x="546" y="396" width="52" height="30" rx="4" fill="#eda100"/><text x="572" y="415" fill="#fff">…</text>
+      <rect x="604" y="396" width="52" height="30" rx="4" fill="#eda100"/><text x="630" y="415" fill="#fff">e 117</text>
+      <rect x="662" y="396" width="38" height="30" rx="4" fill="#b37a00"/><text x="681" y="415" fill="#fff">d0</text>
+      <rect x="704" y="396" width="38" height="30" rx="4" fill="#b37a00"/><text x="723" y="415" fill="#fff">d1</text>
+      <rect x="746" y="396" width="38" height="30" rx="4" fill="#b37a00"/><text x="765" y="415" fill="#fff">d2</text>
+    </g>
+    <text x="430" y="450">gate_up: rows 0..M−1 of the input are</text>
+    <text x="430" y="468">pre_ff_ln_2(h1) (experts), rows M..2M−1 pre_ff_ln(h1)</text>
+    <text x="430" y="486">(dense); epilogue act = gelu_tanh(gate) · up.</text>
+    <text x="430" y="504">down: K 704 padded to 768. e = Σ_j w_j · part_j</text>
+    <text x="430" y="522">over the 8 slots, d = part_d0 + part_d1 + part_d2.</text>
+    <text x="430" y="548">Pieces (position, K chunk, group) in a fixed order,</text>
+    <text x="430" y="566">whole pieces per wave, fixed-order sums, no float</text>
+    <text x="430" y="584">atomics: a row's bits do not depend on the batch.</text>
+    <text x="430" y="610">Bytes per layer: M = 1 about 100 MB; M = 8 about</text>
+    <text x="430" y="628">330 MB of experts on real text (~52 distinct).</text>
+    <text x="430" y="654">Stage from the Qwen3.6-35B-A3B kernel (copy and</text>
+    <text x="430" y="672">diverge): 128 experts, GeGLU, dense pseudo-experts.</text>
+  </g>
+
+  <!-- residual panel -->
+  <rect x="810" y="230" width="360" height="460" rx="8" fill="#ffffff" stroke="#e1e0d9"/>
+  <text x="825" y="256" font-size="13" font-weight="700" fill="#52514e">SANDWICH NORMS, DEFERRED RESIDUAL</text>
+  <g font-size="12" fill="#0b0b0b">
+    <text x="825" y="282">Stages store raw outputs (a, d, e) with their</text>
+    <text x="825" y="300">16-column sums of squares; consumers rebuild:</text>
+    <text x="825" y="326" font-family="monospace" font-size="11">h1 = h + post_attn_ln(a)</text>
+    <text x="825" y="344" font-family="monospace" font-size="11">h' = (h1 + post_ff_ln(post_ff_ln_1(d)</text>
+    <text x="825" y="362" font-family="monospace" font-size="11">       + post_ff_ln_2(e))) · layer_scalar</text>
+    <text x="825" y="388">Norms are x · rsqrt(mean(x²) + 1e-6) · w (not 1 + w).</text>
+    <text x="825" y="414" font-weight="700">router stage</text>
+    <text x="825" y="432">The CTAs with router units build all rows of h1;</text>
+    <text x="825" y="450">M other CTAs each publish one row: h1, rstd(h1)</text>
+    <text x="825" y="468">and both gate_up inputs in FP8. gate_up copies them.</text>
+    <text x="825" y="494" font-weight="700">down stage</text>
+    <text x="825" y="512">M CTAs wait on a counter of finished groups, then</text>
+    <text x="825" y="530">each rebuilds one row of h' and publishes the next</text>
+    <text x="825" y="548">layer's qkv input in FP8. qkv copies it.</text>
+    <text x="825" y="574">Each producer runs the same arithmetic in the same</text>
+    <text x="825" y="592">order as the all-CTA prologues it replaces: bitwise</text>
+    <text x="825" y="610">equal (tests/ab_bitwise.py). 3.65 → 3.56 ms at M = 1,</text>
+    <text x="825" y="628">6.49 → 5.93 ms at M = 8 (random prompts).</text>
+    <text x="825" y="654">fp32 residual stream; fp8 GEMV inputs with one</text>
+    <text x="825" y="672">power-of-two scale per (row, 128 K).</text>
+  </g>
+</svg>

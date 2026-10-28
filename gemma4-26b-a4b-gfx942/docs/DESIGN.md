@@ -1,10 +1,11 @@
 # Gemma 4 26B-A4B decode megakernel for gfx942 (FlyDSL): design
 
-Status: milestone 3 (correct kernel). The kernel runs every layer of a decode step in one
-persistent launch and passes the milestone 3 tests ("Correctness oracle", results in
-`bench/results/m3/`). Milestones 1 and 2 were signed off on 2026-10-27; from milestone 3 on,
-the decisions below were made without sign-off, each with its evidence and the rejected
-alternative.
+Status: milestones 1 to 4, 6 and 7 done; milestone 5 (second node, second day) queued
+(`scripts/repro_sbatch.sh`, see "Milestone 5"). The kernel runs every layer of a decode step
+in one persistent launch, passes the correctness suite (`bench/results/m4/suite/`) and runs
+inside vLLM ("Milestone 6"). Milestones 1 and 2 were signed off on 2026-10-27; from
+milestone 3 on, the decisions below were made without sign-off, each with its evidence and
+the rejected alternative.
 
 ## Fixed point
 
@@ -381,6 +382,14 @@ width 4 (no gain) and 8 (13 % slower). The kernel itself stays correct and teste
 Decision 10 (milestone 6): `spec._refuse_config` does not check `tie_word_embeddings`. vLLM's
 text config of the checkpoint reads False although `config.json` says true; the kernel does not
 read the LM head in vLLM (`lm_head = False`).
+
+## Milestone 5: reproducibility
+
+`scripts/repro_sbatch.sh` runs `tests/run_suite.sh` from a source tarball of commit
+`d22bcd4` (the milestone 4 kernel; the later commits change the harness, not the kernel) on
+the node Slurm picks: job 68198889 excludes banff-cyxtera-s70-4 (second node), job 68198890
+starts on 2026-10-29 (second day). The only other GFX942 MARKHAM node, banff-cyxtera-s83-2,
+was fully allocated on 2026-10-28. Results go to `bench/results/m5/`.
 
 ## Decisions
 

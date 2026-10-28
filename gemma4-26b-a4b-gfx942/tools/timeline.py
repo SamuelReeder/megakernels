@@ -72,10 +72,7 @@ def main():
         ax.spines[s].set_color("#c3c2b7")
     ax.tick_params(colors="#898781")
     shown = [k for k in COLORS if polys[k]]
-    labels = dict.fromkeys(COLORS[k][0] if k != "o" else "out_proj / o_proj" for k in shown)
-    labels.pop("out_proj", None) if "o" in shown else None
-    col = {COLORS[k][0] if k != "o" else "out_proj / o_proj": COLORS[k][1] for k in shown}
-    handles = [Patch(color=col[l], label=l) for l in labels]
+    handles = [Patch(color=COLORS[k][1], label=COLORS[k][0]) for k in shown]
     handles.append(Patch(color=WAIT, label="waiting at the grid barrier"))
     ax.legend(handles=handles, ncol=9, loc="upper left", bbox_to_anchor=(0, -0.09), frameon=False,
               labelcolor="#52514e", fontsize=9)
