@@ -43,7 +43,6 @@ class Engine:
         group=None,
         ar_dtype: str = "fp32",
         ar_local: bool = False,
-        ar_defer: bool = False,
     ):
         self.PK, self.M, self.maxlen, self.layers = PK, M, maxlen, layers
         tp, rank = PK.tp, PK.rank
@@ -73,7 +72,6 @@ class Engine:
             tp=tp,
             ar_dtype=ar_dtype,
             ar_local=ar_local,
-            ar_defer=ar_defer,
             chunks=PK.chunks,
         )
         self.launch = KK.build(self.cfg)

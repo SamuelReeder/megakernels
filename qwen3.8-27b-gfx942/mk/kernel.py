@@ -114,7 +114,6 @@ class Cfg:
     tp: int = 1  # tensor-parallel size (docs/DESIGN-TP2.md); the kernel holds one rank
     ar_dtype: str = "fp32"  # all-reduce partials: "fp32" pairs or "bf16" pair words
     ar_local: bool = False  # debug timing only: add the own partial twice, no peer
-    ar_defer: bool = False  # deferred poll: push every completed group, then poll
     chunks: tuple = ()  # ((gemv name, K chunks), ...) over gemv.chunks(tp); Packed's
 
     @property
@@ -191,7 +190,6 @@ def build(cfg: Cfg):
             region=peer_region_bytes(TP),
             dtype=cfg.ar_dtype,
             local=cfg.ar_local,
-            defer=cfg.ar_defer,
         )
     SP = cfg.specs()
     S.NT = NT

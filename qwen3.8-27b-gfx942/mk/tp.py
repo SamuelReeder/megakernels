@@ -4,8 +4,7 @@ MK_TP=2 (one process per GPU, `srun -n2`; SLURM_PROCID is the rank) turns a test
 its TP2 run: each rank packs its shard and runs its own Engine; the ranks meet over a
 gloo group (peer-buffer handshake, token broadcast, logits gather, rank checks).
 MK_AR selects the all-reduce partials ("fp32" or "bf16"), MK_AR_LOCAL=1 the timing-only
-build without peer traffic (Cfg.ar_local), MK_AR_DEFER=0/1 the deferred poll
-(Cfg.ar_defer). Without MK_TP everything is the TP1 path.
+build without peer traffic (Cfg.ar_local). Without MK_TP everything is the TP1 path.
 The process group runs gloo for CPU tensors and RCCL for GPU tensors (benchmarks).
 """
 
@@ -29,7 +28,6 @@ class Ctx:
     group: object
     ar_dtype: str
     ar_local: bool = False
-    ar_defer: bool = False
 
     @property
     def main(self):
@@ -51,8 +49,7 @@ def init() -> Ctx:
         world_size=tp,
         timeout=datetime.timedelta(seconds=1800),
     )
-    defer = os.environ.get("MK_AR_DEFER", "0") == "1"
-    return Ctx(tp, rank, dist.group.WORLD, ar, local, defer)
+    return Ctx(tp, rank, dist.group.WORLD, ar, local)
 
 
 def packed(ctx: Ctx, W, **kw) -> Packed:
@@ -71,7 +68,6 @@ class TPEngine:
         self.ctx = ctx
         self.eng = Engine(
             PK, M, group=ctx.group, ar_dtype=ctx.ar_dtype, ar_local=ctx.ar_local,
-            ar_defer=ctx.ar_defer,
             **kw
         )
         self.ranks_equal = True
