@@ -1,0 +1,6 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T09:54:18Z rank 0 env MK_TP=1 MK_AR= MK_SEED=
+# bash -c cd /cluster/logs/qwen38-tp2/vllm-src && python -m pytest -q tests/models/qwen3_5/test_qwen3_5_specialized_decode.py tests/models/common/specialized_decode
+ImportError while loading conftest '/cluster/logs/qwen38-tp2/vllm-src/tests/conftest.py'.
+tests/conftest.py:7: in <module>
+    from tblib import pickling_support
+E   ModuleNotFoundError: No module named 'tblib'
