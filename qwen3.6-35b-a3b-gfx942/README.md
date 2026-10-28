@@ -49,7 +49,8 @@ of day 1).
 Second node: pending (job 68196707).
 
 One other MI300X (ctr-cx63-mi300x-12) gave non-deterministic results for this kernel and
-for the Qwen3.8 kernel (`bench/results/m5/ctr-cx63-mi300x-12_68192231/`).
+for the Qwen3.8 kernel. On that GPU the plain PyTorch reference was not reproducible
+either; the GPU is faulty, not the kernels (`bench/results/m5/ctr-cx63-mi300x-12_68192231/`).
 
 ## How it works
 

@@ -65,13 +65,16 @@ def main():
     st_x = R.State.new(M, 512)
     torch.manual_seed(int(os.environ.get("MK_SEED", "0")))
     tok = torch.randint(0, 200000, (M,), device="cuda")
-    rows, bad_route, hard, i5_bad, code_bad = [], 0, 0, 0, 0
+    rows, bad_route, hard, i5_bad, code_bad, nonfinite = [], 0, 0, 0, 0, 0
     for s in range(STEPS):
         tr = []
         emu = R.step(W, tok, st, layers=LAYERS, emulate=True, trace=tr)
         ex = R.step(W, tok, st_x, layers=LAYERS, emulate=False)
         out = eng.step(tok).clone()
         torch.cuda.synchronize()
+        # min() over the cosines can skip a NaN, so count non-finite logits on their own
+        nonfinite += int(not bool(torch.isfinite(out).all() and torch.isfinite(emu).all()
+                                  and torch.isfinite(ex).all()))
         rc, rdiff, rtie = routing_check(eng.router.clone(), tr[-1])
         rh = eng.route_hash[:LAYERS]
         i5_bad += int(not (bool((rh == rh[:, :1]).all()) and bool((rh != 0).all())))
@@ -109,6 +112,7 @@ def main():
     print(f"I5: steps where two CTAs built different routing tables: {i5_bad}")
     print(f"routing code: steps where the kernel's tables differ from reference.route on "
           f"the kernel's logits: {code_bad}")
+    print(f"steps with non-finite logits (kernel or reference): {nonfinite}")
     # fp8 activation rounding is chaotic over 40 layers: two correct fp8 implementations
     # (kernel, emulating reference) drift apart as far as each drifts from the exact
     # model, and the drift alone moves router logits across top-8 boundaries. Pass: the
@@ -122,6 +126,7 @@ def main():
         and (hard == 0 or LAYERS < 40)
         and i5_bad == 0
         and code_bad == 0
+        and nonfinite == 0
     )
     print("PASS" if ok else "FAIL")
     sys.exit(0 if ok else 1)

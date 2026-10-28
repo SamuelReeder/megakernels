@@ -1,0 +1,47 @@
+2026-10-28T02:43:13-04:00
+NodeName=ctr-cx63-mi300x-12 Arch=x86_64 CoresPerSocket=96 
+   CPUAlloc=96 CPUEfctv=384 CPUTot=384 CPULoad=12.97
+   AvailableFeatures=SUPERMICRO,AMDCPU,EPYC9654,RDMA,ConnectX-7,CX7,IB,NVME:3,NVME,MARKHAM,UBUNTU24,ROCM10.1.0,GFX942
+   ActiveFeatures=SUPERMICRO,AMDCPU,EPYC9654,RDMA,ConnectX-7,CX7,IB,NVME:3,NVME,MARKHAM,UBUNTU24,ROCM10.1.0,GFX942
+   Gres=gpu:gfx942-mi300x:8(S:0-1),shard:gfx942-mi300x:32(S:0-1)
+   NodeAddr=ctr-cx63-mi300x-12 NodeHostName=ctr-cx63-mi300x-12 Version=24.11.5
+   OS=Linux 6.8.0-31-generic #31-Ubuntu SMP PREEMPT_DYNAMIC Sat Apr 20 00:40:06 UTC 2024 
+   RealMemory=1543000 AllocMem=0 FreeMem=431649 Sockets=2 Boards=1
+   State=MIXED+DRAIN ThreadsPerCore=2 TmpDisk=0 Weight=1 Owner=N/A MCS_label=N/A
+   Partitions=defq,rccl 
+   BootTime=2026-10-23T15:22:08 SlurmdStartTime=2026-10-24T01:39:33
+   LastBusyTime=2026-10-25T02:35:41 ResumeAfterTime=None
+   CfgTRES=cpu=384,mem=1543000M,billing=384,gres/gpu=8,gres/gpu:gfx942-mi300x=8,gres/shard=32,gres/shard:gfx942-mi300x=32
+   AllocTRES=cpu=96,gres/gpu=6,gres/gpu:gfx942-mi300x=6
+   CurrentWatts=0 AveWatts=0
+   
+   Reason=Kill task failed [root@2026-10-27T21:19:25]
+
+== job 68192231
+           JobID      State             NodeList               Start                 End ExitCode                                                              AllocTRES 
+---------------- ---------- -------------------- ------------------- ------------------- -------- ---------------------------------------------------------------------- 
+        68192231 CANCELLED+   ctr-cx63-mi300x-12 2026-10-27T16:37:07 2026-10-27T20:29:04      0:0           billing=16,cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,node=1 
+  68192231.batch  CANCELLED   ctr-cx63-mi300x-12 2026-10-27T16:37:07 2026-10-27T20:29:07     0:15                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+ 68192231.extern  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T16:37:07 2026-10-27T20:29:08      0:0           billing=16,cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,node=1 
+      68192231.0     FAILED   ctr-cx63-mi300x-12 2026-10-27T16:37:39 2026-10-27T16:47:49      1:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+      68192231.1  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T16:48:19 2026-10-27T16:54:13      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+      68192231.2  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T16:55:20 2026-10-27T17:04:17      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+      68192231.3  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:06:14 2026-10-27T17:26:04      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+      68192231.4  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:27:34 2026-10-27T17:30:39      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+      68192231.5  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:30:57 2026-10-27T17:31:40      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+      68192231.6  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:32:26 2026-10-27T17:33:10      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+      68192231.7  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:33:51 2026-10-27T17:34:34      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+      68192231.8  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:34:45 2026-10-27T17:36:28      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+      68192231.9  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:36:45 2026-10-27T17:36:51      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.10  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:37:04 2026-10-27T17:39:35      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.11  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:39:59 2026-10-27T17:40:08      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.12  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:40:18 2026-10-27T17:41:39      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.13     FAILED   ctr-cx63-mi300x-12 2026-10-27T17:41:48 2026-10-27T17:41:49      1:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.14  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:42:31 2026-10-27T17:42:32      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.15  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:44:10 2026-10-27T17:46:21      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.16  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:52:56 2026-10-27T17:54:21      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.17  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:55:25 2026-10-27T17:55:39      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.18  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:56:33 2026-10-27T17:57:59      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.19  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T17:58:34 2026-10-27T18:03:33      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.20  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T18:05:00 2026-10-27T18:15:04      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 
+     68192231.21  COMPLETED   ctr-cx63-mi300x-12 2026-10-27T20:25:17 2026-10-27T20:28:58      0:0                cpu=16,gres/gpu:gfx942-mi300x=1,gres/gpu=1,mem=0,node=1 

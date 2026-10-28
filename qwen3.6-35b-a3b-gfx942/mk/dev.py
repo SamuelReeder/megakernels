@@ -297,6 +297,8 @@ def grid_arrive(rf, epoch, tid, bid, fence=False):
     s_waitcnt vmcnt(0) also waits for loads (measured: prefetching before the arrival
     is slower). fence: also write back this XCD's dirty L2 lines first (agent-scope
     release, buffer_wbl2 sc1)."""
+    if const_expr(CHAOS["on"]):
+        chaos_sleep(bid)
     if const_expr(fence):
         _asm("buffer_wbl2 sc1")
     rocdl.s_waitcnt(vmcnt=0)
@@ -332,6 +334,21 @@ def grid_barrier(rf, epoch, tid, bid, cus):
 
 
 FENCE = {"on": False}  # debug (Cfg.fence): agent-scope release / acquire around atomics
+CHAOS = {"on": False}  # debug (Cfg.chaos): random 0..7 us delays before arrivals and atomics
+
+
+@traced
+def chaos_sleep(salt):
+    """Debug: sleep 0..7 x s_sleep(31) (about 1 us each), drawn from the clock and
+    `salt`. Changes the arrival order at barriers and counters from run to run; the
+    results must not change (P1, P2)."""
+    x = (fx.Int32(memrealtime()) ^ (fx.Int32(salt) * fx.Int32(-1640531535))) * fx.Int32(
+        -2048144789
+    )
+    n = (x >> 28) & 7
+    while n > 0:
+        rocdl.s_sleep(31)
+        n = n - 1
 
 
 def atomic_add_dev(addr, v):
@@ -342,6 +359,8 @@ def atomic_add_dev(addr, v):
     stream for tens of us. Ordering comes from the protocol instead: the payload is
     stored with sc1 and drained (s_waitcnt vmcnt(0)) before the atomic, and readers
     load it with sc1. FENCE["on"] adds the explicit release / acquire (debug)."""
+    if const_expr(CHAOS["on"]):
+        chaos_sleep(0)
     if FENCE["on"]:
         _asm("buffer_wbl2 sc1")
         rocdl.s_waitcnt(vmcnt=0)

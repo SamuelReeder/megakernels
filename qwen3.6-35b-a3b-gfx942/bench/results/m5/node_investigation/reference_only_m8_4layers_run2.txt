@@ -1,0 +1,6 @@
+step 0: emulate~exact cos 0.997617
+step 1: emulate~exact cos 0.989679
+step 2: emulate~exact cos 0.966664
+step 3: emulate~exact cos 0.995048
+step 4: emulate~exact cos 0.989652
+step 5: emulate~exact cos 0.988025

@@ -1,0 +1,18 @@
+2026-10-28T02:43:22-04:00
+NodeName=banff-cyxtera-s70-4 Arch=x86_64 CoresPerSocket=56 
+   CPUAlloc=136 CPUEfctv=224 CPUTot=224 CPULoad=31.24
+   AvailableFeatures=AMD,INTELCPU,XEON8480C,RDMA,ConnectX-7,CX7,IB,NVME:2,NVME,MARKHAM,UBUNTU24,ROCM10.1.0,GFX942
+   ActiveFeatures=AMD,INTELCPU,XEON8480C,RDMA,ConnectX-7,CX7,IB,NVME:2,NVME,MARKHAM,UBUNTU24,ROCM10.1.0,GFX942
+   Gres=gpu:gfx942-mi300x:8(S:0-1),shard:gfx942-mi300x:32(S:0-1)
+   NodeAddr=banff-cyxtera-s70-4 NodeHostName=banff-cyxtera-s70-4 Version=24.11.5
+   OS=Linux 6.8.0-31-generic #31-Ubuntu SMP PREEMPT_DYNAMIC Sat Apr 20 00:40:06 UTC 2024 
+   RealMemory=2059000 AllocMem=0 FreeMem=500166 Sockets=2 Boards=1
+   State=MIXED+PLANNED ThreadsPerCore=2 TmpDisk=0 Weight=1 Owner=N/A MCS_label=N/A
+   Partitions=miopen 
+   BootTime=2026-10-15T16:53:03 SlurmdStartTime=2026-10-16T16:28:33
+   LastBusyTime=2026-10-27T11:01:08 ResumeAfterTime=None
+   CfgTRES=cpu=224,mem=2059000M,billing=224,gres/gpu=8,gres/gpu:gfx942-mi300x=8,gres/shard=32,gres/shard:gfx942-mi300x=32
+   AllocTRES=cpu=136,gres/gpu=8,gres/gpu:gfx942-mi300x=8
+   CurrentWatts=0 AveWatts=0
+   
+

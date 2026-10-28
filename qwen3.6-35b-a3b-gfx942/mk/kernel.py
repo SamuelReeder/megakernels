@@ -131,6 +131,7 @@ class Cfg:
     c_lm: int = 1  # 8 -> 1: 3.36 -> 3.26 ms at M = 1 (fewer partial hand-offs)
     debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
     fence: bool = False  # L2 write-back / invalidate at every grid barrier (dev.grid_*)
+    chaos: bool = False  # random delays before arrivals and counter atomics (dev.CHAOS)
 
     def chunks(self):
         return {k[2:]: v for k, v in asdict(self).items() if k.startswith("c_")}
@@ -191,6 +192,7 @@ def build(cfg: Cfg):
     assert 1 <= M <= WAVES, "the norm prologues and the routing give each row one wave"
     SP = cfg.specs()
     D.FENCE["on"] = cfg.fence
+    D.CHAOS["on"] = cfg.chaos
     S.NT = NT
     NP = MO.npos_max(M)
     XQB = max(s.XR * (s.XROWS if isinstance(s, MO.MoeGemv) else M) for s in SP.values())

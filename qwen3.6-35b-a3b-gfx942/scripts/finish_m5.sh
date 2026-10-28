@@ -1,6 +1,7 @@
 #!/bin/bash
-# Finish milestone 5 (second node) from a finished SLURM suite job (suite36.sbatch or
-# suite36_austin.sbatch on Alola):
+# Finish milestone 5 (second node) from a finished SLURM suite job: suite36.sbatch
+# (MARKHAM node, results in the shared home) or scripts/suite_austin.sh (AUSTIN node,
+# results as a base64 tar in ~/mk/suite36/*.log on Alola):
 #   1. copy its results from Alola to bench/results/m5/<node>_<job>/,
 #   2. check them: every gate prints PASS, the node is not the day-1 node, and the
 #      median TPOT at batch 1, 2, 4, 8 is within 3 % of day 1 (bench/results/m4/bench_v5_m*.txt),
@@ -25,16 +26,30 @@ done
 JOB=${1:?usage: finish_m5.sh [--dry-run] [--allow-same-node] JOBID}
 cd "$(dirname "$0")/.."
 
-# Result directory: the shared home (suite36.sbatch), else /cluster (suite36_austin.sbatch).
-REMOTE=$(ssh -o BatchMode=yes alola "ls -d ~/mk/suite36/*/qwen3.6-35b-a3b-gfx942/bench/results/m5/*_$JOB 2>/dev/null || ls -d /cluster/sareeder/mkhome/mk/suite36/*/qwen3.6-35b-a3b-gfx942/bench/results/m5/*_$JOB 2>/dev/null | head -1")
-[ -n "$REMOTE" ] || { echo "no results for job $JOB on Alola" >&2; exit 1; }
 STATE=$(ssh -o BatchMode=yes alola "sacct -j $JOB -X -n -o State | head -1" | tr -d ' ')
-NAME=$(basename "$REMOTE")
-OUT=bench/results/m5/$NAME
-mkdir -p "$OUT"
-rsync -a "alola:$REMOTE/" "$OUT/"
-LOG=$(ssh -o BatchMode=yes alola "ls ~/mk/suite36/*/*_$JOB.out 2>/dev/null || ls /cluster/sareeder/mkhome/*_$JOB.out 2>/dev/null")
-[ -z "$LOG" ] || scp -q "alola:$LOG" "$OUT/slurm.out"
+REMOTE=$(ssh -o BatchMode=yes alola "ls -d ~/mk/suite36/*/qwen3.6-35b-a3b-gfx942/bench/results/m5/*_$JOB 2>/dev/null | head -1")
+if [ -n "$REMOTE" ]; then
+  NAME=$(basename "$REMOTE")
+  OUT=bench/results/m5/$NAME
+  mkdir -p "$OUT"
+  rsync -a "alola:$REMOTE/" "$OUT/"
+  LOG=$(ssh -o BatchMode=yes alola "ls ~/mk/suite36/*/*_$JOB.out 2>/dev/null | head -1")
+  [ -z "$LOG" ] || scp -q "alola:$LOG" "$OUT/slurm.out"
+else
+  LOG=$(ssh -o BatchMode=yes alola "grep -l '^SLURM_JOB_ID=$JOB ' ~/mk/suite36/*.log 2>/dev/null | head -1")
+  [ -n "$LOG" ] || { echo "no results for job $JOB on Alola" >&2; exit 1; }
+  TMP=$(mktemp)
+  scp -q "alola:$LOG" "$TMP"
+  sed -n '/^RESULTS-BEGIN$/,/^RESULTS-END$/p' "$TMP" | sed '1d;$d' | base64 -d | tar -C bench/results/m5 -xzf - || {
+    echo "no RESULTS block in $LOG (job $STATE)" >&2
+    exit 1
+  }
+  NAME=$(grep -m1 '^SLURM_JOB_ID=' "$TMP" | awk '{print $3}')_$JOB
+  OUT=bench/results/m5/$NAME
+  sed '/^RESULTS-BEGIN$/,/^RESULTS-END$/d' "$TMP" > "$OUT/slurm.out"
+  rm -f "$TMP"
+  REMOTE=$LOG
+fi
 echo "job $JOB ($STATE): $REMOTE -> $OUT"
 
 LINE=$(python3 - "$OUT" "$JOB" "$STATE" "$SAME" <<'PY'
@@ -77,23 +92,29 @@ for b in (1, 2, 4, 8):
     ref, t1 = bench(f"bench/results/m4/bench_v5_m{b}.txt")
     tpot[b], ratio[b] = t, t / t1 - 1
     node, gpu, date = d["node"].split(".")[0], d["gpu"], d["date"][:10]
-    if abs(ratio[b]) > 0.03:
+    day1, same_gpu = ref["node"].split(".")[0], d["gpu"] == ref["gpu"]
+    # same GPU model: within 3 %; another model (MI325X vs MI300X): not more than 3 % slower
+    if ratio[b] > 0.03 or (same_gpu and ratio[b] < -0.03):
         bad.append(f"batch {b}: TPOT {t:.3f} ms vs day 1 {t1:.3f} ms ({100 * ratio[b]:+.1f} %)")
-    day1 = ref["node"].split(".")[0]
 if node is not None and node == day1 and not same:
     bad.append(f"ran on the day-1 node {node}, not a second node")
 ppl = [x for x in lines("eval_text.txt") if x.startswith("all:")]
-rev = (lines("env.txt") or ["?"])[-1]
+rev = (lines("env.txt") or ["?"])[-1][:7]
 if bad:
     print("FAIL: " + "; ".join(bad), file=sys.stderr)
     sys.exit(1)
 worst = max(abs(r) for r in ratio.values())
+speed = (
+    f"within {max(1, math.ceil(100 * worst))} % of day 1"
+    if same_gpu
+    else "against day 1 on an MI300X: " + " / ".join(f"{100 * ratio[b]:+.1f} %" for b in (1, 2, 4, 8))
+)
 print(
     f"Second node (`bench/results/m5/{os.path.basename(out)}/`, {date}, {gpu} on {node},\n"
     f"commit `{rev}`): every test passes, batch-invariant and bitwise deterministic,\n"
     f"perplexity {ppl[0].split()[3]}, TPOT "
     + " / ".join(f"{tpot[b]:.2f}" for b in (1, 2, 4, 8))
-    + f" ms at batch 1 / 2 / 4 / 8 (within {max(1, math.ceil(100 * worst))} % of day 1)."
+    + f" ms at batch 1 / 2 / 4 / 8 ({speed})."
 )
 PY
 )

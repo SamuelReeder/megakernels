@@ -1,0 +1,6 @@
+== chaos=0
+rep 0: TPOT 3.403 ms (293.9 tok/s/user, 293.9 tok/s total), kernel median 3.467 ms
+chaos=False
+== chaos=1
+rep 0: TPOT 6.400 ms (156.2 tok/s/user, 156.2 tok/s total), kernel median 6.478 ms
+chaos=True
