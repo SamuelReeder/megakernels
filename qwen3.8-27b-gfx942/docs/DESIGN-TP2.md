@@ -683,7 +683,10 @@ Optimization round 1 (2026-10-28, banff-cyxtera-s70-4, job 68197384, `scratch/lo
   (M = 1, -1.2 %), 10.425 -> 10.366 (M = 8, -0.6 %); TP2 (before the deferred poll):
   5.766 -> 5.698 (M = 1), 8.562 -> 8.539 (M = 8). Logits bitwise equal in both TP1 and TP2
   (hashes 2a0a1919674a3562, 49c5e7cb71e4be94 for TP1). Separate TP1 commit 5e151e9 on
-  `master` of `repos/qwen38-gfx942-mk`; TP1 suite re-run in `scratch/logs/tp1fix/`.
+  `master` of `repos/qwen38-gfx942-mk`. TP1 suite on master + 5e151e9
+  (`scratch/logs/tp1fix/`): test_decode M = 1, 2, 4, 8 PASS with the same values to six
+  digits as before; determinism M = 1, 8 PASS; eval_text per-passage lines identical
+  (ppl 1.661, KL 0.03904).
 
 Optimization round 2 (2026-10-28, same node and allocation, `scratch/logs/opt2/`; base =
 round 1 result: 5.599 / 6.094 / 7.026 / 8.141 ms at M = 1 / 2 / 4 / 8):
