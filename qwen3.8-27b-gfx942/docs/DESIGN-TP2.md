@@ -272,6 +272,12 @@ Gates from milestone 4 on (approved 2026-10-27, after milestone 3):
   (`reference.step(..., ar_tp=2)`: each row-parallel GEMV as the ranks' K-slice fp32
   partials, added in rank order). Expected agreement about 1e-7, as TP1 against its own
   order. test_decode emulates TP2's order by default (MK_EMU_SPLIT=1).
+- 1-layer check result (2026-10-28, job 68193288, `scratch/logs/l1a/`, M = 8, seeds 0..2):
+  relative error of the residual per row, TP2 fp32 against the reference in TP2's order:
+  median 7.6e-8, 4.4e-8, 6.8e-8, max 2.3e-7, 1.2e-7 and 3.6e-4; TP1 against its own order:
+  median 7.3e-8, 6.5e-8, 9.6e-8, max 1.8e-7, 1.6e-7 and 7.3e-4. The seed-2 maximum is one row
+  in both kernels: one fp8 input rounding flip (TP1 has it too). TP2 agrees as TP1 does; the
+  milestone 3 value 3.2e-5 was such a flip.
 
 Partial format choice (milestone 3, both formats run): default `bf16` if it passes the TP1
 bound above and its `eval_text` KL against BF16 is within 10 % of TP1's; otherwise `fp32`.
