@@ -1,7 +1,8 @@
 """vLLM end-to-end: Gemma 4 26B-A4B FP8 with the specialized decode kernel on or off.
 Copied from qwen3.6-35b-a3b-gfx942/bench/vllm_e2e.py (megakernels e2a6fb8).
 
-run:     greedy generation of 8 fixed prompts in the model's chat template (the
+run:     greedy generation of 8 fixed prompts and 2 prompts of about 2000 tokens (past the
+         sliding window) in the model's chat template (the
          checkpoint is instruction-tuned; tokens and top-5 logprobs saved for the
          comparison), then decode speed: 512-token prompts, TPOT = (time(256 tokens) -
          time(1 token)) / 255 at batch 1, 2, 4, 8 (median of 3). With the kernel on,
@@ -17,6 +18,9 @@ import json
 import os
 import sys
 import time
+
+sys.path.insert(0, __file__.rsplit("/bench/", 1)[0])
+from tests.texts import TEXTS  # noqa: E402
 
 PROMPTS = [
     "The quick brown fox jumps over the lazy dog. Explain why this sentence is famous.",
@@ -60,6 +64,14 @@ def run(model, mode, out, max_tokens):
     tok = llm.get_tokenizer()
     chats = [tok.apply_chat_template([{"role": "user", "content": p}], tokenize=False,
                                      add_generation_prompt=True) for p in PROMPTS]
+    # two prompts past the sliding window (1024): about 2000 tokens of real text, then a
+    # question; the sliding layers attend to the last 1024 positions only
+    doc = "\n\n".join(f"[{r}.{i}] {t}" for r in range(4) for i, t in enumerate(TEXTS))
+    for q in ("Summarize the text above in five sentences.",
+              "Which numbered passage talks about hash tables? Quote its first sentence."):
+        chats.append(tok.apply_chat_template([{"role": "user", "content": doc + "\n\n" + q}],
+                                             tokenize=False, add_generation_prompt=True))
+    res["prompt_tokens"] = [len(tok.encode(c, add_special_tokens=False)) for c in chats]
     # one prompt per generate: batch 1, a width the kernel serves (spec._gemma_widths)
     gen = [llm.generate([p], sp, use_tqdm=False)[0] for p in chats]
     res["kernel_steps"]["quality"] = steps() - s0
@@ -104,6 +116,7 @@ def compare(off_path, on_path):
     print(f"kernel off: {off_path} ({off['attn']}), kernel on: {on_path} ({on['attn']})")
     print(f"kernel steps during the 8-prompt generate: on {on['kernel_steps']['quality']}, "
           f"off {off['kernel_steps']['quality']}")
+    print(f"prompt tokens: {on.get('prompt_tokens')}")
     tot_same = tot = 0
     for i, (a, b) in enumerate(zip(off["outputs"], on["outputs"])):
         ta, tb = a["tokens"], b["tokens"]
