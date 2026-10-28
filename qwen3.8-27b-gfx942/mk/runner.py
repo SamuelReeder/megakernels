@@ -72,6 +72,7 @@ class Engine:
             tp=tp,
             ar_dtype=ar_dtype,
             ar_local=ar_local,
+            chunks=PK.chunks,
         )
         self.launch = KK.build(self.cfg)
         z = lambda *s, dt=torch.float32: torch.zeros(*s, dtype=dt, device=device)  # noqa: E731

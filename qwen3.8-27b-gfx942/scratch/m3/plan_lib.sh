@@ -15,7 +15,6 @@ one() {
     bash "$SRC/scratch/m3/task.sh" "$OUT" "$name" HIP_VISIBLE_DEVICES=$gpu "$@" &
 }
 two() {
-  # MK_TIMEOUT (task.sh) bounds a hang; 20 min is far above any run here
   local name=$1
   shift
   PORT=$((PORT + 1))

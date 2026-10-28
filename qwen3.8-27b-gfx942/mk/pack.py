@@ -17,7 +17,7 @@ from __future__ import annotations
 import torch
 
 from . import fp4
-from .gemv import CHUNKS, PAD_TILES
+from .gemv import PAD_TILES, chunks
 from .dims import KEY_DIM, NL, VAL_DIM, is_attn
 
 L = "model.language_model.layers.{}."
@@ -136,8 +136,10 @@ def pack_bf16(w: torch.Tensor) -> torch.Tensor:
 class Packed:
     """All megakernel weights of TP rank `rank` (of `tp`) on one device."""
 
-    def __init__(self, W, device="cuda", layers=NL, tp=1, rank=0):
+    def __init__(self, W, device="cuda", layers=NL, tp=1, rank=0, chunk_override=()):
         self.tp, self.rank = tp, rank
+        self.chunks = tuple(sorted(dict(chunk_override).items()))  # Cfg.chunks
+        CHUNKS = chunks(tp, self.chunks)
         self.keep = []  # owns every tensor the tables point at
         self.mats = {}  # (layer, name) -> (tiles, scales)
         for i in range(layers):

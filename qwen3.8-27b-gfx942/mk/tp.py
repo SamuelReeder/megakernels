@@ -53,7 +53,10 @@ def init() -> Ctx:
 
 
 def packed(ctx: Ctx, W, **kw) -> Packed:
-    return Packed(W, tp=ctx.tp, rank=ctx.rank, **kw)
+    """MK_CHUNKS="out=1,down=2" overrides GEMV K chunks (tuning experiments)."""
+    ov = os.environ.get("MK_CHUNKS", "")
+    ov = tuple((k, int(v)) for k, v in (x.split("=") for x in ov.split(",") if x))
+    return Packed(W, tp=ctx.tp, rank=ctx.rank, chunk_override=ov, **kw)
 
 
 class TPEngine:

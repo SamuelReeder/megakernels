@@ -12,7 +12,7 @@ for tp, ar, local, M in [(1, "fp32", False, 1), (2, "fp32", False, 1), (2, "bf16
     d = Dims(tp)
     block, nb = 208, 3
     kv_s = (2 * block * d.nkv * HD, HD, d.nkv * HD, block * d.nkv * HD)
-    cfg = KK.Cfg(M, 304, 512, block, nb, *kv_s, False, 1, 1, tp=tp, ar_dtype=ar, ar_local=local)
+    cfg = KK.Cfg(M, 304, 512, block, nb, *kv_s, False, 1, 1, tp=tp, ar_dtype=ar, ar_local=local, chunks=(("down", 2), ("o", 1), ("out", 1)) if tp > 1 else ())
     try:
         KK.build(cfg)(0, 0, 64)
         print("RAN?", cfg)

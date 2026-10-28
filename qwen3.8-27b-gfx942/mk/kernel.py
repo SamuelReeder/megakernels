@@ -42,7 +42,7 @@ from . import dev as D
 from . import mixer as X
 from . import stages as S
 from .dims import EPS, HD, Dims, H
-from .gemv import CHUNKS, Gemv
+from .gemv import Gemv, chunks
 
 NTAB = 18  # pointer-table slots per layer
 NGLOB = 18  # global pointer-table slots
@@ -114,6 +114,7 @@ class Cfg:
     tp: int = 1  # tensor-parallel size (docs/DESIGN-TP2.md); the kernel holds one rank
     ar_dtype: str = "fp32"  # all-reduce partials: "fp32" pairs or "bf16" pair words
     ar_local: bool = False  # debug timing only: add the own partial twice, no peer
+    chunks: tuple = ()  # ((gemv name, K chunks), ...) over gemv.chunks(tp); Packed's
 
     @property
     def d(self):
@@ -130,6 +131,7 @@ class Cfg:
 
     def specs(self):
         M, cus, d = self.M, self.cus, self.d
+        ch = chunks(self.tp, self.chunks)
         g = lambda name, n, k, kind="mx": Gemv(
             name,
             n,
@@ -137,7 +139,7 @@ class Cfg:
             M,
             cus,
             WAVES,
-            CHUNKS.get(name, 1),  # noqa: E731
+            ch.get(name, 1),  # noqa: E731
             kind,
         ).check()
         return dict(

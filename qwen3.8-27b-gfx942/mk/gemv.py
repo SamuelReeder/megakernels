@@ -31,8 +31,15 @@ from . import dev as D
 from . import fp4
 
 H4 = fp4.device_helpers()
-# K chunks of the GEMVs (default 1); the packer follows
+# K chunks of the GEMVs (default 1); the packer follows. chunks() gives a TP size's table,
+# with an optional override ((name, C), ...): Cfg.chunks carries it, so it is in the
+# kernel name.
 CHUNKS = dict(out=2, o=2, down=4, lm=8)
+CHUNKS_TP = {1: CHUNKS, 2: CHUNKS}
+
+
+def chunks(tp=1, override=()):
+    return dict(CHUNKS_TP[tp], **dict(override))
 PAD_TILES = 16  # spare tiles after a packed matrix (>= 3 P - 1)
 
 
