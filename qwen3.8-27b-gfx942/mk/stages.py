@@ -481,7 +481,10 @@ def embed_stage(c, M, tok_ptr, emb, h_out, ssq_out, hb_out, tag):
             k = gi * 16 + col
             w = D.ld(re, k // 2)
             v = (k % 2 == 0).select(D.bf_lo(w), D.bf_hi(w))
-            if const_expr(D.TRACE["ar"] is not None):
+            # ar_local (timing only) skips the exchange too: with no peer traffic in the
+            # layers, the ranks do not keep in step, and the one embedding region would
+            # be overwritten before it is read. The non-owner rank then reads a wrong row.
+            if const_expr(D.TRACE["ar"] is not None and not D.TRACE["ar"]["local"]):
                 v = _embed_exchange(c, M, tag, owner, t, k, v)
             D.st(v, ro, t * H + k, D.CM_DEV)
             D.st(fx.Float32(v).to(fx.BFloat16), D.rsrc(hb_out), t * H + k, D.CM_DEV)
