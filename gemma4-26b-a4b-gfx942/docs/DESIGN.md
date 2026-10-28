@@ -396,8 +396,9 @@ TPOT with real-text prompts: 3.45 / 4.03 / 5.03 / 6.45 ms at M = 1 / 2 / 4 / 8 (
 
 Second day and a second MI300X: `scripts/repro_sbatch.sh` runs `tests/run_suite.sh` from a
 source tarball of commit `d22bcd4` (milestone 4 kernel, random-prompt benchmark): job
-68198890 starts on 2026-10-29, job 68198889 waits for a MARKHAM MI300X other than
-banff-cyxtera-s70-4 (the only one, banff-cyxtera-s83-2, was fully allocated on 2026-10-28).
+68198890 starts on 2026-10-29. A second MARKHAM MI300X run (job 68198889, excluding
+banff-cyxtera-s70-4) was cancelled: the only other node, banff-cyxtera-s83-2, was fully
+allocated and Slurm estimated a start in January 2027; the MI325X run covers the second node.
 
 ## Decisions
 
