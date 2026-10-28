@@ -297,10 +297,16 @@ concurrency = batch; SGLang 0.5.10.post1 `bench_one_batch`, the same lengths. Me
 | vLLM (default) | BF16 | 4.44 | 4.98 | 6.35 | 7.43 |
 | vLLM + AITER | BF16 | 4.89 | 5.45 | 6.77 | 7.93 |
 | vLLM + AITER | FP8 | fails: AITER's FP8 MoE has no `GELU_TANH` | | | |
+| vLLM + AITER without AITER MoE, memory 0.8 | FP8 | 5.06 | 5.32 | 5.80 | 6.68 |
+| vLLM + AITER without AITER MoE, memory 0.8 | BF16 | 5.01 | 5.52 | 7.04 | 8.02 |
 | SGLang | BF16 | 9.16 | 9.83 | 10.45 | 11.76 |
 | SGLang | FP8 | fails: `This GEMM is not supported!` (compressed-tensors FP8) | | | |
 
 The fastest stock engine at every batch with the FP8 checkpoint is vLLM's default path.
+`vllm bench serve` uses random token ids as prompts. vLLM + AITER without its MoE
+(`VLLM_ROCM_USE_AITER_MOE=0`) fails at startup with an out-of-memory error in the KV cache
+allocation at 0.9 GPU memory (twice, `failed_oom*`); the rows above ran at 0.8.
+`bench/results/stock/summary.md` lists every run.
 
 ### Optimization log
 
@@ -318,13 +324,63 @@ repeats) and, if it only moves work, checked bitwise against the old configurati
 | M CTAs wait for all expert-down groups (device counter), each rebuilds one row of h and publishes its qkv input; the qkv prologue copies it (`combine_rows`) | -1.1 % | -3.4 % | kept; bitwise equal at M = 1 and 8 (`combine_rows.txt`) |
 | V loads one batch ahead in the attention task | 0 % | +6 % | rejected, reverted (`attn_vpipe*.txt`) |
 
-Where the time goes now (`profile_v1.txt`, per layer, spans include the stage's barrier wait):
+Prompt content matters at M = 8. The first benchmarks fed random token ids (as `vllm bench
+serve` does); greedy decoding after them routes the rows to fewer distinct experts than real
+text does. `bench/bench_decode.py` and `bench/profile_decode.py` now feed windows of real
+text (`tests/texts.text_prompts`, `MK_PROMPT=random` for the old prompts). Real text, TPOT
+(`text_prompts.txt`): 3.58 / 4.15 / 5.18 / 6.70 ms at M = 1 / 2 / 4 / 8; random prompts
+(`suite/bench_m*.txt`): 3.56 / 4.06 / 4.80 / 5.92 ms. At M = 8 on real text the expert stages
+take 67 us (gate_up) and 66 us (down, 33 us busy) per layer.
+
+Where the time goes now (`profile_v1.txt`, random prompts, per layer, spans include the stage's barrier wait):
 at M = 8 the expert stages read about 216 MB (gate_up) and 111 MB (down) per layer for about 52
 distinct experts, so e1 (55 us) and e2 (27 us busy) run near the HBM bandwidth; the LM head
 (1.48 GB bf16) takes 337 us. At M = 1 the weight stream is about 100 MB per layer (about 23 us at
 4.3 TB/s) but a layer takes about 100 us: 6 barriers (about 2 us each), the attention task's
 serial load chain (`probes_attn_v1.txt`: q/k prep 3.5 us, scores 6 us, P V 7 us, merge 5 us on
 the full-attention layer) and the stage prologues are the fixed cost.
+
+## Milestone 6: vLLM
+
+Branch `users/sareeder/gemma4-gfx942-specialized-decode` of the vLLM fork (on the Qwen3.6
+branch, which holds vllm#61311's library). Touch points as listed in "vLLM integration"
+below. Run in the vLLM nightly image `vllm-rocm-nightly-00b6c4c5` with the branch's Python
+files overlaid (`~/mk/vllmg4-src`, compiled extensions of the image). Logs in
+`bench/results/m6/` (banff-cyxtera-s70-4, 2026-10-28).
+
+vLLM's layout as read at run time (`on*_summary.txt`, `runtime/decode.py` log line): backend
+TRITON_ATTN, 6 KV cache groups (5 sliding-window groups and 1 full group), block 16 for the
+sliding groups and 32 for the full group, K and V separate in each block. The kernel binds the
+groups' block tables and slot mappings per layer. `spec._refuse_caches` checks the geometry.
+
+- Conformance: `tests/models/gemma4/test_gemma4_specialized_decode.py` and the #61311 kit
+  (`tests/models/common/specialized_decode`): 75 passed (`pytest.txt`).
+- Kernel on vs kernel off (`bench/vllm_e2e.py`, chat template, greedy, each prompt alone at
+  batch 1; `compare4.txt`): 46 % identical tokens over 10 prompts, 2 of them 2438 and 2442
+  tokens long (past the 1024 window). Both runs answer the long retrieval prompt with the
+  same 52 tokens. Every divergence is at a logprob gap of 1.25 or less. vLLM's own path
+  differs from itself as much: the same prompts at batch 8 and at batch 1, kernel off, agree on
+  41 % of the tokens (`compare_off_b8_b1.txt`).
+- Speed in vLLM, real-text 512-token prompts, TPOT ms (`compare4.txt`, widths 1 and 2 served):
+
+| Batch | 1 | 2 | 4 | 8 |
+|---|---|---|---|---|
+| vLLM, kernel off | 4.43 | 4.85 | 5.02 | 6.22 |
+| vLLM, kernel on | 3.59 | 4.23 | 5.01 (vLLM's path) | 6.16 (vLLM's path) |
+
+- With widths 1, 2, 4 and 8 served (`on_summary.txt`, `off_summary.txt`,
+  `compare_rawtext_all_widths.txt`, raw-text prompts at batch 8 for the quality part): kernel on
+  3.57 / 4.20 / 5.20 / 6.94 ms, kernel off 4.41 / 4.64 / 5.22 / 6.12 ms. The kernel launch alone
+  in vLLM takes 6.33 ms at width 8 (`kernel_time_in_vllm.txt`).
+
+Decision 9 (milestone 6): the spec serves widths 1 and 2 only (`spec._gemma_widths`); wider
+steps take vLLM's path with its CUDA graphs. Evidence: the table above. Rejected: serving
+width 4 (no gain) and 8 (13 % slower). The kernel itself stays correct and tested at M = 1..8
+(milestone 3 and 4 suites).
+
+Decision 10 (milestone 6): `spec._refuse_config` does not check `tie_word_embeddings`. vLLM's
+text config of the checkpoint reads False although `config.json` says true; the kernel does not
+read the LM head in vLLM (`lm_head = False`).
 
 ## Decisions
 

@@ -31,7 +31,8 @@ for d in sorted(p for p in root.iterdir() if p.is_dir() and not p.name.startswit
         m = re.match(r"vllm(?:_(aiter\w*))?_(gemma-4-26B-A4B-it[^_]*)(_run1_partial)?$", d.name)
         variant, ckpt, run1 = m.groups()
         ver = re.search(r"^vllm (\S+)", (d / "env.txt").read_text(), re.M).group(1)
-        engine = f"vLLM {ver}" + (" +AITER" if variant else "")
+        engine = f"vLLM {ver}" + {None: "", "aiter": " +AITER"}.get(
+            variant, f" +AITER, no AITER MoE, --gpu-memory-utilization 0.8 ({variant})")
         names = [(f"c{b}", b, "") for b in (1, 2, 4, 8)] + [(f"c1_rep{r}", 1, f"rep {r}") for r in (2, 3)]
         for name, b, note in names:
             f = d / f"{name}.json"
