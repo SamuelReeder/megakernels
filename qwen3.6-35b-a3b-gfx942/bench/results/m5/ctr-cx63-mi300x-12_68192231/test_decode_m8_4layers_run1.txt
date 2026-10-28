@@ -1,0 +1,15 @@
+load+pack+build 2s  kernel cfg Cfg(M=8, cus=304, maxlen=512, block=208, maxblocks=3, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=2, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=True, fence=False)
+step 0: kernel~emulate cos 0.009116 top1 0.88 | kernel~exact cos 0.009048 top1 0.62 (gap 12.340) | emulate~exact cos 0.997617 top1 0.75 | router cos -0.829778 expert-set diffs 1 (near-ties 0)
+step 1: kernel~emulate cos 0.776836 top1 1.00 | kernel~exact cos 0.773693 top1 0.62 (gap 0.619) | emulate~exact cos 0.989013 top1 0.62 | router cos 0.980319 expert-set diffs 2 (near-ties 0)
+step 2: kernel~emulate cos 0.833632 top1 1.00 | kernel~exact cos 0.824325 top1 0.62 (gap 1.063) | emulate~exact cos 0.966698 top1 0.62 | router cos 0.997788 expert-set diffs 1 (near-ties 0)
+step 3: kernel~emulate cos 0.896624 top1 0.88 | kernel~exact cos 0.896034 top1 0.75 (gap 1.891) | emulate~exact cos 0.995043 top1 0.88 | router cos 0.996205 expert-set diffs 1 (near-ties 0)
+step 4: kernel~emulate cos 0.897015 top1 0.88 | kernel~exact cos 0.893175 top1 0.88 (gap 3.047) | emulate~exact cos 0.981785 top1 1.00 | router cos 0.997861 expert-set diffs 2 (near-ties 0)
+step 5: kernel~emulate cos 0.915881 top1 1.00 | kernel~exact cos 0.913460 top1 1.00 (gap 0.000) | emulate~exact cos 0.988025 top1 1.00 | router cos 0.998719 expert-set diffs 3 (near-ties 0)
+kernel~emulate: worst cos 0.009116 top1 0.938
+kernel~exact:   worst cos 0.009048 top1 0.750
+emulate~exact:  worst cos 0.966698 top1 0.812
+routing vs emulate (drifted inputs; information): 10 expert-set differences that are not near-ties
+top-1 changes with an exact logit gap > 0.5: 5
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where the kernel's tables differ from reference.route on the kernel's logits: 0
+FAIL
