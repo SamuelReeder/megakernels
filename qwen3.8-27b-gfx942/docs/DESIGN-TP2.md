@@ -719,3 +719,15 @@ pushes in the base; each variant 2 interleaved runs of 3 reps, median of 6):
   the wait for the slower GPU is 23 % / 15 %; drain and barrier are below zero. Per
   epilogue at M = 1: push -> poll end 2.4 us, of which 0.4-0.6 us is the peer arriving
   later (in 39-44 % of the groups). So the prologue merge is tried next (rule above).
+- Prologue merge, rejected after a spike (`scratch/ar_spike/arkernel.py` mode `ar_merged`,
+  `scratch/logs/merge/`, same node and allocation). Each round: the put only, the grid
+  barrier, then every CTA polls all M x 5120 pairs of both ranks (what a merged norm
+  prologue must read). Round time per all-reduce, median of 200 launches of 128 rounds:
+  M = 1: barrier only 2.03 us, in-epilogue all-reduce 3.47 us, merged 5.00 us; M = 8: 2.23,
+  9.87, 22.52 us. The merged round is slower by 1.5 us (M = 1) and 12.7 us (M = 8) before
+  it adds the sum of squares over 5120 columns and the h_out stores it would also need.
+  The 304-fold read of the uncached region costs more than the poll it hides. Results
+  exact and equal on both ranks.
+
+Optimization stops here: every listed candidate is measured. Kept: deferred poll, single
+`grid_wait`, 16-byte pushes. Rejected: opaque peer bases (SGPR), K chunks, prologue merge.
