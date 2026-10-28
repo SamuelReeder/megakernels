@@ -20,3 +20,9 @@ for ch in "out=1,o=1,down=2" "down=2" "lm=4"; do
     two ch_${t}_bench_m$m MK_AR=fp32 MK_CHUNKS=$ch -- python bench/bench_decode.py $MX $m 512 64 3
   done
 done
+for m in 1 8; do
+  two v16_bench_m$m MK_AR=fp32 MK_AR_V16=1 -- python bench/bench_decode.py $MX $m 512 64 3
+done
+two v16_det_m1 MK_AR=fp32 MK_AR_V16=1 -- python tests/test_determinism.py $MX 1 64
+two v16_det_m8 MK_AR=fp32 MK_AR_V16=1 -- python tests/test_determinism.py $MX 8 64
+two base_det_m8 MK_AR=fp32 -- python tests/test_determinism.py $MX 8 64

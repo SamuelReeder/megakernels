@@ -195,6 +195,9 @@ class EpiRes:
 _AR_OPAQUE = __import__("os").environ.get("MK_AR_OPAQUE", "0") == "1"  # MEASURE-ONLY
 
 
+_AR_V16 = __import__("os").environ.get("MK_AR_V16", "0") == "1"  # MEASURE-ONLY
+
+
 def _peer_bases(A):
     """The peer bases and the own base; MK_AR_OPAQUE=1 (measure-only candidate) passes
     them through opaque moves, so the peer address math stays inside the epilogue
@@ -227,7 +230,19 @@ def ar_push(c, M, grp, tot, tag, half):
     apw = D.ARPROBE["wave"]
     if const_expr(apw is not None):
         t_push = D.memrealtime()
-    if const_expr(A["dtype"] == "fp32"):
+    if const_expr(A["dtype"] == "fp32" and _AR_V16):
+        # 16-byte pushes: the even lane stores its pair and its odd neighbour's
+        even = col % 2 == 0
+        for r in range_constexpr(4):
+            nb = D.gather_f(tv[r], lane ^ 1)
+            if (rows[r] < M) & even:
+                for p in range_constexpr(tp):
+                    Mailbox(tag).put_words(
+                        dst[p],
+                        (rank * M + rows[r]) * H + n,
+                        [tv[r].bitcast(fx.Int32), fx.Float32(nb).bitcast(fx.Int32)],
+                    )
+    elif const_expr(A["dtype"] == "fp32"):
         for r in range_constexpr(4):
             if rows[r] < M:
                 for p in range_constexpr(tp):
@@ -258,21 +273,36 @@ def ar_poll(c, M, grp, tag, half):
     mb = Mailbox(fx.Int32(tag))
     apw = D.ARPROBE["wave"]
     fp = A["dtype"] == "fp32"
+    v16 = fp and _AR_V16
     W = H if fp else H // 2
-    specs = [
-        (own, (s * M + fx.min(rows[r], M - 1)) * W + (n if fp else n // 2), 1)
-        for r in range(4)
-        for s in range(tp)
-    ]
+    even = col % 2 == 0
+    if const_expr(v16):  # the even column's 16-byte pair of pairs
+        specs = [
+            (own, (s * M + fx.min(rows[r], M - 1)) * W + n - col % 2, 2)
+            for r in range(4)
+            for s in range(tp)
+        ]
+    else:
+        specs = [
+            (own, (s * M + fx.min(rows[r], M - 1)) * W + (n if fp else n // 2), 1)
+            for r in range(4)
+            for s in range(tp)
+        ]
     if const_expr(apw is not None):
         t_ps = D.memrealtime()
     ws = mb.poll(specs)
     if const_expr(apw is not None):
         t_pe = D.memrealtime()
     out = []
-    even = col % 2 == 0
     for r in range_constexpr(4):
-        if const_expr(fp):
+        if const_expr(v16):
+            vals = [
+                fx.Int32(even.select(ws[r * tp + s][0], ws[r * tp + s][1])).bitcast(
+                    fx.Float32
+                )
+                for s in range(tp)
+            ]
+        elif const_expr(fp):
             vals = [fx.Int32(ws[r * tp + s][0]).bitcast(fx.Float32) for s in range(tp)]
         else:
             vals = [
