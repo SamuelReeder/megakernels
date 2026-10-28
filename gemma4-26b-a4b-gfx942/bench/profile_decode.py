@@ -21,6 +21,7 @@ from mk import dev as D  # noqa: E402
 from mk import kernel as KK  # noqa: E402
 from mk import reference as R  # noqa: E402
 from mk.dims import NL  # noqa: E402
+from tests.texts import text_prompts  # noqa: E402
 from mk.pack import Packed  # noqa: E402
 from mk.runner import Engine, default_chunks  # noqa: E402
 
@@ -40,8 +41,9 @@ del W
 torch.cuda.empty_cache()
 eng = Engine(PK, M, maxlen=((CTX + 64) // 64 + 1) * 64)
 g = torch.Generator(device="cuda").manual_seed(1234)
-for t in range(CTX):  # distinct random prompts per row, then one greedy step
-    logits = eng.step(torch.randint(0, 262144, (M,), device="cuda", generator=g))
+prompt = text_prompts(path, M, CTX)  # distinct real-text rows, then one greedy step
+for t in range(CTX):
+    logits = eng.step(prompt[t])
 tok = logits.argmax(-1)
 torch.cuda.synchronize()
 prof.zero_()
@@ -105,8 +107,9 @@ elif PSTAGE == "attn":
 elif PSTAGE:
     kind = PSTAGE.split("_")[0]  # qkv_s / qkv_f -> qkv, o_s / o_f -> o
     full = PSTAGE.endswith("_f")
-    b = max(i for i, n in enumerate(names)  # the probed (last) instance of its layer type
-            if n == kind and (i // 6 % 6 == 5) == full)
+    typed = kind in ("qkv", "o")  # qkv_s / o_f: the last layer of that attention type
+    b = max(i for i, n in enumerate(names)  # the probed (last) instance
+            if n == kind and (not typed or (i // 6 % 6 == 5) == full))
     rel = p[b, :, 1].max().item()
     print(f"{PSTAGE} timeline (us from its barrier's last release):")
     for nm, v in (("first release", p[b, :, 1].min()), ("prologue", pr[:, 5]),

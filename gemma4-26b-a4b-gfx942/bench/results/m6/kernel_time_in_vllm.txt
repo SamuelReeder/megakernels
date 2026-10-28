@@ -1,0 +1,6 @@
+# console output of: python bench/vllm_kernel_time.py ~/mk/models/gemma-4-26B-A4B-it-FP8-dynamic
+# banff-cyxtera-s70-4, job 68197433, 2026-10-28, vLLM branch 3997b98a2 (widths 1, 2, 4, 8)
+width 1: kernel launch median 3.180 ms
+width 2: kernel launch median 3.692 ms
+width 4: kernel launch median 4.445 ms
+width 8: kernel launch median 6.325 ms

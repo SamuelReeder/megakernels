@@ -42,3 +42,15 @@ def long_ids(tok, n: int) -> list[int]:
             ids += tok(f"\n\n[{r}.{i}] {t}", add_special_tokens=False).input_ids
         r += 1
     return ids[:n]
+
+
+def text_prompts(model_dir: str, M: int, ctx: int):
+    """[ctx][M] int64 on cuda: row r is the window of long_ids starting at 37 r (the rows
+    of bench/vllm_e2e.py's speed test use the same offsets; distinct real text routes
+    to more distinct experts than random tokens do)."""
+    import torch
+    from transformers import AutoTokenizer
+
+    ids = long_ids(AutoTokenizer.from_pretrained(model_dir), ctx + 37 * M)
+    rows = [ids[37 * r: 37 * r + ctx] for r in range(M)]
+    return torch.tensor(rows, device="cuda").t().contiguous()

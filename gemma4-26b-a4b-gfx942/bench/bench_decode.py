@@ -4,8 +4,11 @@ From qwen3.6-35b-a3b-gfx942/bench/bench_decode.py (megakernels e2a6fb8).
 The prompt is fed through the megakernel itself (one decode step per token), then
 STEPS greedy decode steps run back to back (argmax and token feedback on device).
 TPOT = wall time of the decode steps / STEPS (CUDA events), and the kernel-only time
-of single launches. Usage: python bench/bench_decode.py FP8_DIR M CTX STEPS [REPEATS]
+of single launches. The prompt rows are windows of real text (tests/texts.text_prompts;
+MK_PROMPT=random: random token ids, which route to fewer distinct experts).
+Usage: python bench/bench_decode.py FP8_DIR M CTX STEPS [REPEATS]
 """
+import os
 import json
 import platform
 import sys
@@ -17,6 +20,7 @@ sys.path.insert(0, __file__.rsplit("/bench/", 1)[0])
 from mk import reference as R  # noqa: E402
 from mk.pack import Packed  # noqa: E402
 from mk.runner import Engine, default_chunks  # noqa: E402
+from tests.texts import text_prompts  # noqa: E402
 
 path, M, CTX, STEPS = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
 REPEATS = int(sys.argv[5]) if len(sys.argv) > 5 else 3
@@ -31,7 +35,10 @@ def main():
     eng = Engine(PK, M, maxlen=((CTX + STEPS + 63) // 64 + 1) * 64)
     print(f"load+pack+build {time.time() - t0:.0f}s", flush=True)
     g = torch.Generator(device="cuda").manual_seed(1234)
-    prompt = torch.randint(0, 262144, (CTX, M), device="cuda", generator=g)
+    if os.environ.get("MK_PROMPT") == "random":
+        prompt = torch.randint(0, 262144, (CTX, M), device="cuda", generator=g)
+    else:
+        prompt = text_prompts(path, M, CTX)
     res = []
     for rep in range(REPEATS):
         eng.reset()

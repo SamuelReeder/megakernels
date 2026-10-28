@@ -1,0 +1,9 @@
+prompt 0: identical 51/160, first divergence at token 49: off 672 on 625, logprob gap under off 0.1250, under on 0.0000
+prompt 1: identical 16/160, first divergence at token 11: off 506 on 496, logprob gap under off 0.7500, under on 0.0000
+prompt 2: identical 21/21, no divergence
+prompt 3: identical 24/160, first divergence at token 23: off 236789 on 2557, logprob gap under off 0.8125, under on 0.9375
+prompt 4: identical 103/160, first divergence at token 49: off 607 on 531, logprob gap under off 0.5000, under on 0.3750
+prompt 5: identical 131/160, first divergence at token 130: off 4688 on 3141, logprob gap under off 0.1250, under on 0.0000
+prompt 6: identical 39/83, first divergence at token 34: off 9025 on 563, logprob gap under off 0.2500, under on 1.1250
+prompt 7: identical 55/160, first divergence at token 24: off 15992 on 141562, logprob gap under off 0.3750, under on 0.3750
+total identical tokens 440/1064 (41.4%)

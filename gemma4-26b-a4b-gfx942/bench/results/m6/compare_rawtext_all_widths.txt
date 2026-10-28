@@ -1,0 +1,31 @@
+kernel off: out/off.json (default), kernel on: out/on.json (default)
+kernel steps during the 8-prompt generate: on 159, off 0
+prompt 0: identical 1/1, no divergence
+  off: ''
+  on:  ''
+prompt 1: identical 160/160, no divergence
+  off: '\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```'
+  on:  '\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```\n```'
+prompt 2: identical 3/160, first divergence at token 1: off 2717 on 68755, logprob gap under off 0.9375, under on 0.1875
+  off: '\n\n```\n\nIn the Sun, one per line.\n\nIn the Sun, one per line.\n\nIn the Sun, one per line.\n\nIn the Sun, one per line.\n\nIn the Sun, one per line.\n\nIn the Sun, one pe'
+  on:  "\n\nActually, I'm not a person, I'm not a person, I'm not a person, I'm not a person, I'm not a person, I'm not a person, I'm not a person, I'm not a person, I'm "
+prompt 3: identical 160/160, no divergence
+  off: ' The mission in detail. The mission in detail. The mission in detail. The mission in detail. The mission in detail. The mission in detail. The mission in detail'
+  on:  ' The mission in detail. The mission in detail. The mission in detail. The mission in detail. The mission in detail. The mission in detail. The mission in detail'
+prompt 4: identical 160/160, no divergence
+  off: " 'The weather is nice today, let us go for a walk.' 'The weather is nice today, let us go for a walk.' 'The weather is nice today, let us go for a walk.' 'The w"
+  on:  " 'The weather is nice today, let us go for a walk.' 'The weather is nice today, let us go for a walk.' 'The weather is nice today, let us go for a walk.' 'The w"
+prompt 5: identical 160/160, no divergence
+  off: ' Show your steps. Show your steps. Show your steps. Show your steps. Show your steps. Show your steps. Show your steps. Show your steps. Show your steps. Show y'
+  on:  ' Show your steps. Show your steps. Show your steps. Show your steps. Show your steps. Show your steps. Show your steps. Show your steps. Show your steps. Show y'
+prompt 6: identical 8/160, first divergence at token 2: off 236751 on 8541, logprob gap under off n/a, under on 0.1875
+  off: '\n\nThesist in three sentences.\n\nThesist in three sentences.\n\nThesist in three sentences.\n\nThesist in three sentences.\n\nThesist in three sentences.\n\nThesist in th'
+  on:  '\n\nThe plot of Romeo and Juliet in three sentences.\n\nThe plot of Romeo and Juliet in three sentences.\n\nThe plot of Romeo and Juliet in three sentences.\n\nThe plot'
+prompt 7: identical 80/160, first divergence at token 1: off 88477 on 818, logprob gap under off 0.3750, under on 1.9375
+  off: '\n\nGPU kernels.\n\nGPU kernels.\n\nGPU kernels.\n\nGPU kernels.\n\nGPU kernels.\n\nGPU kernels.\n\nGPU kernels.\n\nGPU kernels.\n\nGPU kernels.\n\nGPU kernels.\n\nGPU kernels.\n\nGPU '
+  on:  '\n\nThe kernels are fast GPU kernels.\n\nThe kernels are fast GPU kernels.\n\nThe kernels are fast GPU kernels.\n\nThe kernels are fast GPU kernels.\n\nThe kernels are fa'
+total identical tokens 732/1121 (65.3%)
+TPOT ms   batch:       1       2       4       8
+  kernel off         4.41    4.64    5.22    6.12
+  kernel on          3.57    4.20    5.20    6.94
+  speedup           1.24    1.11    1.00    0.88

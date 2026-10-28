@@ -1,0 +1,33 @@
+=== PROBE=e1
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+e1 timeline (us from its barrier's last release):
+  first release  med   -0.3 max   -0.3
+  prologue       med  248.4 max  248.6
+  loads issued   med -1084572587007.6 max -1084572587007.6
+  rstd done      med -1084572587007.6 max -1084572587007.6
+  quantized      med  250.0 max  250.2
+  stream start   med  250.1 max  250.3
+  stream end     med  294.0 max  297.8
+  hand-off end   med  307.1 max  321.5
+  next arrival   med   62.6 max   76.9
+  next release   med   84.0 max   84.1
+e1 stream          per wave: med 43.9 max 47.7 us
+e1 hand-off        per wave: med 13.8 max 24.8 us
+e1 drain + atomics per wave: med 8.7 max 12.2 us
+e1 reductions      per wave: med 5.2 max 14.1 us
+=== PROBE=e2
+e2 timeline (us from its barrier's last release):
+  first release  med   -0.3 max   -0.3
+  prologue       med  232.2 max  232.3
+  loads issued   med -1084643698285.4 max -1084643698285.4
+  rstd done      med -1084643698285.4 max -1084643698285.4
+  quantized      med  234.8 max  235.1
+  stream start   med  235.1 max  235.4
+  stream end     med  260.1 max  266.8
+  hand-off end   med  267.3 max  292.1
+  next arrival   med   33.1 max   66.8
+  next release   med   68.4 max   68.6
+e2 stream          per wave: med 25.0 max 31.8 us
+e2 hand-off        per wave: med 7.2 max 25.2 us
+e2 drain + atomics per wave: med 5.7 max 9.4 us
+e2 reductions      per wave: med 1.4 max 20.7 us
