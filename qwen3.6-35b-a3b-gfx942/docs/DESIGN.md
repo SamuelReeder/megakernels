@@ -466,6 +466,11 @@ The implementation stops with `STOP: <violated invariant>` and evidence when:
   barriers. Each needs its own correctness argument for P2.
 - The C values of S5 and S6: measured in milestone 4, the defaults stay (see
   "Optimization log").
+- One MI300X GPU (ctr-cx63-mi300x-12, job 68192231) gave run-to-run different results
+  and NaN logits for this kernel and for the unchanged Qwen3.8 kernel; agent-scope
+  release / acquire fences at every barrier and atomic (`Cfg.fence`) did not remove
+  it. Other GPUs are bitwise reproducible. Cause not proven (GPU fault or a race only
+  that GPU exposes); evidence in `bench/results/m5/ctr-cx63-mi300x-12_68192231/`.
 - The distribution of U on real text at M = 8. Log U per layer in `tests/eval_text.py`.
 - Reading weights in place (row-major [N][K], no copy) with a permuted K order in the
   A operand. Saves about 34 GB in vLLM. Needs a stream bandwidth microbenchmark against

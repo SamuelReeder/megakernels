@@ -1,0 +1,31 @@
+kernel off: raw/off_ROCM_ATTN_r1.json (ROCM_ATTN), kernel on: raw/on_ROCM_ATTN_r1.json (ROCM_ATTN)
+kernel steps during the 8-prompt generate: on 159, off 0
+prompt 0: identical 59/160, first divergence at token 59: off 279 on 6163, logprob gap under off 0.1250, under on 0.7500
+  off: '\n\n<think>\n\n</think>\n\nThe sentence **"The quick brown fox jumps over the lazy dog"** is famous primarily because it is a **pangram**.\n\n### What is a Pangram?\nA p'
+  on:  '\n\n<think>\n\n</think>\n\nThe sentence **"The quick brown fox jumps over the lazy dog"** is famous primarily because it is a **pangram**.\n\n### What is a Pangram?\nA p'
+prompt 1: identical 160/160, no divergence
+  off: '\n\n```python\ndef fibonacci(n):\n    """\n    Returns the n-th Fibonacci number.\n    """\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:'
+  on:  '\n\n```python\ndef fibonacci(n):\n    """\n    Returns the n-th Fibonacci number.\n    """\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:'
+prompt 2: identical 32/160, first divergence at token 23: off 1835 on 6065, logprob gap under off 0.0000, under on 1.2500
+  off: "\n\n<think>\nHere's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Request:** List the planets of the solar system in order from the Sun, one per line.\n  "
+  on:  "\n\n<think>\nHere's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Task:** List the planets of the solar system\n   - **Order:** From the Sun (outward)\n   "
+prompt 3: identical 19/160, first divergence at token 19: off 3433 on 17175, logprob gap under off 0.5000, under on 1.2500
+  off: '\n\n<think>\n\n</think>\n\nThe mission you are referring to is **Apollo 11**, the spaceflight that landed the first two humans, Neil Armstrong and Buzz Aldrin, on the'
+  on:  "\n\n<think>\n\n</think>\n\nThe mission you are referring to is **Apollo 11**, the fifth crewed mission of NASA's Apollo program and the first spaceflight that carried"
+prompt 4: identical 17/17, no divergence
+  off: '\n\n<think>\n\n</think>\n\nIl fait beau aujourd’hui, allons nous promener.'
+  on:  '\n\n<think>\n\n</think>\n\nIl fait beau aujourd’hui, allons nous promener.'
+prompt 5: identical 120/160, first divergence at token 50: off 2466 on 4439, logprob gap under off 0.2500, under on 0.2500
+  off: "\n\n<think>\nHere's a thinking process:\n\n1.  **Understand the User's Request:**\n   - The user wants the derivative of the function $f(x) = x^3 \\sin(x)$.\n   - They "
+  on:  "\n\n<think>\nHere's a thinking process:\n\n1.  **Understand the User's Request:**\n   - The user wants the derivative of the function $f(x) = x^3 \\sin(x)$.\n   - They "
+prompt 6: identical 89/113, first divergence at token 89: off 352 on 1048, logprob gap under off 0.1250, under on 0.2500
+  off: '\n\n<think>\n\n</think>\n\nTwo young lovers from feuding families in Verona, Romeo Montague and Juliet Capulet, secretly marry after meeting at a ball, hoping to end '
+  on:  '\n\n<think>\n\n</think>\n\nTwo young lovers from feuding families in Verona, Romeo Montague and Juliet Capulet, secretly marry after meeting at a ball, hoping to end '
+prompt 7: identical 23/160, first divergence at token 22: off 328 on 2250, logprob gap under off 0.0000, under on 0.5000
+  off: '\n\n<think>\nHere\'s a thinking process:\n\n1.  **Understand User Request:** The user wants "three tips for writing fast GPU kernels." This is a straightforward reque'
+  on:  "\n\n<think>\nHere's a thinking process:\n\n1.  **Understand User Request:** The user wants three tips for writing fast GPU kernels. This is a common but important qu"
+total identical tokens 519/1090 (47.6%)
+TPOT ms   batch:       1       2       4       8
+  kernel off         6.30    6.58    7.09    8.23
+  kernel on          3.16    4.05    5.07    6.56
+  speedup           1.99    1.62    1.40    1.25

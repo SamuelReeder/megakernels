@@ -1,5 +1,58 @@
 # Milestone 6: the kernel inside vLLM
 
+## Current: milestone 4 kernel (41443a0), vLLM `0ad8a7c56`
+
+Measured 2026-10-27 20:15-20:34 EDT on banff-cyxtera-s70-4 (one MI300X; SLURM job
+68193015), same image, settings and scripts as the milestone 3 rounds below. The
+kernels were exported from `fee3171`; `41443a0` differs only by an unused import and
+a comment (the committed export is from `41443a0`; same Cfg, same kernel name). The
+runtime needed no change: it packs with the Cfg's new chunk defaults (c_o 16, c_lm 1)
+and sizes the counters from `CNT_REGION`. Results in `m4/`.
+
+TPOT ms (512-token prompts, 256 generated, median of 3), rounds 1 / 2:
+
+| Backend | Path | B = 1 | B = 2 | B = 4 | B = 8 |
+|---|---|---|---|---|---|
+| TRITON_ATTN | vLLM (off) | 5.25 / 5.55 | 5.22 / 5.81 | 6.32 / 6.31 | 8.00 / 8.03 |
+| TRITON_ATTN | kernel (on) | 3.48 / 3.50 | 4.10 / 3.54 | 4.60 / 4.62 | 6.69 / 6.72 |
+| ROCM_ATTN | vLLM (off) | 6.30 / 6.59 | 6.58 / 6.61 | 7.09 / 6.55 | 8.23 / 8.89 |
+| ROCM_ATTN | kernel (on) | 3.16 / 3.20 | 4.05 / 4.55 | 5.07 / 5.13 | 6.56 / 6.58 |
+
+Speedup, rounds 1 / 2: TRITON_ATTN 1.51 / 1.59, 1.27 / 1.64, 1.37 / 1.36, 1.20 / 1.20;
+ROCM_ATTN 1.99 / 2.06, 1.62 / 1.45, 1.40 / 1.28, 1.25 / 1.35 (B = 1, 2, 4, 8). Against
+the milestone 3 kernel (below) kernel-on TPOT drops by 0.2-0.5 ms at B = 1, 0.4-1.0 ms
+at B = 4 and about 0.55 ms at B = 8 (B = 2 is within the round-to-round noise).
+
+Kernel steps: 159 during the 8-prompt generate and 255 in every 256-token generate
+with the kernel on, 0 off (`m4/raw/*.json`).
+
+Greedy, 8 prompts x 160 tokens (`m4/compare_*_r1.txt`; round 2 reproduced every token
+of round 1 in all four configurations; no non-finite logprob):
+
+| Prompt | TRITON_ATTN identical | first div. | gap off / on | ROCM_ATTN identical | first div. | gap off / on |
+|---|---|---|---|---|---|---|
+| 0 pangram | 95/160 | 94 | 0.625 / 0.375 | 59/160 | 59 | 0.125 / 0.750 |
+| 1 fibonacci | 160/160 | - | - | 160/160 | - | - |
+| 2 planets | 160/160 | - | - | 32/160 | 23 | 0.000 / 1.250 |
+| 3 Apollo 11 | 30/160 | 23 | 0.125 / 1.625 | 19/160 | 19 | 0.500 / 1.250 |
+| 4 French | 17/17 | - | - | 17/17 | - | - |
+| 5 derivative | 9/160 | 8 | 0.375 / 0.000 | 120/160 | 50 | 0.250 / 0.250 |
+| 6 Romeo | 99/109 | 86 | 0.000 / 0.375 | 89/113 | 89 | 0.125 / 0.250 |
+| 7 GPU tips | 119/160 | 119 | 0.125 / 0.625 | 23/160 | 22 | 0.000 / 0.500 |
+| total | 689/1086 (63.4 %) | | | 519/1090 (47.6 %) | | |
+
+The gaps stay within vLLM's own backend-to-backend gaps (up to 1.375, at the same
+Apollo 11 token pair that gives the largest gap here). Kernel on, TRITON_ATTN vs
+ROCM_ATTN: 1019/1086 identical (93.8 %, `m4/kernel_triton_vs_rocm.txt`). The
+milestone 4 kernel agrees with the milestone 3 kernel on 42.8 % (TRITON_ATTN) and
+40.6 % (ROCM_ATTN) of the tokens: its reductions add in another order (o_proj in 16
+chunks, the attention merge in the prologue, DPP wave sums), which moves the same
+near-ties. vLLM's kernel-off tokens are the same as in the milestone 3 session.
+
+Unit tests with this export: 140 passed (`m4/unit_tests_cpu.txt`).
+
+## Milestone 3 kernel (history)
+
 Measured 2026-10-27 on banff-cyxtera-s70-4 (one MI300X, 304 CUs; SLURM job 68192237),
 image `vllm-rocm-nightly-00b6c4c5.sqsh` (vLLM 0.32.1.dev594+gfe77d0906, torch
 2.13.0+rocm10.0.0) with the branch's `vllm` package on `PYTHONPATH`,
