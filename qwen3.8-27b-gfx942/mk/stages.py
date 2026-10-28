@@ -238,8 +238,7 @@ def ar_push(c, M, grp, tot, tag, half):
                         [tv[r], nb],
                     )
     if const_expr(apw is not None):
-        if lane == 0:
-            D.st_stamps(fx.Int64(apw), k, t_push, t_push)
+        _stamps(apw, lane, [(k, t_push, t_push)])
 
 
 @D.traced
@@ -290,10 +289,16 @@ def ar_poll(c, M, grp, tag, half):
             a = a + vals[s]
         out.append(a)
     if const_expr(apw is not None):
-        if lane == 0:
-            D.st_stamps(fx.Int64(apw), k + 1, t_ps, t_pe)
-            D.st_stamps(fx.Int64(apw), k + 2, t_pe, fx.Int64(grp))
+        _stamps(apw, lane, [(k + 1, t_ps, t_pe), (k + 2, t_pe, fx.Int64(grp))])
     return fx.Vector.from_elements(out, fx.Float32)
+
+
+@D.traced
+def _stamps(apw, lane, pairs):
+    """Debug (dev.ARPROBE): lane 0 stores the i64 pairs (index, a, b) of a wave."""
+    if lane == 0:
+        for i, a, b in pairs:
+            D.st_stamps(fx.Int64(apw), i, a, b)
 
 
 @D.traced
@@ -310,9 +315,7 @@ def ar_local(c, M, grp, tot, tag, half):
         out.append(v + v)
     if const_expr(apw is not None):
         t_ps = D.memrealtime()
-        if c["lane"] == 0:
-            D.st_stamps(fx.Int64(apw), k, t_push, t_ps)
-            D.st_stamps(fx.Int64(apw), k + 2, t_ps, fx.Int64(grp))
+        _stamps(apw, c["lane"], [(k, t_push, t_ps), (k + 2, t_ps, fx.Int64(grp))])
     return fx.Vector.from_elements(out, fx.Float32)
 
 
@@ -549,9 +552,10 @@ def embed_stage(c, M, tok_ptr, emb, h_out, ssq_out, hb_out, tag):
             k = gi * 16 + col
             w = D.ld(re, k // 2)
             v = (k % 2 == 0).select(D.bf_lo(w), D.bf_hi(w))
-            # ar_local (timing only) skips the exchange too: with no peer traffic in the
-            # layers, the ranks do not keep in step, and the one embedding region would
-            # be overwritten before it is read. The non-owner rank then reads a wrong row.
+            # ar_local (timing only) skips the exchange too: with no peer traffic in
+            # the layers, the ranks do not keep in step, and the one embedding region
+            # would be overwritten before it is read. The non-owner rank then reads a
+            # wrong row.
             if const_expr(D.TRACE["ar"] is not None and not D.TRACE["ar"]["local"]):
                 v = _embed_exchange(c, M, tag, owner, t, k, v)
             D.st(v, ro, t * H + k, D.CM_DEV)

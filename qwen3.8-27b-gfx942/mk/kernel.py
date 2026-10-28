@@ -67,7 +67,7 @@ NT = 64 * WAVES
     G_TOK,
     G_POS,
     G_OUT,
-    G_PEERS,  # TP: int64 [tp] every rank's peer buffer (mk/peer.py PeerBuffer.addresses)
+    G_PEERS,  # TP: int64 [tp] every rank's peer buffer (PeerBuffer.addresses)
     G_RANK,  # TP: this rank (an integer, not a pointer)
 ) = range(18)
 # per-layer slots
