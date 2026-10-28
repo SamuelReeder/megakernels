@@ -126,16 +126,16 @@ for fmt in ("fp32", "bf16"):
           f"one-way latency L (us): {[round(L / 100, 2) for _, L in offs]}")
     tot_a = tot_l = 0.0
     for s in AR_STAGES:
-        ra = {k: med(a[s][k]) for k in SEGS}
-        rl = {k: med(l[s][k]) for k in SEGS}
+        ra = {k: st.mean(a[s][k]) for k in SEGS}
+        rl = {k: st.mean(l[s][k]) for k in SEGS}
         print(f"   {s:5s} " + " ".join(f"{k} {ra[k]:6.2f}/{rl[k]:6.2f}" for k in SEGS)
-              + f" | sum {sum(ra.values()):6.2f}/{sum(rl.values()):6.2f} us (AR/local, median over layers x ranks x reps)")
+              + f" | sum {sum(ra.values()):6.2f}/{sum(rl.values()):6.2f} us (AR/local, mean over layers x ranks x reps)")
         print(f"         delta " + " ".join(f"{k} {ra[k] - rl[k]:+5.2f}" for k in SEGS)
               + f" | push->poll start {med(pa[s]['push_ps']):.2f}/{med(pl[s]['push_ps']):.2f}"
               + f", poll {med(pa[s]['ps_pe']):.2f} (p90 {sorted(pa[s]['ps_pe'])[int(0.9 * len(pa[s]['ps_pe']))]:.2f})"
               + f", per-CTA drain median {med(pa[s]['drain_cta_med']):.2f}/{med(pl[s]['drain_cta_med']):.2f} us")
         n = len(a[s]["gemv"]) // (2 * len(sa))  # layers of this kind
-        tot_a += sum(med(a[s][k]) for k in SEGS) * n
-        tot_l += sum(med(l[s][k]) for k in SEGS) * n
-    print(f"   all-reduce stages: (sum of medians x layers) AR {tot_a:.0f} us, local {tot_l:.0f} us, "
+        tot_a += sum(ra.values()) * n
+        tot_l += sum(rl.values()) * n
+    print(f"   all-reduce stages: (sum of means x layers) AR {tot_a:.0f} us, local {tot_l:.0f} us, "
           f"added {tot_a - tot_l:.0f} us = {(tot_a - tot_l) / 128:.2f} us per all-reduce")
