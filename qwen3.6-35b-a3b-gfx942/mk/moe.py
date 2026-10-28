@@ -390,7 +390,7 @@ class MoeGemv:
                 if const_expr(self.mode == "gu"):
                     self._reduce_gu(w, R, rp, pi // self.ppe, pi % G, fin)
                 else:
-                    # level 2: the last of the min(npos, NSUB) sub-counters of gg reduces
+                    # level 2: the last of the min(npos, NSUB) sub-counters reduces
                     gg = pi % G
                     old2 = fx.Int32(0)
                     if w["lane"] == 0:

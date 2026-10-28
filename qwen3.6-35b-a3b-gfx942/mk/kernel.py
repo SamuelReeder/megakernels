@@ -36,7 +36,7 @@ from dataclasses import asdict, dataclass
 
 import flydsl.compiler as flyc
 import flydsl.expr as fx
-from flydsl.expr import const_expr, range_constexpr
+from flydsl.expr import const_expr
 from flydsl.expr.typing import Int32, Int64
 
 from . import dev as D
