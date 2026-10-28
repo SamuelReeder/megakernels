@@ -684,3 +684,21 @@ Optimization round 1 (2026-10-28, banff-cyxtera-s70-4, job 68197384, `scratch/lo
   5.766 -> 5.698 (M = 1), 8.562 -> 8.539 (M = 8). Logits bitwise equal in both TP1 and TP2
   (hashes 2a0a1919674a3562, 49c5e7cb71e4be94 for TP1). Separate TP1 commit 5e151e9 on
   `master` of `repos/qwen38-gfx942-mk`; TP1 suite re-run in `scratch/logs/tp1fix/`.
+
+Optimization round 2 (2026-10-28, same node and allocation, `scratch/logs/opt2/`; base =
+round 1 result: 5.599 / 6.094 / 7.026 / 8.141 ms at M = 1 / 2 / 4 / 8):
+
+- SGPR spill gap, rejected. Candidate: the peer bases pass through opaque moves, so the
+  peer address math is not hoisted out of the layer loop. SGPR spills 607 -> 499 (ISA of
+  the M = 1 build), but TPOT 5.599 -> 5.602 (M = 1, +0.1 %), 8.141 -> 8.209 (M = 8,
+  +0.8 %). Logits bitwise equal. Gain below 1 %: not kept (no code).
+- K chunks at TP2 (MK_CHUNKS override), first look: lm = 4 gives 5.525 (M = 1, -1.3 %) and
+  8.078 (M = 8, -0.8 %); out = 1, o = 1, down = 2 gives 5.505 (-1.7 %) but 8.390 (+3.1 %);
+  down = 2 alone is slower (5.713, 8.265). The gains are close to the run-to-run spread
+  (about 0.8 % at M = 1), so round 3 repeats lm = 4 and lm = 4 + out = 1 + o = 1
+  interleaved with the base before a decision.
+- 16-byte pushes, kept. The even lane of a column pair stores both (value, tag) pairs in
+  one 16-byte store (`Mailbox.put_words`, two tagged words; the protocol is unchanged:
+  every word keeps its tag), and the poll reads the pair of pairs. TPOT 5.599 -> 5.588
+  (M = 1, -0.2 %), 8.141 -> 7.895 (M = 8, -3.0 %). Logits bitwise equal (same hashes as
+  round 1 at M = 1 and 8, ranks equal). Now the only fp32 path.
