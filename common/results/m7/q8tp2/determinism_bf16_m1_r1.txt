@@ -1,0 +1,17 @@
+M=1 steps=64: 3 runs bitwise equal: True
+logits sha256 b4ef49a6f0b9a1d5
+tp 2 ar bf16: ranks bitwise equal every step: True
+PASS
+[rank1]:[W1029 18:06:47.436557308 TCPStore.cpp:125] [c10d] recvValue failed on SocketImpl(fd=5, addr=[localhost]:49558, remote=[localhost]:29541): Failed to recv, got 0 bytes. Connection was likely closed. Did the remote server shutdown or crash?
+Exception raised from recvBytes at /__w/pytorch/pytorch/torch/csrc/distributed/c10d/Utils.hpp:790 (most recent call first):
+frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x9d (0x7750700627fd in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #1: c10::DistError::DistError(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x72 (0x7750700637d2 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #2: c10::DistNetworkError::DistNetworkError(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x72 (0x775070063c92 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #3: <unknown function> + 0x68fee2d (0x77510ad39e2d in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #4: c10d::TCPStore::check(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) + 0x383 (0x77510ad33623 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #5: c10d::ProcessGroupNCCL::HeartbeatMonitor::runLoop() + 0x43d (0x7750e6c57b3d in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_hip.so)
+frame #6: <unknown function> + 0xecdb4 (0x77506e2ecdb4 in /lib/x86_64-linux-gnu/libstdc++.so.6)
+frame #7: <unknown function> + 0x9cb84 (0x77511c29cb84 in /lib/x86_64-linux-gnu/libc.so.6)
+frame #8: <unknown function> + 0x129ecc (0x77511c329ecc in /lib/x86_64-linux-gnu/libc.so.6)
+
+[rank1]:[W1029 18:06:47.440200539 ProcessGroupNCCL.cpp:1893] [PG ID 0 PG GUID 0 Rank 1] TCPStore check for dump key "exception_dump" failed (store unavailable, not absent key). Cannot detect remote dump signals. A rank exiting outside NCCL without broadcasting is a separate case. Error: Failed to recv, got 0 bytes. Connection was likely closed. Did the remote server shutdown or crash?

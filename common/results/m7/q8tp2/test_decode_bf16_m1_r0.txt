@@ -1,0 +1,23 @@
+load+pack+build 67s tp 2 ar bf16
+step 0: kernel~emulate cos 0.999805 top1 1.00 | kernel~exact cos 0.999705 top1 1.00 | emulate~exact cos 0.999763 top1 1.00
+step 1: kernel~emulate cos 0.999880 top1 1.00 | kernel~exact cos 0.999929 top1 1.00 | emulate~exact cos 0.999926 top1 1.00
+step 2: kernel~emulate cos 0.999908 top1 1.00 | kernel~exact cos 0.999920 top1 1.00 | emulate~exact cos 0.999958 top1 1.00
+step 3: kernel~emulate cos 0.999750 top1 0.00 | kernel~exact cos 0.999786 top1 0.00 | emulate~exact cos 0.999844 top1 1.00
+step 4: kernel~emulate cos 0.999705 top1 1.00 | kernel~exact cos 0.999876 top1 1.00 | emulate~exact cos 0.999869 top1 1.00
+step 5: kernel~emulate cos 0.999575 top1 1.00 | kernel~exact cos 0.999884 top1 1.00 | emulate~exact cos 0.999816 top1 1.00
+step 6: kernel~emulate cos 0.999911 top1 1.00 | kernel~exact cos 0.999926 top1 1.00 | emulate~exact cos 0.999894 top1 1.00
+step 7: kernel~emulate cos 0.999874 top1 1.00 | kernel~exact cos 0.999879 top1 1.00 | emulate~exact cos 0.999880 top1 1.00
+step 8: kernel~emulate cos 0.999342 top1 1.00 | kernel~exact cos 0.999817 top1 1.00 | emulate~exact cos 0.999584 top1 1.00
+step 9: kernel~emulate cos 0.998877 top1 1.00 | kernel~exact cos 0.999441 top1 1.00 | emulate~exact cos 0.999173 top1 1.00
+step 10: kernel~emulate cos 0.999581 top1 1.00 | kernel~exact cos 0.999827 top1 1.00 | emulate~exact cos 0.999660 top1 1.00
+step 11: kernel~emulate cos 0.999716 top1 1.00 | kernel~exact cos 0.999838 top1 1.00 | emulate~exact cos 0.999796 top1 1.00
+step 12: kernel~emulate cos 0.999846 top1 1.00 | kernel~exact cos 0.999893 top1 1.00 | emulate~exact cos 0.999862 top1 1.00
+step 13: kernel~emulate cos 0.999621 top1 1.00 | kernel~exact cos 0.999794 top1 1.00 | emulate~exact cos 0.999764 top1 1.00
+step 14: kernel~emulate cos 0.999553 top1 1.00 | kernel~exact cos 0.999707 top1 1.00 | emulate~exact cos 0.999625 top1 1.00
+step 15: kernel~emulate cos 0.999675 top1 1.00 | kernel~exact cos 0.999863 top1 1.00 | emulate~exact cos 0.999809 top1 1.00
+kernel~emulate: worst cos 0.998877 top1 0.938
+kernel~exact:   worst cos 0.999441 top1 0.938
+emulate~exact:  worst cos 0.999173 top1 1.000
+steps with non-finite logits (kernel or reference): 0
+ranks bitwise equal every step: True
+PASS

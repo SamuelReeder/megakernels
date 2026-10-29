@@ -1,0 +1,2 @@
+goldens: 298 lines, 0 differ
+PASS

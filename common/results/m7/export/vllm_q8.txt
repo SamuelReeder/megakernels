@@ -1,0 +1,1 @@
+732f286 [ROCm][Perf] Qwen3.8 decode: re-export kernels with common mkcore (megakernels c86b812, M6); weights.py packs with kernels/mkcore/pack.py

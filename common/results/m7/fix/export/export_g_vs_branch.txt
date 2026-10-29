@@ -1,0 +1,10 @@
+ M vllm/models/gemma4/amd/specialized_decode/kernels/kernel.py
+ M vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/__init__.py
+ M vllm/models/gemma4/amd/specialized_decode/kernels/moe.py
+ M vllm/models/gemma4/amd/specialized_decode/kernels/stages.py
+?? vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/stagelib.py
+ .../amd/specialized_decode/kernels/kernel.py       |  5 +-
+ .../specialized_decode/kernels/mkcore/__init__.py  |  2 +-
+ .../gemma4/amd/specialized_decode/kernels/moe.py   |  3 +-
+ .../amd/specialized_decode/kernels/stages.py       | 53 ++--------------------
+ 4 files changed, 11 insertions(+), 52 deletions(-)

@@ -854,6 +854,36 @@ M5 ISA for Qwen3.6 and Gemma):
   TPOT (ms, B = 1/2/4/8, single runs, shared node): TP1 base 8.12/8.99/10.15/12.38, M6
   8.32/8.91/10.07/12.34; TP2 base 6.24/6.82/7.72/9.38, M6 6.28/6.82/7.73/9.44.
 
+### M7: `mkcore.stagelib` (2026-10-29, sources `fbe7681`, `ba24a78`)
+
+Change: `common/mkcore/stagelib.py` holds `zero_xs_tail`, `store_quant8`,
+`store_quant8_at` and `epi_raw(..., off=0)`; the models' `stages.py` keep
+`rstd_from_ssq`, `prologue_scaled` (D11) and their own prologues and epilogues; callers
+use `SL.*`. `ba24a78`: `epi_raw(off=None)` leaves the offset term out of the index, and
+Qwen3.8 passes `None`. With `off=0` (`fbe7681`), the Qwen3.8 standalone build in the vLLM
+image (oracle 5) changed from `7a34625c72591084` to `5a4a22e775d991b1`: two stores of
+the LM head epilogue moved, and one lost its folded `offset:2048`. The hipdnn-image gates
+did not see this change (`isa.txt=base PASS`). Qwen3.6 and Gemma keep `t * N + off`, as
+before.
+
+Evidence (`common/results/m7/`, banff-cyxtera-s70-4, job 68210225 (two GPUs), base =
+`~/mk/cm/base6` (M1 hashes and ISA for Qwen3.8, M5 ISA for Qwen3.6 and Gemma):
+
+- I-host: goldens 298 lines, 0 differ (`goldens_check.txt`).
+- `fbe7681`, all four parts (`summary.txt`, `summary_q8tp2.txt`): all
+  `hashes.txt=base` and `isa.txt=base` PASS (tier A, Gemma 4 of 4). Two hard gates
+  died with SIGBUS (rc 135): Qwen3.8 `eval_text` and Gemma `test_decode_m2_ctx512`
+  (HIP error 719). Each was rerun twice on the same tree (`rerun/`), and all 4 runs PASS
+  (Qwen3.8 KL 0.039). Classed as node faults (jobs 68209893 and 68209506 shared the node).
+- `ba24a78` (`fix/`): Qwen3.8 TP1 and TP2 gates all PASS, with ISA and hashes equal to
+  base. Oracle 5 (`fix/export/`): exports Qwen3.8 `8948b45554c46053` and Qwen3.6
+  `f5ad5702d077723c`, equal to M5/M6. Standalone builds Qwen3.8 `7a34625c72591084`
+  (back to M6), Qwen3.6 `e99502b71231965b` and Gemma `f2c0314eb98ad89f`. The Gemma export
+  gave `717ea1d8995d5f29`; the `fbe7681` run gave M6's `a0c04b38a45dcac5`. Gemma's code
+  is the same in both builds. The diff (94 lines) only reorders a `v_div_scale` / `v_rcp`
+  / `v_exp` sequence, which is open question 7 (Gemma M = 1 `lm_head`-on build-to-build
+  variants).
+
 ## Decisions
 
 - D1. Package `common/mkcore/` (FlyDSL gfx942 only), scripts in `common/scripts/`. Evidence:
