@@ -156,10 +156,11 @@ PROFILE = {
 
 
 def compile_key(cfg, *extra) -> str:
-    """Key of FlyDSL's disk cache for one build. FlyDSL 0.4.0 keys on the launcher's source
-    and scalar closure values only: not on helpers called as D.*, cfg fields read as cfg.*,
-    or the kernel name (common/DESIGN.md "Compile cache test"). This key covers every .py
-    file of this package and repr((cfg, *extra)); build's launcher references it."""
+    """Key of FlyDSL's disk cache for one build. FlyDSL 0.4.0 keys on the launcher's
+    source and scalar closure values only: not on helpers called as D.*, cfg fields
+    read as cfg.*, or the kernel name (megakernels common/DESIGN.md, "Compile cache
+    test"). This key covers every .py file of this package and repr((cfg, *extra));
+    the launcher holds it."""
     d = pathlib.Path(__file__).resolve().parent
     h = hashlib.sha256(repr((cfg, *extra)).encode())
     for p in sorted(d.rglob("*.py")):
