@@ -103,7 +103,6 @@ class Cfg:
     # (stages.combine_row), which the qkv prologue copies (layers > 0); else every CTA
     # rebuilds all rows of h in the qkv prologue
     combine_rows: bool = True
-    route_prefetch: bool = True  # routing loads per_expert_scale beside the logits
     # down stage: row-major partials, every CTA counts itself once, and the combine CTAs
     # reduce their rows (moe.reduce_row) instead of a last arriver per column group
     # (needs combine_rows)
@@ -447,7 +446,7 @@ def _moe_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw
             lambda cg, tots: S.epi_raw(c, M, MO.LGN, cg, tots[0], logit))
     # routing (every CTA), then gate_up of the routed experts and the dense MLP
     barrier_then(None, None, None, e0 + 4)
-    MO.routing(c, M, logit, G[G_ROWV], T(T_PES), R, cfg.route_prefetch)
+    MO.routing(c, M, logit, G[G_ROWV], T(T_PES), R)
     if const_expr(cfg.debug_route):
         MO.route_hash(c, M, R, G[G_SPARE], li, c["cus"], NL)
     if const_expr(PROFILE["npos"] is not None):

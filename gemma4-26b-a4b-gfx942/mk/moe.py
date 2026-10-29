@@ -114,12 +114,11 @@ def slot_of(slot_ptr, NP, m, p):
 
 
 @D.traced
-def routing(c, M, logits, rowv, pes, R: Route, prefetch=False):
+def routing(c, M, logits, rowv, pes, R: Route):
     """Build R's tables from logits fp32 [M][LGN] (device scope), the row-valid flags
     rowv i32 [M] and the layer's per_expert_scale (bf16 [NE]). Wave m does row m; wave 0
-    builds the position list. prefetch (Cfg.route_prefetch): lane l loads the scales of
-    experts 2 l, 2 l + 1 beside the logits, and the picks read them from the lanes (no
-    global load after the top-8)."""
+    builds the position list. Lane l loads the scales of experts 2 l, 2 l + 1 beside the
+    logits, and the picks read them from the lanes (no global load after the top-8)."""
     lane, wave, tid = c["lane"], c["wave"], c["tid"]
     NT = S.NT
     D.PROBE["on"] = D.PROBE.get("stage") == "route"
@@ -128,8 +127,7 @@ def routing(c, M, logits, rowv, pes, R: Route, prefetch=False):
         rl = D.rsrc(logits)
         m = wave
         valid = D.uniform(D.ld(D.rsrc(rowv), m)) != 0
-        if const_expr(prefetch):
-            pesw = D.ld(D.rsrc(pes), fx.min(lane, NE // 2 - 1))
+        pesw = D.ld(D.rsrc(pes), fx.min(lane, NE // 2 - 1))
         v = [D.ldf(rl, m * LGN + lane + 64 * k, cm=D.CM_DEV) for k in range(NE // 64)]
         vals, picks = [], []
         for j in range_constexpr(TOPK):
@@ -154,15 +152,10 @@ def routing(c, M, logits, rowv, pes, R: Route, prefetch=False):
         for j in range_constexpr(1, TOPK):
             tot = tot + ws[j]
         D.probe(c, 11)  # top-8 done
-        if const_expr(prefetch):
-            pws = [D.gather(pesw, picks[j] // 2) for j in range(TOPK)]
+        pws = [D.gather(pesw, picks[j] // 2) for j in range(TOPK)]
         if lane == 0:
-            rp = D.rsrc(pes)
             for j in range_constexpr(TOPK):
-                if const_expr(prefetch):
-                    pw = pws[j]
-                else:
-                    pw = D.ld(rp, picks[j] // 2)
+                pw = pws[j]
                 sc = (picks[j] % 2 == 0).select(D.bf_lo(pw), D.bf_hi(pw))
                 fx.ptr_store(ws[j] / tot * sc, R.w + (m * NSLOT + j))
                 fx.ptr_store(valid.select(picks[j], fx.Int32(-1)), R.pick + (m * TOPK + j))
