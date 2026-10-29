@@ -132,15 +132,14 @@ class Cfg:
     debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
     fence: bool = False  # L2 write-back / invalidate at every grid barrier (dev.grid_*)
     chaos: bool = False  # random delays before arrivals and counter atomics (dev.CHAOS)
-    # grid barrier: 0 = per-CTA flags + 8 leader CTAs (two device hops); g > 0 = g
-    # device-scope arrival counters polled by every CTA (one hop; dev.grid_wait)
-    bar_ng: int = 0
-    pf: int = 1  # dense GEMVs: P-unit weight blocks loaded at the barrier (gemv.Gemv.pf)
+    # grid barrier: False = per-CTA flag lines + 8 leader CTAs (two device hops); True =
+    # dense flag array polled by every CTA (one hop; dev.grid_wait)
+    bar_flat: bool = False
     # in_proj fp8, qkv, out_proj, router: CTA-local split-K, LDS reduction (gemv.Gemv.cta;
     # needs their K chunks = 1)
     cta_red: bool = False
-    # norm / scaled prologues only in CTAs that stream units of the GEMV (Gemv.busy);
-    # the in_proj b / a prologue after the fp8 stream
+    # norm / scaled prologues only in CTAs that stream units of the GEMV (Gemv.busy):
+    # in_proj b / a, out_proj, router
     skip_idle: bool = False
 
     def chunks(self):
@@ -159,7 +158,7 @@ class Cfg:
         M, cus, ch = self.M, self.cus, self.chunks()
 
         def g(name, n, k, kind="fp8", cta=False):
-            return Gemv(name, n, k, M, cus, WAVES, ch[name], kind, pf=self.pf,
+            return Gemv(name, n, k, M, cus, WAVES, ch[name], kind,
                         cta=cta and self.cta_red).check()
 
         return dict(
@@ -206,7 +205,7 @@ def build(cfg: Cfg):
     D.CHAOS["on"] = cfg.chaos
     S.NT = NT
     NP = MO.npos_max(M)
-    assert 0 <= cfg.bar_ng <= min(CUS, 64), "counter lines live in the CTA flag lines"
+    assert CUS % 4 == 0, "flat barrier: 4 flags per polling lane"
     XQB = max(s.XR * (s.XROWS if isinstance(s, MO.MoeGemv) else M) for s in SP.values())
     XBB = SP["ba"].XR * M  # in_proj's bf16 x (b / a), beside the fp8 x
     XSF = 32 * max(s.XSR for s in SP.values())
@@ -321,9 +320,9 @@ def build(cfg: Cfg):
             if const_expr(PROFILE["addr"] is not None):
                 slot = ((e - epoch - 1) * CUS + bid) * 2
                 stamp(slot)
-            D.grid_arrive(rf, e, tid, bid, cfg.fence, cfg.bar_ng, G[G_FLAGS])
+            D.grid_arrive(rf, e, tid, bid, cfg.fence, cfg.bar_flat)
             buf = spec.first_loads(w) if spec is not None else None
-            D.grid_wait(rf, e, tid, bid, CUS, cfg.fence, cfg.bar_ng)
+            D.grid_wait(rf, e, tid, bid, CUS, cfg.fence, cfg.bar_flat)
             if const_expr(PROFILE["addr"] is not None):
                 stamp(slot + 1)
             return w, buf
@@ -417,7 +416,10 @@ def _gdn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, c
     # in_proj: fp8 [qkv | z] and bf16 [b | a] on the same normed input
     w, buf = barrier_then(inp, T(T_MIX_T), T(T_MIX_S), e0)
     S.prologue_norm(c, inp, xq, xs, red, hf0, q0, T(T_IN_LN), EPS)
-    if const_expr(not cfg.skip_idle):
+    if const_expr(cfg.skip_idle):
+        _if_busy(ba, c["bid"],
+                 lambda: S.prologue_norm_bf16(c, ba, xb, red, hf0, q0, T(T_IN_LN), EPS))
+    else:
         S.prologue_norm_bf16(c, ba, xb, red, hf0, q0, T(T_IN_LN), EPS)
     inp.run(
         c,
@@ -427,9 +429,6 @@ def _gdn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, c
         cnt("inp"),
         S.EpiConv(c, M, y, T(T_CONV), T(T_CONVW), T(T_IDX), cfg.conv_s0),
     )
-    if const_expr(cfg.skip_idle):
-        _if_busy(ba, c["bid"],
-                 lambda: S.prologue_norm_bf16(c, ba, xb, red, hf0, q0, T(T_IN_LN), EPS))
     wb = ba.setup(c, xb, xs, T(T_BA), T(T_BA))
     ba.run(
         c,

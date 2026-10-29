@@ -1,0 +1,60 @@
+== tl_base_m1.json (3 steps): M=1, step median 4403.4 us (first barrier arrival -> last arrival at the end)
+stage     n    work    skew  barrier  interval   sum us
+inp      30   14.63    4.77     4.48     23.88    717.4
+gdn      30    2.54    0.53     3.83      6.91    227.1
+out      30    8.54    6.49     2.32     17.35    534.0
+router   40    1.48    4.15     3.17      8.80    353.4
+e1       40   14.69    2.41     2.24     19.35    750.2
+e2       40    1.82    8.04     2.20     12.06    517.3
+qkv      10    8.95    3.29     2.36     14.59    143.7
+attn     10    0.36   34.13     2.16     36.65    364.6
+o        10   14.86   13.69     2.37     30.92    309.3
+lm        1  235.35   18.51     0.00    253.86    246.7
+step parts: work 1935 us (46.5 %), skew 1516 us (36.4 %), barrier 713 us (17.1 %)
+fit work     =  3.33 us + bytes / 2.18 TB/s over inp, qkv, out, o, router, e1, e2 (max |residual| 7.67 us); 200 stages: bytes part 1134 us, fixed part 667 us
+fit interval = 14.70 us + bytes / 3.29 TB/s over inp, qkv, out, o, router, e1, e2 (max |residual| 14.37 us); 200 stages: bytes part 752 us, fixed part 2940 us
+== tl_base_m8.json (3 steps): M=8, step median 7174.2 us (first barrier arrival -> last arrival at the end)
+stage     n    work    skew  barrier  interval   sum us
+inp      30   16.86    8.12     7.90     32.88    998.0
+gdn      30    8.71    2.10     3.17     13.97    431.9
+out      30   11.11    8.87     2.09     22.07    682.5
+router   40    4.35    4.24     4.02     12.61    522.2
+e1       40   31.96    7.24     2.59     41.78   1728.4
+e2       40   17.96    9.81     3.26     31.03   1287.5
+qkv      10   14.82    5.32     1.87     22.01    232.4
+attn     10   30.71    2.23     2.62     35.55    380.8
+o        10   18.51   16.56     2.22     37.30    396.9
+lm        1  231.26    9.02     0.00    240.28    240.7
+step parts: work 4288 us (62.1 %), skew 1713 us (24.8 %), barrier 901 us (13.1 %)
+fit work     =  8.27 us + bytes / 2.57 TB/s over inp, qkv, out, o, router (max |residual| 6.97 us); 120 stages: bytes part 520 us, fixed part 992 us
+fit interval = 19.58 us + bytes / 2.13 TB/s over inp, qkv, out, o, router (max |residual| 13.94 us); 120 stages: bytes part 628 us, fixed part 2349 us
+== tl_cs_m1.json (3 steps): M=1, step median 3695.4 us (first barrier arrival -> last arrival at the end)
+stage     n    work    skew  barrier  interval   sum us
+inp      30   11.55    5.06     1.93     18.53    546.6
+gdn      30    2.56    0.46     2.77      5.79    191.3
+out      30    1.01    5.42     1.70      8.13    257.5
+router   40    0.62    3.18     1.77      5.57    225.5
+e1       40   14.90    2.08     2.26     19.23    747.2
+e2       40    1.78    8.30     2.32     12.41    489.8
+qkv      10    6.39    3.68     1.92     12.00    119.4
+attn     10    0.14   32.19     2.27     34.61    348.1
+o        10   14.16   11.75     2.07     27.98    281.5
+lm        1  275.73   17.20     0.00    292.93    275.1
+step parts: work 1583 us (45.5 %), skew 1368 us (39.3 %), barrier 530 us (15.2 %)
+fit work     =  1.40 us + bytes / 2.24 TB/s over inp, qkv, out, o, router, e1, e2 (max |residual| 9.00 us); 200 stages: bytes part 1106 us, fixed part 280 us
+fit interval = 10.63 us + bytes / 2.96 TB/s over inp, qkv, out, o, router, e1, e2 (max |residual| 15.20 us); 200 stages: bytes part 835 us, fixed part 2127 us
+== tl_cs_m8.json (3 steps): M=8, step median 6549.6 us (first barrier arrival -> last arrival at the end)
+stage     n    work    skew  barrier  interval   sum us
+inp      30   14.43    7.78     2.23     24.44    759.9
+gdn      30    8.97    2.45     2.67     14.10    433.3
+out      30    1.63   14.30     1.45     17.38    549.8
+router   40    1.06    9.47     1.61     12.14    515.0
+e1       40   30.76    7.65     2.50     40.91   1698.0
+e2       40   17.14    9.20     3.25     29.59   1231.9
+qkv      10   13.93    1.79     1.92     17.64    180.5
+attn     10   30.26    2.27     2.79     35.33    371.2
+o        10   19.81   15.31     2.19     37.30    389.6
+lm        1  234.19    9.39     0.00    243.58    243.3
+step parts: work 3715 us (58.3 %), skew 2027 us (31.8 %), barrier 630 us (9.9 %)
+fit work     =  4.20 us + bytes / 2.09 TB/s over inp, qkv, out, o, router (max |residual| 11.58 us); 120 stages: bytes part 639 us, fixed part 504 us
+fit interval = 19.23 us + bytes / 4.51 TB/s over inp, qkv, out, o, router (max |residual| 16.42 us); 120 stages: bytes part 296 us, fixed part 2308 us

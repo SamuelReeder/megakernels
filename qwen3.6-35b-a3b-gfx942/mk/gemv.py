@@ -95,7 +95,6 @@ class Gemv:
     kind: str = "fp8"  # "fp8" | "bf16"
     P: int = 2  # units per pipeline block
     gpc: int = 1  # groups per counter (last-arriver granularity)
-    pf: int = 1  # P-unit blocks loaded at the barrier and kept in flight (1 or 2)
     # CTA-local split-K: CTA b streams whole groups [b G / cus, (b + 1) G / cus), its
     # waves split their units evenly, and the CTA sums the wave partials in LDS (fixed
     # wave order): no global partials, no counter atomics (needs C = 1)
@@ -205,9 +204,8 @@ class Gemv:
     def check(self):
         assert self.N % 16 == 0 and self.K % 128 == 0 and self.KS % self.C == 0
         assert self.KSc >= self.P, "a pipeline block may cross at most one piece end"
-        assert self.pf in (1, 2)
-        assert PAD_TILES >= (self.pf + 2) * self.P - 1, (
-            "loads run up to (pf + 2) P - 1 units past the stream"
+        assert PAD_TILES >= 3 * self.P - 1, (
+            "loads run up to 3 P - 1 units past the stream"
         )
         assert (self.U + 1) * self.NW < 2**31
         assert self.G % self.gpc == 0
@@ -300,7 +298,7 @@ class Gemv:
             # an idle wave (a CTA without groups) loads tile 0 (an L2 hit) instead of
             # the next CTA's tiles
             u = (w["u1"] > u).select(u, fx.Int32(0))
-        return [self.load(w, u + p) for p in range(self.P * self.pf)]
+        return [self.load(w, u + p) for p in range(self.P)]
 
     def busy(self, bid):
         """Whether CTA bid streams any unit of this GEMV (needs its LDS x)."""
@@ -374,30 +372,18 @@ class Gemv:
         D.PROBE["on"] = D.PROBE.get("stage") == self.name
         D.probe(c, 0)
         nblk = (u1 - u0 + P - 1) // P
-        buf_a = buf[:P]
+        buf_a = buf
         pc0 = u0 // KSc
         st = (u0 % KSc, pc0 % G, pc0 // G)
         acc_a = z4
         acc_b = z4
-        if const_expr(self.pf == 1):
-            for i in range(0, (nblk + 1) // 2):
-                ub = u0 + 2 * i * P
-                buf_b = [self.load(w, ub + P + p) for p in range_constexpr(P)]
-                st, acc_a, acc_b = block(ub, st, buf_a, acc_a, acc_b)
-                buf_a = [self.load(w, ub + 2 * P + p) for p in range_constexpr(P)]
-                if 2 * i + 1 < nblk:
-                    st, acc_a, acc_b = block(ub + P, st, buf_b, acc_a, acc_b)
-        else:
-            # two blocks in flight from the barrier on: the next block's loads are
-            # issued before this block computes
-            buf_b = buf[P:]
-            for i in range(0, (nblk + 1) // 2):
-                ub = u0 + 2 * i * P
-                st, acc_a, acc_b = block(ub, st, buf_a, acc_a, acc_b)
-                buf_a = [self.load(w, ub + 2 * P + p) for p in range_constexpr(P)]
-                if 2 * i + 1 < nblk:
-                    st, acc_a, acc_b = block(ub + P, st, buf_b, acc_a, acc_b)
-                buf_b = [self.load(w, ub + 3 * P + p) for p in range_constexpr(P)]
+        for i in range(0, (nblk + 1) // 2):
+            ub = u0 + 2 * i * P
+            buf_b = [self.load(w, ub + P + p) for p in range_constexpr(P)]
+            st, acc_a, acc_b = block(ub, st, buf_a, acc_a, acc_b)
+            buf_a = [self.load(w, ub + 2 * P + p) for p in range_constexpr(P)]
+            if 2 * i + 1 < nblk:
+                st, acc_a, acc_b = block(ub + P, st, buf_b, acc_a, acc_b)
         D.probe(c, 1)
         last = u1 - 1
         if ((last // KSc) != ((u0 + (nblk - 1) * P) // KSc)) & (nblk > 0):
