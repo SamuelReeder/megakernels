@@ -1,0 +1,3 @@
+M=1 steps=64: 3 runs bitwise equal: True
+logits sha256 2a0a1919674a3562
+PASS

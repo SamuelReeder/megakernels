@@ -1,0 +1,4 @@
+ISA tp2_fp32_r1 M=1 lm=on 6eb2286fd34bba42
+ISA tp2_fp32_r1 M=8 lm=on bf3ef673b283edbf
+ISA tp2_bf16_r1 M=1 lm=on 611995145ba1ad22
+ISA tp2_bf16_r1 M=8 lm=on a8e55f3e8d271e19

@@ -1,0 +1,8 @@
+ISA tp2_bf16_r0_m1_on b077d7ae35c914dc
+ISA tp2_bf16_r0_m8_on 78d9c7682e922348
+ISA tp2_bf16_r1_m1_on b077d7ae35c914dc
+ISA tp2_bf16_r1_m8_on 78d9c7682e922348
+ISA tp2_fp32_r0_m1_on 52e87a3c06736983
+ISA tp2_fp32_r0_m8_on 18040b8e5ecfa3c2
+ISA tp2_fp32_r1_m1_on 52e87a3c06736983
+ISA tp2_fp32_r1_m8_on 18040b8e5ecfa3c2
