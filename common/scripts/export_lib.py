@@ -65,8 +65,11 @@ def copy_mkcore(dst: pathlib.Path, header: str) -> list:
     exec(compile((MKCORE / "__init__.py").read_text(), ns["__file__"], "exec"), ns)
     files = []
     for p in sorted(MKCORE.glob("*.py")):
-        s = p.read_text()
+        s = p.read_text().replace("from .vendor import buffer_ops as bo", AITER_BO)
         assert "vendor" not in s, p
+        # a module that moved into mkcore must not stay behind as a model module
+        if p.name != "__init__.py":
+            (dst / p.name).unlink(missing_ok=True)
         h = header + "# ruff: noqa: E501\n"
         if p.name == "__init__.py":
             h += (f"# megakernels {commit}{' (dirty)' if dirty else ''}, common/mkcore "

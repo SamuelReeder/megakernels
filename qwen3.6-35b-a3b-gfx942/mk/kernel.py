@@ -40,9 +40,10 @@ import flydsl.expr as fx
 from flydsl.expr import const_expr
 from flydsl.expr.typing import Int32, Int64
 
+from mkcore import dev as D
 from mkcore import key as K
+from mkcore.dev import _STREAM, CNT_STRIDE, EPOCH_WORD_LINE, LDS_MAX, NT, PROFILE, WAVES
 
-from . import dev as D
 from . import mixer as X
 from . import moe as MO
 from . import stages as S
@@ -51,9 +52,6 @@ from .gemv import Gemv
 
 NTAB = 20  # pointer-table slots per layer
 NGLOB = 20  # global pointer-table slots
-WAVES = 8
-NT = 64 * WAVES
-LDS_MAX = 65536
 
 # global table slots
 (
@@ -99,9 +97,6 @@ T_QN, T_KN, T_KV = range(12, 15)  # attention layers
 # sidx[M]; an attention layer's block table bt[M][maxblocks] and slot mapping slot[M].
 T_IDX, T_SLOT = 18, 19
 
-_STREAM = fx.Stream(None)  # the launch's default: the current stream
-CNT_STRIDE = 65536  # i32 counters per counter region
-EPOCH_WORD_LINE = 8  # the epoch word is line cus + EPOCH_WORD_LINE of the flag buffer
 STAGES_PER_LAYER = 6
 
 
@@ -186,18 +181,13 @@ class Cfg:
 CNT_REGION = dict(inp=0, ba=1, out=2, qkv=3, o=4, router=5, e1=6, e2=7, lm=8)
 
 
-PROFILE = {
-    "addr": None
-}  # debug: i64 [barriers][CUS][2] = (arrive, wait end) per CTA, 100 MHz
-
 
 def build(cfg: Cfg):
     M, CUS = cfg.M, cfg.cus
     K.check_cfg(cfg)
     assert 1 <= M <= WAVES, "the norm prologues and the routing give each row one wave"
     SP = cfg.specs()
-    D.FENCE["on"] = cfg.fence
-    D.CHAOS["on"] = cfg.chaos
+    D.configure(cfg)
     S.NT = NT
     NP = MO.npos_max(M)
     XQB = max(s.XR * (s.XROWS if isinstance(s, MO.MoeGemv) else M) for s in SP.values())

@@ -25,7 +25,7 @@ import flydsl.expr as fx  # noqa: E402
 from flydsl.expr.typing import Int64  # noqa: E402
 
 from mk import attention as A  # noqa: E402
-from mk import dev as D  # noqa: E402
+from mkcore import dev as D  # noqa: E402
 from mk import reference as R  # noqa: E402
 from mk.dims import NQ, WINDOW  # noqa: E402
 

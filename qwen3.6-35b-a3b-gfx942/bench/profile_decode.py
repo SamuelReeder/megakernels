@@ -17,7 +17,8 @@ import sys
 import torch
 
 sys.path.insert(0, __file__.rsplit("/bench/", 1)[0])
-from mk import dev as D  # noqa: E402
+import mk  # noqa: E402,F401  (puts common/ on sys.path)
+from mkcore import dev as D  # noqa: E402
 from mk import kernel as KK  # noqa: E402
 from mk import reference as R  # noqa: E402
 from mk.dims import NL, is_attn  # noqa: E402

@@ -13,9 +13,8 @@ from enum import Enum
 import flydsl.expr as fx
 from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
 from flydsl.expr.typing import T
+from mkcore.dev import CM_DEV, CM_SYS, bf16_pair, traced
 from mkcore.vendor import buffer_ops as bo
-
-from .dev import CM_DEV, CM_SYS, bf16_pair, traced
 
 
 def rsrc(addr, nbytes=None):

@@ -29,7 +29,7 @@ import flydsl.expr as fx
 from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
 from flydsl.expr.typing import T
 
-from . import dev as D
+from mkcore import dev as D
 from .dims import EPS, VOCAB, H
 
 NT = 512  # threads per CTA (set by the kernel builder before tracing)
@@ -354,7 +354,7 @@ def prologue_final(c, M, xq, xr, red, hh, k0, live, lnw, out, lm_head):
     for t in range_constexpr(M):
         rs = fx.ptr_load(red + (64 + 24 + t))
         x = [hh[t][q] * rs * wv[q] for q in range(8)]
-        words = [D.pack_bf2(x[2 * q], x[2 * q + 1]) for q in range(4)]
+        words = [D.pack_bf2_rne(x[2 * q], x[2 * q + 1]) for q in range(4)]
         if const_expr(lm_head):
             if live:
                 fx.ptr_store(fx.Vector.from_elements(words, fx.Int32), xq + (t * xr + k0 * 2) // 4)
@@ -398,7 +398,7 @@ def prologue_router(c, g, xq, red, h, a, ssq_a, wpa, rscale, h1_out, rstd1_out, 
     for t in range_constexpr(M):
         rs = fx.ptr_load(red + (64 + 8 + t))
         x = [h1[t][q] * rs * cinv * sv[q] for q in range(8)]
-        words = [D.pack_bf2(x[2 * q], x[2 * q + 1]) for q in range(4)]
+        words = [D.pack_bf2_rne(x[2 * q], x[2 * q + 1]) for q in range(4)]
         if live:
             fx.ptr_store(fx.Vector.from_elements(words, fx.Int32), xq + (t * g.XR + k0 * 2) // 4)
     if const_expr(store):  # noqa: SIM102 (trace-time test, then a run-time one)
