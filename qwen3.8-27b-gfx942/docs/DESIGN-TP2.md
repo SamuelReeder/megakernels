@@ -615,6 +615,17 @@ held job starts. `scratch/m3/final_summary.py` gives the table.
 |---|---|---:|---:|---|---|---|---|
 | 1 | banff-cyxtera-s70-4, 2026-10-28, 68197384 (`final/`) | 1.07 | +9.6 % | PASS | dc59fa9e, eca6810e | 27.7 / 26.9 / 24.6 / 23.2 % | 5.593 / 5.972 / 6.727 / 7.912 |
 | 2 | banff-cyxtera-s70-4, 2026-10-29, 68198806 (`m5_day2/`) | 1.07 | +9.6 % | PASS | dc59fa9e, eca6810e | 28.3 / 27.7 / 25.1 / 24.1 % | 5.613 / 5.993 / 6.742 / 7.909 |
+| 3 | quanta-ccs-aus-j02-45 (MI325X, AUSTIN), 2026-10-29, 68206615 (`m5_node2/`) | 1.07 | +9.6 % | PASS | dc59fa9e, eca6810e | 23.5 / 24.2 / 21.4 / 19.2 % | 5.212 / 5.524 / 6.248 / 7.317 |
+
+Milestone 5 passes. The second node (run 3, MI325X, `scratch/m5/austin.sh`, checkpoints
+downloaded from HF there) computes the same bits as banff: the same logits hashes and the
+same gate values to six digits. The md5 of the safetensors size listing in its log differs
+from banff's; the cause is not known (the job's container `/tmp` is gone). The equal logits
+hashes (MXFP4 kernel) and equal eval_text values (BF16 reference) show that the tests read
+the same weights. The speed gate for a
+different GPU model passes: TP2 is 6.8 / 7.5 / 7.2 / 7.5 % faster than on banff, not
+slower. TP1 there: 6.813 / 7.283 / 7.949 / 9.058 ms, so TP2's gain over TP1 is 19-24 %
+on MI325X. The vLLM rank check did not run there (section 14).
 
 The second day computes the same bits (same hashes, same gate values) and the same speed
 within 0.4 %. TP1 on that day: 7.824 / 8.284 / 9.004 / 10.415 ms. The rank check in vLLM
@@ -825,3 +836,25 @@ Final kernel (after rounds 1-3), run 1: banff-cyxtera-s70-4, 2026-10-28, job 681
 
 Against stock vLLM TP2 FP8 on the same node and day (3-run medians above): 9.822 / 5.593 =
 1.76x at batch 1, 10.716 / 5.972 = 1.79x, 10.660 / 6.727 = 1.58x, 11.152 / 7.912 = 1.41x.
+
+Decided 2026-10-29 (milestone 5, second node):
+- Allocation. `sbatch --test-only` gave later estimates for the smaller requests (2 GPUs,
+  16 CPUs, 64 GB, 1:15) than for the held 8 h jobs: defq 2026-11-16, miopen 2027-03-09.
+  One `salloc --immediate=60` round over four requests (MI325X / MI300X, defq / miopen,
+  excluding banff-cyxtera-s70-4 and ctr-cx63-mi300x-12) got job 68206615 on
+  quanta-ccs-aus-j02-45 (MI325X, AUSTIN) at once. So no new sbatch job and no retry loop
+  were started, and the held jobs 68198219 / 68198220 and the queued salloc 68206625 were
+  cancelled. Rejected: keep the held jobs as a fall-back (the instruction was to cancel
+  as soon as one job starts). `rocke` holds only gfx950 nodes, so it cannot give a gfx942
+  second node.
+- AUSTIN run. The node has its own `/cluster` and no home, so the frozen copy
+  (`/cluster/logs/qwen38-tp2/src-m5`) is not visible there. `scratch/m5/austin.sh` (from
+  the 35B `suite_austin.sh`) clones megakernels `users/sareeder/qwen38-tp2` at 57d6a48
+  (the same md5 for `mk/*.py`, `tests/*.py`, `bench/bench_decode.py` as `src-m5`, the
+  NaN check included), builds the venv and downloads both checkpoints into the
+  container's `/tmp`, puts our MXFP4 `config.json` over the downloaded one, runs
+  `scratch/m3/plans/final.sh` with local one/two helpers, and returns the logs as a base64
+  tar in the job log. The vLLM rank check of `m5.sh` is not run there (it needs the
+  vLLM image in the home); milestone 6 covers it on banff.
+- Speed gate on a different GPU model (MI325X): the run fails only when TP2 is more than
+  3 % slower than on banff-cyxtera-s70-4 (run 1 of section 11, milestone 5 table).

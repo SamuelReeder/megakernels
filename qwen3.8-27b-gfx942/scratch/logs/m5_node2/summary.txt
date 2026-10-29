@@ -1,0 +1,13 @@
+node quanta-ccs-aus-j02-45.adc.amd.com  date 2026-10-29
+G1 median per-step 1-cos to exact: TP2 0.000406 TP1 0.000377 ratio 1.074 (<= 1.2) PASS (n 128 / 128)
+G2 eval_text KL: TP2 0.04279 TP1 0.03904 (+9.6 %, <= +10 %) PASS
+G3 ranks bitwise equal in every TP2 run: PASS
+G4 determinism M = 1, 8: PASS; logits sha256 ['dc59fa9ecba1e506', 'eca6810ec44f5829']
+G5 batch-invariant rows (eval_text): PASS
+non-finite steps in test_decode runs: 0 (16 runs report it)
+speed (bench_decode ctx 512, 64 steps, median of 3 fixed-token TPOT, ms):
+  M = 1: TP1 6.813  TP2 5.212  TP2 faster by 23.5 %
+  M = 2: TP1 7.283  TP2 5.524  TP2 faster by 24.2 %
+  M = 4: TP1 7.949  TP2 6.248  TP2 faster by 21.4 %
+  M = 8: TP1 9.058  TP2 7.317  TP2 faster by 19.2 %
+report only (old test_decode criterion): tp2_dec_m1_s0=FAIL tp2_dec_m1_s1=PASS tp2_dec_m1_s2=FAIL tp2_dec_m2_s0=PASS tp2_dec_m4_s0=PASS tp2_dec_m8_s0=PASS tp2_dec_m8_s1=PASS tp2_dec_m8_s2=PASS

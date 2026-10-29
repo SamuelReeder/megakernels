@@ -72,7 +72,9 @@ logs: [`docs/DESIGN-TP2.md`](docs/DESIGN-TP2.md); raw logs and the disposable sp
 are under `scratch/`.
 
 Reproducibility: second day on the same node (2026-10-29): same bits (same logits hashes and
-gate values) and the same speed within 0.4 %. Second node: pending (job 68206615).
+gate values) and the same speed within 0.4 %. Second node (MI325X, quanta-ccs-aus-j02-45, job
+68206615): same bits, every gate passes, TP2 5.21 / 5.52 / 6.25 / 7.32 ms at batch 1 / 2 / 4 / 8
+(19-24 % faster than TP1 there).
 
 ![TP2 decode speed against TP1 and stock vLLM TP2](docs/throughput_tp2.png)
 

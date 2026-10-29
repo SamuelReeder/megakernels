@@ -1,0 +1,7 @@
+# quanta-ccs-aus-j02-45.adc.amd.com 2026-10-29T06:59:46Z rank 0 env MK_TP=1 MK_AR= MK_SEED=
+# python bench/bench_decode.py /tmp/mk38_68206615/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 1 512 64 3
+load+pack+build 5s tp 1 ar fp32 cfg Cfg(M=1, cus=304, maxlen=640, block=208, maxblocks=4, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=())
+rep 0: TPOT 6.799 ms (147.1 tok/s/user), fixed-token TPOT 6.792 ms, kernel median 6.780 ms
+rep 1: TPOT 6.816 ms (146.7 tok/s/user), fixed-token TPOT 6.813 ms, kernel median 6.802 ms
+rep 2: TPOT 6.825 ms (146.5 tok/s/user), fixed-token TPOT 6.823 ms, kernel median 6.810 ms
+{"M": 1, "ctx": 512, "steps": 64, "tp": 1, "rank": 0, "ar": "fp32", "ar_local": false, "node": "quanta-ccs-aus-j02-45.adc.amd.com", "gpu": "AMD Instinct MI325X", "date": "2026-10-29 03:00:23", "runs": [{"tpot_ms": 6.798691272735596, "tpot_fixed_ms": 6.791656017303467, "kernel_ms_median": 6.78019905090332, "kernel_ms_min": 6.720709800720215}, {"tpot_ms": 6.815670490264893, "tpot_fixed_ms": 6.813325881958008, "kernel_ms_median": 6.8022332191467285, "kernel_ms_min": 6.753559112548828}, {"tpot_ms": 6.8254289627075195, "tpot_fixed_ms": 6.822566986083984, "kernel_ms_median": 6.810204982757568, "kernel_ms_min": 6.771145820617676}]}
