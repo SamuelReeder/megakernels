@@ -615,6 +615,15 @@ held job starts. `scratch/m3/final_summary.py` gives the table.
 |---|---|---:|---:|---|---|---|---|
 | 1 | banff-cyxtera-s70-4, 2026-10-28, 68197384 (`final/`) | 1.07 | +9.6 % | PASS | dc59fa9e, eca6810e | 27.7 / 26.9 / 24.6 / 23.2 % | 5.593 / 5.972 / 6.727 / 7.912 |
 | 2 | banff-cyxtera-s70-4, 2026-10-29, 68198806 (`m5_day2/`) | 1.07 | +9.6 % | PASS | dc59fa9e, eca6810e | 28.3 / 27.7 / 25.1 / 24.1 % | 5.613 / 5.993 / 6.742 / 7.909 |
+| 3 | quanta-ccs-aus-j02-45 (MI325X, AUSTIN), 2026-10-29, 68206615 (`m5_node2/`) | 1.07 | +9.6 % | PASS | dc59fa9e, eca6810e | 23.5 / 24.2 / 21.4 / 19.2 % | 5.212 / 5.524 / 6.248 / 7.317 |
+
+Milestone 5 passes. The second node (run 3, MI325X, `scratch/m5/austin.sh`, checkpoints
+downloaded from HF there) computes the same bits as banff: the same logits hashes and the
+same gate values to six digits, so the downloaded weights equal ours (the size listing
+check in its log differs only in form; the hashes are the proof). The speed gate for a
+different GPU model passes: TP2 is 6.8 / 7.5 / 7.2 / 7.5 % faster than on banff, not
+slower. TP1 there: 6.813 / 7.283 / 7.949 / 9.058 ms, so TP2's gain over TP1 is 19-24 %
+on MI325X. The vLLM rank check did not run there (section 14).
 
 The second day computes the same bits (same hashes, same gate values) and the same speed
 within 0.4 %. TP1 on that day: 7.824 / 8.284 / 9.004 / 10.415 ms. The rank check in vLLM

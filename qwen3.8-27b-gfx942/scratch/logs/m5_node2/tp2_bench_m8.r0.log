@@ -1,0 +1,9 @@
+# quanta-ccs-aus-j02-45.adc.amd.com 2026-10-29T07:05:03Z rank 0 env MK_TP=2 MK_AR=fp32 MK_SEED=
+# python bench/bench_decode.py /tmp/mk38_68206615/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 8 512 64 3
+load+pack+build 25s tp 2 ar fp32 cfg Cfg(M=8, cus=304, maxlen=640, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=1603584, ssm_s0=1603584, lm_head=True, tp=2, ar_dtype='fp32', ar_local=False, chunks=())
+/tmp/mk38_68206615/mk/venv/lib/python3.12/site-packages/torch/distributed/c10d_logger.py:83: FutureWarning: `torch.distributed.all_gather_into_tensor` is deprecated. Please use `torch.distributed.all_gather_single` instead.
+  return func(*args, **kwargs)
+rep 0: TPOT 7.403 ms (135.1 tok/s/user), fixed-token TPOT 7.314 ms, kernel median 7.295 ms
+rep 1: TPOT 7.401 ms (135.1 tok/s/user), fixed-token TPOT 7.317 ms, kernel median 7.289 ms
+rep 2: TPOT 7.407 ms (135.0 tok/s/user), fixed-token TPOT 7.325 ms, kernel median 7.315 ms
+{"M": 8, "ctx": 512, "steps": 64, "tp": 2, "rank": 0, "ar": "fp32", "ar_local": false, "node": "quanta-ccs-aus-j02-45.adc.amd.com", "gpu": "AMD Instinct MI325X", "date": "2026-10-29 03:05:59", "runs": [{"tpot_ms": 7.4027299880981445, "tpot_fixed_ms": 7.31350564956665, "kernel_ms_median": 7.295217037200928, "kernel_ms_min": 7.2690582275390625}, {"tpot_ms": 7.401148319244385, "tpot_fixed_ms": 7.316957950592041, "kernel_ms_median": 7.288567066192627, "kernel_ms_min": 7.278672218322754}, {"tpot_ms": 7.407313823699951, "tpot_fixed_ms": 7.32487154006958, "kernel_ms_median": 7.315368175506592, "kernel_ms_min": 7.29725980758667}]}

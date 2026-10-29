@@ -1,0 +1,3 @@
+# quanta-ccs-aus-j02-45.adc.amd.com 2026-10-29T06:53:52Z rank 1 env MK_TP=2 MK_AR=fp32 MK_SEED=
+# python tests/eval_text.py /tmp/mk38_68206615/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 /tmp/mk38_68206615/mk/models/Qwen3.8-27B
+5 passages, [145, 98, 77, 189, 83] tokens
