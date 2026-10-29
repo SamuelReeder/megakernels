@@ -8,7 +8,8 @@
 # Usage: common/scripts/vrun <model-dir> <vllm-checkout> -j JOBID '<command>'
 # Env: MK_TIME (srun minutes, default 60), VLLM_IMAGE (default
 #      ~/mk/images/vllm-rocm-nightly-00b6c4c5.sqsh), M (models dir). The step sees every
-#      GPU of the allocation (TP2: hold two).
+#      GPU of the allocation (TP2: hold two). VLLM_REV: the vLLM commit to log (default
+#      the checkout's HEAD).
 set -euo pipefail
 common=$(cd "$(dirname "$0")/.." && pwd)
 root=$(dirname "$common")
@@ -20,7 +21,7 @@ job=$2
 shift 2
 name=$(basename "$model")
 src=/tmp/vr-$name-$(date +%s%N)
-rev="megakernels $(git -C "$root" rev-parse HEAD) dirty $(git -C "$root" status --porcelain "$name" common | wc -l); vllm $(git -C "$vllm" rev-parse HEAD) dirty $(git -C "$vllm" status --porcelain vllm | wc -l)"
+rev="megakernels $(git -C "$root" rev-parse HEAD) dirty $(git -C "$root" status --porcelain "$name" common | wc -l); vllm ${VLLM_REV:-$(git -C "$vllm" rev-parse HEAD)} dirty $(git -C "$vllm" status --porcelain vllm | wc -l)"
 { tar -C "$root" --exclude __pycache__ --exclude "$name/bench/results" --exclude common/results -cf - "$name" common
   tar -C "$vllm" --exclude __pycache__ --transform 's,^vllm,vsrc/vllm,' -cf - vllm; } | ssh -o BatchMode=yes alola \
   "srun --jobid=$job --overlap -n1 --time=3 bash -c 'mkdir -p $src && tar -xif - -C $src && echo \"$rev\" > $src/REVISION'"
