@@ -22,13 +22,14 @@ job=${RT_JOB:-$(ssh -o BatchMode=yes alola "squeue -h -u \$USER -n $name -t R -o
 [ -n "$job" ] || { echo "no rtgeom allocation" >&2; exit 2; }
 W=/tmp/rtgeom_$job
 rev="$(git -C "$root" rev-parse HEAD) dirty: $(git -C "$root" status --porcelain qwen3.8-27b-gfx942 common spike/rtgeom | grep -v ' spike/rtgeom/out' | wc -l)"
-tar -C "$root" --exclude __pycache__ --exclude spike/rtgeom/out --exclude '*.co' \
-  -cf - qwen3.8-27b-gfx942 common spike/rtgeom | ssh -o BatchMode=yes alola \
-  "srun --jobid=$job --overlap -n1 --time=3 bash -c 'rm -rf $W/mk && mkdir -p $W/mk $W/out && tar -xf - -C $W/mk && echo \"$rev\" > $W/mk/REVISION'"
+tar -C "$root" --exclude __pycache__ --exclude spike/rtgeom/out --exclude '*.co' --exclude spike/rtgeom/logs \
+  --exclude qwen3.8-27b-gfx942/bench/results --exclude common/results \
+  -cf - qwen3.8-27b-gfx942 common spike/rtgeom | gzip -6 | ssh -o BatchMode=yes alola \
+  "srun --jobid=$job --overlap -n1 --time=10 bash -c 'rm -rf $W/mk && mkdir -p $W/mk $W/out && gzip -d | tar -xf - -C $W/mk && echo \"$rev\" > $W/mk/REVISION'"
 if [ "$img" = vllm ]; then
   vrev="$(git -C "$VLLM" rev-parse HEAD) dirty: $(git -C "$VLLM" status --porcelain | wc -l)"
-  git -C "$VLLM" diff --name-only 0b5a1a0ae~1 -- vllm | tar -C "$VLLM" -cf - -T - | ssh -o BatchMode=yes alola \
-    "srun --jobid=$job --overlap -n1 --time=3 bash -c 'rm -rf $W/vllm-overlay && mkdir -p $W/vllm-overlay && tar -xf - -C $W/vllm-overlay && echo \"$vrev\" > $W/vllm-overlay/REVISION'"
+  git -C "$VLLM" diff --name-only 0b5a1a0ae~1 -- vllm | tar -C "$VLLM" -cf - -T - | gzip -6 | ssh -o BatchMode=yes alola \
+    "srun --jobid=$job --overlap -n1 --time=10 bash -c 'rm -rf $W/vllm-overlay && mkdir -p $W/vllm-overlay && gzip -d | tar -xf - -C $W/vllm-overlay && echo \"$vrev\" > $W/vllm-overlay/REVISION'"
   image=/home/AMD/sareeder/mk/images/vllm-rocm-nightly-00b6c4c5.sqsh
   [ "${AUS:-0}" = 1 ] && image=$W/vllm.sqsh
   pre="export FLYDSL_RUNTIME_ENABLE_CACHE=0 PIP_CACHE_DIR=/tmp/pipcache PYTHONDONTWRITEBYTECODE=1"
