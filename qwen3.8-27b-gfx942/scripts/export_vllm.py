@@ -46,6 +46,7 @@ def main():
         s = s.replace("from .vendor import buffer_ops as bo",
                       "from aiter.ops.flydsl.kernels import buffer_ops as bo")
         s = s.replace("from .sync import ", f"from {VLLM_SYNC_MODULE} import ")
+        s = s.replace("from mkcore import ", "from .mkcore import ")
         if name == "fp4":       # unpack_ref is a test helper of the standalone repo
             s = re.sub(r"\ndef unpack_ref\(.*?\n\n\n", "\n", s, flags=re.S)
         for m in NOT_EXPORTED:
@@ -55,6 +56,12 @@ def main():
     ruff = os.environ.get("RUFF") or shutil.which("ruff")
     assert ruff, "set RUFF to a ruff binary (the version in vLLM's pre-commit config)"
     files = [str(dst / f"{name}.py") for name in MODULES]
+    # common/mkcore ships as kernels/mkcore (common/DESIGN.md D6); M3 moves this into
+    # common/scripts/export_lib.py
+    (dst / "mkcore").mkdir(exist_ok=True)
+    for p in sorted((src.parent.parent / "common" / "mkcore").glob("*.py")):
+        (dst / "mkcore" / p.name).write_text(HEADER + p.read_text())
+        files.append(str(dst / "mkcore" / p.name))
     cfg = ["--config", str(root / "pyproject.toml")]
     # from the vLLM root: ruff's import sections depend on the working directory
     run = lambda *a: subprocess.run([ruff, *a, *files], check=True, cwd=root)  # noqa: E731
