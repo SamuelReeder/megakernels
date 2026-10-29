@@ -68,3 +68,23 @@ repacking, and the tab/glob tables. hipDNN replaces only the FlyDSL compile and 
 - rocm-libraries `users/sareeder/megakernel-spike` (102d947a342, from develop 470e78bcfb0);
   diff copy in `c/rocm-libraries-spike-c.diff`.
 - vLLM `users/sareeder/qwen38-hipdnn-spike` (6e0656478); diff copy in `c/vllm-spike.diff`.
+
+## Follow-up: geometry at run time (2026-10-29)
+
+Branch `users/sareeder/runtime-geom` (4d41b3a), `spike/rtgeom/RESULTS.md`. Node: MI325X
+quanta-ccs-aus-j02-45 (gfx942, 304 CUs), job 68210914. `Cfg.rt_geom`:
+0 = today's kernel; 1 = maxlen, maxblocks, block and all strides at run time;
+2 = only maxlen and maxblocks at run time (strides and block stay compiled in).
+
+- Logits hashes at M = 1, 2, 4, 8 are bitwise equal for rt 0, 1 and 2.
+- TPOT against rt0 (median of 3, ctx 512 and 3500): rt2 is within -0.8 % to +0.63 %.
+  rt1 is +1.13 % (ctx 512) and +1.08 % (ctx 3500) at M = 8. The extra time is in the
+  attention stage (1181 -> 1260 us per step for rt1, 1221 us for rt2).
+- vLLM: one rt1 binary exported at max_model_len 4096 ran at 4096, 8192 and 16384 with
+  greedy tokens equal to the specialized kernel. The KV block stayed 784 at every length.
+- rt2 builds to the same ELF at max_model_len 4096 and 8192 (offline compile); rt2 was not
+  run through vLLM's exported-binary path.
+
+Result: with rt2 one model needs 4 binaries (M = 1, 2, 4, 8) per (GPU, KV layout, block
+size), and no binary per max_model_len. The block size depends on the model, the KV dtype
+and the vLLM version, not on max_model_len.
