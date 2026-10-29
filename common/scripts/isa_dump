@@ -1,0 +1,32 @@
+#!/bin/bash
+# ISA oracle (common/DESIGN.md oracle 2): build one model's kernel with FlyDSL IR dumps
+# (4 layers, 1 step of tests/logits_hash.py), take 22_final_isa.s, replace the kernel
+# symbol with KERNEL, drop comment lines, print the sha256. Runs on a GPU node in the
+# hipdnn image with the venv, from the model directory.
+# Usage: isa_dump WEIGHTS OUT_DIR [Ms=1,8] [LMs=on,off]
+#   prints "ISA <tag> M=<m> lm=<lm> <sha256 16>"; keeps OUT_DIR/isa_<tag>_m<m>_<lm>.s
+# Qwen3.8: lm=on only (its Engine has no lm_head=False path). TP2: run under
+# `MK_TP=2 MK_AR=fp32|bf16 srun -n2`; each rank dumps its own kernel (tag tp2_<ar>_r<rank>).
+set -uo pipefail
+W=$1 O=$2 Ms=${3:-1,8} LMs=${4:-on,off}
+mkdir -p "$O"
+[ -f mk/fp4.py ] && LMs=on
+rank=${SLURM_PROCID:-0}
+tag=tp1
+[ "${MK_TP:-1}" = 1 ] || tag=tp${MK_TP}_${MK_AR:-fp32}_r$rank
+for m in ${Ms//,/ }; do
+  for lm in ${LMs//,/ }; do
+    d=/tmp/isa_dump_$$_${rank}_${m}_$lm
+    rm -rf "$d"
+    args=("$W" "$m" 1 4)
+    [ -f mk/fp4.py ] || args+=("$lm")
+    FLYDSL_RUNTIME_ENABLE_CACHE=0 FLYDSL_DUMP_IR=1 FLYDSL_DUMP_DIR=$d \
+      python -B tests/logits_hash.py "${args[@]}" > "$O/isa_${tag}_m${m}_$lm.log" 2>&1
+    f=$(ls "$d"/*/22_final_isa.s 2>/dev/null | head -1)
+    if [ -z "$f" ]; then echo "ISA $tag M=$m lm=$lm NO-DUMP"; continue; fi
+    sed -E 's/\b(qwen38|qwen36moe|gemma4)_decode_m[0-9]+_[0-9a-f]{8}\b/KERNEL/g' "$f" \
+      | grep -vE '^\s*(;|//)' > "$O/isa_${tag}_m${m}_$lm.s"
+    echo "ISA $tag M=$m lm=$lm $(sha256sum < "$O/isa_${tag}_m${m}_$lm.s" | cut -c1-16)"
+    rm -rf "$d"
+  done
+done
