@@ -1,0 +1,13 @@
+node quanta-ccs-aus-j02-45 job 68210585 2026-10-29T14:00:12-04:00
+gfx942
+GPU[0]		: Card Series: 		AMD Instinct MI325X
+GPU[0]		: Card Model: 		0x74a5
+/dev/nvme1n1p3  7.0T  191G  6.4T   3% /
+image copied 0s
+cp: cannot stat '/cluster/images/sareeder/rtgeom/vllm-rocm-nightly-00b6c4c5.sqsh': No such file or directory
+tar: /cluster/images/sareeder/rtgeom/mk_bundle.tar: Cannot open: No such file or directory
+tar: Error is not recoverable: exiting now
+bundle extracted 0s
+du: cannot access '/tmp/rtgeom_68210585/home/mk/*': No such file or directory
+du: cannot access '/tmp/rtgeom_68210585/vllm.sqsh': No such file or directory
+/dev/nvme1n1p3  7.0T  191G  6.4T   3% /

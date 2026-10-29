@@ -1,0 +1,17 @@
+node quanta-ccs-aus-j02-45.adc.amd.com job 68210585 rev f46022efe147b5982775fe9e8fe9021f198b3b67 dirty: 0
+gfx942
+rt_geom=0:
+HASH tp1 M=1 lm=on steps=8 layers=64 logits 4db972e0ec306d4f rank-slice 4db972e0ec306d4f finite True
+HASH tp1 M=2 lm=on steps=8 layers=64 logits c33baa53118edc27 rank-slice c33baa53118edc27 finite True
+HASH tp1 M=4 lm=on steps=8 layers=64 logits 412eec22e6dbe80b rank-slice 412eec22e6dbe80b finite True
+HASH tp1 M=8 lm=on steps=8 layers=64 logits cf305425fce9de61 rank-slice cf305425fce9de61 finite True
+rt_geom=1:
+HASH tp1 M=1 lm=on steps=8 layers=64 logits 4db972e0ec306d4f rank-slice 4db972e0ec306d4f finite True
+HASH tp1 M=2 lm=on steps=8 layers=64 logits c33baa53118edc27 rank-slice c33baa53118edc27 finite True
+HASH tp1 M=4 lm=on steps=8 layers=64 logits 412eec22e6dbe80b rank-slice 412eec22e6dbe80b finite True
+HASH tp1 M=8 lm=on steps=8 layers=64 logits cf305425fce9de61 rank-slice cf305425fce9de61 finite True
+rt_geom=2:
+HASH tp1 M=1 lm=on steps=8 layers=64 logits 4db972e0ec306d4f rank-slice 4db972e0ec306d4f finite True
+HASH tp1 M=2 lm=on steps=8 layers=64 logits c33baa53118edc27 rank-slice c33baa53118edc27 finite True
+HASH tp1 M=4 lm=on steps=8 layers=64 logits 412eec22e6dbe80b rank-slice 412eec22e6dbe80b finite True
+HASH tp1 M=8 lm=on steps=8 layers=64 logits cf305425fce9de61 rank-slice cf305425fce9de61 finite True
