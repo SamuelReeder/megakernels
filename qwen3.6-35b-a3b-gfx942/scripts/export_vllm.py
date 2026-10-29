@@ -1,26 +1,23 @@
 """Copy the kernel modules into a vLLM checkout's Qwen3.6-35B-A3B specialized decode.
 
-The vLLM copy imports AITER's FlyDSL buffer_ops instead of mk/vendor. Of mk/pack.py it
+common/scripts/export_lib.py does the shared steps: the copy ships common/mkcore as
+kernels/mkcore (AITER's FlyDSL buffer_ops instead of mkcore/vendor), and ruff sorts the
+imports and formats the copy with vLLM's config. Model rules here: of mk/pack.py the copy
 keeps only the tile layout functions (runtime/weights.py packs vLLM's loaded tensors with
-them); the checkpoint loader `Packed` needs mk/reference.py and stays here. Then ruff
-($RUFF, or ruff on PATH; the version in vLLM's pre-commit config) drops the imports the
-cut left unused, sorts the imports and formats the copy with vLLM's config.
+them); the checkpoint loader `Packed` needs mk/reference.py and stays here; ruff drops
+the imports the cut left unused.
 Usage: python scripts/export_vllm.py VLLM_DIR
 """
 
 import ast
-import os
 import pathlib
-import shutil
-import subprocess
 import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "common" / "scripts"))
+import export_lib as E  # noqa: E402
 
 MODULES = ("dims", "dev", "gemv", "stages", "mixer", "moe", "kernel", "pack")
 PACK_KEEP = {"gu_order", "row_scales", "fp8_tiles", "pack_bf16", "unit_order"}
-HEADER = (
-    "# SPDX-License-Identifier: Apache-2.0\n"
-    "# SPDX-FileCopyrightText: Copyright contributors to the vLLM project\n"
-)
 DST = "vllm/models/qwen3_5_moe/amd/specialized_decode/kernels"
 
 
@@ -47,39 +44,15 @@ def main():
     src = pathlib.Path(__file__).resolve().parent.parent / "mk"
     dst = root / DST
     dst.mkdir(parents=True, exist_ok=True)
-    (dst / "__init__.py").write_text(HEADER)
-    for name in MODULES:
-        s = (src / f"{name}.py").read_text()
-        s = s.replace(
-            "from .vendor import buffer_ops as bo",
-            "from aiter.ops.flydsl.kernels import buffer_ops as bo",
-        )
-        s = s.replace("from mkcore import ", "from .mkcore import ")
-        if name == "pack":
-            s = pack_layouts(s)
-        for mod in ("reference", "runner", "fp4"):
-            assert f"from .{mod}" not in s and f"import {mod}" not in s, (name, mod)
-        assert "vendor" not in s, name
-        (dst / f"{name}.py").write_text(HEADER + s)
-    ruff = os.environ.get("RUFF") or shutil.which("ruff")
-    assert ruff, "set RUFF to a ruff binary (the version in vLLM's pre-commit config)"
-    files = [str(dst / f"{name}.py") for name in MODULES]
-    # common/mkcore ships as kernels/mkcore (common/DESIGN.md D6); M3 moves this into
-    # common/scripts/export_lib.py
-    (dst / "mkcore").mkdir(exist_ok=True)
-    for p in sorted((src.parent.parent / "common" / "mkcore").glob("*.py")):
-        (dst / "mkcore" / p.name).write_text(HEADER + p.read_text())
-        files.append(str(dst / "mkcore" / p.name))
-    cfg = ["--config", str(root / "pyproject.toml")]
-
-    # from the vLLM root: ruff's import sections depend on the working directory
-    def run(*a, files=files):
-        subprocess.run([ruff, *a, *files], check=True, cwd=root)
-
-    run("check", *cfg, "--fix", "--select", "F401", files=[str(dst / "pack.py")])
-    run("check", *cfg, "--fix", "--select", "I")
-    run("format", *cfg)
-    print("exported", ", ".join(MODULES), "to", dst)
+    (dst / "__init__.py").write_text(E.SPDX)
+    files = E.write_modules(src, dst, MODULES, E.SPDX,
+                            lambda name, s: pack_layouts(s) if name == "pack" else s,
+                            ("reference", "runner", "fp4"))
+    files += E.copy_mkcore(dst, E.SPDX)
+    E.ruff(root, [str(dst / "pack.py")], "check", "--fix", "--select", "F401")
+    E.ruff(root, files, "check", "--fix", "--select", "I")
+    E.ruff(root, files, "format")
+    print("exported", ", ".join(MODULES), "and mkcore to", dst)
 
 
 if __name__ == "__main__":

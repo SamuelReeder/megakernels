@@ -1,5 +1,5 @@
 #!/bin/bash
-# Create the pinned Python env for the Qwen3.8 gfx942 megakernel work.
+# Create the pinned Python env of the gfx942 FlyDSL megakernels (all models; common/DESIGN.md).
 # Run inside hipdnn_latest_gfx942.sqsh on a MARKHAM node (shared home).
 set -euo pipefail
 ENV=${MK_ENV:-$HOME/mk/venv}

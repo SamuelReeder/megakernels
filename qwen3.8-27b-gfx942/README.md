@@ -23,12 +23,12 @@ On one MI300X, TP1, 512-token context:
 salloc -p miopen -A miopen -J mkdev --constraint="GFX942&MARKHAM" --gres=gpu:1 \
        --cpus-per-task=16 --mem=200G -t 12:00:00 --no-shell
 # container: /cluster/images/hipdnn/hipdnn_latest_gfx942.sqsh (pyxis), then once:
-bash scripts/setup_env.sh                     # venv: torch 2.14.1+rocm7.2, flydsl 0.4.0
+bash ../common/scripts/setup_env.sh          # venv: torch 2.14.1+rocm7.2, flydsl 0.4.0
 python tests/test_decode.py $M/Qwen3.8-27B-Quark-AWQ-MXFP4 1 64 16      # kernel vs reference
 python bench/bench_decode.py $M/Qwen3.8-27B-Quark-AWQ-MXFP4 1 512 64 3  # TPOT, batch 1
 ```
 
-`scripts/mkrun '<command>'` syncs this directory to the cluster and runs the command in the
+`../common/scripts/mkrun . '<command>'` ships this directory and `common/` to the cluster and runs the command in the
 held allocation. Tested on MI300X and MI300A in SPX mode (every CU must hold one resident CTA) with
 ROCm 7.2, PyTorch 2.14.1 and FlyDSL 0.4.0.
 
@@ -124,7 +124,7 @@ mk/dev.py, fp4.py  device helpers, MXFP4 tile layout
 mk/pack.py         offline weight packing
 mk/runner.py       host engine: buffers, pointer tables, one launch per step
 mk/reference.py    PyTorch reference of the decode step (exact and fp8-emulating modes)
-mk/vendor/         FlyDSL buffer_ops.py (Apache-2.0, header kept)
+../common/mkcore/ shared FlyDSL megakernel code (compile key, vendored FlyDSL buffer_ops.py)
 mk/tp.py           TP2 harness of the standalone engine (one process per GPU)
 mk/sync.py, peer.py  copies of vLLM's DSv4.1 mailbox and PeerBuffer (no aiter in the image)
 tests/             kernel vs reference, real-text perplexity, determinism, reference vs HF

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Full verification + benchmark suite (about 1.5 h on one MI300X). Run from the
 # qwen3.6-35b-a3b-gfx942 directory inside the hipdnn gfx942 image with the venv of
-# scripts/setup_env.sh:
+# common/scripts/setup_env.sh:
 #   bash tests/run_suite.sh MODELS_DIR OUT_DIR
 # MODELS_DIR holds Qwen3.6-35B-A3B (BF16) and Qwen3.6-35B-A3B-FP8.
 set -uo pipefail

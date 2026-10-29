@@ -1,6 +1,6 @@
 #!/bin/bash
 # Milestone 3 suite (correctness) and the standalone benchmark. Run from this directory
-# inside the hipdnn gfx942 image with the venv of the Qwen3.8 scripts/setup_env.sh:
+# inside the hipdnn gfx942 image with the venv of common/scripts/setup_env.sh:
 #   bash tests/run_suite.sh MODELS_DIR OUT_DIR [bench]
 # MODELS_DIR holds gemma-4-26B-A4B-it (BF16) and gemma-4-26B-A4B-it-FP8-dynamic.
 set -uo pipefail

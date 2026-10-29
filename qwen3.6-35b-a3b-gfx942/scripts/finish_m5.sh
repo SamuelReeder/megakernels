@@ -1,6 +1,6 @@
 #!/bin/bash
 # Finish milestone 5 (second node) from a finished SLURM suite job: suite36.sbatch
-# (MARKHAM node, results in the shared home) or scripts/suite_austin.sh (AUSTIN node,
+# (MARKHAM node, results in the shared home) or common/scripts/suite_austin.sh (AUSTIN node,
 # results as a base64 tar in ~/mk/suite36/*.log on Alola):
 #   1. copy its results from Alola to bench/results/m5/<node>_<job>/,
 #   2. check them: every gate prints PASS, the node is not the day-1 node, and the

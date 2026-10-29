@@ -1,0 +1,41 @@
+#!/bin/bash
+# Ship <model-dir>/ and common/ to a held gfx942 allocation on Alola and run a command in
+# the model directory (common/DESIGN.md D12).
+# Usage: common/scripts/mkrun <model-dir> [-j JOBID] '<shell command run in the model dir>'
+# JOBID: -j, else $MK_JOB, else the running job named $MK_JOB_NAME (default mkdev).
+# The sources go to the compute node's /tmp/<model>-src-<id> as siblings (tar over srun
+# stdin; removed afterwards; nothing is written to a shared sync folder); REVISION there
+# holds the commit and the number of uncommitted files. New files under
+# <model>/bench/results/ are copied back. The command runs in the hipdnn gfx942 image with
+# ~/mk/venv (common/scripts/setup_env.sh), FLYDSL_RUNTIME_ENABLE_CACHE=0.
+# Env: MK_TIME (srun minutes, default 20); MK_NTASKS (tasks, default 1; 2 for Qwen3.8
+# TP2); M and G4 (checkpoints, default ~/mk/models); OUT (long-run logs, default ~/mk/out).
+set -euo pipefail
+common=$(cd "$(dirname "$0")/.." && pwd)
+root=$(dirname "$common")
+model=$(cd "$1" && pwd)
+shift
+name=$(basename "$model")
+[ "$(dirname "$model")" = "$root" ] || { echo "$model is not a model directory of $root" >&2; exit 2; }
+job=${MK_JOB:-}
+if [ "${1:-}" = "-j" ]; then job=$2; shift 2; fi
+if [ -z "$job" ]; then
+  job=$(ssh -o BatchMode=yes alola "squeue -h -u \$USER -n ${MK_JOB_NAME:-mkdev} -t R -o %i | head -1")
+fi
+[ -n "$job" ] || { echo "no ${MK_JOB_NAME:-mkdev} allocation" >&2; exit 2; }
+src=/tmp/$name-src-$(date +%s%N)
+rev="$(git -C "$root" rev-parse HEAD) dirty files: $(git -C "$root" status --porcelain "$name" common | wc -l)"
+tar -C "$root" --exclude __pycache__ --exclude "$name/bench/results" --exclude common/results \
+  -cf - "$name" common | ssh -o BatchMode=yes alola \
+  "srun --jobid=$job --overlap -n1 --time=2 bash -c 'mkdir -p $src && tar -xf - -C $src && echo \"$rev\" | tee $src/REVISION > $src/$name/REVISION'"
+cname=""
+[ "${MK_NTASKS:-1}" = 1 ] && cname="--container-name=mk-$name"
+cmd="$*"
+rc=0
+ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n${MK_NTASKS:-1} --time=${MK_TIME:-20} \
+  --container-image=/cluster/images/hipdnn/hipdnn_latest_gfx942.sqsh \
+  --container-mounts=/cluster:/cluster,/home/AMD/sareeder:/home/AMD/sareeder,/tmp:/tmp $cname \
+  bash -lc 'export PIP_CACHE_DIR=/tmp/pipcache FLYDSL_RUNTIME_ENABLE_CACHE=0 PYTHONPYCACHEPREFIX=/tmp/pycache M=\${M:-\$HOME/mk/models} G4=\${G4:-\$HOME/mk/models} OUT=\${OUT:-\$HOME/mk/out}; mkdir -p \$OUT; . \$HOME/mk/venv/bin/activate; cd $src/$name && echo node \$(hostname) job $job >&2; $cmd' 2>&1" || rc=$?
+ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=2 bash -c 'tar -C $src/$name -cf - bench/results 2>/dev/null; rm -rf $src'" \
+  | tar -C "$model" -xf - 2>/dev/null || true
+exit $rc

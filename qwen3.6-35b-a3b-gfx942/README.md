@@ -155,15 +155,15 @@ vLLM's KV cache by about 25 % (93.77 GiB against 125.61 GiB).
 ## Quick start (Alola cluster)
 
 ```bash
-sbatch -p defq,miopen -A miopen -J mk36 --constraint="GFX942&MARKHAM" \
+sbatch -p defq,miopen -A miopen -J mkdev --constraint="GFX942&MARKHAM" \
        --gres=gpu:gfx942-mi300x:1 --cpus-per-task=16 --mem=400G -t 12:00:00 --wrap "sleep 43200"
 # container: /cluster/images/hipdnn/hipdnn_latest_gfx942.sqsh (pyxis), then once:
-bash scripts/setup_env.sh                     # venv: torch + rocm, flydsl 0.4.0
+bash ../common/scripts/setup_env.sh          # venv: torch + rocm, flydsl 0.4.0
 python tests/test_decode.py $M/Qwen3.6-35B-A3B-FP8 1 40 32       # kernel vs reference
 python bench/bench_decode.py $M/Qwen3.6-35B-A3B-FP8 1 512 256 3  # TPOT, batch 1
 ```
 
-`scripts/mkrun '<command>'` syncs this directory to the cluster and runs the command in
+`../common/scripts/mkrun . '<command>'` ships this directory and `common/` to the cluster and runs the command in
 the held allocation (`MK_JOB=<jobid>`). Request `gpu:gfx942-mi300x`: the constraint
 `GFX942&MARKHAM` alone also matches MI300A nodes.
 

@@ -15,7 +15,7 @@ from flydsl.expr import gpu, rocdl
 from flydsl.expr import math as fmath
 from flydsl.expr.typing import T
 
-from .vendor import buffer_ops as bo
+from mkcore.vendor import buffer_ops as bo
 
 CM_DEV = 16
 CM_SYS = 17  # sc0 | sc1: system scope (peer GPUs over XGMI)
