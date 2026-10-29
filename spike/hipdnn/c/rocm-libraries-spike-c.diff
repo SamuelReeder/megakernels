@@ -1,0 +1,324 @@
+diff --git a/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel.kdp.json b/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel.kdp.json
+index 0b38d9d6885..99361b9683d 100644
+--- a/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel.kdp.json
++++ b/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel.kdp.json
+@@ -27,7 +27,8 @@
+       },
+       "metadata": {
+         "model": "qwen3.8-27b",
+-        "M": 1
++        "M": 1,
++        "geom": "standin"
+       },
+       "priority": 0,
+       "provenance": {
+@@ -40,7 +41,8 @@
+               "metadata_fields": [],
+               "matcher_only_fields": [
+                 "model",
+-                "M"
++                "M",
++                "geom"
+               ],
+               "bindings": {},
+               "vocabulary": {}
+@@ -65,7 +67,8 @@
+       },
+       "metadata": {
+         "model": "qwen3.8-27b",
+-        "M": 8
++        "M": 8,
++        "geom": "standin"
+       },
+       "priority": 0,
+       "provenance": {
+@@ -78,7 +81,8 @@
+               "metadata_fields": [],
+               "matcher_only_fields": [
+                 "model",
+-                "M"
++                "M",
++                "geom"
+               ],
+               "bindings": {},
+               "vocabulary": {}
+diff --git a/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel.kmd.json b/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel.kmd.json
+index 5e2a95d5703..7283b633013 100644
+--- a/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel.kmd.json
++++ b/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel.kmd.json
+@@ -4,6 +4,7 @@
+   "name": "megakernel variant fields",
+   "fields": [
+     { "name": "model", "type": "string" },
+-    { "name": "M", "type": "int" }
++    { "name": "M", "type": "int" },
++    { "name": "geom", "type": "string" }
+   ]
+ }
+diff --git a/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel_flydsl.kdp.json b/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel_flydsl.kdp.json
+index bb3e527839b..598ce427f86 100644
+--- a/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel_flydsl.kdp.json
++++ b/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel_flydsl.kdp.json
+@@ -25,7 +25,8 @@
+       },
+       "metadata": {
+         "model": "qwen3.8-27b-flydsl",
+-        "M": 1
++        "M": 1,
++        "geom": "e5cc820d"
+       },
+       "priority": 0,
+       "provenance": {
+@@ -38,7 +39,8 @@
+               "metadata_fields": [],
+               "matcher_only_fields": [
+                 "model",
+-                "M"
++                "M",
++                "geom"
+               ],
+               "bindings": {},
+               "vocabulary": {}
+@@ -61,7 +63,8 @@
+       },
+       "metadata": {
+         "model": "qwen3.8-27b-flydsl",
+-        "M": 8
++        "M": 8,
++        "geom": "e5cc820d"
+       },
+       "priority": 0,
+       "provenance": {
+@@ -74,7 +77,8 @@
+               "metadata_fields": [],
+               "matcher_only_fields": [
+                 "model",
+-                "M"
++                "M",
++                "geom"
+               ],
+               "bindings": {},
+               "vocabulary": {}
+diff --git a/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel_vllm.kdp.json b/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel_vllm.kdp.json
+new file mode 100644
+index 00000000000..ecbae91010e
+--- /dev/null
++++ b/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/qwen38_standin/megakernel_vllm.kdp.json
+@@ -0,0 +1,167 @@
++{
++  "version": "1.0",
++  "id": "a14ea95b-b3c7-59f8-ba7e-9618fcaa1afd",
++  "name": "hipkernel:megakernel_qwen38_vllm",
++  "arch": [
++    "gfx942"
++  ],
++  "matchers": [
++    "f94e96df-ef3a-540e-b6a6-ff22077e5943"
++  ],
++  "engine": "1ea37de2-144e-5c63-8e45-2d933f10e747",
++  "dispatch": "5b6947c5-91dc-563e-b6a3-a292361ddf2e",
++  "kernelDescriptors": [
++    {
++      "version": "1.0",
++      "id": "9b2ce3ef-4ad7-5e39-951a-223f8f14257c",
++      "name": "megakernel.qwen3_8_27b.vllm_m1_e00e8bc9",
++      "arch": [
++        "gfx942"
++      ],
++      "kernel_source": {
++        "kind": "hsaco",
++        "file": "qwen38_vllm_m1_e00e8bc9.co",
++        "symbol": "qwen38_decode_m1_1958215f"
++      },
++      "metadata": {
++        "model": "qwen3.8-27b-flydsl-vllm",
++        "M": 1,
++        "geom": "e00e8bc9"
++      },
++      "priority": 0,
++      "provenance": {
++        "specialization_contract": {
++          "schema_version": 1,
++          "consumers": [
++            {
++              "engine_id": "1ea37de2-144e-5c63-8e45-2d933f10e747",
++              "kmd_id": "011b6c3f-087e-546f-975e-16419971006b",
++              "metadata_fields": [],
++              "matcher_only_fields": [
++                "model",
++                "M",
++                "geom"
++              ],
++              "bindings": {},
++              "vocabulary": {}
++            }
++          ]
++        }
++      }
++    },
++    {
++      "version": "1.0",
++      "id": "761845de-f3cc-58b6-b9e4-deec04e85f22",
++      "name": "megakernel.qwen3_8_27b.vllm_m2_e00e8bc9",
++      "arch": [
++        "gfx942"
++      ],
++      "kernel_source": {
++        "kind": "hsaco",
++        "file": "qwen38_vllm_m2_e00e8bc9.co",
++        "symbol": "qwen38_decode_m2_c9d2d8a4"
++      },
++      "metadata": {
++        "model": "qwen3.8-27b-flydsl-vllm",
++        "M": 2,
++        "geom": "e00e8bc9"
++      },
++      "priority": 0,
++      "provenance": {
++        "specialization_contract": {
++          "schema_version": 1,
++          "consumers": [
++            {
++              "engine_id": "1ea37de2-144e-5c63-8e45-2d933f10e747",
++              "kmd_id": "011b6c3f-087e-546f-975e-16419971006b",
++              "metadata_fields": [],
++              "matcher_only_fields": [
++                "model",
++                "M",
++                "geom"
++              ],
++              "bindings": {},
++              "vocabulary": {}
++            }
++          ]
++        }
++      }
++    },
++    {
++      "version": "1.0",
++      "id": "46492262-ac51-5d12-920c-8b7b8a95b2d9",
++      "name": "megakernel.qwen3_8_27b.vllm_m4_e00e8bc9",
++      "arch": [
++        "gfx942"
++      ],
++      "kernel_source": {
++        "kind": "hsaco",
++        "file": "qwen38_vllm_m4_e00e8bc9.co",
++        "symbol": "qwen38_decode_m4_b3b62d13"
++      },
++      "metadata": {
++        "model": "qwen3.8-27b-flydsl-vllm",
++        "M": 4,
++        "geom": "e00e8bc9"
++      },
++      "priority": 0,
++      "provenance": {
++        "specialization_contract": {
++          "schema_version": 1,
++          "consumers": [
++            {
++              "engine_id": "1ea37de2-144e-5c63-8e45-2d933f10e747",
++              "kmd_id": "011b6c3f-087e-546f-975e-16419971006b",
++              "metadata_fields": [],
++              "matcher_only_fields": [
++                "model",
++                "M",
++                "geom"
++              ],
++              "bindings": {},
++              "vocabulary": {}
++            }
++          ]
++        }
++      }
++    },
++    {
++      "version": "1.0",
++      "id": "ea4da5c2-4a33-5584-a3e6-9204216421bf",
++      "name": "megakernel.qwen3_8_27b.vllm_m8_e00e8bc9",
++      "arch": [
++        "gfx942"
++      ],
++      "kernel_source": {
++        "kind": "hsaco",
++        "file": "qwen38_vllm_m8_e00e8bc9.co",
++        "symbol": "qwen38_decode_m8_477fc67d"
++      },
++      "metadata": {
++        "model": "qwen3.8-27b-flydsl-vllm",
++        "M": 8,
++        "geom": "e00e8bc9"
++      },
++      "priority": 0,
++      "provenance": {
++        "specialization_contract": {
++          "schema_version": 1,
++          "consumers": [
++            {
++              "engine_id": "1ea37de2-144e-5c63-8e45-2d933f10e747",
++              "kmd_id": "011b6c3f-087e-546f-975e-16419971006b",
++              "metadata_fields": [],
++              "matcher_only_fields": [
++                "model",
++                "M",
++                "geom"
++              ],
++              "bindings": {},
++              "vocabulary": {}
++            }
++          ]
++        }
++      }
++    }
++  ]
++}
+diff --git a/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/packs/MegakernelNative.cpp b/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/packs/MegakernelNative.cpp
+index 7cdfacb55c3..9f90a411c02 100644
+--- a/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/packs/MegakernelNative.cpp
++++ b/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/packs/MegakernelNative.cpp
+@@ -53,6 +53,9 @@ constexpr std::string_view NLAYERS = "mk.nlayers";
+ constexpr std::string_view GRID = "mk.grid";
+ constexpr std::string_view BLOCK = "mk.block";
+ constexpr std::string_view LDS = "mk.lds";
++// Geometry key: the cache/launch geometry a code object was compiled for (spike: crc32 of the
++// model's kernel Cfg without M). Absent in the payload and the kernel = "".
++constexpr std::string_view GEOM = "mk.geom";
+ 
+ const data_objects::CustomOpAttributes* customOpNode(const MatchContext& context)
+ {
+@@ -79,7 +82,7 @@ std::vector<int64_t> dim3Of(const nlohmann::json& value)
+     return dims;
+ }
+ 
+-/// Payload: {"model": str, "M": int, "nlayers": int,
++/// Payload: {"model": str, "M": int, "nlayers": int, "geom": str?,
+ ///           "geometry": {"grid": [x,y,z], "block": [x,y,z], "lds": int?}}.
+ /// Inputs (positional): [tab, glob], each a device buffer whose address the kernel takes
+ /// by value as int64.
+@@ -118,6 +121,7 @@ std::optional<BoundTokens> matchCustomOp(const MatchContext& context)
+         bound[std::string(MODEL)] = payload.at("model").get<std::string>();
+         bound[std::string(M)] = payload.at("M").get<int64_t>();
+         bound[std::string(NLAYERS)] = payload.value("nlayers", int64_t{0});
++        bound[std::string(GEOM)] = payload.value("geom", std::string{});
+         bound[std::string(GRID)] = dim3Of(geometry.at("grid"));
+         bound[std::string(BLOCK)] = dim3Of(geometry.at("block"));
+         bound[std::string(LDS)] = geometry.value("lds", int64_t{0});
+@@ -146,13 +150,16 @@ int64_t boundInt(const BoundTokens& bound, std::string_view token)
+     return std::get<int64_t>(requireBound(bound, token));
+ }
+ 
+-/// KERNEL scope: the packed variant was built for this model and this M.
++/// KERNEL scope: the packed variant was built for this model, this M and this geometry key.
+ bool kernelMatches(const MatchContext& /*context*/,
+                    const BoundTokens& bound,
+                    const KernelDefinition& kernel)
+ {
++    const auto geom = kernel.tryGetMetadata("geom");
++    const std::string kernelGeom = geom ? std::get<std::string>(*geom) : std::string{};
+     return kernel.getStringMetadata("model") == std::get<std::string>(requireBound(bound, MODEL))
+-           && kernel.getIntMetadata("M") == boundInt(bound, M);
++           && kernel.getIntMetadata("M") == boundInt(bound, M)
++           && kernelGeom == std::get<std::string>(requireBound(bound, GEOM));
+ }
+ 
+ class PreparedMegakernel : public IngestorPreparedDispatch

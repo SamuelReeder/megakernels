@@ -1,0 +1,19 @@
+host=banff-cyxtera-s70-4.adc.amd.com nproc=32 date=2026-10-29T16:07:23+00:00 TAG=hipdnnimg
+ROCM_PATH=/opt/rocm
+/opt/rocm/lib/llvm/bin/clang++
+AMD clang version 24.0.0git (https://github.com/ROCm/llvm-project.git 2792f8ceeb5aa6e188c1ce2b735923b2406a8e59)
+cmake cmake version 3.28.3 ninja 1.11.1 python Python 3.12.3
+zstandard+msgpack ok
+/opt/rocm/lib/cmake/AMDDeviceLibs /opt/rocm/lib/cmake/amd_comgr /opt/rocm/lib/cmake/amd_smi /opt/rocm/lib/cmake/clang /opt/rocm/lib/cmake/composable_kernel /opt/rocm/lib/cmake/hip /opt/rocm/lib/cmake/hip-lang /opt/rocm/lib/cmake/hipblas /opt/rocm/lib/cmake/hipblas-common /opt/rocm/lib/cmake/hipblaslt /opt/rocm/lib/cmake/hiprand /opt/rocm/lib/cmake/hiprtc /opt/rocm/lib/cmake/hsa-runtime64 /opt/rocm/lib/cmake/hsakmt /opt/rocm/lib/cmake/lld /opt/rocm/lib/cmake/llvm /opt/rocm/lib/cmake/miopen /opt/rocm/lib/cmake/mxDataGenerator /opt/rocm/lib/cmake/origami /opt/rocm/lib/cmake/rocblas /opt/rocm/lib/cmake/rocm-core /opt/rocm/lib/cmake/rocm-kpack /opt/rocm/lib/cmake/rocm_smi /opt/rocm/lib/cmake/rocprof-trace-decoder /opt/rocm/lib/cmake/rocprofiler-register /opt/rocm/lib/cmake/rocprofiler-sdk /opt/rocm/lib/cmake/rocprofiler-sdk-rocattach /opt/rocm/lib/cmake/rocprofiler-sdk-rocpd /opt/rocm/lib/cmake/rocprofiler-sdk-roctx /opt/rocm/lib/cmake/rocprofiler-sdk-tests /opt/rocm/lib/cmake/rocrand /opt/rocm/lib/cmake/rocroller /opt/rocm/lib/cmake/tensilelite 
+configure_rc=0 configure_s=11
+build_rc=0 build_s=57
+install_rc=0
+wheel_rc=1 (staged dir is used)
+__init__.py
+hipdnn_frontend_python.abi3.so
+/work/install-hipdnnimg/lib/hipdnn_plugins/engines/arch_content/asm_sdpa/gfx950/hip_kernel_provider_sdpa_gfx950.kpack
+/work/install-hipdnnimg/lib/hipdnn_plugins/engines/arch_content/asm_sdpa/gfx942/hip_kernel_provider_sdpa_gfx942.kpack
+/work/install-hipdnnimg/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/kpack/hip_kernel_provider_gfx942.kpack
+	libamdhip64.so.7 => /opt/rocm/lib/libamdhip64.so.7 (0x00007bdf2b200000)
+	libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6 (0x00007bdf2ae00000)
+	libamd_comgr.so.3 => /opt/rocm/lib/libamd_comgr.so.3 (0x00007bdf20600000)

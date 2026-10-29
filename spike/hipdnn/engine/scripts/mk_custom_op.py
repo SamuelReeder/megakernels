@@ -13,6 +13,7 @@ import time
 import numpy as np
 MODEL = "qwen3.8-27b"
 BUILD_ONLY = False
+GEOM = "standin"
 
 import hipdnn_frontend as hipdnn
 
@@ -55,7 +56,7 @@ def build(m, num_outputs, handle):
     tab.set_name("tab")
     glob = hipdnn.Tensor.create([N + 1], DT.INT64)
     glob.set_name("glob")
-    payload = {"model": MODEL, "M": m, "nlayers": NLAYERS,
+    payload = {"model": MODEL, "M": m, "nlayers": NLAYERS, "geom": GEOM,
                "geometry": {"grid": [CUS], "block": [NT], "lds": 0}}
     attrs = hipdnn.CustomOpAttributes()
     attrs.set_custom_op_id("megakernel.qwen3_8_27b_decode")
@@ -160,11 +161,13 @@ def main():
     ap.add_argument("--iters", type=int, default=1000)
     ap.add_argument("--m", type=int, nargs="*", default=[1, 8, 4])
     ap.add_argument("--model", default="qwen3.8-27b")
+    ap.add_argument("--geom", default="standin",
+                    help="geometry key (slice C): standin, or e5cc820d for the FlyDSL test build")
     ap.add_argument("--build-only", action="store_true",
                     help="build plans (loads the code object) but do not execute")
     args = ap.parse_args()
-    global MODEL, BUILD_ONLY
-    MODEL, BUILD_ONLY = args.model, args.build_only
+    global MODEL, BUILD_ONLY, GEOM
+    MODEL, BUILD_ONLY, GEOM = args.model, args.build_only, args.geom
     handle = hipdnn.create_handle()
     stream = ctypes.c_void_p()
     check(hip.hipStreamCreate(ctypes.byref(stream)), "hipStreamCreate")

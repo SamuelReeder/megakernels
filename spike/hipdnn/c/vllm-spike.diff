@@ -1,0 +1,190 @@
+diff --git a/vllm/models/qwen3_5/amd/specialized_decode/runtime/decode.py b/vllm/models/qwen3_5/amd/specialized_decode/runtime/decode.py
+index bfa3c5149..bfa987179 100644
+--- a/vllm/models/qwen3_5/amd/specialized_decode/runtime/decode.py
++++ b/vllm/models/qwen3_5/amd/specialized_decode/runtime/decode.py
+@@ -41,6 +41,7 @@ from ..kernels.dims import (
+ )
+ from ..spec import attention_backend, kv_geometry
+ from .weights import PackedWeights
++from . import hipdnn_launch as HD
+ 
+ logger = init_logger(__name__)
+ 
+@@ -106,6 +107,8 @@ class Qwen35Gfx942Decode:
+         self.tab: torch.Tensor | None = None
+         self.glob: torch.Tensor | None = None
+         self.glob_emb: torch.Tensor | None = None
++        self.hipdnn: HD.HipDnnLaunch | None = None  # SPIKE: VLLM_MK_HIPDNN=1
++        self.exported: set[int] = set()
+ 
+     # ---------------------------------------------------------------- caches
+     def set_cache_groups(self, groups: list[list[str]]) -> None:
+@@ -238,6 +241,15 @@ class Qwen35Gfx942Decode:
+                 ]
+             )
+         self.tab = tab.to(self.device)
++        for w in self.widths:  # SPIKE: VLLM_MK_HIPDNN_EXPORT
++            if id(self.launches[w]) not in self.exported:
++                HD.export(self.launches[w], self.cfgs[w], self.tab, self.glob, NL)
++                self.exported.add(id(self.launches[w]))
++        if HD.enabled():
++            self.hipdnn = HD.HipDnnLaunch(
++                self.cfgs, self.tab, [self.glob, self.glob_emb], NL
++            )
++            logger.info("Qwen3.8 gfx942 decode: launches through hipDNN (SPIKE)")
+         logger.info(
+             "Qwen3.8 gfx942 decode: KV block %d, %d block-table columns, %d attention "
+             "and %d GDN cache groups, widths %s",
+@@ -275,6 +287,9 @@ class Qwen35Gfx942Decode:
+ 
+     def launch(self, width: int, glob: torch.Tensor, layers: int = NL) -> torch.Tensor:
+         assert self.tab is not None
++        if self.hipdnn is not None and layers == NL:
++            self.hipdnn.launch(width, glob)
++            return self.out[:width]
+         self.launches[width](
+             self.tab.data_ptr(),
+             glob.data_ptr(),
+diff --git a/vllm/models/qwen3_5/amd/specialized_decode/runtime/hipdnn_launch.py b/vllm/models/qwen3_5/amd/specialized_decode/runtime/hipdnn_launch.py
+new file mode 100644
+index 000000000..d5954a0b9
+--- /dev/null
++++ b/vllm/models/qwen3_5/amd/specialized_decode/runtime/hipdnn_launch.py
+@@ -0,0 +1,137 @@
++# SPDX-License-Identifier: Apache-2.0
++# SPDX-FileCopyrightText: Copyright contributors to the vLLM project
++"""SPIKE (disposable): the decode step through hipDNN instead of the FlyDSL launcher.
++
++VLLM_MK_HIPDNN_EXPORT=DIR: after the caches are bound, compile each width's kernel
++(FlyDSL COMPILE_ONLY), take the GPU object out of the lowered module and write
++DIR/qwen38_vllm_m{M}_{geom}.co plus one manifest.jsonl line (M, geom, symbol, Cfg).
++VLLM_MK_HIPDNN=1: each launch is hipDNN custom op ``megakernel.qwen3_8_27b_decode``
++(hip-kernel-provider megakernel pack); the payload selects the packed code object by
++model, M and the geometry key.
++
++Geometry key: crc32 of repr(Cfg with M = 0), i.e. every Cfg field except the width
++(cus, maxlen, KV block, block-table columns, KV strides, x-pack, conv/SSM slot strides,
++lm_head). The kernel symbol carries crc32 of repr(Cfg) itself.
++"""
++
++import dataclasses
++import json
++import os
++import pathlib
++import zlib
++
++import torch
++
++from vllm.logger import init_logger
++
++logger = init_logger(__name__)
++
++MODEL = "qwen3.8-27b-flydsl-vllm"
++OP_ID = "megakernel.qwen3_8_27b_decode"
++NT = 512
++
++
++def enabled() -> bool:
++    return os.environ.get("VLLM_MK_HIPDNN") == "1"
++
++
++def geom_key(cfg) -> str:
++    return f"{zlib.crc32(repr(dataclasses.replace(cfg, M=0)).encode()):08x}"
++
++
++def symbol(cfg) -> str:
++    return f"qwen38_decode_m{cfg.M}_{zlib.crc32(repr(cfg).encode()):08x}"
++
++
++def export(launcher, cfg, tab: torch.Tensor, glob: torch.Tensor, layers: int) -> None:
++    out = os.environ.get("VLLM_MK_HIPDNN_EXPORT")
++    if not out:
++        return
++    from flydsl._mlir import ir
++    from flydsl._mlir.dialects import gpu
++    from flydsl.compiler.jit_function import _create_mlir_context
++
++    os.environ["COMPILE_ONLY"] = "1"
++    try:
++        r = launcher(tab.data_ptr(), glob.data_ptr(), layers, stream=torch.cuda.current_stream())
++    finally:
++        del os.environ["COMPILE_ONLY"]
++    assert r is None
++    _, art = launcher._last_compiled
++    objs = []
++
++    def visit(op):
++        if op.name == "gpu.binary":
++            for o in ir.ArrayAttr(op.attributes["objects"]):
++                objs.append(gpu.ObjectAttr(o).object)
++        return ir.WalkResult.ADVANCE
++
++    with _create_mlir_context():
++        ir.Module.parse(art._ir_text).operation.walk(visit)
++    assert len(objs) == 1 and objs[0][:4] == b"\x7fELF", "expected one AMDGPU ELF"
++    d = pathlib.Path(out)
++    d.mkdir(parents=True, exist_ok=True)
++    geom = geom_key(cfg)
++    co = d / f"qwen38_vllm_m{cfg.M}_{geom}.co"
++    co.write_bytes(objs[0])
++    with open(d / "manifest.jsonl", "a") as f:
++        f.write(json.dumps(dict(M=cfg.M, geom=geom, symbol=symbol(cfg), file=co.name,
++                                nbytes=len(objs[0]), cfg=repr(cfg))) + "\n")
++
++
++class HipDnnLaunch:
++    """One hipDNN graph per width over (tab, glob); variant packs per glob tensor."""
++
++    _handle = None
++
++    def __init__(self, cfgs: dict, tab: torch.Tensor, globs: list[torch.Tensor], layers: int):
++        import hipdnn_frontend as hipdnn
++
++        if HipDnnLaunch._handle is None:
++            HipDnnLaunch._handle = hipdnn.create_handle()
++        self.handle = HipDnnLaunch._handle
++        self.stream = None
++        self.seen: set[tuple[int, bool]] = set()
++        DT = hipdnn.DataType
++        self.graphs = {}
++        self.vps = {}
++        for w, cfg in cfgs.items():
++            g = hipdnn.Graph()
++            g.set_name(f"qwen38_vllm_m{w}")
++            g.set_io_data_type(DT.FLOAT).set_intermediate_data_type(DT.FLOAT)
++            g.set_compute_data_type(DT.FLOAT)
++            t = hipdnn.Tensor.create([tab.numel()], DT.INT64)
++            t.set_name("tab")
++            gl = hipdnn.Tensor.create([globs[0].numel()], DT.INT64)
++            gl.set_name("glob")
++            payload = {"model": MODEL, "M": w, "nlayers": layers, "geom": geom_key(cfg),
++                       "geometry": {"grid": [cfg.cus], "block": [NT], "lds": 0}}
++            attrs = hipdnn.CustomOpAttributes()
++            attrs.set_custom_op_id(OP_ID)
++            attrs.set_compute_data_type(DT.FLOAT)
++            attrs.set_data(list(json.dumps(payload).encode()))
++            g.custom_op([t, gl], 0, attrs)
++            for what in ("validate", "build_operation_graph", "create_execution_plans",
++                         "check_support", "build_plans"):
++                fn = getattr(g, what)
++                err = fn(self.handle) if what == "build_operation_graph" else fn()
++                if not err.is_good():
++                    raise RuntimeError(f"hipDNN {what} M={w} payload {payload}: {err.get_message()}")
++            self.graphs[w] = g
++            for glob in globs:
++                self.vps[(w, glob.data_ptr())] = {t.get_uid(): tab.data_ptr(),
++                                                  gl.get_uid(): glob.data_ptr()}
++
++    def launch(self, width: int, glob: torch.Tensor) -> None:
++        s = torch.cuda.current_stream().cuda_stream
++        if s != self.stream:
++            self.handle.set_stream(s)
++            self.stream = s
++        err = self.graphs[width].execute(self.handle, self.vps[(width, glob.data_ptr())], 0)
++        if not err.is_good():
++            raise RuntimeError(f"hipDNN execute M={width}: {err.get_message()}")
++        cap = torch.cuda.is_current_stream_capturing()
++        if (width, cap) not in self.seen:
++            self.seen.add((width, cap))
++            logger.info("SPIKE hipDNN execute: first at width %d, capturing %s, stream %#x",
++                        width, cap, s)

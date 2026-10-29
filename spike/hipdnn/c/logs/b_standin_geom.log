@@ -1,0 +1,52 @@
+host=banff-cyxtera-s70-4.adc.amd.com date=2026-10-29T12:57:03-04:00 TAG=vllmimg arch=gfx942
+[2026-10-29 12:57:03.744] [tid 1261365] [warning] [hip_kernel_provider_plugin] ingestor: engine 'hipkernel:Megakernel' (1ea37de2-144e-5c63-8e45-2d933f10e747) ships no heuristic; kernels rank by priority, then descriptor id
+[2026-10-29 12:57:03.744] [tid 1261365] [warning] [hipdnn_backend] Plugin path 'hipdnn_plugins/heuristics/' is invalid - expected either a directory containing plugins or a path to a plugin file
+[2026-10-29 12:57:03.744] [tid 1261365] [warning] [hipdnn_backend] Plugin loading found no plugin libraries in any of the 1 configured plugin path(s): hipdnn_plugins/heuristics/
+stream 0x1a53e10
+== M=1
+  validate: OK
+  build_operation_graph: OK
+[2026-10-29 12:57:03.784] [tid 1261365] [warning] [hipdnn_backend] No heuristic policy order configured, falling back to built-in defaults [SelectionHeuristic::Config, SelectionHeuristic::StaticOrdering]. Set HIPDNN_HEUR_POLICY_ORDER or the descriptor attribute to silence this warning.
+  create_execution_plans: OK
+  check_support: OK
+  build_plans: OK
+  engine id 5579872954606985484 name hipkernel:Megakernel workspace 0
+  graph build+plan ms 9.2
+  execute: OK
+  pattern OK: glob[0]=0x4d4b014000000000 glob[N-1]=0x4d4b014000025fff glob[N]=0x123456789abcdef
+  execute x200: host us/call 4.14, wall incl. GPU us/call 4.21
+  capture execute: OK
+  after capture (not launched) glob[0]=0x0 graph nodes=1
+  graph replay pattern OK glob[0]=0x4d4b014000000000
+  graph replay x200: host us/call 6.94, wall us/call 7.04
+== M=8
+  validate: OK
+  build_operation_graph: OK
+  create_execution_plans: OK
+  check_support: OK
+[2026-10-29 12:57:03.828] [tid 1261365] [warning] [hipdnn_backend] No heuristic policy order configured, falling back to built-in defaults [SelectionHeuristic::Config, SelectionHeuristic::StaticOrdering]. Set HIPDNN_HEUR_POLICY_ORDER or the descriptor attribute to silence this warning.
+  build_plans: OK
+  engine id 5579872954606985484 name hipkernel:Megakernel workspace 0
+  graph build+plan ms 2.5
+  execute: OK
+  pattern OK: glob[0]=0x4d4b084000000000 glob[N-1]=0x4d4b084000025fff glob[N]=0x123456789abcdef
+  execute x200: host us/call 4.04, wall incl. GPU us/call 4.11
+  capture execute: OK
+  after capture (not launched) glob[0]=0x0 graph nodes=1
+  graph replay pattern OK glob[0]=0x4d4b084000000000
+  graph replay x200: host us/call 4.28, wall us/call 17.54
+== M=4
+  validate: OK
+  build_operation_graph: OK
+  create_execution_plans: FAIL No engine configurations available for the graph.
+  graph build+plan ms 0.2
+host=banff-cyxtera-s70-4.adc.amd.com date=2026-10-29T12:57:41-04:00 TAG=vllmimg arch=gfx942
+[2026-10-29 12:57:42.432] [tid 1261840] [warning] [hip_kernel_provider_plugin] ingestor: engine 'hipkernel:Megakernel' (1ea37de2-144e-5c63-8e45-2d933f10e747) ships no heuristic; kernels rank by priority, then descriptor id
+[2026-10-29 12:57:42.432] [tid 1261840] [warning] [hipdnn_backend] Plugin path 'hipdnn_plugins/heuristics/' is invalid - expected either a directory containing plugins or a path to a plugin file
+[2026-10-29 12:57:42.432] [tid 1261840] [warning] [hipdnn_backend] Plugin loading found no plugin libraries in any of the 1 configured plugin path(s): hipdnn_plugins/heuristics/
+stream 0x2b7c270
+== M=1
+  validate: OK
+  build_operation_graph: OK
+  create_execution_plans: FAIL No engine configurations available for the graph.
+  graph build+plan ms 0.3

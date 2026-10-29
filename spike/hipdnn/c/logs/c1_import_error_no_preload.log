@@ -1,0 +1,20 @@
+common
+qwen3.8-27b-gfx942
+spike
+host=banff-cyxtera-s70-4.adc.amd.com date=2026-10-29T12:11:04-04:00 TAG=vllmimg arch=gfx942
+Traceback (most recent call last):
+  File "/work/wheel-vllmimg/hipdnn_frontend/__init__.py", line 86, in <module>
+    from .hipdnn_frontend_python import *
+ImportError: /work/wheel-vllmimg/hipdnn_frontend/hipdnn_frontend_python.abi3.so: undefined symbol: hipdnnGetEngineNameById_ext
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/work/mk/spike/hipdnn/c/scripts/c1_engine_hipdnn.py", line 26, in <module>
+    import hipdnn_frontend as hipdnn  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/work/wheel-vllmimg/hipdnn_frontend/__init__.py", line 88, in <module>
+    raise ImportError(
+ImportError: Could not load the hipdnn_frontend compiled extension. Its ROCm dependencies were not found. Install the ROCm wheels (`pip install rocm[libraries]`), or set ROCM_PATH/HIP_PATH to a ROCm install or build tree (on Windows the directory containing the ROCm DLLs under bin/).
+Original error: /work/wheel-vllmimg/hipdnn_frontend/hipdnn_frontend_python.abi3.so: undefined symbol: hipdnnGetEngineNameById_ext
+srun: error: banff-cyxtera-s70-4: task 0: Exited with exit code 1

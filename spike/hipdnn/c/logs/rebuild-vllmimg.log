@@ -1,0 +1,180 @@
+[0/2] Re-checking globbed directories...
+[1/2] Re-running CMake...
+CMake Warning at cmake/toolchains/rocm-clang.cmake:28 (message):
+  
+
+  ROCM_PATH is set in the environment and may interfere with toolchain
+  detection.
+
+  Remove ROCM_PATH from the environment and use the following instead:
+
+    cmake -DROCM_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel
+
+Call Stack (most recent call first):
+  /work/build-vllmimg/CMakeFiles/3.31.10/CMakeSystem.cmake:6 (include)
+  CMakeLists.txt:5 (project)
+
+
+-- Fortran compiler not found - Fortran support disabled
+-- Enabling components:
+--   hipdnn (supported)
+--   hip-kernel-provider (supported)
+--   hipdnn-python (supported)
+-- Using the multi-header code from /work/build-vllmimg/_deps/nlohmann_json-src/include/
+-- [hipdnn] hipDNN: JSON serialization enabled in SDK public headers (requires nlohmann_json)
+-- [hipdnn] hipDNN: SDPA support disabled
+-- [hipdnn] hipDNN: kernel ingestor enabled
+-- [hipdnn] hipDNN: cuDNN compatibility shim disabled
+-- [hipdnn] The CMake generator is Ninja.
+-- [hipdnn] CMAKE_INSTALL_PREFIX set to default: /work/install-vllmimg
+CMake Warning at projects/hipdnn/CMakeLists.txt:251 (message):
+  Clang-Tidy is disabled - some build issues may be missed.
+
+
+-- [hipdnn] ✓ Confirmed AMD/ROCm type C++ compiler
+CMake Warning at projects/hipdnn/cmake/CheckToolVersion.cmake:73 (message):
+  clang-tidy version mismatch! Expected: 20, Found: 23, Path:
+  /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin/clang-tidy,
+  Full version: AMD LLVM version 23.0.0git
+
+    Optimized build.
+Call Stack (most recent call first):
+  projects/hipdnn/cmake/CheckToolVersion.cmake:156 (checktoolversion)
+  projects/hipdnn/cmake/CheckToolVersion.cmake:202 (findandchecktool)
+  projects/hipdnn/cmake/ClangTidy.cmake:7 (findandcheckclangtidy)
+  projects/hipdnn/CMakeLists.txt:262 (include)
+
+
+CMake Warning at projects/hipdnn/cmake/CheckToolVersion.cmake:162 (message):
+  clang-tidy disabled due to version mismatch (expected 20).  Update your
+  environment and perform a fresh cmake configure to set CLANG_TIDY_EXE to
+  the needed version.
+Call Stack (most recent call first):
+  projects/hipdnn/cmake/CheckToolVersion.cmake:202 (findandchecktool)
+  projects/hipdnn/cmake/ClangTidy.cmake:7 (findandcheckclangtidy)
+  projects/hipdnn/CMakeLists.txt:262 (include)
+
+
+-- [hipdnn] Found run-clang-tidy at /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin/run-clang-tidy
+-- [hipdnn] hipdnn_data_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_data_sdk version: 0.2.0.unknown
+-- [hipdnn] Skipping Data SDK tests
+-- [hipdnn] hipdnn_flatbuffers_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_flatbuffers_sdk version: 0.2.0.unknown
+-- [hipdnn] Found flatbuffers: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/cmake/flatbuffers (found version "25.9.23")
+-- [hipdnn] Skipping Flatbuffers SDK tests
+-- [hipdnn] hipdnn_backend: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_backend version: 0.4.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hipdnn] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [hipdnn] Did not find spdlog, it will be built locally
+-- [hipdnn] [spdlog] Build spdlog: 1.15.3
+-- [hipdnn] [spdlog] Build type: Release
+-- [hipdnn] hipdnn_enable_spdlog: Enabled spdlog for target hipdnn_backend_private
+-- [hipdnn] Skipping HIP-DNN Backend Unit tests
+-- [hipdnn] hipdnn_frontend: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_frontend version: 0.4.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hipdnn] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [hipdnn] Skipping HIP-DNN Frontend Unit tests
+-- [hipdnn] hipdnn_test_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_test_sdk version: 0.2.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hipdnn] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [hipdnn] Skipping Test SDK tests
+-- [hipdnn] hipdnn_plugin_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_plugin_sdk version: 1.1.0.unknown
+-- [hipdnn] Skipping Plugin SDK tests
+-- [hipdnn] Skipping HIP-DNN Integration tests
+-- [hipdnn] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hipdnn] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [hipdnn] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hipdnn] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [frontend_bindings] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [frontend_bindings] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [hip-kernel-provider] hip_kernel_provider version: 0.2.0.unknown
+-- [hip-kernel-provider] Setting CMAKE_INSTALL_PREFIX to /work/install-vllmimg
+-- [hip-kernel-provider] ASM SDPA engine enabled
+-- [hip-kernel-provider] HIP Flash2 SDPA engine disabled
+-- [hip-kernel-provider] HIP kernel engine enabled
+-- [hip-kernel-provider] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hip-kernel-provider] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [hip-kernel-provider] ✓ Confirmed AMD/ROCm type C++ compiler
+CMake Warning at cmake/modules/CheckToolVersion.cmake:64 (message):
+  clang-tidy version mismatch! Expected: 20, Found: 23, Path:
+  /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/llvm/bin/clang-tidy,
+  Full version: AMD LLVM version 23.0.0git
+
+    Optimized build.
+Call Stack (most recent call first):
+  cmake/modules/CheckToolVersion.cmake:135 (checktoolversion)
+  cmake/modules/CheckToolVersion.cmake:178 (findandchecktool)
+  cmake/modules/ClangTidy.cmake:23 (findandcheckclangtidy)
+  dnn-providers/hip-kernel-provider/CMakeLists.txt:275 (include)
+
+
+CMake Warning at cmake/modules/CheckToolVersion.cmake:141 (message):
+  clang-tidy disabled due to version mismatch (expected 20).  Update your
+  environment and perform a fresh cmake configure to set CLANG_TIDY_EXE to
+  the needed version.
+Call Stack (most recent call first):
+  cmake/modules/CheckToolVersion.cmake:178 (findandchecktool)
+  cmake/modules/ClangTidy.cmake:23 (findandcheckclangtidy)
+  dnn-providers/hip-kernel-provider/CMakeLists.txt:275 (include)
+
+
+-- [hip-kernel-provider] Found run-clang-tidy at /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin/run-clang-tidy
+CMake Warning at cmake/modules/CheckToolVersion.cmake:64 (message):
+  llvm-symbolizer version mismatch! Expected: 20, Found: 23, Path:
+  /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/llvm/bin/llvm-symbolizer,
+  Full version: llvm-symbolizer
+
+  AMD LLVM version 23.0.0git
+
+    Optimized build.
+Call Stack (most recent call first):
+  cmake/modules/CheckToolVersion.cmake:135 (checktoolversion)
+  projects/hipdnn/cmake/CheckToolVersion.cmake:249 (findandchecktool)
+  dnn-providers/cmake/Tests.cmake:9 (findandcheckllvmsymbolizer)
+  dnn-providers/hip-kernel-provider/CMakeLists.txt:284 (include)
+
+
+CMake Warning at cmake/modules/CheckToolVersion.cmake:141 (message):
+  llvm-symbolizer disabled due to version mismatch (expected 20).  Update
+  your environment and perform a fresh cmake configure to set
+  LLVM_SYMBOLIZER_EXE to the needed version.
+Call Stack (most recent call first):
+  projects/hipdnn/cmake/CheckToolVersion.cmake:249 (findandchecktool)
+  dnn-providers/cmake/Tests.cmake:9 (findandcheckllvmsymbolizer)
+  dnn-providers/hip-kernel-provider/CMakeLists.txt:284 (include)
+
+
+CMake Warning at projects/hipdnn/cmake/CheckToolVersion.cmake:259 (message):
+  ASAN tests will be missing symbolized stack traces.
+Call Stack (most recent call first):
+  dnn-providers/cmake/Tests.cmake:9 (findandcheckllvmsymbolizer)
+  dnn-providers/hip-kernel-provider/CMakeLists.txt:284 (include)
+
+
+-- [hip-kernel-provider] Plugin build directory: /work/build-vllmimg/lib/hipdnn_plugins/engines
+-- [hip-kernel-provider] Plugin install directory (relative): lib/hipdnn_plugins/engines
+-- [hip-kernel-provider] Kernel ingestor enabled. Descriptors build into:
+-- [hip-kernel-provider]   production: /work/build-vllmimg/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider
+-- [hip-kernel-provider]   test:       /work/build-vllmimg/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider
+-- [hip-kernel-provider] rocKE features disabled
+-- [hip-kernel-provider] kpack: using rocm_kpack from /work/kpack-python
+-- [hip-kernel-provider] hkp: rocKE disabled (HIPKERNELPROVIDER_ENABLE_ROCKE=OFF); packing with the hip producer only
+-- [hip-kernel-provider] kpack: using rocm_kpack from /work/kpack-python
+-- Configuring done (5.5s)
+-- Generating done (0.2s)
+-- Build files have been written to: /work/build-vllmimg
+[0/4] Re-checking globbed directories...
+[1/9] Running utility command for asm_kernel_kpack
+[2/9] hkp: packing root 'product' for gfx942
+excluding disabled family folder rocKE/
+hkp_pack: compiling 2 variants for gfx942 on 2 workers
+[3/9] hkp: verifying embedded kernel sources (hip_kernel_provider_impl)
+hkp_verify_embedded_sources: hip_kernel_provider_impl: 0 embedded_source descriptors checked against 9 table keys
+[4/9] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/MegakernelNative.cpp.o
+[5/9] Linking CXX shared library lib/hipdnn_plugins/engines/libhip_kernel_provider.so
+[6/9] Linking CXX static library lib/libhip_kernel_provider_private.a

@@ -1,0 +1,247 @@
+{
+ "hip_lib": [
+  "/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/libamdhip64.so.7.16.26361-25e14349f2"
+ ],
+ "torch": "2.13.0+rocm10.0.0",
+ "hip": "7.15.26333",
+ "dev": "AMD Instinct MI300X",
+ "host": "banff-cyxtera-s70-4.adc.amd.com",
+ "model": "qwen3.8-27b-flydsl",
+ "Ms": {
+  "1": {
+   "hash_flydsl": [
+    "4db972e0ec306d4f",
+    true
+   ],
+   "plan_ms": 14.3,
+   "engine": "hipkernel:Megakernel",
+   "hash_hipdnn": [
+    "4db972e0ec306d4f",
+    true
+   ],
+   "hash_hipdnn_graph": [
+    "4db972e0ec306d4f",
+    true
+   ],
+   "long": {
+    "steps": 96,
+    "first_diff": null,
+    "maxabs": 0.0,
+    "last_tok": [
+     8
+    ]
+   },
+   "host_us": {
+    "flydsl": {
+     "median": 69.66,
+     "p10": 67.22,
+     "p90": 79.36
+    },
+    "flydsl_compiled": {
+     "median": 3.93,
+     "p10": 3.63,
+     "p90": 4.36
+    },
+    "hipModuleLaunchKernel": {
+     "median": 7.22,
+     "p10": 6.79,
+     "p90": 7.8
+    },
+    "hipdnn_execute": {
+     "median": 4.44,
+     "p10": 4.3,
+     "p90": 4.72
+    },
+    "graph_replay_hipdnn": {
+     "median": 6.33,
+     "p10": 5.39,
+     "p90": 8.15
+    }
+   },
+   "tpot_ms": {
+    "flydsl": 8.4607,
+    "flydsl_compiled": 8.3685,
+    "hipModuleLaunchKernel": 8.4546,
+    "hipdnn_execute": 8.3428,
+    "graph_replay_hipdnn": 8.4501
+   },
+   "tpot_ms_minmax": {
+    "flydsl": [
+     8.3942,
+     8.8607
+    ],
+    "flydsl_compiled": [
+     8.317,
+     8.6968
+    ],
+    "hipModuleLaunchKernel": [
+     8.3201,
+     9.0172
+    ],
+    "hipdnn_execute": [
+     8.3165,
+     8.3908
+    ],
+    "graph_replay_hipdnn": [
+     8.3537,
+     8.8501
+    ]
+   },
+   "step_ms_async": {
+    "flydsl": 8.4002,
+    "flydsl_compiled": 8.4033,
+    "hipModuleLaunchKernel": 8.4003,
+    "hipdnn_execute": 8.3983,
+    "graph_replay_hipdnn": 8.4223
+   },
+   "step_ms_async_minmax": {
+    "flydsl": [
+     8.3734,
+     8.831
+    ],
+    "flydsl_compiled": [
+     8.3736,
+     8.9247
+    ],
+    "hipModuleLaunchKernel": [
+     8.3776,
+     8.5226
+    ],
+    "hipdnn_execute": [
+     8.3614,
+     8.7002
+    ],
+    "graph_replay_hipdnn": [
+     8.3923,
+     8.9478
+    ]
+   }
+  },
+  "8": {
+   "hash_flydsl": [
+    "cf305425fce9de61",
+    true
+   ],
+   "plan_ms": 3.3,
+   "engine": "hipkernel:Megakernel",
+   "hash_hipdnn": [
+    "cf305425fce9de61",
+    true
+   ],
+   "hash_hipdnn_graph": [
+    "cf305425fce9de61",
+    true
+   ],
+   "long": {
+    "steps": 96,
+    "first_diff": null,
+    "maxabs": 0.0,
+    "last_tok": [
+     8,
+     13,
+     23,
+     96130,
+     9,
+     56357,
+     3709,
+     1538
+    ]
+   },
+   "host_us": {
+    "flydsl": {
+     "median": 67.14,
+     "p10": 65.43,
+     "p90": 70.72
+    },
+    "flydsl_compiled": {
+     "median": 3.88,
+     "p10": 3.63,
+     "p90": 6.35
+    },
+    "hipModuleLaunchKernel": {
+     "median": 13.09,
+     "p10": 7.05,
+     "p90": 15.61
+    },
+    "hipdnn_execute": {
+     "median": 6.95,
+     "p10": 4.35,
+     "p90": 10.06
+    },
+    "graph_replay_hipdnn": {
+     "median": 4.49,
+     "p10": 4.01,
+     "p90": 5.64
+    }
+   },
+   "tpot_ms": {
+    "flydsl": 12.2445,
+    "flydsl_compiled": 12.1604,
+    "hipModuleLaunchKernel": 12.1376,
+    "hipdnn_execute": 12.133,
+    "graph_replay_hipdnn": 12.1594
+   },
+   "tpot_ms_minmax": {
+    "flydsl": [
+     12.1931,
+     12.7972
+    ],
+    "flydsl_compiled": [
+     12.0851,
+     12.7002
+    ],
+    "hipModuleLaunchKernel": [
+     12.0273,
+     12.2081
+    ],
+    "hipdnn_execute": [
+     12.0681,
+     12.1653
+    ],
+    "graph_replay_hipdnn": [
+     12.11,
+     12.415
+    ]
+   },
+   "step_ms_async": {
+    "flydsl": 12.2531,
+    "flydsl_compiled": 12.2656,
+    "hipModuleLaunchKernel": 12.4447,
+    "hipdnn_execute": 12.4457,
+    "graph_replay_hipdnn": 12.2716
+   },
+   "step_ms_async_minmax": {
+    "flydsl": [
+     12.1794,
+     12.2954
+    ],
+    "flydsl_compiled": [
+     12.1373,
+     12.8969
+    ],
+    "hipModuleLaunchKernel": [
+     12.1022,
+     12.6715
+    ],
+    "hipdnn_execute": [
+     12.2942,
+     12.645
+    ],
+    "graph_replay_hipdnn": [
+     12.1852,
+     12.6167
+    ]
+   }
+  }
+ },
+ "hip_lib_after_hipdnn": [
+  "/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/libamdhip64.so.7.16.26361-25e14349f2"
+ ],
+ "hipdnn_libs": [
+  "/usr/local/lib/python3.12/dist-packages/_rocm_sdk_libraries/lib/libhipdnn_backend.so",
+  "/work/install-vllmimg/lib/hipdnn_plugins/engines/libhip_kernel_provider.so",
+  "/work/install-vllmimg/lib/libhipdnn_backend.so",
+  "/work/wheel-vllmimg/hipdnn_frontend/hipdnn_frontend_python.abi3.so",
+  "/work/install-vllmimg/lib/hipdnn_plugins/engines/libhip_kernel_provider.so"
+ ]
+}

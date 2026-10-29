@@ -1,0 +1,26 @@
+hostname: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /work/install-hipdnnimg/lib/libhipdnn_backend.so)
+hostname: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.38' not found (required by /work/install-hipdnnimg/lib/libhipdnn_backend.so)
+date: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /work/install-hipdnnimg/lib/libhipdnn_backend.so)
+date: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.38' not found (required by /work/install-hipdnnimg/lib/libhipdnn_backend.so)
+grep: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /work/install-hipdnnimg/lib/libhipdnn_backend.so)
+grep: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.38' not found (required by /work/install-hipdnnimg/lib/libhipdnn_backend.so)
+host= date= TAG=hipdnnimg arch=
+python3: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /work/install-hipdnnimg/lib/libhipdnn_backend.so)
+python3: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.38' not found (required by /work/install-hipdnnimg/lib/libhipdnn_backend.so)
+
+==== ldd
+/work/install-hipdnnimg/lib/libhipdnn_backend.so:
+/work/install-hipdnnimg/lib/libhipdnn_backend.so: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /work/install-hipdnnimg/lib/libhipdnn_backend.so)
+/work/install-hipdnnimg/lib/libhipdnn_backend.so: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.38' not found (required by /work/install-hipdnnimg/lib/libhipdnn_backend.so)
+	libamdhip64.so.7 => /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/libamdhip64.so.7 (0x00007b713cc00000)
+	libamd_comgr.so.3 => /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/libamd_comgr.so.3 (0x00007b713b600000)
+	librocm_sysdeps_elf.so.1 => not found
+	librocm_sysdeps_drm.so.2 => not found
+	librocm_sysdeps_drm_amdgpu.so.1 => not found
+	librocm_sysdeps_numa.so.1 => not found
+/work/install-hipdnnimg/lib/hipdnn_plugins/engines/libhip_kernel_provider.so:
+/work/install-hipdnnimg/lib/hipdnn_plugins/engines/libhip_kernel_provider.so: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.32' not found (required by /work/install-hipdnnimg/lib/hipdnn_plugins/engines/libhip_kernel_provider.so)
+/work/install-hipdnnimg/lib/hipdnn_plugins/engines/libhip_kernel_provider.so: /lib/x86_64-linux-gnu/libm.so.6: version `GLIBC_2.38' not found (required by /work/install-hipdnnimg/lib/hipdnn_plugins/engines/libhip_kernel_provider.so)
+/work/install-hipdnnimg/lib/hipdnn_plugins/engines/libhip_kernel_provider.so: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.38' not found (required by /work/install-hipdnnimg/lib/hipdnn_plugins/engines/libhip_kernel_provider.so)
+	libamdhip64.so.7 => /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/libamdhip64.so.7 (0x0000757b1cc00000)
+	libamd_comgr.so.3 => /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/libamd_comgr.so.3 (0x0000757b1b600000)
