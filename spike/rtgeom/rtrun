@@ -21,7 +21,7 @@ name=rtgeom
 job=${RT_JOB:-$(ssh -o BatchMode=yes alola "squeue -h -u \$USER -n $name -t R -o %i | head -1")}
 [ -n "$job" ] || { echo "no rtgeom allocation" >&2; exit 2; }
 W=/tmp/rtgeom_$job
-rev="$(git -C "$root" rev-parse HEAD) dirty: $(git -C "$root" status --porcelain qwen3.8-27b-gfx942 common spike/rtgeom | grep -v ' spike/rtgeom/out' | wc -l)"
+rev="$(git -C "$root" rev-parse HEAD) dirty: $(git -C "$root" status --porcelain qwen3.8-27b-gfx942 common spike/rtgeom | { grep -v ' spike/rtgeom/out' || true; } | wc -l)"
 tar -C "$root" --exclude __pycache__ --exclude spike/rtgeom/out --exclude '*.co' --exclude spike/rtgeom/logs \
   --exclude qwen3.8-27b-gfx942/bench/results --exclude common/results \
   -cf - qwen3.8-27b-gfx942 common spike/rtgeom | gzip -6 | ssh -o BatchMode=yes alola \
