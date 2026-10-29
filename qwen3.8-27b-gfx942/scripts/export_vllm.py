@@ -18,7 +18,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "common" / "scripts"))
 import export_lib as E  # noqa: E402
 
-MODULES = ("dims", "dev", "fp4", "gemv", "stages", "mixer", "kernel")
+MODULES = ("dims", "tpdev", "fp4", "gemv", "stages", "mixer", "kernel")
 NOT_EXPORTED = ("sync", "peer", "tp", "runner", "pack", "reference")
 VLLM_SYNC = "vllm/models/deepseek_v41/amd/mono/common/sync.py"
 VLLM_SYNC_MODULE = VLLM_SYNC[: -len(".py")].replace("/", ".")

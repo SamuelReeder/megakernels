@@ -17,7 +17,8 @@ import sys
 import torch
 
 sys.path.insert(0, __file__.rsplit("/bench/", 1)[0])
-from mk import dev as D  # noqa: E402
+import mk  # noqa: E402,F401  (puts common/ on sys.path)
+from mkcore import dev as D  # noqa: E402
 from mk import kernel as KK  # noqa: E402
 from mk import reference as R  # noqa: E402
 from mk.dims import NL  # noqa: E402
@@ -31,7 +32,7 @@ NB = KK.barriers_per_step(NL) + 1
 prof = torch.zeros(NB, CUS, 2, dtype=torch.int64, device="cuda")
 KK.PROFILE["addr"] = prof.data_ptr()
 npos = torch.zeros(NL, dtype=torch.int32, device="cuda")
-KK.PROFILE["npos"] = npos.data_ptr()
+KK.NPOS["addr"] = npos.data_ptr()
 NSTEP = int(os.environ.get("PSTEPS", "1"))  # profiled decode steps (medians over all)
 PSTAGE = os.environ.get("PROBE")
 probes = torch.zeros(CUS * 8, 16, dtype=torch.int64, device="cuda")

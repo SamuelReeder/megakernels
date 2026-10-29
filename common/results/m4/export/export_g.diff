@@ -1,0 +1,191 @@
+diff -ru /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/attention.py /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/attention.py
+--- /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/attention.py	2026-10-29 09:21:32.967586004 -0400
++++ /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/attention.py	2026-10-29 09:21:33.172588183 -0400
+@@ -34,8 +34,8 @@
+ from flydsl.expr import const_expr, range_constexpr, rocdl
+ from flydsl.expr.typing import T
+ 
+-from . import dev as D
+ from .dims import EPS, HD_F, HD_S, NKV_F, NKV_S, NQ, QKV_F, QKV_S, WINDOW
++from .mkcore import dev as D
+ 
+ CH = 64  # positions per task
+ PVB = 16  # P V: positions per load batch (one block)
+@@ -138,7 +138,7 @@
+ def _pack_bf2(a, b):
+     """q, K, V to bf16 with round to nearest even (dev.pack_bf2), as torch and vLLM round:
+     the cache holds the bits vLLM's own path would write."""
+-    return D.pack_bf2(a, b)
++    return D.pack_bf2_rne(a, b)
+ 
+ 
+ def _lds_st_i32(base_f32, idx, words):
+Only in /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels: dev.py
+diff -ru /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/gemv.py /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/gemv.py
+--- /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/gemv.py	2026-10-29 09:21:32.966585993 -0400
++++ /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/gemv.py	2026-10-29 09:21:33.174588204 -0400
+@@ -38,7 +38,7 @@
+ from flydsl.expr import const_expr, range_constexpr, rocdl
+ from flydsl.expr.typing import T
+ 
+-from . import dev as D
++from .mkcore import dev as D
+ 
+ PAD_TILES = 16  # spare tiles after a packed matrix (>= 3 P - 1)
+ 
+diff -ru /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/kernel.py /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/kernel.py
+--- /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/kernel.py	2026-10-29 09:21:32.968586015 -0400
++++ /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/kernel.py	2026-10-29 09:21:33.173588194 -0400
+@@ -42,7 +42,6 @@
+ from flydsl.expr.typing import Int32, Int64
+ 
+ from . import attention as A
+-from . import dev as D
+ from . import moe as MO
+ from . import stages as S
+ from .dims import (
+@@ -61,13 +60,20 @@
+     H,
+ )
+ from .gemv import Gemv
++from .mkcore import dev as D
+ from .mkcore import key as K
++from .mkcore.dev import (
++    _STREAM,
++    CNT_STRIDE,
++    EPOCH_WORD_LINE,
++    LDS_MAX,
++    NT,
++    PROFILE,
++    WAVES,
++)
+ 
+ NTAB = 24  # pointer-table slots per row
+ NGLOB = 32  # global pointer-table slots
+-WAVES = 8
+-NT = 64 * WAVES
+-LDS_MAX = 65536
+ 
+ # global table slots
+ (
+@@ -132,9 +138,6 @@
+     T_LS,
+ ) = range(NTAB)
+ 
+-_STREAM = fx.Stream(None)  # the launch's default: the current stream
+-CNT_STRIDE = 65536  # i32 counters per counter region
+-EPOCH_WORD_LINE = 8  # the epoch word is line cus + EPOCH_WORD_LINE of the flag buffer
+ STAGES_PER_LAYER = 6
+ 
+ 
+@@ -223,10 +226,9 @@
+ CNT_REGION = dict(qkv=0, o=1, router=2, e1=3, e2=4, lm=5, attn=6, done=7)
+ 
+ 
+-PROFILE = {
+-    "addr": None,  # debug: i64 [barriers][CUS][2] = (arrive, wait end) per CTA, 100 MHz
+-    "npos": None,  # debug: i32 [layers]: MoE positions (distinct experts + 3) per layer
+-}
++NPOS = {
++    "addr": None
++}  # debug: i32 [layers]: MoE positions (distinct experts + 3) per layer
+ 
+ 
+ def lds_bytes(cfg: Cfg):
+@@ -266,7 +268,7 @@
+     )
+     SP = cfg.specs()
+     GEO = {False: cfg.geo(False), True: cfg.geo(True)}
+-    D.FENCE["on"] = cfg.fence
++    D.configure(cfg)
+     S.NT = NT
+     XQB, XSF, AW, NP, lds = lds_bytes(cfg)
+     assert lds <= LDS_MAX, f"STOP: I1 (LDS {lds} B > {LDS_MAX} B per CTA)"
+@@ -303,7 +305,9 @@
+         return (fx.Int64(D.uniform(v[1])) << 32) | fx.Int64(fx.Uint32(D.uniform(v[0])))
+ 
+     # the kernel name is not in FlyDSL's disk-cache key; `key` is (mkcore.key)
+-    key = K.compile_key(cfg, pathlib.Path(__file__).resolve().parent, PROFILE, D.PROBE)
++    key = K.compile_key(
++        cfg, pathlib.Path(__file__).resolve().parent, PROFILE, D.PROBE, NPOS
++    )
+     name = K.kernel_name("gemma4_decode", cfg, key)
+ 
+     @flyc.kernel(name=name, known_block_size=[NT, 1, 1])
+@@ -514,7 +518,7 @@
+ def _store_npos(c, npos, li):
+     """Debug (bench/profile_decode.py): CTA 0 stores layer li's MoE position count."""
+     if (c["bid"] == 0) & (c["tid"] == 0):
+-        D.st(npos, D.rsrc(fx.Int64(PROFILE["npos"])), li, D.CM_DEV)
++        D.st(npos, D.rsrc(fx.Int64(NPOS["addr"])), li, D.CM_DEV)
+ 
+ 
+ @D.traced
+@@ -705,7 +709,7 @@
+     MO.routing(c, M, logit, G[G_ROWV], T(T_PES), R)
+     if const_expr(cfg.debug_route):
+         MO.route_hash(c, M, R, G[G_SPARE], li, c["cus"], NL)
+-    if const_expr(PROFILE["npos"] is not None):
++    if const_expr(NPOS["addr"] is not None):
+         _store_npos(c, R.n(), li)
+     if const_expr(cfg.router_publish):
+         S.prologue_gu_copy(c, e1, xq, xs, G[G_XG], G[G_XGS])
+diff -ru /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/__init__.py /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/__init__.py
+--- /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 09:21:32.964585972 -0400
++++ /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 09:21:33.171588173 -0400
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
+ # ruff: noqa: E501
+-# megakernels ac654ae3bfc910569727d3d1a276f14ee6afc055 dirty files: 0, common/mkcore SRC_HASH 35dadac318401519
++# megakernels ad5c660135a5d7a72d262ba7cccd02209142f463 dirty files: 0, common/mkcore SRC_HASH 3ee41d821f73868f
+ """Shared FlyDSL gfx942 megakernel infrastructure of the megakernels models
+ (common/DESIGN.md). Imports no model module.
+ 
+Only in /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/mkcore: dev.py
+diff -ru /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/moe.py /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/moe.py
+--- /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/moe.py	2026-10-29 09:21:32.970586036 -0400
++++ /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/moe.py	2026-10-29 09:21:33.175588215 -0400
+@@ -48,10 +48,10 @@
+ from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
+ from flydsl.expr.typing import T
+ 
+-from . import dev as D
+ from . import stages as S
+ from .dims import NDS, NE, TOPK
+ from .gemv import fp8_compute, fp8_load
++from .mkcore import dev as D
+ 
+ LGN = NE  # router GEMV rows
+ NSLOT = TOPK + NDS  # 8 routed slots + the dense pseudo-experts
+diff -ru /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/stages.py /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/stages.py
+--- /tmp/export_check_2932674/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/stages.py	2026-10-29 09:21:32.970586036 -0400
++++ /tmp/export_check_2932674/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/stages.py	2026-10-29 09:21:33.173588194 -0400
+@@ -32,8 +32,8 @@
+ from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
+ from flydsl.expr.typing import T
+ 
+-from . import dev as D
+ from .dims import EPS, VOCAB, H
++from .mkcore import dev as D
+ 
+ NT = 512  # threads per CTA (set by the kernel builder before tracing)
+ NOCT = H // 8  # threads that hold a row's columns (352)
+@@ -382,7 +382,7 @@
+     for t in range_constexpr(M):
+         rs = fx.ptr_load(red + (64 + 24 + t))
+         x = [hh[t][q] * rs * wv[q] for q in range(8)]
+-        words = [D.pack_bf2(x[2 * q], x[2 * q + 1]) for q in range(4)]
++        words = [D.pack_bf2_rne(x[2 * q], x[2 * q + 1]) for q in range(4)]
+         if const_expr(lm_head):
+             if live:
+                 fx.ptr_store(
+@@ -440,7 +440,7 @@
+     for t in range_constexpr(M):
+         rs = fx.ptr_load(red + (64 + 8 + t))
+         x = [h1[t][q] * rs * cinv * sv[q] for q in range(8)]
+-        words = [D.pack_bf2(x[2 * q], x[2 * q + 1]) for q in range(4)]
++        words = [D.pack_bf2_rne(x[2 * q], x[2 * q + 1]) for q in range(4)]
+         if live:
+             fx.ptr_store(
+                 fx.Vector.from_elements(words, fx.Int32), xq + (t * g.XR + k0 * 2) // 4

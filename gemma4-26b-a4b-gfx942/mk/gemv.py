@@ -35,7 +35,7 @@ import flydsl.expr as fx
 from flydsl.expr import const_expr, range_constexpr, rocdl
 from flydsl.expr.typing import T
 
-from . import dev as D
+from mkcore import dev as D
 
 PAD_TILES = 16  # spare tiles after a packed matrix (>= 3 P - 1)
 

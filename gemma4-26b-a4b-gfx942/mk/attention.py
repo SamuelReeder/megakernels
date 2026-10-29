@@ -31,7 +31,7 @@ import flydsl.expr as fx
 from flydsl.expr import const_expr, range_constexpr, rocdl
 from flydsl.expr.typing import T
 
-from . import dev as D
+from mkcore import dev as D
 from .dims import EPS, HD_F, HD_S, NKV_F, NKV_S, NQ, QKV_F, QKV_S, WINDOW
 
 CH = 64  # positions per task
@@ -135,7 +135,7 @@ def _bf_words(ws):
 def _pack_bf2(a, b):
     """q, K, V to bf16 with round to nearest even (dev.pack_bf2), as torch and vLLM round:
     the cache holds the bits vLLM's own path would write."""
-    return D.pack_bf2(a, b)
+    return D.pack_bf2_rne(a, b)
 
 
 def _lds_st_i32(base_f32, idx, words):

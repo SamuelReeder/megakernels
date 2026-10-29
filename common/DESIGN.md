@@ -717,6 +717,45 @@ check: job 68208676 (vLLM nightly image, ruff 0.14.0, vLLM branches
 - First attempts (not evidence): job 68208339 exported nothing (an `exec` bug in
   `copy_mkcore`), job 68208381 had no ruff binary (wrong `pip --prefix` path); both fixed.
 
+### M4: `mkcore.dev` (2026-10-29, sources `ad5c660`, rebased as `dcd6883`)
+
+Change (D7): Qwen3.6's `mk/dev.py` (the superset of the barrier and atomic code) becomes
+`common/mkcore/dev.py`, plus Gemma's `tanh`, `gelu_tanh`, `bf16_rne` and `pack_bf2` (now
+`pack_bf2_rne`), t2's `CM_SYS`, `bf16_pair`, `bf16r`, and the Qwen mixers' `pack_bf2`
+(convert). `grid_barrier` (no caller) is dropped. `configure(cfg)` sets `FENCE` / `CHAOS`
+in every model's `build` (Qwen3.8 now calls it too; its fields default off). The grid
+constants `WAVES`, `NT`, `LDS_MAX`, `_STREAM`, `CNT_STRIDE`, `EPOCH_WORD_LINE` and
+`PROFILE = {"addr": None}` live in `mkcore.dev`; each `kernel.py` imports them (so
+`KK.WAVES` and friends still resolve). Gemma's MoE debug pointer `PROFILE["npos"]` is
+model state (R-state): it is now `kernel.NPOS["addr"]` (in Gemma's compile key;
+`bench/profile_decode.py` follows). Qwen3.8's `TRACE`, `ARPROBE`, `drain_cta`,
+`st_stamps` move to `mk/tpdev.py` (callers use `TD.*`); `sync.py` imports `CM_DEV`,
+`CM_SYS`, `bf16_pair`, `traced` from `mkcore.dev`. The Qwen mixers import `bf16r`,
+`pack_bf2` from `mkcore.dev`. All three `mk/dev.py` are gone; model modules use
+`from mkcore import dev as D`. Exports: `dev` leaves each `MODULES` list (Qwen3.8 adds
+`tpdev`); `export_lib.copy_mkcore` rewrites `mkcore/dev.py`'s vendor import to AITER's and
+deletes a stale `kernels/<module>.py` that now lives in `kernels/mkcore/`.
+
+Evidence (`common/results/m4/`): gates through `common/scripts/mkrun` on allocations
+68208331 (Qwen3.8), 68208332 (Qwen3.6), 68208333 (Gemma, plus the ISA probe), 68208334
+(TP2), banff-cyxtera-s70-4, compared with M1. Export check: job 68208676 (`export/`, base
+= the M3 tree).
+
+- I-bits: every logits hash equals M1 (all four `hashes.txt=base PASS`).
+- I-isa, tier A: all 18 builds equal M1 (`isa.txt=base PASS` for all four parts; Gemma
+  M = 1 `lm_head` on gave `c911f702…` in this run, see M3 for its variants).
+- I-gates: 51 gate lines, all PASS (`summary.txt`).
+- I-host: goldens 298 lines equal (login node, before the job).
+- Oracle 5: the exported kernels build in the vLLM image with the same ISA as the M3
+  exports (Qwen3.8 `8948b45554c46053`, Qwen3.6 `fed6565fdfb55810`, Gemma `548c50a2e7cd9baf`, a
+  Gemma variant seen at M3). Export diff against M3: `kernels/dev.py` is deleted, the
+  model modules import `.mkcore.dev`, and `kernels/mkcore/dev.py` / Qwen3.8
+  `kernels/tpdev.py` are new (`export/export_*.diff`). The Qwen3.6 and Gemma exports pass
+  vLLM's ruff; Qwen3.8's final ruff check failed on D403 (the `gelu_tanh` docstring
+  starts in lower case). The docstring is fixed in `5bcce3f` (docstring only; the export
+  check is not re-run). Open for M8: the vLLM runtime files of each branch must not
+  import `kernels.dev` (not checked here; the re-export at M8 runs the vLLM tests).
+
 ## Decisions
 
 - D1. Package `common/mkcore/` (FlyDSL gfx942 only), scripts in `common/scripts/`. Evidence:

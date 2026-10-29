@@ -1,0 +1,157 @@
+Only in /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels: dev.py
+diff -ru /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/gemv.py /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/gemv.py
+--- /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/gemv.py	2026-10-29 09:20:28.898904878 -0400
++++ /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/gemv.py	2026-10-29 09:20:29.056906557 -0400
+@@ -33,7 +33,7 @@
+ from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
+ from flydsl.expr.typing import T
+ 
+-from . import dev as D
++from .mkcore import dev as D
+ 
+ PAD_TILES = 16  # spare tiles after a packed matrix (>= 3 P - 1)
+ 
+diff -ru /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/kernel.py /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/kernel.py
+--- /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/kernel.py	2026-10-29 09:20:28.898904878 -0400
++++ /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/kernel.py	2026-10-29 09:20:29.056906557 -0400
+@@ -42,7 +42,6 @@
+ from flydsl.expr import const_expr
+ from flydsl.expr.typing import Int32, Int64
+ 
+-from . import dev as D
+ from . import mixer as X
+ from . import moe as MO
+ from . import stages as S
+@@ -63,13 +62,20 @@
+     H,
+ )
+ from .gemv import Gemv
++from .mkcore import dev as D
+ from .mkcore import key as K
++from .mkcore.dev import (
++    _STREAM,
++    CNT_STRIDE,
++    EPOCH_WORD_LINE,
++    LDS_MAX,
++    NT,
++    PROFILE,
++    WAVES,
++)
+ 
+ NTAB = 20  # pointer-table slots per layer
+ NGLOB = 20  # global pointer-table slots
+-WAVES = 8
+-NT = 64 * WAVES
+-LDS_MAX = 65536
+ 
+ # global table slots
+ (
+@@ -115,9 +121,6 @@
+ # sidx[M]; an attention layer's block table bt[M][maxblocks] and slot mapping slot[M].
+ T_IDX, T_SLOT = 18, 19
+ 
+-_STREAM = fx.Stream(None)  # the launch's default: the current stream
+-CNT_STRIDE = 65536  # i32 counters per counter region
+-EPOCH_WORD_LINE = 8  # the epoch word is line cus + EPOCH_WORD_LINE of the flag buffer
+ STAGES_PER_LAYER = 6
+ 
+ 
+@@ -203,18 +206,12 @@
+ CNT_REGION = dict(inp=0, ba=1, out=2, qkv=3, o=4, router=5, e1=6, e2=7, lm=8)
+ 
+ 
+-PROFILE = {
+-    "addr": None
+-}  # debug: i64 [barriers][CUS][2] = (arrive, wait end) per CTA, 100 MHz
+-
+-
+ def build(cfg: Cfg):
+     M, CUS = cfg.M, cfg.cus
+     K.check_cfg(cfg)
+     assert 1 <= M <= WAVES, "the norm prologues and the routing give each row one wave"
+     SP = cfg.specs()
+-    D.FENCE["on"] = cfg.fence
+-    D.CHAOS["on"] = cfg.chaos
++    D.configure(cfg)
+     S.NT = NT
+     NP = MO.npos_max(M)
+     XQB = max(s.XR * (s.XROWS if isinstance(s, MO.MoeGemv) else M) for s in SP.values())
+diff -ru /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mixer.py /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mixer.py
+--- /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mixer.py	2026-10-29 09:20:28.901904909 -0400
++++ /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mixer.py	2026-10-29 09:20:29.056906557 -0400
+@@ -34,7 +34,6 @@
+ from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
+ from flydsl.expr.typing import T
+ 
+-from . import dev as D
+ from . import stages as S
+ from .dims import (
+     A_OFF,
+@@ -53,6 +52,8 @@
+     V_OFF,
+     Z_OFF,
+ )
++from .mkcore import dev as D
++from .mkcore.dev import bf16r, pack_bf2
+ 
+ CH = 64  # attention positions per task
+ PVB = 16  # P V: positions per load batch
+@@ -211,17 +212,6 @@
+     return out
+ 
+ 
+-def bf16r(v):
+-    """Round f32 to bf16 and back (the KV cache precision)."""
+-    return fx.Float32(fx.Float32(v).to(fx.BFloat16))
+-
+-
+-def pack_bf2(a, b):
+-    return (
+-        fx.Vector.from_elements([a, b], fx.Float32).to(fx.BFloat16).bitcast(fx.Int32)[0]
+-    )
+-
+-
+ @D.traced
+ def attn_task(
+     c, task, cfg, y_qkv, qn_w, kn_w, rope_cs, kv, bt, slotp, pos_ptr, rec, wl
+diff -ru /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mkcore/__init__.py /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mkcore/__init__.py
+--- /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 09:20:28.896904856 -0400
++++ /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 09:20:29.054906536 -0400
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
+ # ruff: noqa: E501
+-# megakernels ac654ae3bfc910569727d3d1a276f14ee6afc055 dirty files: 0, common/mkcore SRC_HASH 35dadac318401519
++# megakernels ad5c660135a5d7a72d262ba7cccd02209142f463 dirty files: 0, common/mkcore SRC_HASH 3ee41d821f73868f
+ """Shared FlyDSL gfx942 megakernel infrastructure of the megakernels models
+ (common/DESIGN.md). Imports no model module.
+ 
+Only in /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mkcore: dev.py
+diff -ru /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/moe.py /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/moe.py
+--- /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/moe.py	2026-10-29 09:20:28.900904899 -0400
++++ /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/moe.py	2026-10-29 09:20:29.057906568 -0400
+@@ -37,10 +37,10 @@
+ from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
+ from flydsl.expr.typing import T
+ 
+-from . import dev as D
+ from . import stages as S
+ from .dims import NE, TOPK
+ from .gemv import fp8_compute, fp8_load
++from .mkcore import dev as D
+ 
+ LGN = 272  # router GEMV rows: 256 experts, the shared gate, 15 zero rows
+ NSLOT = TOPK + 1  # 8 routed slots + the shared expert
+diff -ru /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/stages.py /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/stages.py
+--- /tmp/export_check_2932674/q6-base/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/stages.py	2026-10-29 09:20:28.899904888 -0400
++++ /tmp/export_check_2932674/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/stages.py	2026-10-29 09:20:29.057906568 -0400
+@@ -16,8 +16,8 @@
+ from flydsl.expr import const_expr, gpu, range_constexpr
+ from flydsl.expr.typing import T
+ 
+-from . import dev as D
+ from .dims import CONV_DIM, INP_N, VOCAB, H
++from .mkcore import dev as D
+ 
+ NT = 512  # threads per CTA (set by the kernel builder before tracing)
+ 

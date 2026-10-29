@@ -38,10 +38,11 @@ import flydsl.expr as fx
 from flydsl.expr import const_expr, gpu, rocdl
 from flydsl.expr.typing import Int32, Int64
 
+from mkcore import dev as D
 from mkcore import key as K
+from mkcore.dev import _STREAM, CNT_STRIDE, EPOCH_WORD_LINE, LDS_MAX, NT, PROFILE, WAVES
 
 from . import attention as A
-from . import dev as D
 from . import moe as MO
 from . import stages as S
 from .dims import EFF, EFFP, EMBED_SCALE, NE, NL, O_F, O_S, QKV_F, QKV_S, SOFTCAP, VOCAB, WINDOW, H
@@ -49,9 +50,6 @@ from .gemv import Gemv
 
 NTAB = 24  # pointer-table slots per row
 NGLOB = 32  # global pointer-table slots
-WAVES = 8
-NT = 64 * WAVES
-LDS_MAX = 65536
 
 # global table slots
 (
@@ -66,9 +64,6 @@ LDS_MAX = 65536
     T_POST1, T_POST2, T_POSTF, T_LS,
 ) = range(NTAB)
 
-_STREAM = fx.Stream(None)  # the launch's default: the current stream
-CNT_STRIDE = 65536  # i32 counters per counter region
-EPOCH_WORD_LINE = 8  # the epoch word is line cus + EPOCH_WORD_LINE of the flag buffer
 STAGES_PER_LAYER = 6
 
 
@@ -154,10 +149,7 @@ class Cfg:
 CNT_REGION = dict(qkv=0, o=1, router=2, e1=3, e2=4, lm=5, attn=6, done=7)
 
 
-PROFILE = {
-    "addr": None,  # debug: i64 [barriers][CUS][2] = (arrive, wait end) per CTA, 100 MHz
-    "npos": None,  # debug: i32 [layers]: MoE positions (distinct experts + 3) per layer
-}
+NPOS = {"addr": None}  # debug: i32 [layers]: MoE positions (distinct experts + 3) per layer
 
 
 def lds_bytes(cfg: Cfg):
@@ -184,7 +176,7 @@ def build(cfg: Cfg):
     assert cfg.combine_rows or not cfg.e2_rows, "e2_rows: the combine CTAs reduce the rows"
     SP = cfg.specs()
     GEO = {False: cfg.geo(False), True: cfg.geo(True)}
-    D.FENCE["on"] = cfg.fence
+    D.configure(cfg)
     S.NT = NT
     XQB, XSF, AW, NP, lds = lds_bytes(cfg)
     assert lds <= LDS_MAX, f"STOP: I1 (LDS {lds} B > {LDS_MAX} B per CTA)"
@@ -221,7 +213,7 @@ def build(cfg: Cfg):
         return (fx.Int64(D.uniform(v[1])) << 32) | fx.Int64(fx.Uint32(D.uniform(v[0])))
 
     # the kernel name is not in FlyDSL's disk-cache key; `key` is (mkcore.key)
-    key = K.compile_key(cfg, pathlib.Path(__file__).resolve().parent, PROFILE, D.PROBE)
+    key = K.compile_key(cfg, pathlib.Path(__file__).resolve().parent, PROFILE, D.PROBE, NPOS)
     name = K.kernel_name("gemma4_decode", cfg, key)
 
     @flyc.kernel(name=name, known_block_size=[NT, 1, 1])
@@ -357,7 +349,7 @@ def _moe(env, R, nlayers, pref, pflag):
 def _store_npos(c, npos, li):
     """Debug (bench/profile_decode.py): CTA 0 stores layer li's MoE position count."""
     if (c["bid"] == 0) & (c["tid"] == 0):
-        D.st(npos, D.rsrc(fx.Int64(PROFILE["npos"])), li, D.CM_DEV)
+        D.st(npos, D.rsrc(fx.Int64(NPOS["addr"])), li, D.CM_DEV)
 
 
 @D.traced
@@ -431,7 +423,7 @@ def _moe_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw
     MO.routing(c, M, logit, G[G_ROWV], T(T_PES), R)
     if const_expr(cfg.debug_route):
         MO.route_hash(c, M, R, G[G_SPARE], li, c["cus"], NL)
-    if const_expr(PROFILE["npos"] is not None):
+    if const_expr(NPOS["addr"] is not None):
         _store_npos(c, R.n(), li)
     if const_expr(cfg.router_publish):
         S.prologue_gu_copy(c, e1, xq, xs, G[G_XG], G[G_XGS])

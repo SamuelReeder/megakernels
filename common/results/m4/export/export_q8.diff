@@ -1,0 +1,327 @@
+Only in /tmp/export_check_2932674/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels: dev.py
+diff -ru /tmp/export_check_2932674/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/gemv.py /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/gemv.py
+--- /tmp/export_check_2932674/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/gemv.py	2026-10-29 09:18:21.695552554 -0400
++++ /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/gemv.py	2026-10-29 09:18:21.825553936 -0400
+@@ -29,8 +29,8 @@
+ from flydsl.expr import const_expr, range_constexpr, rocdl
+ from flydsl.expr.typing import T
+ 
+-from . import dev as D
+ from . import fp4
++from .mkcore import dev as D
+ 
+ H4 = fp4.device_helpers()
+ # K chunks of the GEMVs (default 1); the packer follows. chunks() gives a TP size's
+diff -ru /tmp/export_check_2932674/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/kernel.py /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/kernel.py
+--- /tmp/export_check_2932674/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/kernel.py	2026-10-29 09:18:21.696552565 -0400
++++ /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/kernel.py	2026-10-29 09:18:21.826553947 -0400
+@@ -40,17 +40,17 @@
+ from flydsl.expr import const_expr, range_constexpr
+ from flydsl.expr.typing import Int32, Int64
+ 
+-from . import dev as D
+ from . import mixer as X
+ from . import stages as S
++from . import tpdev as TD
+ from .dims import EPS, HD, Dims, H
+ from .gemv import Gemv, chunks
++from .mkcore import dev as D
+ from .mkcore import key as K
++from .mkcore.dev import _STREAM, CNT_STRIDE, EPOCH_WORD_LINE, NT, PROFILE, WAVES
+ 
+ NTAB = 18  # pointer-table slots per layer
+ NGLOB = 18  # global pointer-table slots
+-WAVES = 8
+-NT = 64 * WAVES
+ 
+ # global table slots
+ (
+@@ -92,10 +92,6 @@
+ # sidx[M]; an attention layer's block table bt[M][maxblocks] and slot mapping slot[M].
+ T_IDX, T_SLOT = 16, 17
+ 
+-_STREAM = fx.Stream(None)  # the launch's default: the current stream
+-CNT_STRIDE = 65536  # i32 counters per counter region
+-EPOCH_WORD_LINE = 8  # the epoch word is line cus + EPOCH_WORD_LINE of the flag buffer
+-
+ 
+ @dataclass(frozen=True)
+ class Cfg:
+@@ -179,14 +175,10 @@
+ CNT_REGION = dict(inp=0, out=1, qkv=2, o=3, gu=4, down=5, lm=6, attn=7)
+ 
+ 
+-PROFILE = {
+-    "addr": None
+-}  # debug: i64 [barriers][CUS][2] = (arrive, wait end) per CTA, 100 MHz
+-
+-
+ def build(cfg: Cfg):
+     M, CUS, d = cfg.M, cfg.cus, cfg.d
+     K.check_cfg(cfg)
++    D.configure(cfg)
+     assert 1 <= M <= WAVES, "the norm prologues give each row one wave"
+     assert cfg.ar_dtype in ("fp32", "bf16") and M <= AR_MMAX
+     TP = cfg.tp
+@@ -231,7 +223,7 @@
+     # the kernel name is not in FlyDSL's disk-cache key; `key` is (mkcore.key).
+     # The debug globals change the traced code, so they go into the key too.
+     key = K.compile_key(
+-        cfg, pathlib.Path(__file__).resolve().parent, PROFILE, D.PROBE, D.ARPROBE
++        cfg, pathlib.Path(__file__).resolve().parent, PROFILE, D.PROBE, TD.ARPROBE
+     )
+     name = K.kernel_name("qwen38_decode", cfg, key)
+ 
+@@ -309,10 +301,10 @@
+             if const_expr(PROFILE["addr"] is not None):
+                 slot = ((e - epoch - 1) * CUS + bid) * 2
+                 stamp(slot)
+-            apb = D.ARPROBE["bar"]
++            apb = TD.ARPROBE["bar"]
+             if const_expr(apb is not None):
+                 t_arr = D.memrealtime()
+-                D.drain_cta()
++                TD.drain_cta()
+                 t_drn = D.memrealtime()
+             D.grid_arrive(rf, e, tid, bid)
+             buf = spec.first_loads(w) if spec is not None else None
+@@ -323,8 +315,8 @@
+                 t_rel = D.memrealtime()
+                 k = ((e - epoch - 1) * CUS + bid) * 4
+                 if tid == 0:
+-                    D.st_stamps(fx.Int64(apb), k, t_arr, t_drn)
+-                    D.st_stamps(fx.Int64(apb), k + 2, t_rel, fx.Int64(0))
++                    TD.st_stamps(fx.Int64(apb), k, t_arr, t_drn)
++                    TD.st_stamps(fx.Int64(apb), k + 2, t_rel, fx.Int64(0))
+             return w, buf
+ 
+         # ---- embedding (+ zero the attention counters: their totals change with pos)
+@@ -445,8 +437,8 @@
+     @flyc.jit
+     def launch(tab: Int64, glob: Int64, nlayers: Int32, stream: fx.Stream = _STREAM):
+         key  # noqa: B018  a str closure value: FlyDSL puts it in the disk-cache key
+-        D.TRACE.clear()
+-        D.TRACE.update(d=d, ar=AR)
++        TD.TRACE.clear()
++        TD.TRACE.update(d=d, ar=AR)
+         kdec(tab, glob, nlayers).launch(grid=(CUS,), block=(NT,), stream=stream)
+ 
+     return launch
+@@ -551,7 +543,7 @@
+         buf,
+         part,
+         cnt("qkv"),
+-        lambda cg, tots: S.epi_raw(c, M, D.TRACE["d"].qkv_n, cg, tots[0], y),
++        lambda cg, tots: S.epi_raw(c, M, TD.TRACE["d"].qkv_n, cg, tots[0], y),
+     )
+     barrier_then(None, None, None, e0 + 1)
+     for t in range(gw, ntask, c["cus"] * WAVES):
+diff -ru /tmp/export_check_2932674/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/mixer.py /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mixer.py
+--- /tmp/export_check_2932674/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/mixer.py	2026-10-29 09:18:21.651552087 -0400
++++ /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mixer.py	2026-10-29 09:18:21.800553671 -0400
+@@ -33,8 +33,10 @@
+ from flydsl.expr import const_expr, range_constexpr, rocdl
+ from flydsl.expr.typing import T
+ 
+-from . import dev as D
++from . import tpdev as TD
+ from .dims import DK, EPS, HD, NKV, NQ
++from .mkcore import dev as D
++from .mkcore.dev import bf16r, pack_bf2
+ 
+ CH = 64  # attention positions per task
+ PVB = 16  # P V: positions per load batch
+@@ -53,7 +55,7 @@
+     sidx[m] (0: a padding row, whose state is not written). wl: this wave's LDS (256
+     floats: q[128] k[128])."""
+     lane = c["lane"]
+-    d = D.TRACE["d"]
++    d = TD.TRACE["d"]
+     NVH, INP_N = d.nvh, d.inp_n
+     Q_OFF, K_OFF, V_OFF, Z_OFF, B_OFF, A_OFF = (
+         d.q_off,
+@@ -202,17 +204,6 @@
+     return out
+ 
+ 
+-def bf16r(v):
+-    """Round f32 to bf16 and back (the KV cache precision)."""
+-    return fx.Float32(fx.Float32(v).to(fx.BFloat16))
+-
+-
+-def pack_bf2(a, b):
+-    return (
+-        fx.Vector.from_elements([a, b], fx.Float32).to(fx.BFloat16).bitcast(fx.Int32)[0]
+-    )
+-
+-
+ @D.traced
+ def attn_task(
+     c, task, cfg, y_qkv, qn_w, kn_w, rope_cs, kv, bt, slotp, pos_ptr, rec, cnt, og, wl
+@@ -221,7 +212,7 @@
+     Chunk ci covers positions [p0, pe) inside KV block b = ci // cpb (see kernel.Cfg).
+     Returns nothing; the last arriver of (m, j) writes og."""
+     lane = c["lane"]
+-    NKV = D.TRACE["d"].nkv
++    NKV = TD.TRACE["d"].nkv
+     D.PROBE["on"] = D.PROBE.get("stage") == "attn"
+     ncmax, cpb, B = cfg.ncmax, cfg.cpb, cfg.block
+     m = task // (NKV * ncmax)
+@@ -284,7 +275,7 @@
+     Plain layout: position p's K is at base + (p - pb) kv_s2 bf16 elements, its V kv_sv
+     later. x-packed layout (vLLM's ROCM_ATTN): the head's K is [HD / 8][block][8] and
+     its V, kv_sv elements later, [HD][block]."""
+-    d = D.TRACE["d"]
++    d = TD.TRACE["d"]
+     NQ, NKV, QKV_N = d.nq, d.nkv, d.qkv_n
+     ry = D.rsrc(y_qkv)
+     ybase = m * QKV_N
+diff -ru /tmp/export_check_2932674/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py
+--- /tmp/export_check_2932674/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 09:18:21.694552544 -0400
++++ /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 09:18:21.823553915 -0400
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
+ # ruff: noqa: E501
+-# megakernels ac654ae3bfc910569727d3d1a276f14ee6afc055 dirty files: 0, common/mkcore SRC_HASH 35dadac318401519
++# megakernels ad5c660135a5d7a72d262ba7cccd02209142f463 dirty files: 0, common/mkcore SRC_HASH 3ee41d821f73868f
+ """Shared FlyDSL gfx942 megakernel infrastructure of the megakernels models
+ (common/DESIGN.md). Imports no model module.
+ 
+Only in /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore: dev.py
+diff -ru /tmp/export_check_2932674/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/stages.py /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/stages.py
+--- /tmp/export_check_2932674/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/stages.py	2026-10-29 09:18:21.678552374 -0400
++++ /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/stages.py	2026-10-29 09:18:21.804553713 -0400
+@@ -18,8 +18,9 @@
+ 
+ from vllm.models.deepseek_v41.amd.mono.common.sync import Mailbox, preg
+ 
+-from . import dev as D
++from . import tpdev as TD
+ from .dims import VOCAB, H
++from .mkcore import dev as D
+ 
+ NT = 512  # threads per CTA (set by the kernel builder before tracing)
+ 
+@@ -164,10 +165,10 @@
+             ssq_out,
+             hb_out,
+         )
+-        self.ar = ar if D.TRACE["ar"] is not None else None
++        self.ar = ar if TD.TRACE["ar"] is not None else None
+         # deferred poll: the GEMV pushes every group it completes first (push), then
+         # polls and stores them (finish), so the round trips of a wave's groups overlap
+-        self.deferred = self.ar is not None and not D.TRACE["ar"]["local"]
++        self.deferred = self.ar is not None and not TD.TRACE["ar"]["local"]
+ 
+     def pre(self, grp):
+         ri = D.rsrc(self.h_in)
+@@ -196,7 +197,7 @@
+ 
+ 
+ def _ar_ctx(c, grp, tag, half):
+-    A = dict(D.TRACE["ar"], **c["ar"])
++    A = dict(TD.TRACE["ar"], **c["ar"])
+     off = fx.Int64(half * A["region"])
+     dst = [preg(A["bases"][p] + off, 0, "ar") for p in range(A["tp"])]
+     own = preg(A["own"] + off, 0, "ar")
+@@ -214,7 +215,7 @@
+     tp, rank, lane, col = A["tp"], A["rank"], c["lane"], c["col"]
+     tv = [fx.Float32(tot[r]) for r in range(4)]
+     tag = fx.Int32(tag)
+-    apw = D.ARPROBE["wave"]
++    apw = TD.ARPROBE["wave"]
+     if const_expr(apw is not None):
+         t_push = D.memrealtime()
+     if const_expr(A["dtype"] == "fp32"):
+@@ -252,7 +253,7 @@
+     A, dst, own, rows, n, k = _ar_ctx(c, grp, tag, half)
+     tp, lane, col = A["tp"], c["lane"], c["col"]
+     mb = Mailbox(fx.Int32(tag))
+-    apw = D.ARPROBE["wave"]
++    apw = TD.ARPROBE["wave"]
+     fp = A["dtype"] == "fp32"
+     W = H if fp else H // 2
+     even = col % 2 == 0
+@@ -301,7 +302,7 @@
+     """Debug (dev.ARPROBE): lane 0 stores the i64 pairs (index, a, b) of a wave."""
+     if lane == 0:
+         for i, a, b in pairs:
+-            D.st_stamps(fx.Int64(apw), i, a, b)
++            TD.st_stamps(fx.Int64(apw), i, a, b)
+ 
+ 
+ @D.traced
+@@ -309,7 +310,7 @@
+     """Timing-only stand-in of the all-reduce (Cfg.ar_local): the own partial added
+     twice, no peer traffic, the same probe stamps as ar_push / ar_poll."""
+     A, _, _, _, _, k = _ar_ctx(c, grp, tag, half)
+-    apw = D.ARPROBE["wave"]
++    apw = TD.ARPROBE["wave"]
+     if const_expr(apw is not None):
+         t_push = D.memrealtime()
+     out = []
+@@ -365,7 +366,7 @@
+         return out
+ 
+     def pre(self, grp):
+-        CONV_DIM = D.TRACE["d"].conv_dim
++        CONV_DIM = TD.TRACE["d"].conv_dim
+         n = fx.min(grp * 16 + self.c["col"], CONV_DIM - 1)
+         rows = self.rows()
+         st = []
+@@ -380,7 +381,7 @@
+ 
+ @D.traced
+ def _epi_conv(c, M, grp, tot, pre, y):
+-    CONV_DIM, INP_N = D.TRACE["d"].conv_dim, D.TRACE["d"].inp_n
++    CONV_DIM, INP_N = TD.TRACE["d"].conv_dim, TD.TRACE["d"].inp_n
+     rows, st, wv = pre
+     col = c["col"]
+     n = grp * 16 + col
+@@ -405,7 +406,7 @@
+     """gate_up epilogue: group grp = gate rows then up rows of act columns 8 grp .. + 7
+     (pack.gu_order): act[:, 8 grp + col] = silu(gate) * up for lanes col < 8."""
+     col, lane = c["col"], c["lane"]
+-    FFN = D.TRACE["d"].ffn
++    FFN = TD.TRACE["d"].ffn
+     ra = D.rsrc(act)
+     for r in range_constexpr(4):
+         t = 4 * c["gl"] + r
+@@ -534,7 +535,7 @@
+     the owner's slot: the exact row, as at TP 1 (docs/DESIGN-TP2.md section 5)."""
+     tid, bid = c["tid"], c["bid"]
+     lane = c["lane"]
+-    d = D.TRACE["d"]
++    d = TD.TRACE["d"]
+     ng = H // 16
+     t = tid // 16
+     col = tid % 16
+@@ -545,7 +546,7 @@
+         ro, rq = D.rsrc(h_out), D.rsrc(ssq_out)
+         row = tok
+         owner = fx.Int32(0)
+-        if const_expr(D.TRACE["ar"] is not None):
++        if const_expr(TD.TRACE["ar"] is not None):
+             owner = tok // d.vocab
+             row = tok - owner * d.vocab
+         re = D.rsrc(
+@@ -559,7 +560,7 @@
+             # the layers, the ranks do not keep in step, and the one embedding region
+             # would be overwritten before it is read. The non-owner rank then reads a
+             # wrong row.
+-            if const_expr(D.TRACE["ar"] is not None and not D.TRACE["ar"]["local"]):
++            if const_expr(TD.TRACE["ar"] is not None and not TD.TRACE["ar"]["local"]):
+                 v = _embed_exchange(c, M, tag, owner, t, k, v)
+             D.st(v, ro, t * H + k, D.CM_DEV)
+             D.st(fx.Float32(v).to(fx.BFloat16), D.rsrc(hb_out), t * H + k, D.CM_DEV)
+@@ -572,7 +573,7 @@
+ def _embed_exchange(c, M, tag, owner, t, k, v):
+     """The owner rank puts its row value v to every rank's embedding region; every
+     rank returns the owner's value from its own region."""
+-    A = dict(D.TRACE["ar"], **c["ar"])
++    A = dict(TD.TRACE["ar"], **c["ar"])
+     off = fx.Int64(2 * A["region"])
+     mb = Mailbox(tag)
+     if owner == A["rank"]:
+Only in /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels: tpdev.py

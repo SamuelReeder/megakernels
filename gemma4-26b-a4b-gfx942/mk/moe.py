@@ -45,7 +45,7 @@ import flydsl.expr as fx
 from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
 from flydsl.expr.typing import T
 
-from . import dev as D
+from mkcore import dev as D
 from . import stages as S
 from .dims import NDS, NE, TOPK
 from .gemv import fp8_compute, fp8_load

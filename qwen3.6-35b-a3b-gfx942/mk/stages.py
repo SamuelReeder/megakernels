@@ -14,7 +14,7 @@ import flydsl.expr as fx
 from flydsl.expr import const_expr, gpu, range_constexpr
 from flydsl.expr.typing import T
 
-from . import dev as D
+from mkcore import dev as D
 from .dims import CONV_DIM, INP_N, VOCAB, H
 
 NT = 512  # threads per CTA (set by the kernel builder before tracing)

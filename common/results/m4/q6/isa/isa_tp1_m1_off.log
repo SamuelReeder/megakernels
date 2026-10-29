@@ -1,0 +1,25 @@
+[flydsl.compile] FLYDSL_DUMP_IR=1 dir=/tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63
+[flydsl.compile] dump 00_origin -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/00_origin.mlir
+[flydsl.compile] dump 01_fly_rewrite_func_signature -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/01_fly_rewrite_func_signature.mlir
+[flydsl.compile] dump 02_fly_canonicalize -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/02_fly_canonicalize.mlir
+[flydsl.compile] dump 03_fly_rocdl_expand_ops -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/03_fly_rocdl_expand_ops.mlir
+[flydsl.compile] dump 04_fly_layout_lowering -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/04_fly_layout_lowering.mlir
+[flydsl.compile] dump 05_fly_int_swizzle_simplify -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/05_fly_int_swizzle_simplify.mlir
+[flydsl.compile] dump 06_canonicalize -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/06_canonicalize.mlir
+[flydsl.compile] dump 07_fly_convert_atom_call_to_ssa_form -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/07_fly_convert_atom_call_to_ssa_form.mlir
+[flydsl.compile] dump 08_fly_promote_regmem_to_vectorssa -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/08_fly_promote_regmem_to_vectorssa.mlir
+[flydsl.compile] dump 09_convert_fly_to_rocdl -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/09_convert_fly_to_rocdl.mlir
+[flydsl.compile] dump 10_canonicalize -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/10_canonicalize.mlir
+[flydsl.compile] dump 11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl.mlir
+[flydsl.compile] dump 12_rocdl_attach_target -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/12_rocdl_attach_target.mlir
+[flydsl.compile] dump 13_convert_scf_to_cf -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/13_convert_scf_to_cf.mlir
+[flydsl.compile] dump 14_convert_cf_to_llvm -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/14_convert_cf_to_llvm.mlir
+[flydsl.compile] dump 15_gpu_to_llvm -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/15_gpu_to_llvm.mlir
+[flydsl.compile] dump 16_convert_vector_to_llvm -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/16_convert_vector_to_llvm.mlir
+[flydsl.compile] dump 17_convert_arith_to_llvm -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/17_convert_arith_to_llvm.mlir
+[flydsl.compile] dump 18_convert_func_to_llvm -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/18_convert_func_to_llvm.mlir
+[flydsl.compile] dump 19_reconcile_unrealized_casts -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/19_reconcile_unrealized_casts.mlir
+[flydsl.compile] dump 20_gpu_module_to_binary -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/20_gpu_module_to_binary.mlir
+[flydsl.compile] dump 21_llvm_ir -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/21_llvm_ir.ll
+[flydsl.compile] dump 22_final_isa -> /tmp/isa_dump_2932032_0_1_off/qwen36moe_decode_m1_a3241e63/22_final_isa.s
+HASH tp1 M=1 lm=off steps=1 layers=4 hidden 368643811d334876 finite True
