@@ -1,7 +1,6 @@
 # Gemma 4 26B-A4B decode megakernel for gfx942 (FlyDSL): design
 
-Status: milestones 1 to 4, 6 and 7 done; milestone 5: second node done (MI325X), second
-day queued (see "Milestone 5"). The kernel runs every layer of a decode step
+Status: milestones 1 to 7 done. The kernel runs every layer of a decode step
 in one persistent launch, passes the correctness suite (`bench/results/m4/suite/`) and runs
 inside vLLM ("Milestone 6"). Milestones 1 and 2 were signed off on 2026-10-27; from
 milestone 3 on, the decisions below were made without sign-off, each with its evidence and
@@ -394,9 +393,14 @@ passages and 85.291 on the long text, the same values as on the MI300X), test_at
 TPOT with real-text prompts: 3.45 / 4.03 / 5.03 / 6.45 ms at M = 1 / 2 / 4 / 8 (MI300X:
 3.58 / 4.18 / 5.29 / 6.77 ms, `bench/results/m7/`); the MI325X has faster HBM.
 
-Second day and a second MI300X: `scripts/repro_sbatch.sh` runs `tests/run_suite.sh` from a
-source tarball of commit `d22bcd4` (milestone 4 kernel, random-prompt benchmark): job
-68198890 starts on 2026-10-29. A second MARKHAM MI300X run (job 68198889, excluding
+Second day (`bench/results/m5/banff-cyxtera-s70-4_68198890_day2/`, 2026-10-29, image
+`hipdnn_20261024_gfx942.sqsh`): `scripts/repro_sbatch.sh` ran `tests/run_suite.sh` from a
+source tarball of commit `d22bcd4` (the milestone 4 kernel, random-prompt benchmark) on the
+day-1 node. Every test passes, with the same perplexities as day 1. TPOT 3.582 / 4.070 /
+4.800 / 5.894 ms at M = 1 / 2 / 4 / 8 against 3.563 / 4.065 / 4.805 / 5.930 ms on day 1
+(`bench/results/m4/suite/`): within 0.6 %.
+
+A second MARKHAM MI300X run (job 68198889, excluding
 banff-cyxtera-s70-4) was cancelled: the only other node, banff-cyxtera-s83-2, was fully
 allocated and Slurm estimated a start in January 2027; the MI325X run covers the second node.
 

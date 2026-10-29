@@ -54,7 +54,9 @@ equal at M = 1 and 8 over 1100 steps.
 
 Second node (`bench/results/m5/quanta-ccs-aus-j02-45_68199254/`): every test passes on an
 MI325X, with the same perplexities as on the MI300X; TPOT 3.45 / 4.03 / 5.03 / 6.45 ms at
-batch 1 / 2 / 4 / 8. A second-day run is queued (SLURM job 68198890).
+batch 1 / 2 / 4 / 8. Second day on the day-1 MI300X
+(`bench/results/m5/banff-cyxtera-s70-4_68198890_day2/`): every test passes, TPOT within
+0.6 % of day 1 (random-token prompts, as in `bench/results/m4/suite/`).
 
 ## How it works
 
