@@ -37,6 +37,8 @@ def _bits(t):
     t = t.view(it)
     if t.dim() == 0:
         return t.to(torch.int64)
+    if t[0].numel() > (1 << 26):
+        return torch.stack([_bits(u) for u in t]).sum()
     step = max(1, (1 << 26) // max(1, t[0].numel()))
     return torch.stack([t[i:i + step].sum(dtype=torch.int64) for i in range(0, t.shape[0], step)]).sum()
 
