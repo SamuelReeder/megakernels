@@ -441,23 +441,33 @@ Exposure (no model code or vLLM branch was changed):
   `repro_sbatch.sh`, and the TP2 `scratch/m3/task.sh` set `FLYDSL_RUNTIME_ENABLE_CACHE=0`.
   `tests/run_suite.sh` (all three), Qwen3.8 `bench/repro.sh`, and direct `python
   tests/...` runs from the READMEs do not, so they can use a stale binary.
-- vLLM branches: the runtime builds through `KK.build(cfg)` with the cache on. A re-export
-  that changes only helper modules (`dev`, `gemv`, `stages`, `mixer`, `moe`, `attention`)
-  keeps the old binary after a restart. A restart with another KV geometry (block size,
-  attention backend layout, `max_model_len`) can load a binary built for the old geometry.
-  [INFERENCE for the geometry fields: the same mechanism as case C and S2 / S3; not run in
-  vLLM.] Our own vLLM measurement scripts (`~/mk/m6run.sh`, `~/mk/g4m6run.sh`) set
-  `FLYDSL_RUNTIME_ENABLE_CACHE=0`, so the published vLLM numbers are not affected.
+- vLLM branches: the runtime builds through `KK.build(cfg)` with the cache on. In the vLLM
+  nightly image `import aiter` sets `FLYDSL_RUNTIME_CACHE_DIR` to aiter's bundled
+  `aiter/jit/flydsl_cache` when the variable is unset (`aiter/__init__.py` lines 94-97), so
+  the kernels go into the container's site-packages, not `$HOME/.flydsl/cache` (seen in
+  the hotfix runs). A fresh container starts without our entries; a container that lives
+  on (a named or writable container, a long-running server image) keeps them. In such a
+  container, a re-export that changes only helper modules (`dev`, `gemv`, `stages`,
+  `mixer`, `moe`, `attention`) keeps the old binary after a restart, and a restart with
+  another KV geometry (block size, attention backend layout, `max_model_len`) can load a
+  binary built for the old geometry. [INFERENCE for the geometry fields: the same
+  mechanism as case C and S2 / S3; not run in vLLM.] Our own vLLM measurement scripts
+  (`~/mk/m6run.sh`, `~/mk/g4m6run.sh`) set `FLYDSL_RUNTIME_ENABLE_CACHE=0`, so the
+  published vLLM numbers are not affected.
 
 Mitigation:
 
 1. Now, without code changes: run with `FLYDSL_RUNTIME_ENABLE_CACHE=0` (each process
    compiles once per `Cfg`), or point `FLYDSL_RUNTIME_CACHE_DIR` at an empty directory
-   for each deployment, and delete `$HOME/.flydsl/cache` after each re-export.
-2. Fix (D5, migration M2): `build` puts a `str` key in the launcher closure that holds
-   `repr(cfg)`, the debug globals and the source hashes of the model package and
-   `mkcore`. Case X shows that a `str` closure value gives a new binary. A cache
-   directory per source hash alone is not enough: it misses `Cfg` fields (case C, S2, S3).
+   for each deployment, and delete the cache directory after each re-export
+   (`$HOME/.flydsl/cache`; in a vLLM container, aiter's `aiter/jit/flydsl_cache`).
+2. Fix (D5): `build` puts a `str` key in the launcher closure that holds `repr(cfg)`, the
+   debug globals and the source hashes of the model package (and of `mkcore` after M2).
+   Case X shows that a `str` closure value gives a new binary. A cache directory per
+   source hash alone is not enough: it misses `Cfg` fields (case C, S2, S3). Applied
+   ahead of M2 as the hotfix below.
+3. `$HOME/.flydsl/cache` on Alola was cleared after the hotfix tests (46 entries, 2.2 MB,
+   2026-10-29).
 
 buffer_ops (D13.5): aiter's `aiter/ops/flydsl/kernels/buffer_ops.py` in the vLLM nightly
 image is not the vendored FlyDSL `8bcefbc` copy (`logs/buffer_ops.diff`, 417 changed lines).
@@ -503,6 +513,32 @@ and M = 8 `cf305425fce9de61` on both `main` and the hotfix. Gates on the hotfix
 (`logs/hotfix/gate_*.txt`, cache off as `mkrun` runs them): `test_decode` M = 1 and 8
 (64 layers, 16 steps) PASS, no non-finite logits; `test_determinism` M = 1 and 8 (64 steps)
 PASS. The gates ran on `57b6c6e`; `9134175` changes only the docstring.
+
+vLLM smoke (same job, vLLM nightly image, branch `vllm` package on `PYTHONPATH`, FlyDSL
+cache on, which here means aiter's directory): `bench/vllm_e2e.py` kernel on, greedy, 8
+prompts (`logs/hotfix/v38_*`, `v36_*`, `b38_*`, `b36_*`). Each run compiled four new
+entries (widths 1, 2, 4, 8) and passed.
+
+- Qwen3.6 (`88e48072d`, `MK_ATTN=TRITON_ATTN`, 160 tokens): tokens and logprobs equal to the
+  recorded kernel-on run (`qwen3.6-35b-a3b-gfx942/bench/results/m6/m4/raw/on_TRITON_ATTN_r1.json`)
+  and to a same-day run of the pre-hotfix head `0ad8a7c56`.
+- Qwen3.8 (`cfc4c8c5b`, default backend, 128 tokens): two hotfix runs, both with the
+  same tokens as the recorded run `~/mk/vout/on.json` of 2026-10-27
+  (`logs/hotfix/ref_v38_on_20261027.json`). The first run (fresh container) also has the
+  same logprobs. The second run (the same container, after other vLLM runs) has the
+  same tokens and 149 logprobs that differ by up to 0.33. The same-day run of the
+  pre-hotfix head `0b5a1a0ae` in that container has the same logprob drift and flips one
+  near-tie token (prompt 3, token 1, logprob -1.46 vs -1.59). The kernel code is the
+  same in all three runs, so vLLM's own path is not bitwise reproducible from a fresh to
+  a used container on Qwen3.8; this is not a hotfix effect.
+- TPOT (one run each, not a speed claim): hotfix 8.19 / 9.13 / 10.23 / 12.65 ms and
+  pre-hotfix 8.44 / 9.12 / 10.26 / 12.77 ms at batch 1 / 2 / 4 / 8 (Qwen3.8); hotfix 3.76 /
+  4.43 / 5.69 / 7.58 ms and pre-hotfix 3.79 / 4.42 / 5.71 / 7.53 ms (Qwen3.6). Both are
+  slower than the 2026-10-27 numbers by the same amount, so the cause is the day and node
+  load, not the hotfix.
+
+Not covered by this hotfix: the Gemma and Qwen3.8 TP2 vLLM branches, and the standalone
+Qwen3.6 and Gemma directories (their owners apply the same lines).
 
 ## Decisions
 
@@ -641,8 +677,8 @@ Re-inventory after M9. Candidates, each with the R-share rule:
 ## Open questions
 
 1. Answered by the compile cache test: the FlyDSL 0.4.0 disk cache can serve a stale
-   binary (see "Compile cache test"). Open: who sets `FLYDSL_RUNTIME_ENABLE_CACHE=0` or a
-   per-deployment cache directory for the vLLM branches before M2 lands?
+   binary (see "Compile cache test"). The hotfix covers Qwen3.8 TP1 and the Qwen3.8 and
+   Qwen3.6 vLLM branches. Open: the Gemma and TP2 vLLM branches.
 2. to 6.: decided, see D13.
 
 ## Disposable
