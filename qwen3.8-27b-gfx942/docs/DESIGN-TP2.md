@@ -619,8 +619,10 @@ held job starts. `scratch/m3/final_summary.py` gives the table.
 
 Milestone 5 passes. The second node (run 3, MI325X, `scratch/m5/austin.sh`, checkpoints
 downloaded from HF there) computes the same bits as banff: the same logits hashes and the
-same gate values to six digits, so the downloaded weights equal ours (the size listing
-check in its log differs only in form; the hashes are the proof). The speed gate for a
+same gate values to six digits. The md5 of the safetensors size listing in its log differs
+from banff's; the cause is not known (the job's container `/tmp` is gone). The equal logits
+hashes (MXFP4 kernel) and equal eval_text values (BF16 reference) show that the tests read
+the same weights. The speed gate for a
 different GPU model passes: TP2 is 6.8 / 7.5 / 7.2 / 7.5 % faster than on banff, not
 slower. TP1 there: 6.813 / 7.283 / 7.949 / 9.058 ms, so TP2's gain over TP1 is 19-24 %
 on MI325X. The vLLM rank check did not run there (section 14).
