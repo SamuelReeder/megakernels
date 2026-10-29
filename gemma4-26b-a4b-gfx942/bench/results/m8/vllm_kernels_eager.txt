@@ -1,0 +1,109 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68206666
+                                   hipStreamIsCapturing         0.00%     359.705us         0.00%     359.705us       1.363us       0.000us         0.00%       0.000us       0.000us           264  
+                                         hipMemcpyAsync         2.34%     886.332ms         2.34%     886.332ms       1.086ms       0.000us         0.00%       0.000us       0.000us           816  
+                                hipEventRecordWithFlags         0.01%       3.078ms         0.01%       3.078ms      21.375us       0.000us         0.00%       0.000us       0.000us           144  
+                                          aten::resize_         0.08%      28.547ms         0.08%      28.547ms       9.750us       0.000us         0.00%       0.000us       0.000us          2928  
+                                            aten::zeros         0.00%     193.573us         0.04%      15.041ms     626.700us       0.000us         0.00%      66.454us       2.769us            24  
+                                            aten::zero_         0.00%     100.038us         0.04%      14.649ms     610.357us       0.000us         0.00%      66.454us       2.769us            24  
+                                 hipPointerGetAttribute         0.16%      61.219ms         0.16%      61.219ms       1.708us       0.000us         0.00%       0.000us       0.000us         35846  
+                                  hipModuleLaunchKernel        22.31%        8.447s        22.31%        8.447s       1.881ms       0.000us         0.00%       0.000us       0.000us          4490  
+                                           aten::unbind         0.00%     406.281us         0.00%     861.026us      35.876us       0.000us         0.00%       0.000us       0.000us            24  
+                                           aten::select         0.00%     717.550us         0.00%     982.676us       3.412us       0.000us         0.00%       0.000us       0.000us           288  
+                                              aten::max         0.00%     300.604us         0.00%     489.999us      20.417us       0.000us         0.00%       0.000us       0.000us            24  
+                                             aten::item         0.00%      91.337us         0.00%     121.374us       5.057us       0.000us         0.00%       0.000us       0.000us            24  
+                              aten::_local_scalar_dense         0.00%      30.037us         0.00%      30.037us       1.252us       0.000us         0.00%       0.000us       0.000us            24  
+                                        aten::embedding         0.00%     136.214us         0.01%       3.572ms     148.839us       0.000us         0.00%     177.422us       7.393us            24  
+                                             aten::view         0.11%      41.676ms         0.11%      41.676ms       1.646us       0.000us         0.00%       0.000us       0.000us         25320  
+                                                aten::t         0.11%      40.408ms         0.21%      80.207ms       6.948us       0.000us         0.00%       0.000us       0.000us         11544  
+                                        aten::transpose         0.10%      36.784ms         0.15%      55.705ms       4.290us       0.000us         0.00%       0.000us       0.000us         12984  
+                               hipExtModuleLaunchKernel        10.48%        3.969s        10.48%        3.969s       1.095ms       0.000us         0.00%       0.000us       0.000us          3624  
+-------------------------------------------------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  ------------  
+Self CPU time total: 37.856s
+Self CUDA time total: 264.318ms
+=== batch 1: 24 decode steps profiled, traces ['/tmp/g4mb-trace/b1_dp0_pp0_tp0_dcp0_ep0_rank0.1793257050014828548.pt.trace.json.gz']
+all kernels: 8110.8 us per step
+  us/step  us/call calls/step  kernel
+    990.4     3.65      271.0  void vllm::rms_norm_kernel<c10::BFloat16, 8, 2, true>(c10::BFloat16*, c10::BFloat16 const*, long, long, long, 
+    785.9    13.10       60.0  fused_moe_kernel.kd
+    742.1     4.12      180.0  void vllm::dynamic_per_token_scaled_fp8_quant_kernel_strided<c10::BFloat16, c10::Float8_e4m3fnuz>(c10::Float8_
+    473.9    15.80       30.0  Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_SAV_UserArgs_MT16x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AFEM1_AFE
+    464.4     5.16       90.0  void at::native::vectorized_elementwise_kernel<8, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*
+    456.6     7.49       61.0  void at::native::elementwise_kernel_manual_unroll<128, 8, at::native::gpu_kernel_impl_nocast<at::native::Binar
+    431.6    14.39       30.0  kernel_unified_attention.kd
+    380.3    15.21       25.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT64x32x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AF
+    367.0    12.23       30.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT32x32x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AF
+    329.3     5.49       60.0  _ZN4vllm18act_and_mul_kernelIN3c108BFloat16E15__hip_bfloat162TnPFT_RKS4_fEXadL_ZNS_16gelu_tanh_kernelIS2_EES4_
+    303.5   303.49        1.0  void wvSplitK_hf_sml_<__hip_bfloat16, 64, 2, 16, 8, 2, 1>(int, int, int, int, int, int, __hip_bfloat16 const*,
+    300.8     5.01       60.0  void vllm::rms_norm_kernel<c10::BFloat16, 8, 2, false>(c10::BFloat16*, c10::BFloat16 const*, long, long, long,
+    300.0    10.00       30.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x32x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_A
+    288.1    11.52       25.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT32x16x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_A
+    238.3     7.94       30.0  void at::native::vectorized_elementwise_kernel<8, at::native::BinaryFunctor<c10::BFloat16, c10::BFloat16, c10:
+    209.8     6.99       30.0  reduce_segments.kd
+    175.5     5.85       30.0  void vllm::moe::moe_sum_vec_kernel<c10::BFloat16, int, 8, false>(c10::BFloat16*, c10::BFloat16 const*, long, i
+    170.3     5.68       30.0  _gemma4_routing_kernel.kd
+    130.4     4.35       30.0  void vllm::rotary_embedding_kernel<c10::BFloat16, c10::BFloat16, true>(long const*, c10::BFloat16*, c10::BFloa
+    114.0    22.80        5.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT64x32x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AF
+     95.0     2.79       34.0  __amd_rocclr_copyBuffer.kd
+     92.1    18.42        5.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x32x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_A
+     81.0     2.53       32.0  void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, 
+     75.8     2.53       30.0  reshape_and_cache_kernel_flash.kd
+     24.6    24.60        1.0  _gumbel_sample_kernel.kd
+kernels with 'moe' in the name: 961.4 us per step, 32.0 us per layer
+=== batch 4: 24 decode steps profiled, traces ['/tmp/g4mb-trace/b4_dp0_pp0_tp0_dcp0_ep0_rank0.1793257113063651841.pt.trace.json.gz']
+all kernels: 10340.1 us per step
+  us/step  us/call calls/step  kernel
+   1330.2     4.91      271.0  void vllm::rms_norm_kernel<c10::BFloat16, 8, 2, true>(c10::BFloat16*, c10::BFloat16 const*, long, long, long, 
+   1289.6    21.49       60.0  fused_moe_kernel.kd
+   1135.8     6.31      180.0  void vllm::dynamic_per_token_scaled_fp8_quant_kernel_strided<c10::BFloat16, c10::Float8_e4m3fnuz>(c10::Float8_
+    604.6     6.64       91.0  void at::native::elementwise_kernel_manual_unroll<128, 8, at::native::gpu_kernel_impl_nocast<at::native::Binar
+    558.0     6.20       90.0  void at::native::elementwise_kernel_manual_unroll<128, 8, at::native::gpu_kernel_impl_nocast<at::native::direc
+    548.0     6.09       90.0  void at::native::vectorized_elementwise_kernel<8, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*
+    488.1    16.27       30.0  Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_SAV_UserArgs_MT16x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AFEM1_AFE
+    423.3    14.11       30.0  kernel_unified_attention.kd
+    416.5     6.94       60.0  _ZN4vllm18act_and_mul_kernelIN3c108BFloat16E15__hip_bfloat162TnPFT_RKS4_fEXadL_ZNS_16gelu_tanh_kernelIS2_EES4_
+    404.9    13.50       30.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT32x32x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AF
+    391.2    15.65       25.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT64x32x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AF
+    330.4   330.45        1.0  void wvSplitK_hf_sml_<__hip_bfloat16, 64, 4, 16, 8, 1, 4>(int, int, int, int, int, int, __hip_bfloat16 const*,
+    327.9     5.46       60.0  void vllm::rms_norm_kernel<c10::BFloat16, 8, 2, false>(c10::BFloat16*, c10::BFloat16 const*, long, long, long,
+    322.3    10.74       30.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x32x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_A
+    281.7    11.27       25.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT32x16x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_A
+    250.6     8.35       30.0  _gemma4_routing_kernel.kd
+    208.9     6.96       30.0  void vllm::rotary_embedding_kernel<c10::BFloat16, c10::BFloat16, true>(long const*, c10::BFloat16*, c10::BFloa
+    205.8     6.86       30.0  reduce_segments.kd
+    187.3     6.24       30.0  void vllm::moe::moe_sum_vec_kernel<c10::BFloat16, int, 8, false>(c10::BFloat16*, c10::BFloat16 const*, long, i
+    120.2    24.04        5.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT64x32x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AF
+    117.2     3.91       30.0  reshape_and_cache_kernel_flash.kd
+    102.1     3.00       34.0  __amd_rocclr_copyBuffer.kd
+     89.3    17.85        5.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x32x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_A
+     81.0     2.53       32.0  void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1ul> >(int, 
+     28.6    28.56        1.0  _gumbel_sample_kernel.kd
+kernels with 'moe' in the name: 1476.8 us per step, 49.2 us per layer
+=== batch 8: 24 decode steps profiled, traces ['/tmp/g4mb-trace/b8_dp0_pp0_tp0_dcp0_ep0_rank0.1793257177433021927.pt.trace.json.gz']
+all kernels: 11013.3 us per step
+  us/step  us/call calls/step  kernel
+   1605.5    26.76       60.0  fused_moe_kernel.kd
+   1329.5     4.91      271.0  void vllm::rms_norm_kernel<c10::BFloat16, 8, 2, true>(c10::BFloat16*, c10::BFloat16 const*, long, long, long, 
+   1189.7     6.61      180.0  void vllm::dynamic_per_token_scaled_fp8_quant_kernel_strided<c10::BFloat16, c10::Float8_e4m3fnuz>(c10::Float8_
+    598.9     6.58       91.0  void at::native::elementwise_kernel_manual_unroll<128, 8, at::native::gpu_kernel_impl_nocast<at::native::Binar
+    543.8     6.04       90.0  void at::native::elementwise_kernel_manual_unroll<128, 8, at::native::gpu_kernel_impl_nocast<at::native::direc
+    531.1    17.70       30.0  kernel_unified_attention.kd
+    492.9    16.43       30.0  Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_SAV_UserArgs_MT16x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AFEM1_AFE
+    455.2     5.06       90.0  void at::native::vectorized_elementwise_kernel<8, at::native::CUDAFunctor_add<c10::BFloat16>, std::array<char*
+    408.6     6.81       60.0  _ZN4vllm18act_and_mul_kernelIN3c108BFloat16E15__hip_bfloat162TnPFT_RKS4_fEXadL_ZNS_16gelu_tanh_kernelIS2_EES4_
+    403.3    16.13       25.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT64x32x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AF
+    400.5    13.35       30.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT32x32x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AF
+    376.9   376.90        1.0  Cijk_Alik_Bljk_BBS_BH_Bias_HA_S_SAV_UserArgs_MT128x16x128_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AFEM1_AF
+    344.7     5.74       60.0  void vllm::rms_norm_kernel<c10::BFloat16, 8, 2, false>(c10::BFloat16*, c10::BFloat16 const*, long, long, long,
+    328.9    10.96       30.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x32x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_A
+    286.8    11.47       25.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT32x16x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_A
+    273.8     9.13       30.0  _gemma4_routing_kernel.kd
+    214.3     7.14       30.0  void vllm::rotary_embedding_kernel<c10::BFloat16, c10::BFloat16, true>(long const*, c10::BFloat16*, c10::BFloa
+    207.8     6.93       30.0  reduce_segments.kd
+    189.5     6.32       30.0  void vllm::moe::moe_sum_vec_kernel<c10::BFloat16, int, 8, false>(c10::BFloat16*, c10::BFloat16 const*, long, i
+    171.6     5.72       30.0  void vllm::moe::moe_align_block_size_kernel<int>(int const*, int*, int*, int*, int*, int, int, int, int, unsig
+    130.0    26.00        5.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT64x32x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_AF
+    118.1     3.94       30.0  reshape_and_cache_kernel_flash.kd
+    107.7     3.17       34.0  __amd_rocclr_copyBuffer.kd
+     92.5    18.50        5.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x32x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0_A
+     75.8     2.53       30.0  void vllm::moe::count_and_sort_expert_tokens_kernel<int>(int const*, int*, int*, int*, unsigned long, int, int
+kernels with 'moe' in the name: 2042.4 us per step, 68.1 us per layer

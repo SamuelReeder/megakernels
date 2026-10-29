@@ -1,0 +1,5 @@
+off default batch 1: TPOT 4.40 ms (227.5 tok/s/user), kernel steps per 256-token generate 0
+off default batch 2: TPOT 4.64 ms (215.4 tok/s/user), kernel steps per 256-token generate 0
+off default batch 4: TPOT 5.22 ms (191.4 tok/s/user), kernel steps per 256-token generate 0
+off default batch 8: TPOT 6.14 ms (163.0 tok/s/user), kernel steps per 256-token generate 0
+wrote out/off2.json

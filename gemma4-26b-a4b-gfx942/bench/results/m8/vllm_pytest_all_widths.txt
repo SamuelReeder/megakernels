@@ -1,0 +1,3 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68207195
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+75 passed, 15 warnings in 20.23s

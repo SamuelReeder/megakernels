@@ -1,0 +1,8 @@
+cs M=1 median TPOT 3.158 ms (MK_CFG=cta_red=1,skip_idle=1 MK_CHUNKS=out=1)
+cs M=8 median TPOT 6.624 ms (MK_CFG=cta_red=1,skip_idle=1 MK_CHUNKS=out=1)
+flat M=1 median TPOT 3.405 ms (MK_CFG=cta_red=1,skip_idle=1,bar_flat=1 MK_CHUNKS=out=1)
+flat M=8 median TPOT 6.765 ms (MK_CFG=cta_red=1,skip_idle=1,bar_flat=1 MK_CHUNKS=out=1)
+cs2 M=1 median TPOT 3.135 ms (MK_CFG=cta_red=1,skip_idle=1 MK_CHUNKS=out=1)
+cs2 M=8 median TPOT 6.637 ms (MK_CFG=cta_red=1,skip_idle=1 MK_CHUNKS=out=1)
+flat2 M=1 median TPOT 3.371 ms (MK_CFG=cta_red=1,skip_idle=1,bar_flat=1 MK_CHUNKS=out=1)
+flat2 M=8 median TPOT 6.711 ms (MK_CFG=cta_red=1,skip_idle=1,bar_flat=1 MK_CHUNKS=out=1)

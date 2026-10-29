@@ -1,0 +1,12 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68206666
+/dev/nvme0n1p3  858G  801G   14G  99% /tmp
+e1_cta=1: Cfg(M=8, cus=304, maxlen=96, block_s=16, maxblocks_s=6, kv_s=(65536, 512, 4096, 256), block_f=32, maxblocks_f=3, kv_f=(65536, 1024, 2048, 512), lm_head=True, c_qkv=1, c_o=4, c_router=1, c_e1=11, c_e2=2, c_lm=1, router_publish=True, combine_rows=True, d_e1=2, d_e2=2, moe_batch=False, route_
+M=8 steps=32: bitwise equal True (steps that differ: 0)
+PASS
+e1_cta=1: Cfg(M=4, cus=304, maxlen=96, block_s=16, maxblocks_s=6, kv_s=(65536, 512, 4096, 256), block_f=32, maxblocks_f=3, kv_f=(65536, 1024, 2048, 512), lm_head=True, c_qkv=1, c_o=4, c_router=1, c_e1=11, c_e2=2, c_lm=1, router_publish=True, combine_rows=True, d_e1=2, d_e2=2, moe_batch=False, route_
+M=4 steps=32: bitwise equal True (steps that differ: 0)
+PASS
+(defaults)                                                   TPOT median 7.047 ms  ratio 1.0000  rounds 7.043 7.017 7.047 7.125 7.223
+e1_cta=1                                                     TPOT median 5.946 ms  ratio 0.8437  rounds 5.911 5.905 5.946 5.989 6.037
+(defaults)                                                   TPOT median 5.333 ms  ratio 1.0000  rounds 5.294 5.308 5.333 5.494 5.540
+e1_cta=1                                                     TPOT median 5.185 ms  ratio 0.9722  rounds 5.157 5.164 5.185 5.234 5.271

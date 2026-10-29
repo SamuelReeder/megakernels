@@ -7,6 +7,7 @@ selection against the emulating reference.
 Usage: python tests/test_decode.py FP8_DIR [M] [LAYERS] [STEPS]
 Env: MK_XPACK=1 (ROCM_ATTN KV layout), MK_BLOCK (KV block), MK_SEED.
 """
+import hashlib
 import os
 import sys
 import time
@@ -66,11 +67,13 @@ def main():
     torch.manual_seed(int(os.environ.get("MK_SEED", "0")))
     tok = torch.randint(0, 200000, (M,), device="cuda")
     rows, bad_route, hard, i5_bad, code_bad, nonfinite = [], 0, 0, 0, 0, 0
+    lhash = hashlib.sha256()  # of the kernel's logits, all steps: a bit change shows here
     for s in range(STEPS):
         tr = []
         emu = R.step(W, tok, st, layers=LAYERS, emulate=True, trace=tr)
         ex = R.step(W, tok, st_x, layers=LAYERS, emulate=False)
         out = eng.step(tok).clone()
+        lhash.update(out.float().cpu().numpy().tobytes())
         torch.cuda.synchronize()
         # min() over the cosines can skip a NaN, so count non-finite logits on their own
         nonfinite += int(not bool(torch.isfinite(out).all() and torch.isfinite(emu).all()
@@ -113,6 +116,7 @@ def main():
     print(f"routing code: steps where the kernel's tables differ from reference.route on "
           f"the kernel's logits: {code_bad}")
     print(f"steps with non-finite logits (kernel or reference): {nonfinite}")
+    print(f"kernel logits sha256: {lhash.hexdigest()[:16]}")
     # fp8 activation rounding is chaotic over 40 layers: two correct fp8 implementations
     # (kernel, emulating reference) drift apart as far as each drifts from the exact
     # model, and the drift alone moves router logits across top-8 boundaries. Pass: the

@@ -1,0 +1,56 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68206666
+== 
+M=8 ctx=512: embed (start -> first arrival) 0.9 us; step total 8012.6 us (CUDA events around this single launch, launch latency included: 8610.6 us); medians over 4 step(s)
+stage    n  span us  busy us barrier us sum span us      MB TB/s span TB/s busy
+qkv     30     16.0     12.2       1.69       524.0    23.8      1.49      1.95
+attn    30     29.1     11.2       1.90       939.1     0.0      0.00      0.00
+o       30     16.3      9.7       2.04       515.3    11.9      0.76      1.24
+router  30     15.7      2.6       2.18       474.6     0.7      0.05      0.28
+e1      30     78.2     61.4       3.56      2371.7   151.3      1.88      2.44
+e2      30     78.2     36.7       6.98      2360.2    82.5      1.00      2.23
+lm       1    350.2    348.1      20.66       350.4  1476.4      4.22      4.24
+sum of spans + barriers 8118.4 us
+== moe_batch=1
+M=8 ctx=512: embed (start -> first arrival) 0.7 us; step total 8020.3 us (CUDA events around this single launch, launch latency included: 8568.4 us); medians over 4 step(s)
+stage    n  span us  busy us barrier us sum span us      MB TB/s span TB/s busy
+qkv     30     16.0     11.8       1.81       523.7    23.8      1.49      2.02
+attn    30     27.3     11.4       1.92       897.2     0.0      0.00      0.00
+o       30     17.4      9.9       1.78       529.0    11.9      0.71      1.22
+router  30     18.2      2.5       2.46       549.2     0.7      0.04      0.28
+e1      30     84.2     60.4       3.62      2528.5   151.3      1.77      2.43
+e2      30     72.4     36.3       7.21      2183.7    82.5      1.12      2.25
+lm       1    354.3    350.5       9.78       354.5  1476.4      4.17      4.21
+sum of spans + barriers 8159.5 us
+== route_prefetch=1
+M=8 ctx=512: embed (start -> first arrival) 0.8 us; step total 7941.6 us (CUDA events around this single launch, launch latency included: 8497.8 us); medians over 4 step(s)
+stage    n  span us  busy us barrier us sum span us      MB TB/s span TB/s busy
+qkv     30     15.9     12.1       1.88       518.7    23.8      1.50      1.97
+attn    30     28.7     11.1       1.95       932.5     0.0      0.00      0.00
+o       30     16.1      9.8       1.57       507.2    11.9      0.76      1.22
+router  30     16.8      2.6       2.78       503.2     0.7      0.04      0.28
+e1      30     78.5     60.8       3.61      2347.1   151.3      1.89      2.46
+e2      30     77.2     35.9       6.34      2328.5    82.5      1.03      2.27
+lm       1    353.8    350.8      16.85       353.7  1476.4      4.17      4.21
+sum of spans + barriers 8077.8 us
+== d_e1=3,d_e2=3
+M=8 ctx=512: embed (start -> first arrival) 2.4 us; step total 7936.4 us (CUDA events around this single launch, launch latency included: 8470.4 us); medians over 4 step(s)
+stage    n  span us  busy us barrier us sum span us      MB TB/s span TB/s busy
+qkv     30     16.9     12.3       1.92       537.0    23.8      1.43      1.94
+attn    30     27.3     11.3       1.83       905.8     0.0      0.00      0.00
+o       30     17.0     10.0       1.88       532.7    11.9      0.72      1.21
+router  30     17.2      2.2       2.45       512.7     0.7      0.04      0.33
+e1      30     75.5     60.3       3.96      2298.1   151.3      1.91      2.47
+e2      30     78.9     38.8       6.44      2359.3    82.5      1.03      2.10
+lm       1    354.6    351.4      19.18       354.8  1476.4      4.16      4.20
+sum of spans + barriers 8090.1 us
+== 
+M=8 ctx=512: embed (start -> first arrival) 0.7 us; step total 7948.8 us (CUDA events around this single launch, launch latency included: 8596.0 us); medians over 4 step(s)
+stage    n  span us  busy us barrier us sum span us      MB TB/s span TB/s busy
+qkv     30     16.3     12.2       1.92       525.8    23.8      1.48      1.96
+attn    30     28.4     11.1       1.92       933.4     0.0      0.00      0.00
+o       30     16.3      9.6       1.73       512.6    11.9      0.76      1.26
+router  30     16.6      2.6       2.85       500.1     0.7      0.04      0.28
+e1      30     78.1     60.8       3.74      2364.7   151.3      1.89      2.45
+e2      30     77.7     36.3       6.33      2352.3    82.5      1.03      2.24
+lm       1    353.1    349.6      13.61       353.1  1476.4      4.18      4.22
+sum of spans + barriers 8118.0 us

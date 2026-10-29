@@ -1,0 +1,9 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68206666
+(defaults)                                                   TPOT median 5.869 ms  ratio 1.0000  rounds 5.842 5.829 5.869 5.916 6.021
+d_e1=3                                                       TPOT median 5.932 ms  ratio 1.0108  rounds 5.903 5.907 5.932 5.993 6.108
+d_e1=3,d_e2=3                                                TPOT median 6.047 ms  ratio 1.0303  rounds 6.030 6.027 6.047 6.113 6.202
+moe_batch=1                                                  TPOT median 5.859 ms  ratio 0.9984  rounds 5.845 5.825 5.859 5.914 6.007
+(defaults)                                                   TPOT median 4.619 ms  ratio 1.0000  rounds 4.579 4.579 4.619 4.679 4.740
+d_e1=3                                                       TPOT median 4.656 ms  ratio 1.0081  rounds 4.634 4.629 4.656 4.759 4.803
+d_e1=3,d_e2=3                                                TPOT median 4.797 ms  ratio 1.0385  rounds 4.770 4.777 4.797 4.877 4.924
+moe_batch=1                                                  TPOT median 4.781 ms  ratio 1.0351  rounds 4.751 4.748 4.781 4.840 4.878

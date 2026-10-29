@@ -1,0 +1,3 @@
+base M=1 median TPOT 3.680 ms (MK_CFG= MK_CHUNKS=)
+pf2 M=1 median TPOT 3.814 ms (MK_CFG=pf=2 MK_CHUNKS=)
+base2 M=1 median TPOT 3.690 ms (MK_CFG= MK_CHUNKS=)

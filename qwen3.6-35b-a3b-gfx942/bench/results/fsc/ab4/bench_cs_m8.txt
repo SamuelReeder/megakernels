@@ -1,0 +1,5 @@
+load+pack+build 13s
+rep 0: TPOT 6.794 ms (147.2 tok/s/user, 1177.5 tok/s total), kernel median 6.395 ms
+rep 1: TPOT 6.805 ms (146.9 tok/s/user, 1175.6 tok/s total), kernel median 6.440 ms
+rep 2: TPOT 6.817 ms (146.7 tok/s/user, 1173.5 tok/s total), kernel median 6.469 ms
+{"M": 8, "ctx": 512, "steps": 256, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-29 07:13:13", "cfg": "Cfg(M=8, cus=304, maxlen=832, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=1, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False, chaos=False, bar_ng=0, pf=1, cta_red=True, skip_idle=True)", "runs": [{"tpot_ms": 6.794126510620117, "kernel_ms_median": 6.394865036010742, "kernel_ms_min": 6.288380146026611}, {"tpot_ms": 6.805145263671875, "kernel_ms_median": 6.439929008483887, "kernel_ms_min": 6.314881801605225}, {"tpot_ms": 6.817378044128418, "kernel_ms_median": 6.468554973602295, "kernel_ms_min": 6.318249225616455}]}

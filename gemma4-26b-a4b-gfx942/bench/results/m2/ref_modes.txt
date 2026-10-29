@@ -1,0 +1,7 @@
+400 tokens: emulate~exact logits cos min 0.932032 mean 0.997385 top1 0.775
+ppl exact 451.4224 emulate 448.8964
+routing: same top-8 set in 0.6685 of (token, layer) pairs; differs in 3978 of 12000
+exact-mode 8th-9th router logit gap: median 0.0477, min 2.38e-07, < 1e-3 in 0.0124, < 1e-2 in 0.1369
+gap where the sets differ: median 0.0235, max 0.5291
+emulate / exact perplexity 0.9944
+PASS

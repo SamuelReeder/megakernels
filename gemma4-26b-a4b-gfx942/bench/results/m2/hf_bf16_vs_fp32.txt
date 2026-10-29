@@ -1,0 +1,1 @@
+HF bf16 vs HF fp32, 1300 tokens: cos min 0.958410 mean 0.998913  top1 agree 0.837

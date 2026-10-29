@@ -1,0 +1,17 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+    raise RuntimeError(f"cannot evaluate dynamic '{type(self).__name__}' as Python bool during tracing")
+RuntimeError: cannot evaluate dynamic 'Boolean' as Python bool during tracing
+    raise RuntimeError(f"cannot evaluate dynamic '{type(self).__name__}' as Python bool during tracing")
+RuntimeError: cannot evaluate dynamic 'Boolean' as Python bool during tracing
+    raise RuntimeError(f"cannot evaluate dynamic '{type(self).__name__}' as Python bool during tracing")
+RuntimeError: cannot evaluate dynamic 'Boolean' as Python bool during tracing
+M=1 MK_CFG= 
+M=1 MK_CFG=router_publish=0 rep 0: TPOT 3.913 ms (255.5 tok/s/user, 255.5 tok/s total), kernel median 4.162 ms rep 1: TPOT 3.915 ms (255.4 tok/s/user, 255.4 tok/s total), kernel median 4.168 ms 
+M=1 MK_CFG=attn_merge_o=0 
+M=1 MK_CFG=combine_last=0 
+M=1 old (o=4, all off) rep 0: TPOT 3.643 ms (274.5 tok/s/user, 274.5 tok/s total), kernel median 3.892 ms rep 1: TPOT 3.648 ms (274.1 tok/s/user, 274.1 tok/s total), kernel median 3.878 ms 
+M=8 MK_CFG= 
+M=8 MK_CFG=router_publish=0 rep 0: TPOT 6.941 ms (144.1 tok/s/user, 1152.5 tok/s total), kernel median 7.218 ms rep 1: TPOT 6.981 ms (143.3 tok/s/user, 1146.0 tok/s total), kernel median 7.217 ms 
+M=8 MK_CFG=attn_merge_o=0 
+M=8 MK_CFG=combine_last=0 
+M=8 old (o=4, all off) rep 0: TPOT 6.465 ms (154.7 tok/s/user, 1237.5 tok/s total), kernel median 6.710 ms rep 1: TPOT 6.519 ms (153.4 tok/s/user, 1227.2 tok/s total), kernel median 6.745 ms 

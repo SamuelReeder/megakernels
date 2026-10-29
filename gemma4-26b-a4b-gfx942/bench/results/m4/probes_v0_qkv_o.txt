@@ -1,0 +1,66 @@
+pyxis: ignoring --container-mounts when attaching to a running container
+=== M=1 PROBE=qkv_s
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+qkv_s timeline (us from its barrier's last release):
+  first release  med   -0.2 max   -0.2
+  prologue       med   -0.0 max    0.1
+  loads issued   med    1.8 max    2.0
+  rstd done      med    3.1 max    3.3
+  quantized      med    4.1 max    4.3
+  stream start   med    4.2 max    4.4
+  stream end     med    8.3 max   12.6
+  hand-off end   med   12.0 max   15.2
+  next arrival   med   12.0 max   14.6
+  next release   med   16.7 max   16.8
+qkv_s stream          per wave: med 4.1 max 8.2 us
+qkv_s hand-off        per wave: med 3.7 max 6.2 us
+qkv_s drain + atomics per wave: med 3.3 max 5.9 us
+qkv_s reductions      per wave: med 0.3 max 1.7 us
+=== M=1 PROBE=o_s
+o_s timeline (us from its barrier's last release):
+  first release  med   -0.3 max   -0.3
+  prologue       med   -0.2 max    0.1
+  loads issued   med -1075201381315.2 max -1075201381315.2
+  rstd done      med -1075201381315.2 max -1075201381315.2
+  quantized      med    0.7 max    0.9
+  stream start   med    0.8 max    1.0
+  stream end     med    2.8 max    5.4
+  hand-off end   med    6.8 max   13.6
+  next arrival   med    7.6 max   12.6
+  next release   med   15.4 max   15.6
+o_s stream          per wave: med 2.0 max 4.6 us
+o_s hand-off        per wave: med 3.9 max 11.0 us
+o_s drain + atomics per wave: med 3.6 max 6.8 us
+o_s reductions      per wave: med 0.3 max 4.7 us
+=== M=8 PROBE=qkv_s
+qkv_s timeline (us from its barrier's last release):
+  first release  med   -0.3 max   -0.3
+  prologue       med   -0.1 max    0.1
+  loads issued   med    8.6 max    9.7
+  rstd done      med   14.7 max   15.6
+  quantized      med   18.5 max   19.4
+  stream start   med   18.6 max   19.5
+  stream end     med   24.6 max   28.8
+  hand-off end   med   28.5 max   33.8
+  next arrival   med   28.5 max   33.1
+  next release   med   35.2 max   35.5
+qkv_s stream          per wave: med 6.0 max 10.0 us
+qkv_s hand-off        per wave: med 4.2 max 7.3 us
+qkv_s drain + atomics per wave: med 3.6 max 6.0 us
+qkv_s reductions      per wave: med 0.4 max 3.7 us
+=== M=8 PROBE=o_s
+o_s timeline (us from its barrier's last release):
+  first release  med   -0.2 max   -0.2
+  prologue       med   -0.1 max    0.1
+  loads issued   med -1075295606859.9 max -1075295606859.9
+  rstd done      med -1075295606859.9 max -1075295606859.9
+  quantized      med    1.7 max    2.0
+  stream start   med    1.8 max    2.0
+  stream end     med    3.5 max    6.2
+  hand-off end   med    8.1 max   13.7
+  next arrival   med    9.4 max   13.7
+  next release   med   16.1 max   16.4
+o_s stream          per wave: med 1.8 max 4.5 us
+o_s hand-off        per wave: med 4.4 max 9.6 us
+o_s drain + atomics per wave: med 3.6 max 6.4 us
+o_s reductions      per wave: med 0.5 max 3.8 us

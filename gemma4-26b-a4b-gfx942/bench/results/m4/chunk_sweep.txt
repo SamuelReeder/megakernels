@@ -1,0 +1,15 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+MK_CHUNKS= M=1 rep 0: TPOT 3.651 ms (273.9 tok/s/user, 273.9 tok/s total), kernel median 3.882 ms rep 1: TPOT 3.653 ms (273.7 tok/s/user, 273.7 tok/s total), kernel median 3.879 ms 
+MK_CHUNKS= M=8 rep 0: TPOT 6.478 ms (154.4 tok/s/user, 1235.0 tok/s total), kernel median 6.711 ms rep 1: TPOT 6.548 ms (152.7 tok/s/user, 1221.7 tok/s total), kernel median 6.759 ms 
+MK_CHUNKS=o=2 M=1 rep 0: TPOT 3.595 ms (278.1 tok/s/user, 278.1 tok/s total), kernel median 3.833 ms rep 1: TPOT 3.605 ms (277.4 tok/s/user, 277.4 tok/s total), kernel median 3.829 ms 
+MK_CHUNKS=o=2 M=8 rep 0: TPOT 6.642 ms (150.6 tok/s/user, 1204.5 tok/s total), kernel median 6.819 ms rep 1: TPOT 6.683 ms (149.6 tok/s/user, 1197.1 tok/s total), kernel median 6.835 ms 
+MK_CHUNKS=o=8 M=1 rep 0: TPOT 3.623 ms (276.0 tok/s/user, 276.0 tok/s total), kernel median 3.866 ms rep 1: TPOT 3.627 ms (275.7 tok/s/user, 275.7 tok/s total), kernel median 3.846 ms 
+MK_CHUNKS=o=8 M=8 rep 0: TPOT 6.802 ms (147.0 tok/s/user, 1176.1 tok/s total), kernel median 6.924 ms rep 1: TPOT 6.877 ms (145.4 tok/s/user, 1163.3 tok/s total), kernel median 6.968 ms 
+MK_CHUNKS=o=16 M=1 rep 0: TPOT 3.847 ms (259.9 tok/s/user, 259.9 tok/s total), kernel median 4.081 ms rep 1: TPOT 3.846 ms (260.0 tok/s/user, 260.0 tok/s total), kernel median 4.071 ms 
+MK_CHUNKS=o=16 M=8 rep 0: TPOT 6.897 ms (145.0 tok/s/user, 1159.9 tok/s total), kernel median 7.163 ms rep 1: TPOT 6.961 ms (143.7 tok/s/user, 1149.2 tok/s total), kernel median 7.210 ms 
+MK_CHUNKS=e2=3 M=1 rep 0: TPOT 3.735 ms (267.8 tok/s/user, 267.8 tok/s total), kernel median 3.981 ms rep 1: TPOT 3.737 ms (267.6 tok/s/user, 267.6 tok/s total), kernel median 3.976 ms 
+MK_CHUNKS=e2=3 M=8 rep 0: TPOT 7.089 ms (141.1 tok/s/user, 1128.6 tok/s total), kernel median 7.122 ms rep 1: TPOT 7.150 ms (139.9 tok/s/user, 1118.9 tok/s total), kernel median 7.217 ms 
+MK_CHUNKS=e2=6 M=1 rep 0: TPOT 4.525 ms (221.0 tok/s/user, 221.0 tok/s total), kernel median 4.762 ms rep 1: TPOT 4.529 ms (220.8 tok/s/user, 220.8 tok/s total), kernel median 4.761 ms 
+MK_CHUNKS=e2=6 M=8 rep 0: TPOT 10.716 ms (93.3 tok/s/user, 746.5 tok/s total), kernel median 10.693 ms rep 1: TPOT 10.606 ms (94.3 tok/s/user, 754.3 tok/s total), kernel median 10.697 ms 
+MK_CHUNKS=e1=22 M=1 rep 0: TPOT 3.819 ms (261.9 tok/s/user, 261.9 tok/s total), kernel median 4.061 ms rep 1: TPOT 3.827 ms (261.3 tok/s/user, 261.3 tok/s total), kernel median 4.046 ms 
+MK_CHUNKS=e1=22 M=8 rep 0: TPOT 7.296 ms (137.1 tok/s/user, 1096.4 tok/s total), kernel median 7.457 ms rep 1: TPOT 7.360 ms (135.9 tok/s/user, 1086.9 tok/s total), kernel median 7.493 ms 

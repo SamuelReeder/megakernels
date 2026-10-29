@@ -1,0 +1,10 @@
+(EngineCore pid=3200654) INFO 10-28 06:59:36 [dispatch.py:162] Specialized decode gemma4-26b-a4b-fp8-gfx942: step on vLLM's path (width)
+(EngineCore pid=3200654) INFO 10-28 06:59:40 [decode.py:255] Gemma 4 26B-A4B gfx942 decode: KV blocks 16 (sliding) / 32 (full), 6 KV cache groups, widths [1, 2]
+Capturing CUDA graphs (PIECEWISE):   0%|          | 0/5 [00:00<?, ?it/s]Capturing CUDA graphs (PIECEWISE):  20%|██        | 1/5 [00:00<00:01,  3.49it/s]Capturing CUDA graphs (PIECEWISE):  40%|████      | 2/5 [00:00<00:00,  4.05it/s]Ca
+(EngineCore pid=3200654) INFO 10-28 06:59:42 [dispatch.py:162] Specialized decode gemma4-26b-a4b-fp8-gfx942: step on vLLM's path (piecewise)
+(EngineCore pid=3200654) INFO 10-28 06:59:43 [decode.py:255] Gemma 4 26B-A4B gfx942 decode: KV blocks 16 (sliding) / 32 (full), 6 KV cache groups, widths [1, 2]
+on default batch 1: TPOT 3.56 ms (280.7 tok/s/user), kernel steps per 256-token generate 255
+on default batch 2: TPOT 4.23 ms (236.4 tok/s/user), kernel steps per 256-token generate 255
+on default batch 4: TPOT 5.21 ms (191.8 tok/s/user), kernel steps per 256-token generate 0
+on default batch 8: TPOT 6.28 ms (159.3 tok/s/user), kernel steps per 256-token generate 0
+wrote out/on3.json

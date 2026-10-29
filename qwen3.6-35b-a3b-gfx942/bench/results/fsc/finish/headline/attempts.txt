@@ -1,0 +1,15 @@
+attempt 1: highest GPU use of the other GPUs 100 %
+kernel m1 3.107
+kernel m2 3.771
+kernel m4 4.958
+kernel m8 6.595
+attempt 2: highest GPU use of the other GPUs 100 %
+kernel m1 3.128
+kernel m2 3.772
+kernel m4 4.991
+kernel m8 6.625
+attempt 3: highest GPU use of the other GPUs 100 %
+kernel m1 3.152
+kernel m2 3.760
+kernel m4 4.976
+kernel m8 6.639

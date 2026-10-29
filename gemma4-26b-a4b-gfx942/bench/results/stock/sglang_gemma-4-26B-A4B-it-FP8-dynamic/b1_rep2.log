@@ -1,0 +1,196 @@
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /sgl-workspace/aiter/aiter/jit/module_aiter_core.so
+INFO 10-28 03:13:40 [__init__.py:241] Automatically detected platform rocm.
+[aiter] merge tuned file under model_configs/ and configs/ /sgl-workspace/aiter/aiter/configs/bf16_tuned_gemm.csv:/sgl-workspace/aiter/aiter/configs/model_configs/kimik2_bf16_tuned_gemm.csv:/sgl-workspace/aiter/aiter/configs/model_configs/dsv3_bf16_tuned_gemm.csv:/sgl-workspace/aiter/aiter/configs/model_configs/gptoss_bf16_tuned_gemm.csv
+/sgl-workspace/aiter/aiter/jit/core.py:214: FutureWarning: The behavior of DataFrame concatenation with empty or all-NA entries is deprecated. In a future version, this will no longer exclude empty or all-NA columns when determining the result dtypes. To retain the old behavior, exclude the relevant entries before the concat operation.
+  merge_df = pd.concat([df for _, df in source_pairs], ignore_index=True)
+Process 1696119 gpu_id 0 is running on CPUs: [44, 45, 46, 47, 52, 53, 54, 55, 156, 157, 158, 159, 164, 165, 166, 167]
+[2026-10-28 03:13:42 TP0] Init torch distributed begin.
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[Gloo] Rank 0 is connected to 0 peer ranks. Expected number of connected peer ranks is : 0
+[2026-10-28 03:13:42 TP0] Init torch distributed ends. elapsed=0.52 s, mem usage=0.14 GB
+/opt/venv/lib/python3.10/site-packages/apex/transformer/functional/fused_rope.py:49: UserWarning: Aiter backend is selected for fused RoPE. This has lower precision. To disable aiter, export USE_ROCM_AITER_ROPE_BACKEND=0
+  warnings.warn("Aiter backend is selected for fused RoPE. This has lower precision. To disable aiter, export USE_ROCM_AITER_ROPE_BACKEND=0", UserWarning)
+[2026-10-28 03:13:43 TP0] aiter fused_qk_norm_mrope_3d kernel available
+[2026-10-28 03:13:43 TP0] Load weight begin. avail mem=191.32 GB
+[2026-10-28 03:13:43 TP0] Acceleration for non-quantized schemes is not supported by Compressed Tensors. Falling back to UnquantizedLinearMethod
+[2026-10-28 03:13:43 TP0] Using CompressedTensorsW8A8Fp8MoE
+Multi-thread loading shards:   0% Completed | 0/1 [00:00<?, ?it/s]Multi-thread loading shards: 100% Completed | 1/1 [00:02<00:00,  2.46s/it]Multi-thread loading shards: 100% Completed | 1/1 [00:02<00:00,  2.46s/it]
+[2026-10-28 03:13:46 TP0] Some weights are not initialized from checkpoints: ['language_model.layers.0.moe.experts.w13_weight', 'language_model.layers.0.moe.experts.w13_weight_scale', 'language_model.layers.0.moe.experts.w2_weight', 'language_model.layers.0.moe.experts.w2_weight_scale', 'language_model.layers.1.moe.experts.w13_weight', 'language_model.layers.1.moe.experts.w13_weight_scale', 'language_model.layers.1.moe.experts.w2_weight', 'language_model.layers.1.moe.experts.w2_weight_scale', 'language_model.layers.10.moe.experts.w13_weight', 'language_model.layers.10.moe.experts.w13_weight_scale', 'language_model.layers.10.moe.experts.w2_weight', 'language_model.layers.10.moe.experts.w2_weight_scale', 'language_model.layers.11.moe.experts.w13_weight', 'language_model.layers.11.moe.experts.w13_weight_scale', 'language_model.layers.11.moe.experts.w2_weight', 'language_model.layers.11.moe.experts.w2_weight_scale', 'language_model.layers.12.moe.experts.w13_weight', 'language_model.layers.12.moe.experts.w13_weight_scale', 'language_model.layers.12.moe.experts.w2_weight', 'language_model.layers.12.moe.experts.w2_weight_scale', 'language_model.layers.13.moe.experts.w13_weight', 'language_model.layers.13.moe.experts.w13_weight_scale', 'language_model.layers.13.moe.experts.w2_weight', 'language_model.layers.13.moe.experts.w2_weight_scale', 'language_model.layers.14.moe.experts.w13_weight', 'language_model.layers.14.moe.experts.w13_weight_scale', 'language_model.layers.14.moe.experts.w2_weight', 'language_model.layers.14.moe.experts.w2_weight_scale', 'language_model.layers.15.moe.experts.w13_weight', 'language_model.layers.15.moe.experts.w13_weight_scale', 'language_model.layers.15.moe.experts.w2_weight', 'language_model.layers.15.moe.experts.w2_weight_scale', 'language_model.layers.16.moe.experts.w13_weight', 'language_model.layers.16.moe.experts.w13_weight_scale', 'language_model.layers.16.moe.experts.w2_weight', 'language_model.layers.16.moe.experts.w2_weight_scale', 'language_model.layers.17.moe.experts.w13_weight', 'language_model.layers.17.moe.experts.w13_weight_scale', 'language_model.layers.17.moe.experts.w2_weight', 'language_model.layers.17.moe.experts.w2_weight_scale', 'language_model.layers.18.moe.experts.w13_weight', 'language_model.layers.18.moe.experts.w13_weight_scale', 'language_model.layers.18.moe.experts.w2_weight', 'language_model.layers.18.moe.experts.w2_weight_scale', 'language_model.layers.19.moe.experts.w13_weight', 'language_model.layers.19.moe.experts.w13_weight_scale', 'language_model.layers.19.moe.experts.w2_weight', 'language_model.layers.19.moe.experts.w2_weight_scale', 'language_model.layers.2.moe.experts.w13_weight', 'language_model.layers.2.moe.experts.w13_weight_scale', 'language_model.layers.2.moe.experts.w2_weight', 'language_model.layers.2.moe.experts.w2_weight_scale', 'language_model.layers.20.moe.experts.w13_weight', 'language_model.layers.20.moe.experts.w13_weight_scale', 'language_model.layers.20.moe.experts.w2_weight', 'language_model.layers.20.moe.experts.w2_weight_scale', 'language_model.layers.21.moe.experts.w13_weight', 'language_model.layers.21.moe.experts.w13_weight_scale', 'language_model.layers.21.moe.experts.w2_weight', 'language_model.layers.21.moe.experts.w2_weight_scale', 'language_model.layers.22.moe.experts.w13_weight', 'language_model.layers.22.moe.experts.w13_weight_scale', 'language_model.layers.22.moe.experts.w2_weight', 'language_model.layers.22.moe.experts.w2_weight_scale', 'language_model.layers.23.moe.experts.w13_weight', 'language_model.layers.23.moe.experts.w13_weight_scale', 'language_model.layers.23.moe.experts.w2_weight', 'language_model.layers.23.moe.experts.w2_weight_scale', 'language_model.layers.24.moe.experts.w13_weight', 'language_model.layers.24.moe.experts.w13_weight_scale', 'language_model.layers.24.moe.experts.w2_weight', 'language_model.layers.24.moe.experts.w2_weight_scale', 'language_model.layers.25.moe.experts.w13_weight', 'language_model.layers.25.moe.experts.w13_weight_scale', 'language_model.layers.25.moe.experts.w2_weight', 'language_model.layers.25.moe.experts.w2_weight_scale', 'language_model.layers.26.moe.experts.w13_weight', 'language_model.layers.26.moe.experts.w13_weight_scale', 'language_model.layers.26.moe.experts.w2_weight', 'language_model.layers.26.moe.experts.w2_weight_scale', 'language_model.layers.27.moe.experts.w13_weight', 'language_model.layers.27.moe.experts.w13_weight_scale', 'language_model.layers.27.moe.experts.w2_weight', 'language_model.layers.27.moe.experts.w2_weight_scale', 'language_model.layers.28.moe.experts.w13_weight', 'language_model.layers.28.moe.experts.w13_weight_scale', 'language_model.layers.28.moe.experts.w2_weight', 'language_model.layers.28.moe.experts.w2_weight_scale', 'language_model.layers.29.moe.experts.w13_weight', 'language_model.layers.29.moe.experts.w13_weight_scale', 'language_model.layers.29.moe.experts.w2_weight', 'language_model.layers.29.moe.experts.w2_weight_scale', 'language_model.layers.3.moe.experts.w13_weight', 'language_model.layers.3.moe.experts.w13_weight_scale', 'language_model.layers.3.moe.experts.w2_weight', 'language_model.layers.3.moe.experts.w2_weight_scale', 'language_model.layers.4.moe.experts.w13_weight', 'language_model.layers.4.moe.experts.w13_weight_scale', 'language_model.layers.4.moe.experts.w2_weight', 'language_model.layers.4.moe.experts.w2_weight_scale', 'language_model.layers.5.moe.experts.w13_weight', 'language_model.layers.5.moe.experts.w13_weight_scale', 'language_model.layers.5.moe.experts.w2_weight', 'language_model.layers.5.moe.experts.w2_weight_scale', 'language_model.layers.6.moe.experts.w13_weight', 'language_model.layers.6.moe.experts.w13_weight_scale', 'language_model.layers.6.moe.experts.w2_weight', 'language_model.layers.6.moe.experts.w2_weight_scale', 'language_model.layers.7.moe.experts.w13_weight', 'language_model.layers.7.moe.experts.w13_weight_scale', 'language_model.layers.7.moe.experts.w2_weight', 'language_model.layers.7.moe.experts.w2_weight_scale', 'language_model.layers.8.moe.experts.w13_weight', 'language_model.layers.8.moe.experts.w13_weight_scale', 'language_model.layers.8.moe.experts.w2_weight', 'language_model.layers.8.moe.experts.w2_weight_scale', 'language_model.layers.9.moe.experts.w13_weight', 'language_model.layers.9.moe.experts.w13_weight_scale', 'language_model.layers.9.moe.experts.w2_weight', 'language_model.layers.9.moe.experts.w2_weight_scale', 'vision_tower.encoder.layers.0.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.0.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.1.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.1.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.10.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.10.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.11.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.11.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.12.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.12.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.13.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.13.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.14.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.14.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.15.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.15.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.16.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.16.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.17.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.17.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.18.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.18.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.19.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.19.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.2.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.2.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.20.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.20.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.21.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.21.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.22.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.22.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.23.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.23.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.24.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.24.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.25.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.25.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.26.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.26.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.3.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.3.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.4.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.4.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.5.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.5.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.6.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.6.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.7.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.7.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.8.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.8.self_attn.qkv.qkv_proj.weight_scale', 'vision_tower.encoder.layers.9.mlp.gate_up.gate_up_proj.weight_scale', 'vision_tower.encoder.layers.9.self_attn.qkv.qkv_proj.weight_scale']
+[2026-10-28 03:13:46 TP0] Persistent buffers not in checkpoint (using default init): ['vision_tower.encoder.layers.0.layer_scalar', 'vision_tower.encoder.layers.1.layer_scalar', 'vision_tower.encoder.layers.10.layer_scalar', 'vision_tower.encoder.layers.11.layer_scalar', 'vision_tower.encoder.layers.12.layer_scalar', 'vision_tower.encoder.layers.13.layer_scalar', 'vision_tower.encoder.layers.14.layer_scalar', 'vision_tower.encoder.layers.15.layer_scalar', 'vision_tower.encoder.layers.16.layer_scalar', 'vision_tower.encoder.layers.17.layer_scalar', 'vision_tower.encoder.layers.18.layer_scalar', 'vision_tower.encoder.layers.19.layer_scalar', 'vision_tower.encoder.layers.2.layer_scalar', 'vision_tower.encoder.layers.20.layer_scalar', 'vision_tower.encoder.layers.21.layer_scalar', 'vision_tower.encoder.layers.22.layer_scalar', 'vision_tower.encoder.layers.23.layer_scalar', 'vision_tower.encoder.layers.24.layer_scalar', 'vision_tower.encoder.layers.25.layer_scalar', 'vision_tower.encoder.layers.26.layer_scalar', 'vision_tower.encoder.layers.3.layer_scalar', 'vision_tower.encoder.layers.4.layer_scalar', 'vision_tower.encoder.layers.5.layer_scalar', 'vision_tower.encoder.layers.6.layer_scalar', 'vision_tower.encoder.layers.7.layer_scalar', 'vision_tower.encoder.layers.8.layer_scalar', 'vision_tower.encoder.layers.9.layer_scalar']
+[2026-10-28 03:13:47 TP0] Load weight end. elapsed=3.44 s, type=Gemma4ForConditionalGeneration, quant=compressed-tensors, avail mem=163.69 GB, mem usage=27.64 GB.
+[2026-10-28 03:13:47 TP0] Using KV cache dtype: torch.bfloat16
+[2026-10-28 03:13:47 TP0] Use sliding window memory pool. full_layer_tokens=718797, swa_layer_tokens=575037
+[2026-10-28 03:13:47 TP0] KV Cache is allocated. #tokens: 575037, K size: 54.84 GB, V size: 54.84 GB
+[2026-10-28 03:13:47 TP0] KV Cache is allocated. #tokens: 718797, K size: 6.85 GB, V size: 6.85 GB
+[2026-10-28 03:13:47 TP0] SWAKVPool mem usage: 123.39 GB, swa size: 575037, full size: 718797
+[2026-10-28 03:13:47 TP0] Memory pool end. avail mem=38.33 GB
+[2026-10-28 03:13:50 TP0] Capture cuda graph begin. This can take up to several minutes. avail mem=38.01 GB
+[2026-10-28 03:13:50 TP0] Capture cuda graph bs [1, 2, 4, 8, 12, 16, 24, 32, 40, 48, 56, 64, 72, 80, 88, 96, 104, 112, 120, 128, 136, 144, 152, 160, 168, 176, 184, 192, 200, 208, 216, 224, 232, 240, 248, 256, 272, 288, 304, 320, 336, 352, 368, 384, 400, 416, 432, 448, 464, 480, 496, 512]
+  0%|          | 0/52 [00:00<?, ?it/s]Capturing batches (bs=512 avail_mem=36.01 GB):   0%|          | 0/52 [00:00<?, ?it/s][aiter] import [module_rmsnorm_quant] under /sgl-workspace/aiter/aiter/jit/module_rmsnorm_quant.so
+[aiter] import [module_quant] under /sgl-workspace/aiter/aiter/jit/module_quant.so
+[aiter] merge tuned file under model_configs/ and configs/ /sgl-workspace/aiter/aiter/configs/a8w8_bpreshuffle_tuned_gemm.csv:/sgl-workspace/aiter/aiter/configs/model_configs/dsv3_a8w8_bpreshuffle_tuned_gemm.csv:/sgl-workspace/aiter/aiter/configs/model_configs/a8w8_bpreshuffle_tuned_gemm_dsv3.csv
+[aiter] shape is M:512, N:8192, K:2816, q_dtype_w:torch.float8_e4m3fnuz, not found tuned config in /tmp/aiter_configs/a8w8_bpreshuffle_tuned_gemm.csv, will use default config!
+[aiter] import [module_gemm_a8w8_bpreshuffle] under /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so
+[aiter] shape is M:512, N:2816, K:4096, q_dtype_w:torch.float8_e4m3fnuz, not found tuned config in /tmp/aiter_configs/a8w8_bpreshuffle_tuned_gemm.csv, will use default config!
+[aiter] shape is M:512, N:4224, K:2816, q_dtype_w:torch.float8_e4m3fnuz, not found tuned config in /tmp/aiter_configs/a8w8_bpreshuffle_tuned_gemm.csv, will use default config!
+[aiter] shape is M:512, N:2816, K:2112, q_dtype_w:torch.float8_e4m3fnuz, not found tuned config in /tmp/aiter_configs/a8w8_bpreshuffle_tuned_gemm.csv, will use default config!
+Capturing batches (bs=512 avail_mem=36.01 GB):   0%|          | 0/52 [00:01<?, ?it/s]
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/model_executor/cuda_graph_runner.py", line 713, in __init__
+[rank0]:     self.capture()
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/model_executor/cuda_graph_runner.py", line 895, in capture
+[rank0]:     _capture_one_stream()
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/model_executor/cuda_graph_runner.py", line 883, in _capture_one_stream
+[rank0]:     ) = self.capture_one_batch_size(bs, forward, stream_idx)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/model_executor/cuda_graph_runner.py", line 1163, in capture_one_batch_size
+[rank0]:     run_once()
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/model_executor/cuda_graph_runner.py", line 1141, in run_once
+[rank0]:     logits_output_or_pp_proxy_tensors = forward(
+[rank0]:   File "/opt/venv/lib/python3.10/site-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+[rank0]:     return func(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/models/gemma4_mm.py", line 558, in forward
+[rank0]:     hidden_states = general_mm_embed_routine(
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/managers/mm_utils.py", line 1106, in general_mm_embed_routine
+[rank0]:     hidden_states = language_model(
+[rank0]:   File "/opt/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:   File "/opt/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/models/gemma4_causal.py", line 767, in forward
+[rank0]:     layer_outputs = layer(
+[rank0]:   File "/opt/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:   File "/opt/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/models/gemma4_causal.py", line 547, in forward
+[rank0]:     hidden_states_1 = self.mlp(hidden_states)
+[rank0]:   File "/opt/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:   File "/opt/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/models/gemma3_causal.py", line 108, in forward
+[rank0]:     x, _ = self.down_proj(x)
+[rank0]:   File "/opt/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1775, in _wrapped_call_impl
+[rank0]:     return self._call_impl(*args, **kwargs)
+[rank0]:   File "/opt/venv/lib/python3.10/site-packages/torch/nn/modules/module.py", line 1786, in _call_impl
+[rank0]:     return forward_call(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/layers/linear.py", line 1536, in forward
+[rank0]:     output_parallel = self.quant_method.apply(self, input_parallel, bias=bias_)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/layers/quantization/compressed_tensors/compressed_tensors.py", line 967, in apply
+[rank0]:     return scheme.apply_weights(layer, x, bias=bias)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/layers/quantization/compressed_tensors/schemes/compressed_tensors_w8a8_fp8.py", line 226, in apply_weights
+[rank0]:     return apply_fp8_ptpc_linear(
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/layers/quantization/fp8_utils.py", line 1684, in apply_fp8_ptpc_linear
+[rank0]:     output = aiter.gemm_a8w8_bpreshuffle(
+[rank0]:   File "/sgl-workspace/aiter/aiter/jit/utils/torch_guard.py", line 285, in wrapper_custom
+[rank0]:     getattr(torch.ops.aiter, f"{loadName}")(*args, **kwargs)
+[rank0]:   File "/opt/venv/lib/python3.10/site-packages/torch/_ops.py", line 1254, in __call__
+[rank0]:     return self._op(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/aiter/aiter/jit/utils/torch_guard.py", line 308, in outer_wrapper
+[rank0]:     wrapper(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/aiter/aiter/jit/utils/torch_guard.py", line 203, in wrapper
+[rank0]:     return func(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/aiter/aiter/ops/gemm_op_a8w8.py", line 594, in gemm_a8w8_bpreshuffle
+[rank0]:     return gemm_a8w8_bpreshuffle_ck(XQ, WQ, x_scale, w_scale, Y, 0)
+[rank0]:   File "/sgl-workspace/aiter/aiter/jit/utils/torch_guard.py", line 285, in wrapper_custom
+[rank0]:     getattr(torch.ops.aiter, f"{loadName}")(*args, **kwargs)
+[rank0]:   File "/opt/venv/lib/python3.10/site-packages/torch/_ops.py", line 1254, in __call__
+[rank0]:     return self._op(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/aiter/aiter/jit/utils/torch_guard.py", line 308, in outer_wrapper
+[rank0]:     wrapper(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/aiter/aiter/jit/utils/torch_guard.py", line 203, in wrapper
+[rank0]:     return func(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/aiter/aiter/jit/core.py", line 1576, in custom_wrapper
+[rank0]:     return wrapper(*args, **kwargs)
+[rank0]:   File "/sgl-workspace/aiter/aiter/jit/core.py", line 1572, in wrapper
+[rank0]:     return op(*args, **kwargs)
+[rank0]: RuntimeError: This GEMM is not supported!
+[rank0]: Exception raised from gemm_a8w8_bpreshuffle_impl at /sgl-workspace/aiter/aiter_meta/csrc/ck_gemm_a8w8_bpreshuffle/include/gemm_a8w8_bpreshuffle_common.cuh:207 (most recent call first):
+[rank0]: frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x9c (0x787b42b9333c in /opt/venv/lib/python3.10/site-packages/torch/lib/libc10.so)
+[rank0]: frame #1: c10::detail::torchCheckFail(char const*, char const*, unsigned int, char const*) + 0x72 (0x787b42b23e40 in /opt/venv/lib/python3.10/site-packages/torch/lib/libc10.so)
+[rank0]: frame #2: <unknown function> + 0x21e5ca (0x786fd501e5ca in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: frame #3: <unknown function> + 0x627e4b (0x786fd5427e4b in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: frame #4: <unknown function> + 0x5dad29 (0x786fd53dad29 in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: frame #5: <unknown function> + 0x6959de (0x786fd54959de in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: frame #6: <unknown function> + 0x69592c (0x786fd549592c in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: frame #7: <unknown function> + 0x6866c6 (0x786fd54866c6 in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: <omitting python frames>
+[rank0]: frame #17: <unknown function> + 0x99b63e (0x787b1c99b63e in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #18: <unknown function> + 0xcd7670 (0x787b1ccd7670 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #19: <unknown function> + 0x568ec76 (0x787b1388ec76 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so)
+[rank0]: frame #20: <unknown function> + 0x5ef8f64 (0x787b140f8f64 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so)
+[rank0]: frame #21: torch::jit::invokeOperatorFromPython(std::vector<std::shared_ptr<torch::jit::Operator>, std::allocator<std::shared_ptr<torch::jit::Operator> > > const&, pybind11::args const&, pybind11::kwargs const&, std::optional<c10::DispatchKey>) + 0x10f (0x787b1ca551ef in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #22: torch::jit::_get_operation_for_overload_or_packet(std::vector<std::shared_ptr<torch::jit::Operator>, std::allocator<std::shared_ptr<torch::jit::Operator> > > const&, c10::Symbol, pybind11::args const&, pybind11::kwargs const&, bool, std::optional<c10::DispatchKey>) + 0x25d (0x787b1ca554fd in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #23: <unknown function> + 0x944604 (0x787b1c944604 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #24: <unknown function> + 0x3d5252 (0x787b1c3d5252 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #40: <unknown function> + 0x99b63e (0x787b1c99b63e in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #41: <unknown function> + 0xcd7670 (0x787b1ccd7670 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #42: <unknown function> + 0x568ec76 (0x787b1388ec76 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so)
+[rank0]: frame #43: <unknown function> + 0x5ef8f64 (0x787b140f8f64 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so)
+[rank0]: frame #44: torch::jit::invokeOperatorFromPython(std::vector<std::shared_ptr<torch::jit::Operator>, std::allocator<std::shared_ptr<torch::jit::Operator> > > const&, pybind11::args const&, pybind11::kwargs const&, std::optional<c10::DispatchKey>) + 0x10f (0x787b1ca551ef in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #45: torch::jit::_get_operation_for_overload_or_packet(std::vector<std::shared_ptr<torch::jit::Operator>, std::allocator<std::shared_ptr<torch::jit::Operator> > > const&, c10::Symbol, pybind11::args const&, pybind11::kwargs const&, bool, std::optional<c10::DispatchKey>) + 0x25d (0x787b1ca554fd in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #46: <unknown function> + 0x944604 (0x787b1c944604 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #47: <unknown function> + 0x3d5252 (0x787b1c3d5252 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+
+
+[rank0]: During handling of the above exception, another exception occurred:
+
+[rank0]: Traceback (most recent call last):
+[rank0]:   File "/usr/lib/python3.10/runpy.py", line 196, in _run_module_as_main
+[rank0]:     return _run_code(code, main_globals, None,
+[rank0]:   File "/usr/lib/python3.10/runpy.py", line 86, in _run_code
+[rank0]:     exec(code, run_globals)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/bench_one_batch.py", line 982, in <module>
+[rank0]:     main(server_args, bench_args)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/bench_one_batch.py", line 944, in main
+[rank0]:     work_func(server_args, port_args, bench_args, 0, 0)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/bench_one_batch.py", line 834, in latency_test
+[rank0]:     model_runner, tokenizer = load_model(server_args, port_args, gpu_id, tp_rank)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/bench_one_batch.py", line 316, in load_model
+[rank0]:     model_runner = ModelRunner(**runner_kwargs)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/model_executor/model_runner.py", line 499, in __init__
+[rank0]:     self.initialize(pre_model_load_memory)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/model_executor/model_runner.py", line 762, in initialize
+[rank0]:     self.init_device_graphs()
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/model_executor/model_runner.py", line 2718, in init_device_graphs
+[rank0]:     self.graph_runner = graph_runners[self.device](self)
+[rank0]:   File "/sgl-workspace/sglang/python/sglang/srt/model_executor/cuda_graph_runner.py", line 715, in __init__
+[rank0]:     raise Exception(
+[rank0]: Exception: Capture cuda graph failed: This GEMM is not supported!
+[rank0]: Exception raised from gemm_a8w8_bpreshuffle_impl at /sgl-workspace/aiter/aiter_meta/csrc/ck_gemm_a8w8_bpreshuffle/include/gemm_a8w8_bpreshuffle_common.cuh:207 (most recent call first):
+[rank0]: frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x9c (0x787b42b9333c in /opt/venv/lib/python3.10/site-packages/torch/lib/libc10.so)
+[rank0]: frame #1: c10::detail::torchCheckFail(char const*, char const*, unsigned int, char const*) + 0x72 (0x787b42b23e40 in /opt/venv/lib/python3.10/site-packages/torch/lib/libc10.so)
+[rank0]: frame #2: <unknown function> + 0x21e5ca (0x786fd501e5ca in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: frame #3: <unknown function> + 0x627e4b (0x786fd5427e4b in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: frame #4: <unknown function> + 0x5dad29 (0x786fd53dad29 in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: frame #5: <unknown function> + 0x6959de (0x786fd54959de in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: frame #6: <unknown function> + 0x69592c (0x786fd549592c in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: frame #7: <unknown function> + 0x6866c6 (0x786fd54866c6 in /sgl-workspace/aiter/aiter/jit/module_gemm_a8w8_bpreshuffle.so)
+[rank0]: <omitting python frames>
+[rank0]: frame #17: <unknown function> + 0x99b63e (0x787b1c99b63e in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #18: <unknown function> + 0xcd7670 (0x787b1ccd7670 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #19: <unknown function> + 0x568ec76 (0x787b1388ec76 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so)
+[rank0]: frame #20: <unknown function> + 0x5ef8f64 (0x787b140f8f64 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so)
+[rank0]: frame #21: torch::jit::invokeOperatorFromPython(std::vector<std::shared_ptr<torch::jit::Operator>, std::allocator<std::shared_ptr<torch::jit::Operator> > > const&, pybind11::args const&, pybind11::kwargs const&, std::optional<c10::DispatchKey>) + 0x10f (0x787b1ca551ef in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #22: torch::jit::_get_operation_for_overload_or_packet(std::vector<std::shared_ptr<torch::jit::Operator>, std::allocator<std::shared_ptr<torch::jit::Operator> > > const&, c10::Symbol, pybind11::args const&, pybind11::kwargs const&, bool, std::optional<c10::DispatchKey>) + 0x25d (0x787b1ca554fd in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #23: <unknown function> + 0x944604 (0x787b1c944604 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #24: <unknown function> + 0x3d5252 (0x787b1c3d5252 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #40: <unknown function> + 0x99b63e (0x787b1c99b63e in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #41: <unknown function> + 0xcd7670 (0x787b1ccd7670 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #42: <unknown function> + 0x568ec76 (0x787b1388ec76 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so)
+[rank0]: frame #43: <unknown function> + 0x5ef8f64 (0x787b140f8f64 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_cpu.so)
+[rank0]: frame #44: torch::jit::invokeOperatorFromPython(std::vector<std::shared_ptr<torch::jit::Operator>, std::allocator<std::shared_ptr<torch::jit::Operator> > > const&, pybind11::args const&, pybind11::kwargs const&, std::optional<c10::DispatchKey>) + 0x10f (0x787b1ca551ef in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #45: torch::jit::_get_operation_for_overload_or_packet(std::vector<std::shared_ptr<torch::jit::Operator>, std::allocator<std::shared_ptr<torch::jit::Operator> > > const&, c10::Symbol, pybind11::args const&, pybind11::kwargs const&, bool, std::optional<c10::DispatchKey>) + 0x25d (0x787b1ca554fd in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #46: <unknown function> + 0x944604 (0x787b1c944604 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+[rank0]: frame #47: <unknown function> + 0x3d5252 (0x787b1c3d5252 in /opt/venv/lib/python3.10/site-packages/torch/lib/libtorch_python.so)
+
+[rank0]: Possible solutions:
+[rank0]: 1. set --mem-fraction-static to a smaller value (e.g., 0.8 or 0.7)
+[rank0]: 2. set --cuda-graph-max-bs to a smaller value (e.g., 16)
+[rank0]: 3. disable torch compile by not using --enable-torch-compile
+[rank0]: 4. disable CUDA graph by --disable-cuda-graph. (Not recommended. Huge performance loss)
+[rank0]: Open an issue on GitHub https://github.com/sgl-project/sglang/issues/new/choose 
+
+[rank0]:[W1028 03:13:52.701842920 ProcessGroupNCCL.cpp:1522] Warning: WARNING: destroy_process_group() was not called before program exit, which can leak resources. For more info, please see https://pytorch.org/docs/stable/distributed.html#shutdown (function operator())

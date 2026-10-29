@@ -1,0 +1,8 @@
+== on4.log
+(EngineCore pid=3204816) INFO 10-28 07:06:10 [model_runner.py:433] Model loading took 49.12 GiB memory and 13.232305 seconds
+(EngineCore pid=3204816) INFO 10-28 07:06:18 [gpu_worker.py:779] Available KV cache memory: 110.52 GiB
+(EngineCore pid=3204816) INFO 10-28 07:06:18 [kv_cache_utils.py:1147] GPU KV cache size: 524,922 tokens, Maximum concurrency for 4,096 tokens per request: 128.15x
+== off4.log
+(EngineCore pid=3207711) INFO 10-28 07:08:26 [model_runner.py:433] Model loading took 24.72 GiB memory and 12.719528 seconds
+(EngineCore pid=3207711) INFO 10-28 07:08:33 [gpu_worker.py:779] Available KV cache memory: 135.31 GiB
+(EngineCore pid=3207711) INFO 10-28 07:08:33 [kv_cache_utils.py:1147] GPU KV cache size: 642,637 tokens, Maximum concurrency for 4,096 tokens per request: 156.89x

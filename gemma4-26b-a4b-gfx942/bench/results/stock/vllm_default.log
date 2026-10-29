@@ -1,0 +1,98 @@
+srun: job 68197705 queued and waiting for resources
+srun: job 68197705 has been allocated resources
+===== gemma-4-26B-A4B-it-FP8-dynamic 2026-10-28T03:03:58-04:00
+date: 2026-10-28T03:03:58-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.26;rocm 10.0.0;rocm-bootstrap 0.3.0;rocm_mq 0.1.0 /home/AMD/sareeder/worktrees/rocmlibs-merge-queue-rfc/.github/merge-queue;rocm-sdk-core 10.0.0;rocm-sdk-devel 10.0.0;rocm-sdk-device-gfx1100 10.0.0;rocm-sdk-device-gfx1101 10.0.0;rocm-sdk-device-gfx1150 10.0.0;rocm-sdk-device-gfx1151 10.0.0;rocm-sdk-device-gfx1200 10.0.0;rocm-sdk-device-gfx1201 10.0.0;rocm-sdk-device-gfx90a 10.0.0;rocm-sdk-device-gfx942 10.0.0;rocm-sdk-device-gfx950 10.0.0;rocm-sdk-libraries 10.0.0;triton 3.8.0+git669b31ac
+vllm 0.32.1rc1.dev505+g00b6c4c56
+torch 2.13.0+rocm10.0.0 hip 7.15.26333
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_ENABLE_IPC_MODE_LEGACY=1
+HSA_NO_SCRATCH_RECLAIM=1
+serve args: 
+server ready 2026-10-28T03:08:22-04:00
+[warmup] Output token throughput (tok/s):         732.89    
+[warmup] Median TTFT (ms):                        1217.95   
+[warmup] Median TPOT (ms):                        6.17      
+[warmup] Median ITL (ms):                         6.11      
+[c1] Output token throughput (tok/s):         214.54    
+[c1] Median TTFT (ms):                        33.52     
+[c1] Median TPOT (ms):                        4.54      
+[c1] Median ITL (ms):                         4.55      
+[c2] Output token throughput (tok/s):         394.49    
+[c2] Median TTFT (ms):                        90.44     
+[c2] Median TPOT (ms):                        4.74      
+[c2] Median ITL (ms):                         4.75      
+[c4] Output token throughput (tok/s):         714.99    
+[c4] Median TTFT (ms):                        91.41     
+[c4] Median TPOT (ms):                        5.24      
+[c4] Median ITL (ms):                         5.26      
+[c8] Output token throughput (tok/s):         1254.18   
+[c8] Median TTFT (ms):                        102.79    
+[c8] Median TPOT (ms):                        5.98      
+[c8] Median ITL (ms):                         5.98      
+[c1_rep2] Output token throughput (tok/s):         214.39    
+[c1_rep2] Median TTFT (ms):                        31.08     
+[c1_rep2] Median TPOT (ms):                        4.55      
+[c1_rep2] Median ITL (ms):                         4.55      
+[c1_rep3] Output token throughput (tok/s):         214.66    
+[c1_rep3] Median TTFT (ms):                        33.16     
+[c1_rep3] Median TPOT (ms):                        4.54      
+[c1_rep3] Median ITL (ms):                         4.55      
+done /home/AMD/sareeder/mk/models/gemma-4-26B-A4B-it-FP8-dynamic 2026-10-28T03:11:45-04:00
+===== gemma-4-26B-A4B-it 2026-10-28T03:11:45-04:00
+date: 2026-10-28T03:11:45-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.26;rocm 10.0.0;rocm-bootstrap 0.3.0;rocm_mq 0.1.0 /home/AMD/sareeder/worktrees/rocmlibs-merge-queue-rfc/.github/merge-queue;rocm-sdk-core 10.0.0;rocm-sdk-devel 10.0.0;rocm-sdk-device-gfx1100 10.0.0;rocm-sdk-device-gfx1101 10.0.0;rocm-sdk-device-gfx1150 10.0.0;rocm-sdk-device-gfx1151 10.0.0;rocm-sdk-device-gfx1200 10.0.0;rocm-sdk-device-gfx1201 10.0.0;rocm-sdk-device-gfx90a 10.0.0;rocm-sdk-device-gfx942 10.0.0;rocm-sdk-device-gfx950 10.0.0;rocm-sdk-libraries 10.0.0;triton 3.8.0+git669b31ac
+vllm 0.32.1rc1.dev505+g00b6c4c56
+torch 2.13.0+rocm10.0.0 hip 7.15.26333
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_ENABLE_IPC_MODE_LEGACY=1
+HSA_NO_SCRATCH_RECLAIM=1
+serve args: 
+server ready 2026-10-28T03:15:18-04:00
+[warmup] Output token throughput (tok/s):         663.62    
+[warmup] Median TTFT (ms):                        1203.82   
+[warmup] Median TPOT (ms):                        7.36      
+[warmup] Median ITL (ms):                         7.28      
+[c1] Output token throughput (tok/s):         218.53    
+[c1] Median TTFT (ms):                        39.43     
+[c1] Median TPOT (ms):                        4.44      
+[c1] Median ITL (ms):                         4.45      
+[c2] Output token throughput (tok/s):         385.53    
+[c2] Median TTFT (ms):                        57.64     
+[c2] Median TPOT (ms):                        4.98      
+[c2] Median ITL (ms):                         4.98      
+[c4] Output token throughput (tok/s):         602.39    
+[c4] Median TTFT (ms):                        79.64     
+[c4] Median TPOT (ms):                        6.35      
+[c4] Median ITL (ms):                         6.34      
+[c8] Output token throughput (tok/s):         1011.90   
+[c8] Median TTFT (ms):                        128.13    
+[c8] Median TPOT (ms):                        7.43      
+[c8] Median ITL (ms):                         7.39      
+[c1_rep2] Output token throughput (tok/s):         217.79    
+[c1_rep2] Median TTFT (ms):                        41.38     
+[c1_rep2] Median TPOT (ms):                        4.44      
+[c1_rep2] Median ITL (ms):                         4.45      
+[c1_rep3] Output token throughput (tok/s):         218.21    
+[c1_rep3] Median TTFT (ms):                        37.81     
+[c1_rep3] Median TPOT (ms):                        4.45      
+[c1_rep3] Median ITL (ms):                         4.46      
+done /home/AMD/sareeder/mk/models/gemma-4-26B-A4B-it 2026-10-28T03:18:20-04:00

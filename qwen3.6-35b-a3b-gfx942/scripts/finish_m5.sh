@@ -101,6 +101,9 @@ for b in (1, 2, 4, 8):
         bad.append(f"batch {b}: TPOT {t:.3f} ms vs day 1 {t1:.3f} ms ({100 * ratio[b]:+.1f} %)")
 if node is not None and node == day1 and not same:
     bad.append(f"ran on the day-1 node {node}, not a second node")
+# a GPU fault gives non-reproducible results there (bench/results/m5/ctr-cx63-mi300x-12_68192231/)
+if node == "ctr-cx63-mi300x-12":
+    bad.append(f"ran on {node}, whose GPU is faulty: the results prove nothing")
 ppl = [x for x in lines("eval_text.txt") if x.startswith("all:")]
 rev = (lines("env.txt") or ["?"])[-1][:7]
 if bad:

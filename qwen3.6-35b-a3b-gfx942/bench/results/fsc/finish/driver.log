@@ -1,0 +1,95 @@
+job 68207371 node banff-cyxtera-s70-4 own GPU 0000:0c:00.0 head aeccd33
+== bench/results/fsc/finish/gates/chaos_m1.txt
+cfg Cfg(M=1, cus=304, maxlen=80, block=208, maxblocks=1, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=1, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False, chaos=True, cta_red=True, skip_idle=True)
+M=1 steps=16: chaos vs no chaos bitwise equal True (steps that differ: 0); non-finite logits: False
+PASS
+== bench/results/fsc/finish/gates/chaos_m8.txt
+cfg Cfg(M=8, cus=304, maxlen=80, block=208, maxblocks=1, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=1, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False, chaos=True, cta_red=True, skip_idle=True)
+M=8 steps=16: chaos vs no chaos bitwise equal True (steps that differ: 0); non-finite logits: False
+PASS
+== bench/results/fsc/finish/gates/determinism_m1.txt
+row 0 alone vs inside M=8: bitwise equal True (steps that differ: 0)
+row 0 alone vs inside M=8 with rows 4..7 padding: bitwise equal True
+PASS
+== bench/results/fsc/finish/gates/determinism_m8.txt
+row 0 alone vs inside M=8: bitwise equal True (steps that differ: 0)
+row 0 alone vs inside M=8 with rows 4..7 padding: bitwise equal True
+PASS
+== bench/results/fsc/finish/gates/env.txt
+gfx942
+branch head: aeccd33  FLYDSL_RUNTIME_ENABLE_CACHE=0
+2026-10-29T09:36:21+00:00
+== bench/results/fsc/finish/gates/eval_text.txt
+passage 4: ppl kernel 2.717 fp8 2.715 bf16 2.737 | top1 kernel=fp8 0.964 kernel=bf16 0.952 fp8=bf16 0.976 | KL(bf16||kernel) 0.0044 KL(bf16||fp8) 0.0023 | batch-invariant True
+all: ppl kernel 1.589 fp8 1.585 bf16 1.584
+PASS
+== bench/results/fsc/finish/gates/test_decode_m1.txt
+steps with non-finite logits (kernel or reference): 0
+kernel logits sha256: adad66a84e492a79
+PASS
+== bench/results/fsc/finish/gates/test_decode_m2.txt
+steps with non-finite logits (kernel or reference): 0
+kernel logits sha256: 6a7c9630b2619db8
+PASS
+== bench/results/fsc/finish/gates/test_decode_m4.txt
+steps with non-finite logits (kernel or reference): 0
+kernel logits sha256: 782551c008e4c2ea
+PASS
+== bench/results/fsc/finish/gates/test_decode_m8.txt
+steps with non-finite logits (kernel or reference): 0
+kernel logits sha256: 8fbc57e5edd4794f
+PASS
+/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/hash_old/determinism_m1.txt:logits sha256: adf32b9faf777eac
+/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/hash_old/determinism_m8.txt:logits sha256: e1f72a99a572e884
+/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/hash_old/test_decode_m1.txt:kernel logits sha256: adad66a84e492a79
+/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/hash_old/test_decode_m8.txt:kernel logits sha256: 8fbc57e5edd4794f
+/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/gates/test_decode_m1.txt:kernel logits sha256: adad66a84e492a79
+/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/gates/test_decode_m8.txt:kernel logits sha256: 8fbc57e5edd4794f
+/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/gates/determinism_m1.txt:logits sha256: adf32b9faf777eac
+/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/gates/determinism_m8.txt:logits sha256: e1f72a99a572e884
+    raise AttributeError(
+AttributeError: '_OpNamespace' '_C' object has no attribute 'get_cuda_view_from_cpu_tensor'
+    raise RuntimeError(
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+srun: error: banff-cyxtera-s70-4: task 0: Exited with exit code 1
+    raise AttributeError(
+AttributeError: '_OpNamespace' '_C' object has no attribute 'get_cuda_view_from_cpu_tensor'
+    raise RuntimeError(
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+srun: error: banff-cyxtera-s70-4: task 0: Exited with exit code 1
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/vllm_e2e.py", line 97, in compare
+    off, on = json.load(open(off_path)), json.load(open(on_path))
+                        ^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/vllm/off_TRITON_ATTN.json'
+srun: error: banff-cyxtera-s70-4: task 0: Exited with exit code 1
+    raise AttributeError(
+AttributeError: '_OpNamespace' '_C' object has no attribute 'get_cuda_view_from_cpu_tensor'
+    raise RuntimeError(
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+srun: error: banff-cyxtera-s70-4: task 0: Exited with exit code 1
+    raise AttributeError(
+AttributeError: '_OpNamespace' '_C' object has no attribute 'get_cuda_view_from_cpu_tensor'
+    raise RuntimeError(
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+srun: error: banff-cyxtera-s70-4: task 0: Exited with exit code 1
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/vllm_e2e.py", line 97, in compare
+    off, on = json.load(open(off_path)), json.load(open(on_path))
+                        ^^^^^^^^^^^^^^
+FileNotFoundError: [Errno 2] No such file or directory: '/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/vllm/off_ROCM_ATTN.json'
+srun: error: banff-cyxtera-s70-4: task 0: Exited with exit code 1
+attempt 1: highest GPU use of the other GPUs 100 %
+kernel m1 3.107
+kernel m2 3.771
+kernel m4 4.958
+kernel m8 6.595
+attempt 2: highest GPU use of the other GPUs 100 %
+kernel m1 3.128
+kernel m2 3.772
+kernel m4 4.991
+kernel m8 6.625
+attempt 3: highest GPU use of the other GPUs 100 %
+kernel m1 3.152
+kernel m2 3.760
+kernel m4 4.976
+kernel m8 6.639
+finished 2026-10-29T06:49:08-04:00

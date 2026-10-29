@@ -1,0 +1,12 @@
+GPU[0]		: Temperature (Sensor junction) (C): 47.428
+GPU[0]		: Temperature (Sensor memory) (C): 43.0
+GPU[0]		: fclk clock level: 0: (1300Mhz)
+GPU[0]		: mclk clock level: 0: (900Mhz)
+GPU[0]		: sclk clock level: 1: (2100Mhz)
+GPU[0]		: socclk clock level: S: (28Mhz)
+GPU[0]		: sclk clock level: 1 (2100Mhz)
+GPU[0]		: Current Socket Graphics Package Power (W): 189.552
+GPU[0]		: GPU Memory Allocated (VRAM%): 8
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
