@@ -122,7 +122,8 @@ class Engine:
         self.sidx = torch.arange(1, M + 1, dtype=torch.int32, device=device)
         self.kv = z(na, M * nb + 1, 2, block, NKV * HD, dt=torch.bfloat16)
         self.state = z(ng, M + 1, PAGE, dt=torch.uint8)
-        gp = [0] * KK.NGLOB
+        gp = [0] * (KK.NGLOB + KK.NGEO)
+        gp[KK.G_GEOM :] = self.cfg.geom_slots()
         gp[KK.G_EMBED] = PK.embed.data_ptr()
         gp[KK.G_LM] = PK.lm_head.data_ptr()
         gp[KK.G_FNORM] = PK.final_norm.data_ptr()

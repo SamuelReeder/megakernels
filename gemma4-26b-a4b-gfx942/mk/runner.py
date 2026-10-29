@@ -127,7 +127,8 @@ class Engine:
         self.out = z(M, VOCAB) if lm_head else z(M, H, dt=torch.bfloat16)
         self.rope_s = rope_table(False, maxlen, device)
         self.rope_f = rope_table(True, maxlen, device)
-        gp = [0] * KK.NGLOB
+        gp = [0] * (KK.NGLOB + KK.NGEO)
+        gp[KK.G_GEOM :] = self.cfg.geom_slots()
         gp[KK.G_EMBED] = PK.embed.data_ptr()
         gp[KK.G_LM] = PK.lm_head.data_ptr()
         gp[KK.G_FNORM] = PK.final_norm.data_ptr()

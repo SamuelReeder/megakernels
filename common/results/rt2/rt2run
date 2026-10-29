@@ -1,0 +1,68 @@
+#!/bin/bash
+# rt2 evidence: run commands on the held 1-GPU allocation (job name rt2aus, or RT_JOB) on an
+# AUSTIN gfx942 node (no shared home), after common/scripts/mkrun, common/scripts/vrun
+# (users/sareeder/mk-common-m6) and spike/rtgeom/rtrun (users/sareeder/runtime-geom).
+# Node layout W=/tmp/rt2_<job>: home/mk/{venv,models} and vllm.sqsh (setup copies them from
+# /cluster/images/sareeder/rt2, staged from the MARKHAM home), src/ (the shipped sources),
+# out/ (results; fetch copies it to common/results/rt2/out/).
+# Usage: common/results/rt2/rt2run setup
+#        common/results/rt2/rt2run mk MODEL_DIR 'cmd'            (hipdnn gfx942 image + venv)
+#        common/results/rt2/rt2run vllm MODEL_DIR VLLM_DIR 'cmd'  (vLLM nightly image; the
+#          checkout's vllm/ package first on PYTHONPATH, plus the image's compiled .so files)
+#        common/results/rt2/rt2run fetch
+# The command runs in the model directory; /work = W. RT_TMUX=NAME: detached, in tmux on the
+# login node, log ~/rt2_NAME.log. FLYDSL_RUNTIME_ENABLE_CACHE=0 everywhere.
+set -euo pipefail
+here=$(cd "$(dirname "$0")" && pwd)
+root=$(cd "$here/../../.." && pwd)
+mode=$1
+shift
+job=${RT_JOB:-$(ssh -o BatchMode=yes alola "squeue -h -u \$USER -n rt2aus -t R -o %i | head -1")}
+[ -n "$job" ] || { echo "no rt2aus allocation" >&2; exit 2; }
+W=/tmp/rt2_$job
+S=/cluster/images/sareeder/rt2
+on_node() { ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=${2:-10} bash -c '$1'"; }
+case $mode in
+  setup)
+    on_node "mkdir -p $W/home/mk $W/out $W/src && hostname && rocminfo | grep -m1 -oE gfx[0-9a-f]+ \
+      && rocm-smi --showproductname | grep -m1 -i \"card series\" && cp $S/vllm-rocm-nightly-00b6c4c5.sqsh $W/vllm.sqsh \
+      && tar -xf $S/mk_bundle.tar -C $W/home/mk && du -sh $W/home/mk/* $W/vllm.sqsh" 60
+    exit ;;
+  fetch)
+    mkdir -p "$here/out"
+    on_node "tar -C $W -czf - out" | tar -C "$here" -xzf -
+    exit ;;
+  mk) model=$(cd "$1" && pwd); shift ;;
+  vllm) model=$(cd "$1" && pwd); vllm=$(cd "$2" && pwd); shift 2 ;;
+  *) echo "unknown mode $mode" >&2; exit 2 ;;
+esac
+name=$(basename "$model")
+sub=src/$name-$(date +%s%N)
+src=$W/$sub  # on the node; /work/$sub in the container
+rev="megakernels $(git -C "$root" rev-parse HEAD) dirty $(git -C "$root" status --porcelain "$name" common | grep -cv 'common/results/rt2/out' || true)"
+{ tar -C "$root" --exclude __pycache__ --exclude "$name/bench/results" --exclude common/results/rt2/out \
+    --exclude 'common/results/m*' --exclude common/results/cache -cf - "$name" common
+  if [ "$mode" = vllm ]; then
+    tar -C "$vllm" --exclude __pycache__ --transform 's,^vllm,vsrc/vllm,' -cf - vllm
+  fi; } | gzip -1 | ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=5 bash -c 'mkdir -p $src && gzip -d | tar -xf - -C $src'"
+if [ "$mode" = vllm ]; then
+  rev="$rev; vllm $(git -C "$vllm" rev-parse HEAD) $(git -C "$vllm" branch --show-current) dirty $(git -C "$vllm" status --porcelain vllm | wc -l)"
+  image=$W/vllm.sqsh
+  pre="so=\\\$(find /usr /opt -maxdepth 7 -name _C.abi3.so -path \*packages/vllm/\* | head -1); cp -n \\\$(dirname \\\$so)/*.so \\\$(dirname \\\$so)/_version.py /work/$sub/vsrc/vllm/; export PYTHONPATH=/work/$sub/vsrc HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false"
+  cname=""
+else
+  image=/cluster/images/hipdnn/hipdnn_latest_gfx942.sqsh
+  pre=". \\\$HOME/mk/venv/bin/activate"
+  cname="--container-name=rt2-mk"
+fi
+echo "$rev" | ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=2 bash -c 'cat > $src/REVISION'"
+cmd="srun --jobid=$job --overlap -n1 --time=${MK_TIME:-90} --container-image=$image $cname \
+  --container-writable --container-mounts=/cluster:/cluster,$W/home:/home/AMD/sareeder,$W:/work \
+  bash -lc \"export FLYDSL_RUNTIME_ENABLE_CACHE=0 PIP_CACHE_DIR=/tmp/pipcache PYTHONPYCACHEPREFIX=/tmp/pycache M=/home/AMD/sareeder/mk/models; $pre; cd /work/$sub/$name && echo node \\\$(hostname) job $job \\\$(cat /work/$sub/REVISION) >&2; $*\""
+if [ -n "${RT_TMUX:-}" ]; then
+  printf '%s\n' "$cmd > ~/rt2_$RT_TMUX.log 2>&1; echo RT2RUN-DONE rc=\$? >> ~/rt2_$RT_TMUX.log" \
+    | ssh -o BatchMode=yes alola "cat > ~/rt2_$RT_TMUX.sh && tmux new-session -d -s $RT_TMUX 'bash ~/rt2_$RT_TMUX.sh'"
+  echo "started tmux $RT_TMUX on the login node; log ~/rt2_$RT_TMUX.log"
+  exit
+fi
+ssh -o BatchMode=yes alola "$cmd 2>&1"
