@@ -825,3 +825,25 @@ Final kernel (after rounds 1-3), run 1: banff-cyxtera-s70-4, 2026-10-28, job 681
 
 Against stock vLLM TP2 FP8 on the same node and day (3-run medians above): 9.822 / 5.593 =
 1.76x at batch 1, 10.716 / 5.972 = 1.79x, 10.660 / 6.727 = 1.58x, 11.152 / 7.912 = 1.41x.
+
+Decided 2026-10-29 (milestone 5, second node):
+- Allocation. `sbatch --test-only` gave later estimates for the smaller requests (2 GPUs,
+  16 CPUs, 64 GB, 1:15) than for the held 8 h jobs: defq 2026-11-16, miopen 2027-03-09.
+  One `salloc --immediate=60` round over four requests (MI325X / MI300X, defq / miopen,
+  excluding banff-cyxtera-s70-4 and ctr-cx63-mi300x-12) got job 68206615 on
+  quanta-ccs-aus-j02-45 (MI325X, AUSTIN) at once. So no new sbatch job and no retry loop
+  were started, and the held jobs 68198219 / 68198220 and the queued salloc 68206625 were
+  cancelled. Rejected: keep the held jobs as a fall-back (the instruction was to cancel
+  as soon as one job starts). `rocke` holds only gfx950 nodes, so it cannot give a gfx942
+  second node.
+- AUSTIN run. The node has its own `/cluster` and no home, so the frozen copy
+  (`/cluster/logs/qwen38-tp2/src-m5`) is not visible there. `scratch/m5/austin.sh` (from
+  the 35B `suite_austin.sh`) clones megakernels `users/sareeder/qwen38-tp2` at 57d6a48
+  (the same md5 for `mk/*.py`, `tests/*.py`, `bench/bench_decode.py` as `src-m5`, the
+  NaN check included), builds the venv and downloads both checkpoints into the
+  container's `/tmp`, puts our MXFP4 `config.json` over the downloaded one, runs
+  `scratch/m3/plans/final.sh` with local one/two helpers, and returns the logs as a base64
+  tar in the job log. The vLLM rank check of `m5.sh` is not run there (it needs the
+  vLLM image in the home); milestone 6 covers it on banff.
+- Speed gate on a different GPU model (MI325X): the run fails only when TP2 is more than
+  3 % slower than on banff-cyxtera-s70-4 (run 1 of section 11, milestone 5 table).
