@@ -65,11 +65,12 @@ def _file():
 def _cache_sums(model):
     import torch
 
-    if _state["layers"] is None:
-        _state["layers"] = [
-            (n, m) for n, m in model.named_modules()
-            if hasattr(m, "kv_cache") and type(m).__name__ != type(model).__name__
-        ]
+    # GDN layers get kv_cache only when vLLM binds the caches (after the profile run), so
+    # the list is rebuilt until every cache layer has one; its names go to the file once
+    layers = [(n, m) for n, m in model.named_modules() if hasattr(m, "get_kv_cache_spec")]
+    if _state["layers"] is None or len(_state["layers"]) != sum(hasattr(m, "kv_cache") for _, m in layers):
+        _state["layers"] = [(n, m) for n, m in layers if hasattr(m, "kv_cache")]
+        _file().write("layers " + " ".join(f"{n}:{type(m).__name__}" for n, m in _state["layers"]) + "\n")
     out = []
     for n, m in _state["layers"]:
         ts = _tensors(m.kv_cache)
