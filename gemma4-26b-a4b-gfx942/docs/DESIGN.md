@@ -523,6 +523,19 @@ PASS. In vLLM with all widths served: the kernel ran 255 of 255 decode steps at 
 greedy outputs follow vLLM's own path until near-ties (every first divergence at a logprob
 gap <= 1.25, as in milestone 6).
 
+Quiet-node re-measurement (job 68207195, `bench/results/m8/quiet/`): every GPU of the node
+sampled (20 readings of `gpu_busy_percent`) before and after each try. Try 3 had all
+neighbours at 0 to 0.1 % on both sides (tries 1 and 2 had one busy neighbour; the numbers
+agree within 4 %). Megakernel 3.74 / 4.25 / 4.61 / 5.88 ms; vLLM kernel off 6.13 / 6.53 /
+6.86 / 8.09 ms; vLLM + kernel 3.67 / 4.38 / 4.68 / 5.77 ms at batch 1 / 2 / 4 / 8. vLLM's
+own path stays 27 to 38 % slower than on 2026-10-28 with idle neighbours, so neighbour
+load is not the cause (not found). The conservative comparison is against the 2026-10-28
+vLLM numbers (4.43 / 4.85 / 5.02 / 6.22 ms): 1.18x / 1.14x / 1.09x / 1.06x.
+Also with all widths served: the Gemma 4 spec tests and the #61311 kit pass, 75 tests
+(`vllm_pytest_all_widths.txt`; the width test now expects the kernel at 1, 2, 4, 8), and
+test_decode passes at M = 1 and 8 with CTX 2048 and 4096, past the window
+(`test_decode_ctx2048_4096.txt`).
+
 Decision 12 (milestone 8): the vLLM DecodeSpec serves every width 1 to 8 (branch
 `users/sareeder/gemma4-moe-batch` of the vLLM fork, on
 `users/sareeder/gemma4-gfx942-specialized-decode`). Evidence: the table above. Replaces

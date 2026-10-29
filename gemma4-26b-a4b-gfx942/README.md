@@ -6,19 +6,21 @@ sliding-window and 5 full-attention layers, the 128-expert top-8 MoE beside a de
 MLP, the sandwich norms) and the final norm run inside one launch per step, for 1 to 8
 sequences. The kernel reads and writes vLLM's paged KV cache in place.
 
-On one MI300X, TP1, 512-token prompts of real text, 256 output tokens, measured in one job
-on 2026-10-29 (the node ran slower that day than on 2026-10-28; see below):
+On one MI300X, TP1, 512-token prompts of real text, 256 output tokens, 2026-10-29, with
+the node's other 7 GPUs idle before and after the run (`bench/results/m8/quiet/`):
 
-- **Batch 1: 3.75 ms per token, 267 tok/s**, against 5.83 ms for vLLM's own path in the same
-  job: **1.56x**. Batch 2: **1.51x**, batch 4: **1.52x**, batch 8: **1.35x** (5.92 ms,
-  1351 tok/s).
-- **Batch 4 and 8 are now faster than vLLM** too. The expert stages no longer hand partial
-  sums through last-arriver chains (milestone 8): the down stage reduces by row and the
-  gate_up stage folds its K chunks inside each CTA. Against the previous kernel in the same
-  job: -3 % / -10 % / -25 % / -24 % at batch 1 / 2 / 4 / 8.
-- **Inside vLLM** (vllm#61311 specialized decode, now every width 1 to 8): 3.66 / 4.22 /
-  4.67 / 5.86 ms at batch 1 / 2 / 4 / 8, against 5.83 / 6.30 / 6.97 / 7.98 ms with the
-  kernel off.
+- **Batch 1: 3.74 ms per token (267 tok/s); batch 8: 5.88 ms (1360 tok/s total).**
+- **Faster than vLLM at every batch, 1 to 8.** vLLM's own path in the same job took 6.13 /
+  6.53 / 6.86 / 8.09 ms at batch 1 / 2 / 4 / 8 (1.64x / 1.54x / 1.49x / 1.37x). That day
+  vLLM ran 27 to 38 % slower than on 2026-10-28 with idle neighbours too (cause not
+  found). Against its 2026-10-28 numbers (4.43 / 4.85 / 5.02 / 6.22 ms) the kernel is
+  1.18x / 1.14x / 1.09x / 1.06x faster: the conservative claim.
+- **Milestone 8:** the expert stages no longer hand partial sums through last-arriver
+  chains: the down stage reduces by row and the gate_up stage folds its K chunks inside
+  each CTA. Against the previous kernel in one job: -3 % / -10 % / -25 % / -24 % at batch
+  1 / 2 / 4 / 8.
+- **Inside vLLM** (vllm#61311 specialized decode, now every width 1 to 8): 3.67 / 4.38 /
+  4.68 / 5.77 ms at batch 1 / 2 / 4 / 8 in the same job.
 - **FP8 weights** (`RedHatAI/gemma-4-26B-A4B-it-FP8-dynamic`, one scale per output row)
   with fp8 activations: perplexity on five passages 216.2 against 226.8 for the same
   weights with bf16 activations (GEMV inputs) and 242.7 for the BF16 checkpoint.
@@ -30,28 +32,26 @@ on 2026-10-29 (the node ran slower that day than on 2026-10-28; see below):
 
 ## Results
 
-| Batch | vLLM FP8, kernel off | vLLM FP8 + megakernel | Megakernel before (main 13b25e7) | Megakernel FP8 | Speedup | Total tok/s |
+| Batch | vLLM FP8, kernel off (10-28) | vLLM FP8, kernel off (10-29) | vLLM FP8 + megakernel (10-29) | Megakernel FP8 (10-29) | Speedup vs 10-28 / 10-29 vLLM | Total tok/s |
 |---:|---:|---:|---:|---:|---:|---:|
-| 1 | 5.83 ms | **3.66 ms** | 3.87 ms | **3.75 ms** | **1.56x** | 267 |
-| 2 | 6.30 ms | **4.22 ms** | 4.63 ms | **4.18 ms** | **1.51x** | 479 |
-| 4 | 6.97 ms | **4.67 ms** | 6.12 ms | **4.59 ms** | **1.52x** | 872 |
-| 8 | 7.98 ms | **5.86 ms** | 7.76 ms | **5.92 ms** | **1.35x** | 1351 |
+| 1 | 4.43 ms | 6.13 ms | **3.67 ms** | **3.74 ms** | **1.18x** / 1.64x | 267 |
+| 2 | 4.85 ms | 6.53 ms | **4.38 ms** | **4.25 ms** | **1.14x** / 1.54x | 471 |
+| 4 | 5.02 ms | 6.86 ms | **4.68 ms** | **4.61 ms** | **1.09x** / 1.49x | 868 |
+| 8 | 6.22 ms | 8.09 ms | **5.77 ms** | **5.88 ms** | **1.06x** / 1.37x | 1360 |
 
-Time per output token on banff-cyxtera-s70-4 (MI300X), 2026-10-29, all columns in one
-Slurm job (68206666).
+Time per output token on banff-cyxtera-s70-4 (MI300X).
 
+- 10-29 columns: one Slurm job (68207195), third try; every GPU of the node read 0 to 0.1 %
+  busy (20 samples of `gpu_busy_percent`) before and after it
+  (`bench/results/m8/quiet/try3_*`). Tries 1 and 2 had a busy neighbour and gave the same
+  numbers within 4 %.
 - Megakernel: `bench/bench_decode.py`, real-text prompts, median of 3 runs
-  (`bench/results/m8/bench_new_m*.txt`; before: `bench_main_m*.txt`, a clean export of
-  main). Speedup: against vLLM FP8 with the kernel off.
+  (`bench/results/m8/quiet/bench_m*.txt`). Before milestone 8 (main 13b25e7, same day,
+  `bench/results/m8/bench_main_m*.txt` against `bench_new_m*.txt`): 3.87 / 4.63 / 6.12 /
+  7.76 ms vs 3.75 / 4.18 / 4.59 / 5.92 ms.
 - vLLM 0.32.1rc1 nightly, kernel off and on: `bench/vllm_e2e.py`, the same real-text
-  prompts (`bench/results/m8/vllm_off.json`, `vllm_on_all_widths.json`,
-  `vllm_compare_all_widths.txt`).
-- The node was slower on 2026-10-29 than on 2026-10-28 while other jobs ran on its other
-  GPUs (the same main kernel: 6.72 ms at batch 8 in the morning, 7.76 ms later;
-  `bench/results/m8/drift_main_vs_tree_m8.txt`); vLLM's own path slowed more (6.22 ->
-  7.98 ms). Against the 2026-10-28 vLLM numbers (4.43 / 4.85 / 5.02 / 6.22 ms,
-  `bench/results/m6/`) the new kernel measured on the slower day is still faster at
-  batch 1, 2, 4 and 8.
+  prompts (`quiet/try3_vllm_off.json`, `try3_vllm_on.json`, `try3_vllm_compare.txt`);
+  10-28: `bench/results/m6/off4.json`.
 - `vllm bench serve` (random-token prompts) and SGLang 0.5.10 `bench_one_batch`
   (2026-10-28): `bench/results/stock/summary.md`. SGLang's FP8 path fails on this checkpoint
   (`This GEMM is not supported!`); vLLM + AITER fails on FP8 (no GELU_TANH in its FP8 MoE).
