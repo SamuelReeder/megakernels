@@ -1,0 +1,14 @@
+node banff-cyxtera-s70-4.adc.amd.com; 5 passages [143, 97, 83, 184, 68] tokens, long text 1536 tokens
+fp8 runs 69s
+bf16 runs 96s
+passage 0: ppl kernel 87.700 fp8 80.107 bf16 97.227 | top1 kernel=fp8 0.790 kernel=bf16 0.818 fp8=bf16 0.797 | KL(bf16||kernel) 0.6294 KL(bf16||fp8) 0.3984 | batch-invariant True
+passage 1: ppl kernel 227.963 fp8 269.420 bf16 286.169 | top1 kernel=fp8 0.742 kernel=bf16 0.804 fp8=bf16 0.773 | KL(bf16||kernel) 0.2923 KL(bf16||fp8) 0.4680 | batch-invariant True
+passage 2: ppl kernel 43.412 fp8 36.517 bf16 42.172 | top1 kernel=fp8 0.747 kernel=bf16 0.759 fp8=bf16 0.759 | KL(bf16||kernel) 0.8563 KL(bf16||fp8) 0.7236 | batch-invariant True
+passage 3: ppl kernel 835.952 fp8 962.627 bf16 812.509 | top1 kernel=fp8 0.734 kernel=bf16 0.745 fp8=bf16 0.728 | KL(bf16||kernel) 0.8132 KL(bf16||fp8) 0.6941 | batch-invariant True
+passage 4: ppl kernel 240.581 fp8 289.636 bf16 418.112 | top1 kernel=fp8 0.750 kernel=bf16 0.691 fp8=bf16 0.735 | KL(bf16||kernel) 0.5176 KL(bf16||fp8) 0.5090 | batch-invariant True
+long: ppl kernel 85.291 fp8 98.520 bf16 62.982 | top1 kernel=fp8 0.734 kernel=bf16 0.736 fp8=bf16 0.757 | KL(bf16||kernel) 1.4377 KL(bf16||fp8) 1.3136
+  positions 0..1023: ppl kernel 150.539 fp8 186.911 bf16 138.391
+  positions 1024..1535: ppl kernel 27.587 fp8 27.584 bf16 13.130
+passages: ppl kernel 216.183 fp8 226.770 bf16 242.689
+long: ppl kernel 85.291 fp8 98.520 bf16 62.982
+PASS

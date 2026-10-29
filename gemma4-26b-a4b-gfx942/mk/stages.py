@@ -302,7 +302,7 @@ def rebuild_h(c, M, red, h1, d, e, ssq_d, ssq_e, w1, w2, wpf, ls, h_out, name=""
 @D.traced
 def prologue_qkv(c, g, xq, xs, red, hh, k0, live, lnw):
     """qkv GEMV input: x = h * rstd(h) * input_layernorm, quantized (g.C == 1: all K)."""
-    assert g.C == 1 and g.K == H and g.kind == "fp8"
+    assert g.C == 1 and g.K == H and g.kind == "fp8_row"
     M = g.M
     zero_xs_tail(c, g, xs)
     wv = _w8(D.rsrc(lnw), k0)

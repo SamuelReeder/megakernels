@@ -21,6 +21,6 @@ if kmod != "mk":
     sys.modules["mk.kernel"] = kk
     mk.kernel = kk
     print("kernel module", kk.__file__, flush=True)
-args = [weights, "1", "1", "4"] + ([] if os.path.exists(f"{model_dir}/mk/fp4.py") else ["on"])
+args = [weights, "1", "1", "4"] + ([] if os.path.exists(f"{model_dir}/mk/tp.py") else ["on"])
 sys.argv = ["logits_hash.py", *args]
 runpy.run_path(os.path.join(model_dir, "tests", "logits_hash.py"), run_name="__main__")

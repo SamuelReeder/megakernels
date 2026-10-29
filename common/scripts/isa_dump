@@ -10,7 +10,7 @@
 set -uo pipefail
 W=$1 O=$2 Ms=${3:-1,8} LMs=${4:-on,off}
 mkdir -p "$O"
-[ -f mk/fp4.py ] && LMs=on
+[ -f mk/tp.py ] && LMs=on
 rank=${SLURM_PROCID:-0}
 tag=tp1
 [ "${MK_TP:-1}" = 1 ] || tag=tp${MK_TP}_${MK_AR:-fp32}_r$rank
@@ -19,7 +19,7 @@ for m in ${Ms//,/ }; do
     d=/tmp/isa_dump_$$_${rank}_${m}_$lm
     rm -rf "$d"
     args=("$W" "$m" 1 4)
-    [ -f mk/fp4.py ] || args+=("$lm")
+    [ -f mk/tp.py ] || args+=("$lm")
     FLYDSL_RUNTIME_ENABLE_CACHE=0 FLYDSL_DUMP_IR=1 FLYDSL_DUMP_DIR=$d \
       python -B tests/logits_hash.py "${args[@]}" > "$O/isa_${tag}_m${m}_$lm.log" 2>&1
     f=$(ls "$d"/*/22_final_isa.s 2>/dev/null | head -1)

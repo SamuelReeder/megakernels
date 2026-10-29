@@ -1,0 +1,4 @@
+login node ctr2-alola-login-04, 2026-10-29: goldens.py (M5 rule) --record on main dc0ee48, then compare on M5 f7292f3
+recorded 298 goldens
+goldens: 298 lines, 0 differ
+PASS

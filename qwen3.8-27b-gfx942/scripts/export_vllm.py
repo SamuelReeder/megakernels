@@ -12,13 +12,12 @@ own PeerBuffer and TP group).
 Usage: python scripts/export_vllm.py VLLM_DIR
 """
 import pathlib
-import re
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "common" / "scripts"))
 import export_lib as E  # noqa: E402
 
-MODULES = ("dims", "tpdev", "fp4", "gemv", "stages", "mixer", "kernel")
+MODULES = ("dims", "tpdev", "stages", "mixer", "kernel")
 NOT_EXPORTED = ("sync", "peer", "tp", "runner", "pack", "reference")
 VLLM_SYNC = "vllm/models/deepseek_v41/amd/mono/common/sync.py"
 VLLM_SYNC_MODULE = VLLM_SYNC[: -len(".py")].replace("/", ".")
@@ -34,8 +33,6 @@ def mailbox_code(path):
 
 def transform(name, s):
     s = s.replace("from .sync import ", f"from {VLLM_SYNC_MODULE} import ")
-    if name == "fp4":  # unpack_ref is a test helper of the standalone repo
-        s = re.sub(r"\ndef unpack_ref\(.*?\n\n\n", "\n", s, flags=re.S)
     return s
 
 

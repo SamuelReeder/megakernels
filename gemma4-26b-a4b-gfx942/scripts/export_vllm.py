@@ -18,7 +18,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "common" / "scripts"))
 import export_lib as E  # noqa: E402
 
-MODULES = ("dims", "gemv", "stages", "attention", "moe", "kernel", "pack")
+MODULES = ("dims", "stages", "attention", "moe", "kernel", "pack")
 PACK_KEEP = {"gu_order", "gu_order_rows", "fp8_tiles", "pack_bf16", "unit_order"}
 HEADER = E.SPDX + "# ruff: noqa: E501\n"
 DST = "vllm/models/gemma4/amd/specialized_decode/kernels"

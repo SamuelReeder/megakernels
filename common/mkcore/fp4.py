@@ -44,20 +44,6 @@ def repack(w_u8: torch.Tensor, s_u8: torch.Tensor):
     return tiles, sc.view(torch.int32).reshape(G, KS, ROWS)
 
 
-def unpack_ref(tiles: torch.Tensor, scales: torch.Tensor) -> torch.Tensor:
-    """Inverse of repack, to a bf16 [N, K] matrix (test helper)."""
-    from .reference import dequant_mxfp4
-
-    G, KS = tiles.shape[:2]
-    t = tiles.reshape(G, KS, 4, ROWS, 4, 4)  # g st gl r d b
-    nib = torch.stack([t & 0xF, t >> 4], -1)  # g st gl r d b h
-    nib = nib.permute(0, 3, 1, 4, 2, 6, 5)  # g r st d gl h b
-    codes = nib.reshape(G * ROWS, KS * STEP)
-    packed = (codes[:, 0::2] | (codes[:, 1::2] << 4)).to(torch.uint8)
-    s = scales.view(torch.uint8).reshape(G, KS, ROWS, 4).permute(0, 2, 1, 3)
-    return dequant_mxfp4(packed, s.reshape(G * ROWS, KS * 4).contiguous())
-
-
 # ---------------------------------------------------------------- device side
 def device_helpers():
     """FlyDSL helpers (imported lazily: needs flydsl)."""

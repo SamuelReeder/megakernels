@@ -23,7 +23,8 @@ from __future__ import annotations
 import torch
 
 from .dims import EFF, EFFP, H, NDS, NE, NL, is_full
-from .gemv import PAD_TILES
+from mkcore.gemv import PAD_TILES
+
 from .moe import LGN
 
 P = "model.language_model."
