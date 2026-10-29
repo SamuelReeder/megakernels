@@ -16,8 +16,10 @@ from __future__ import annotations
 
 import torch
 
-from . import fp4
-from .gemv import PAD_TILES, chunks
+from mkcore import fp4
+from mkcore.gemv import PAD_TILES
+
+from .kernel import chunks
 from .dims import KEY_DIM, NL, VAL_DIM, is_attn
 
 L = "model.language_model.layers.{}."

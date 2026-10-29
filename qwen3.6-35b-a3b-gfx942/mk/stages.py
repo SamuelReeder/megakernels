@@ -54,7 +54,7 @@ def prologue_norm(c, g, xq, xs, red, h, ssq, lnw, eps):
     quantized per (token, 128 K). h: the bf16 copy of the residual (rstd comes from the
     fp32 sums of squares). The h loads go out before the rstd reduction."""
     M, K = g.M, g.K
-    assert K == H and g.kind == "fp8"
+    assert K == H and g.kind == "fp8_b128"
     tid = c["tid"]
     D.PROBE["on"] = D.PROBE.get("stage") == g.name
     D.probe(c, 5)

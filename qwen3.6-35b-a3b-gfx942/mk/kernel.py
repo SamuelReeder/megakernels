@@ -48,7 +48,7 @@ from . import mixer as X
 from . import moe as MO
 from . import stages as S
 from .dims import EPS, FI, HD, INP_N, NKV, NL, NQ, NVH, QKV_N, QKVZ_N, VAL_DIM, VOCAB, H, NE
-from .gemv import Gemv
+from mkcore.gemv import Gemv
 
 NTAB = 20  # pointer-table slots per layer
 NGLOB = 20  # global pointer-table slots
@@ -153,7 +153,7 @@ class Cfg:
     def specs(self):
         M, cus, ch = self.M, self.cus, self.chunks()
 
-        def g(name, n, k, kind="fp8", cta=False):
+        def g(name, n, k, kind="fp8_b128", cta=False):
             return Gemv(name, n, k, M, cus, WAVES, ch[name], kind,
                         cta=cta and self.cta_red).check()
 

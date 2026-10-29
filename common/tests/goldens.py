@@ -19,8 +19,9 @@ GOLD = os.path.join(ROOT, "common", "tests", "goldens.txt")
 MODELS = ("qwen3.8-27b-gfx942", "qwen3.6-35b-a3b-gfx942", "gemma4-26b-a4b-gfx942")
 CUS = 304
 # geometry: attributes and methods of a Gemv / MoeGemv that the host side uses
-ATTRS = ("U", "NW", "G", "KS", "KSc", "Kc", "MT", "XR", "XSR", "slots", "SEGMAX", "esize",
-         "small", "NGC", "NPWC")
+# `small` is recorded when true and NGC / NPWC when `cta` is true (since M5 every Gemv
+# has them; a geometry that does not use them must not change its hash)
+ATTRS = ("U", "NW", "G", "KS", "KSc", "Kc", "MT", "XR", "XSR", "slots", "SEGMAX", "esize")
 PER_WAVE = ("wave_lo",)  # f(gw), gw = 0 .. NW
 PER_CTA = ("cta_range", "cta_groups")  # f(bid), bid = 0 .. cus - 1
 PER_PIECE = ("nseg_host",)  # f(p), p = 0 .. U - 1
@@ -57,6 +58,10 @@ def geometry(spec):
     for a in ATTRS:
         if hasattr(type(spec), a) or a in getattr(spec, "__dict__", {}):
             out.append((a, call(getattr, spec, a)))
+    if getattr(spec, "small", False):
+        out.append(("small", True))
+    if getattr(spec, "cta", False):
+        out += [("NGC", spec.NGC), ("NPWC", spec.NPWC)]
     for name, rng in ((n, range(getattr(spec, "NW", 0) + 1)) for n in PER_WAVE):
         if hasattr(spec, name):
             out.append((name, [call(getattr(spec, name), i) for i in rng]))
@@ -104,7 +109,10 @@ def pack_lines(model, P):
     tiles = P.pack_bf16(w)
     if "qwen3.8" in model:
         yield f"{model} pack unit_order {h(P.unit_order(tiles, 2))}"
-        from mk import fp4
+        try:
+            from mkcore import fp4
+        except ImportError:  # trees before M5: mk/fp4.py
+            from mk import fp4
         wq = torch.randint(0, 256, (64, 256), generator=g, dtype=torch.uint8)
         sq = torch.randint(100, 140, (64, 16), generator=g, dtype=torch.uint8)
         yield f"{model} pack fp4.repack {h(*fp4.repack(wq, sq))}"

@@ -46,7 +46,17 @@ from . import mixer as X
 from . import stages as S
 from . import tpdev as TD
 from .dims import EPS, HD, Dims, H
-from .gemv import Gemv, chunks
+from mkcore.gemv import Gemv
+
+# K chunks of the GEMVs (default 1); the packer follows. chunks() gives a TP size's
+# table, with an optional override ((name, C), ...): Cfg.chunks carries it, so it is in
+# the kernel name.
+CHUNKS = dict(out=2, o=2, down=4, lm=8)
+CHUNKS_TP = {1: CHUNKS, 2: CHUNKS}
+
+
+def chunks(tp=1, override=()):
+    return dict(CHUNKS_TP[tp], **dict(override))
 
 NTAB = 18  # pointer-table slots per layer
 NGLOB = 18  # global pointer-table slots

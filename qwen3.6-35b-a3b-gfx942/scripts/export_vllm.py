@@ -16,7 +16,7 @@ import sys
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "common" / "scripts"))
 import export_lib as E  # noqa: E402
 
-MODULES = ("dims", "gemv", "stages", "mixer", "moe", "kernel", "pack")
+MODULES = ("dims", "stages", "mixer", "moe", "kernel", "pack")
 PACK_KEEP = {"gu_order", "row_scales", "fp8_tiles", "pack_bf16", "unit_order"}
 DST = "vllm/models/qwen3_5_moe/amd/specialized_decode/kernels"
 

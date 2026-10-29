@@ -46,7 +46,7 @@ from . import attention as A
 from . import moe as MO
 from . import stages as S
 from .dims import EFF, EFFP, EMBED_SCALE, NE, NL, O_F, O_S, QKV_F, QKV_S, SOFTCAP, VOCAB, WINDOW, H
-from .gemv import Gemv
+from mkcore.gemv import Gemv
 
 NTAB = 24  # pointer-table slots per row
 NGLOB = 32  # global pointer-table slots
@@ -127,7 +127,7 @@ class Cfg:
 
     def specs(self):
         M, cus, ch = self.M, self.cus, self.chunks()
-        def g(name, n, k, c, kind="fp8"):
+        def g(name, n, k, c, kind="fp8_row"):
             return Gemv(name, n, k, M, cus, WAVES, c, kind).check()
 
         return dict(
