@@ -1,0 +1,16 @@
+== fp32 M=1: stamped step without layer 0 (median over reps x ranks): with AR 5242 us, ar_local 4891 us -> 2.78 us per all-reduce (126 after layer 0)
+         delta gemv -0.01 wait +0.61 xfer +2.44 drain -0.08 bar -0.03 | push->poll start 1.12/0.00, poll 0.68 (p90 2.24), per-CTA drain median 3.20/2.00 us
+         per epilogue: push -> poll end 2.40 us = peer-late wait 0.44 (in 39 % of groups) + own push/poll 1.96; 254 epilogue stamps per stage and rank
+         delta gemv +0.02 wait +0.78 xfer +2.42 drain -0.06 bar +0.03 | push->poll start 1.08/0.00, poll 0.64 (p90 2.80), per-CTA drain median 3.04/2.00 us
+         per epilogue: push -> poll end 2.54 us = peer-late wait 0.58 (in 39 % of groups) + own push/poll 1.96; 252 epilogue stamps per stage and rank
+         delta gemv +0.18 wait +0.63 xfer +2.37 drain -0.33 bar +0.00 | push->poll start 1.00/0.00, poll 0.76 (p90 2.40), per-CTA drain median 2.20/2.04 us
+         per epilogue: push -> poll end 2.42 us = peer-late wait 0.52 (in 44 % of groups) + own push/poll 1.89; 243 epilogue stamps per stage and rank
+   all-reduce stages: (sum of means x layers) AR 2073 us, local 1705 us, added 368 us = 2.92 us per all-reduce
+== fp32 M=8: stamped step without layer 0 (median over reps x ranks): with AR 7454 us, ar_local 6551 us -> 7.17 us per all-reduce (126 after layer 0)
+         delta gemv +2.32 wait +0.85 xfer +4.37 drain -0.21 bar -0.08 | push->poll start 1.60/0.00, poll 4.44 (p90 6.24), per-CTA drain median 6.80/2.56 us
+         per epilogue: push -> poll end 6.69 us = peer-late wait 0.59 (in 39 % of groups) + own push/poll 6.10; 246 epilogue stamps per stage and rank
+         delta gemv +1.73 wait +1.00 xfer +4.50 drain -0.20 bar -0.09 | push->poll start 1.48/0.00, poll 4.76 (p90 6.64), per-CTA drain median 7.64/2.48 us
+         per epilogue: push -> poll end 6.86 us = peer-late wait 0.74 (in 41 % of groups) + own push/poll 6.12; 258 epilogue stamps per stage and rank
+         delta gemv +3.61 wait +0.60 xfer +3.44 drain -0.36 bar -0.05 | push->poll start 1.40/0.00, poll 3.68 (p90 5.76), per-CTA drain median 2.20/2.12 us
+         per epilogue: push -> poll end 5.37 us = peer-late wait 0.80 (in 44 % of groups) + own push/poll 4.57; 246 epilogue stamps per stage and rank
+   all-reduce stages: (sum of means x layers) AR 3079 us, local 2171 us, added 908 us = 7.21 us per all-reduce

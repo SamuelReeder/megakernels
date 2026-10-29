@@ -1,0 +1,15 @@
+plan /cluster/logs/qwen38-tp2/m6s/plan.sh start 07:13:05 job 68206678
+slurmstepd: error: pyxis: child 2596256 failed with error code: 1
+slurmstepd: error: pyxis: failed to create container filesystem
+slurmstepd: error: pyxis: printing enroot log file:
+slurmstepd: error: pyxis:     [INFO] Extracting squashfs filesystem...
+slurmstepd: error: pyxis:     Write on output file failed because No space left on device
+slurmstepd: error: pyxis:     FATAL ERROR: writer: failed to write file /var/tmp/244237219/enroot-data/pyxis_68206678.14/usr/local/lib/python3.12/dist-packages/z3/lib/libz3.so
+slurmstepd: error: pyxis:     Parallel unsquashfs: Using 32 processors
+slurmstepd: error: pyxis:     214853 inodes (221572 blocks) to write
+slurmstepd: error: pyxis:     
+slurmstepd: error: pyxis: couldn't start container
+slurmstepd: error: spank: required plugin spank_pyxis.so: task_init() failed with rc=-1
+slurmstepd: error: Failed to invoke spank plugin stack
+srun: error: banff-cyxtera-s70-4: task 0: Exited with exit code 1
+plan done 07:35:30

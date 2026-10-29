@@ -1,0 +1,4 @@
+pdiag_tp2fp32_m1 rank 0 exit 124 02:22:34
+pdiag_tp2fp32_m1 rank 1 exit 124 02:22:34
+pdiag_tp2fp32_m1_nopro rank 1 exit 0 02:25:00
+pdiag_tp2fp32_m1_nopro rank 0 exit 0 02:25:00

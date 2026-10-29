@@ -11,6 +11,8 @@ invariance: each passage decoded alone (M = 1) and inside a batch (M = len(TEXTS
 first min-length tokens) must give bitwise-equal kernel logits.
 
 Usage: python tests/eval_text.py MXFP4_DIR BF16_DIR
+TP2: MK_TP=2 MK_AR=fp32|bf16 srun -n2 ... (mk/tp.py): rank 0 runs the references; the
+residual must also be bitwise equal on both ranks every step.
 """
 import sys
 import time
@@ -19,8 +21,7 @@ import torch
 
 sys.path.insert(0, __file__.rsplit("/tests/", 1)[0])
 from mk import reference as R  # noqa: E402
-from mk.pack import Packed  # noqa: E402
-from mk.runner import Engine  # noqa: E402
+from mk import tp as TP  # noqa: E402
 
 TEXTS = [
     "It was the best of times, it was the worst of times, it was the age of wisdom, it was the "
@@ -88,15 +89,21 @@ def main():
     print(f"{len(seqs)} passages, {[len(s) for s in seqs]} tokens")
 
     t0 = time.time()
-    W = R.Weights(mx_dir, "mxfp4", keep_raw=True)
-    ref_w4 = [ref_logits(W, s) for s in seqs]
-    eng1 = Engine(Packed(W), 1, maxlen=Lmax + 64)
+    ctx = TP.init()
+    W = R.Weights(mx_dir, "mxfp4", keep_raw=True, dequant=ctx.main)
+    ref_w4 = [ref_logits(W, s) for s in seqs] if ctx.main else None
+    PK = TP.packed(ctx, W)
+    eng1 = TP.engine(ctx, PK, 1, maxlen=Lmax + 64)
     ker1 = [kernel_logits(eng1, s[None])[0] for s in seqs]
-    del eng1
-    engM = Engine(Packed(W), len(seqs), maxlen=Lmax + 64)
+    engM = TP.engine(ctx, PK, len(seqs), maxlen=Lmax + 64)
     kerM = kernel_logits(engM, torch.stack([s[:L] for s in seqs]))
-    del engM, W
+    req = ctx.tp == 1 or (eng1.ranks_equal and engM.ranks_equal)
+    del eng1, engM, PK, W
     torch.cuda.empty_cache()
+    if not ctx.main:
+        sys.exit(0 if TP.agree(ctx, req) else 1)
+    if ctx.tp > 1:
+        print(f"tp {ctx.tp} ar {ctx.ar_dtype}: ranks bitwise equal every step: {req}")
     print(f"mxfp4 runs {time.time() - t0:.0f}s")
     W = R.Weights(bf_dir, "bf16")
     ref_bf = [ref_logits(W, s) for s in seqs]
@@ -128,6 +135,12 @@ def main():
     print(f"all: ppl kernel {ppl['kernel']:.3f} w4 {ppl['w4']:.3f} bf16 {ppl['bf16']:.3f}")
     # the kernel's fp8 activations may cost a little: allow 2 % perplexity over the w4 reference
     ok &= ppl["kernel"] <= 1.02 * ppl["w4"]
+    kl_all = torch.nn.functional.kl_div(
+        torch.log_softmax(torch.cat(ker1).double(), -1),
+        torch.log_softmax(torch.cat(ref_bf).double(), -1),
+        log_target=True, reduction="none").sum(-1).mean().item()
+    print(f"all: KL(bf16||kernel) {kl_all:.5f} over {sum(len(s) for s in seqs)} positions")
+    ok = TP.agree(ctx, ok and req)
     print("PASS" if ok else "FAIL")
     sys.exit(0 if ok else 1)
 

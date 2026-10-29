@@ -1,0 +1,14 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-27T21:31:56Z rank 0 env MK_TP=2 MK_AR=bf16 MK_SEED=
+# python tests/eval_text.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 /home/AMD/sareeder/mk/models/Qwen3.8-27B
+5 passages, [145, 98, 77, 189, 83] tokens
+tp 2 ar bf16: ranks bitwise equal every step: True
+mxfp4 runs 142s
+bf16 runs 221s
+passage 0: ppl kernel 1.141 w4 1.138 bf16 1.147 | top1 kernel=w4 0.993 kernel=bf16 0.986 w4=bf16 0.993 | KL(bf16||kernel) 0.0164 KL(bf16||w4) 0.0148 | batch-invariant True
+passage 1: ppl kernel 3.612 w4 3.624 bf16 3.448 | top1 kernel=w4 0.969 kernel=bf16 0.929 w4=bf16 0.939 | KL(bf16||kernel) 0.0260 KL(bf16||w4) 0.0246 | batch-invariant True
+passage 2: ppl kernel 1.438 w4 1.433 bf16 1.418 | top1 kernel=w4 1.000 kernel=bf16 0.987 w4=bf16 0.987 | KL(bf16||kernel) 0.0061 KL(bf16||w4) 0.0052 | batch-invariant True
+passage 3: ppl kernel 1.282 w4 1.274 bf16 1.163 | top1 kernel=w4 1.000 kernel=bf16 0.974 w4=bf16 0.974 | KL(bf16||kernel) 0.0800 KL(bf16||w4) 0.0787 | batch-invariant True
+passage 4: ppl kernel 2.530 w4 2.521 bf16 2.462 | top1 kernel=w4 0.988 kernel=bf16 0.952 w4=bf16 0.940 | KL(bf16||kernel) 0.0174 KL(bf16||w4) 0.0159 | batch-invariant True
+all: ppl kernel 1.650 w4 1.645 bf16 1.580
+all: KL(bf16||kernel) 0.03708 over 592 positions
+PASS

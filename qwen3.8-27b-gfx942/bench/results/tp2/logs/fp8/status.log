@@ -1,0 +1,16 @@
+tp1_bench_m1 rank 0 exit 0 04:02:11
+tp1_bench_m2 rank 0 exit 0 04:03:16
+tp1_bench_m4 rank 0 exit 0 04:04:23
+tp1_bench_m8 rank 0 exit 0 04:05:34
+tp2fp32_bench_m1 rank 0 exit 0 04:06:51
+tp2fp32_bench_m1 rank 1 exit 0 04:06:51
+tp2fp32_bench_m2 rank 0 exit 0 04:08:12
+tp2fp32_bench_m2 rank 1 exit 0 04:08:12
+tp2fp32_bench_m4 rank 0 exit 0 04:09:37
+tp2fp32_bench_m4 rank 1 exit 0 04:09:38
+tp2fp32_bench_m8 rank 1 exit 0 04:12:25
+tp2fp32_bench_m8 rank 0 exit 0 04:12:25
+vllm_lat_tp2_Qwen3.8-27B-FP8 rank 0 exit 0 04:34:23
+vllm_lat_tp2_Qwen3.8-27B rank 0 exit 0 04:55:08
+vllm_lat_tp2_Qwen3.8-27B-Quark-AWQ-MXFP4 rank 0 exit 0 05:19:20
+vllm_tp2_Qwen3.8-27B-FP8 rank 0 exit 0 05:27:47

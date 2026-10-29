@@ -1,0 +1,6 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T10:10:32Z rank 0 env MK_TP=2 MK_AR=fp32 MK_SEED=
+# python tests/test_determinism.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 8 64
+M=8 steps=64: 3 runs bitwise equal: True
+logits sha256 eca6810ec44f5829
+tp 2 ar fp32: ranks bitwise equal every step: True
+PASS

@@ -1,0 +1,8 @@
+pdown_fp32_l0 rank 0 exit 0 05:37:21
+pdown_fp32_l0 rank 1 exit 0 05:37:22
+pdown_fp32_l1 rank 1 exit 0 05:38:44
+pdown_fp32_l1 rank 0 exit 0 05:38:44
+pdown_bf16_l0 rank 0 exit 0 05:39:57
+pdown_bf16_l0 rank 1 exit 0 05:39:57
+pdown_bf16_l1 rank 0 exit 0 05:41:09
+pdown_bf16_l1 rank 1 exit 0 05:41:09

@@ -1,0 +1,116 @@
+{
+ "host": "banff-cyxtera-s70-4.adc.amd.com",
+ "torch": "2.13.0+rocm10.0.0",
+ "tag": "vllm",
+ "runs": [
+  {
+   "eager_med_us": 67.5550028681755,
+   "eager_p99_us": 127.25299596786499,
+   "graph_med_us": 9.073671884834766,
+   "graph_p99_us": 9.229656308889389,
+   "variant": "rccl",
+   "M": 1,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 52.88099870085716,
+   "eager_p99_us": 76.13500207662582,
+   "graph_med_us": 5.641093943268061,
+   "graph_p99_us": 5.729109514504671,
+   "variant": "vllm_tp_all_reduce",
+   "M": 1,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 39.9320013821125,
+   "eager_p99_us": 57.17099830508232,
+   "graph_med_us": 5.638593807816505,
+   "graph_p99_us": 5.734125152230263,
+   "variant": "vllm_aiter_ar_comm",
+   "M": 1,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 64.5890012383461,
+   "eager_p99_us": 102.95700281858444,
+   "graph_med_us": 16.07539877295494,
+   "graph_p99_us": 16.163093969225883,
+   "variant": "rccl",
+   "M": 8,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 54.48500066995621,
+   "eager_p99_us": 81.34699612855911,
+   "graph_med_us": 9.100296534597874,
+   "graph_p99_us": 9.222140535712242,
+   "variant": "vllm_tp_all_reduce",
+   "M": 8,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 40.9340001642704,
+   "eager_p99_us": 59.737998992204666,
+   "graph_med_us": 9.098734706640244,
+   "graph_p99_us": 9.168578311800957,
+   "variant": "vllm_aiter_ar_comm",
+   "M": 8,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 64.78899717330933,
+   "eager_p99_us": 101.19199752807617,
+   "graph_med_us": 10.112312622368336,
+   "graph_p99_us": 10.200640186667442,
+   "variant": "rccl",
+   "M": 1,
+   "dtype": "torch.bfloat16"
+  },
+  {
+   "eager_med_us": 40.85399955511093,
+   "eager_p99_us": 60.01799926161766,
+   "graph_med_us": 3.338609356433153,
+   "graph_p99_us": 3.428820287808776,
+   "variant": "vllm_tp_all_reduce",
+   "M": 1,
+   "dtype": "torch.bfloat16"
+  },
+  {
+   "eager_med_us": 31.551998108625412,
+   "eager_p99_us": 46.82699963450432,
+   "graph_med_us": 3.338929731398821,
+   "graph_p99_us": 3.4883280750364065,
+   "variant": "vllm_aiter_ar_comm",
+   "M": 1,
+   "dtype": "torch.bfloat16"
+  },
+  {
+   "eager_med_us": 54.726000875234604,
+   "eager_p99_us": 83.71199667453766,
+   "graph_med_us": 14.894874766469002,
+   "graph_p99_us": 14.982569962739944,
+   "variant": "rccl",
+   "M": 8,
+   "dtype": "torch.bfloat16"
+  },
+  {
+   "eager_med_us": 40.65399989485741,
+   "eager_p99_us": 58.775000274181366,
+   "graph_med_us": 5.855343770235777,
+   "graph_p99_us": 5.903882905840874,
+   "variant": "vllm_tp_all_reduce",
+   "M": 8,
+   "dtype": "torch.bfloat16"
+  },
+  {
+   "eager_med_us": 31.874001026153564,
+   "eager_p99_us": 46.386998146772385,
+   "graph_med_us": 5.863484460860491,
+   "graph_p99_us": 5.941156297922134,
+   "variant": "vllm_aiter_ar_comm",
+   "M": 8,
+   "dtype": "torch.bfloat16"
+  }
+ ],
+ "vllm": "0.32.1rc1.dev505+g00b6c4c56"
+}

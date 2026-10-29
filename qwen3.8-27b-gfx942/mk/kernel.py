@@ -43,11 +43,11 @@ from flydsl.expr.typing import Int32, Int64
 from . import dev as D
 from . import mixer as X
 from . import stages as S
-from .dims import EPS, FFN, HD, INP_N, NKV, NQ, NVH, QKV_N, VAL_DIM, VOCAB, H
-from .gemv import CHUNKS, Gemv
+from .dims import EPS, HD, Dims, H
+from .gemv import Gemv, chunks
 
 NTAB = 18  # pointer-table slots per layer
-NGLOB = 16  # global pointer-table slots
+NGLOB = 18  # global pointer-table slots
 WAVES = 8
 NT = 64 * WAVES
 
@@ -69,7 +69,9 @@ NT = 64 * WAVES
     G_TOK,
     G_POS,
     G_OUT,
-) = range(16)
+    G_PEERS,  # TP: int64 [tp] every rank's peer buffer (PeerBuffer.addresses)
+    G_RANK,  # TP: this rank (an integer, not a pointer)
+) = range(18)
 # per-layer slots
 (
     T_MIX_T,
@@ -111,6 +113,15 @@ class Cfg:
     conv_s0: int  # bytes between the conv states of two slots
     ssm_s0: int  # bytes between the SSM states of two slots
     lm_head: bool = True  # False: write the normed hidden states instead of logits
+    tp: int = 1  # tensor-parallel size (docs/DESIGN-TP2.md); the kernel holds one rank
+    ar_dtype: str = "fp32"  # all-reduce partials: "fp32" pairs or "bf16" pair words
+    ar_local: bool = False  # debug timing only: add the own partial twice, no peer
+    chunks: tuple = ()  # ((gemv name, K chunks), ...) over gemv.chunks(tp); Packed's
+    # .chunks: the weights are packed for these counts, so the two must match
+
+    @property
+    def d(self):
+        return Dims(self.tp)
 
     @property
     def cpb(self):
@@ -122,7 +133,8 @@ class Cfg:
         return self.maxblocks * self.cpb
 
     def specs(self):
-        M, cus = self.M, self.cus
+        M, cus, d = self.M, self.cus, self.d
+        ch = chunks(self.tp, self.chunks)
         g = lambda name, n, k, kind="mx": Gemv(
             name,
             n,
@@ -130,21 +142,35 @@ class Cfg:
             M,
             cus,
             WAVES,
-            CHUNKS.get(name, 1),  # noqa: E731
+            ch.get(name, 1),  # noqa: E731
             kind,
         ).check()
         return dict(
-            inp=g("inp", INP_N, H),
-            out=g("out", H, VAL_DIM),
-            qkv=g("qkv", QKV_N, H),
-            o=g("o", H, NQ * HD),
-            gu=g("gu", 2 * FFN, H),
-            down=g("down", H, FFN),
-            lm=g("lm", VOCAB, H, kind="bf16"),
+            inp=g("inp", d.inp_n, H),
+            out=g("out", H, d.val_dim),
+            qkv=g("qkv", d.qkv_n, H),
+            o=g("o", H, d.nq * HD),
+            gu=g("gu", 2 * d.ffn, H),
+            down=g("down", H, d.ffn),
+            lm=g("lm", d.vocab, H, kind="bf16"),
         )
 
     def part_floats(self):
         return max(s.part_floats() for s in self.specs().values())
+
+
+# Peer buffer (TP > 1): two halves for the layer all-reduces (out / o_proj: half 0,
+# down: half 1), then the embedding exchange's region. Each: [src rank][M][H] fp32
+# (value, tag) pairs, sized for M = 8 (bf16 pair words use the first half of it).
+AR_MMAX = 8
+
+
+def peer_region_bytes(tp):
+    return tp * AR_MMAX * H * 8
+
+
+def peer_bytes(tp):
+    return 3 * peer_region_bytes(tp)
 
 
 CNT_REGION = dict(inp=0, out=1, qkv=2, o=3, gu=4, down=5, lm=6, attn=7)
@@ -169,15 +195,25 @@ def compile_key(cfg, *extra) -> str:
 
 
 def build(cfg: Cfg):
-    M, CUS = cfg.M, cfg.cus
+    M, CUS, d = cfg.M, cfg.cus, cfg.d
     assert 1 <= M <= WAVES, "the norm prologues give each row one wave"
+    assert cfg.ar_dtype in ("fp32", "bf16") and M <= AR_MMAX
+    TP = cfg.tp
+    AR = None
+    if TP > 1:
+        AR = dict(
+            tp=TP,
+            region=peer_region_bytes(TP),
+            dtype=cfg.ar_dtype,
+            local=cfg.ar_local,
+        )
     SP = cfg.specs()
     S.NT = NT
     XQB = max(s.XR for s in SP.values()) * M
     XSF = 16 * max(s.XSR for s in SP.values())
     ATT_W = X.GQ * HD + HD  # floats per wave (q / p, then k_new v_new bf16 pairs)
-    NTASK_G = M * NVH * 8
-    NTASK_A = M * NKV * cfg.ncmax
+    NTASK_G = M * d.nvh * 8
+    NTASK_A = M * d.nkv * cfg.ncmax
 
     @fx.struct
     class GemvLds:
@@ -201,8 +237,9 @@ def build(cfg: Cfg):
         v = D.ld(r, 2 * i, 2)
         return (fx.Int64(D.uniform(v[1])) << 32) | fx.Int64(fx.Uint32(D.uniform(v[0])))
 
-    # the kernel name is not in FlyDSL's disk-cache key; `key` is (see compile_key)
-    key = compile_key(cfg)
+    # the kernel name is not in FlyDSL's disk-cache key; `key` is (see compile_key).
+    # The debug globals change the traced code, so they go into the key too.
+    key = compile_key(cfg, PROFILE, D.PROBE, D.ARPROBE)
     name = f"qwen38_decode_m{M}_{zlib.crc32(repr(cfg).encode()):08x}"
 
     @flyc.kernel(name=name, known_block_size=[NT, 1, 1])
@@ -238,6 +275,17 @@ def build(cfg: Cfg):
         q0, q1 = G[G_SSQ], G[G_SSQ] + fx.Int64(M * (H // 16) * 4)
         cnt = lambda k: G[G_CNT] + fx.Int64(CNT_REGION[k] * CNT_STRIDE * 4)  # noqa: E731
         part = G[G_PART]
+        if const_expr(TP > 1):
+            # every rank's peer buffer, loaded once (a put's address must not wait on a
+            # load of its own); this rank's from the table entry `rank`
+            rp = D.rsrc(G[G_PEERS])
+            rank = D.uniform(D.ld(rg, 2 * G_RANK))
+            c["ar"] = dict(
+                rank=rank,
+                bases=[tab64(rp, p) for p in range(TP)],
+                own=tab64(rp, rank),
+                epoch=epoch,  # debug probes index barriers by tag - epoch - 1
+            )
 
         def stamp(slot):
             t = D.memrealtime()
@@ -268,19 +316,29 @@ def build(cfg: Cfg):
             if const_expr(PROFILE["addr"] is not None):
                 slot = ((e - epoch - 1) * CUS + bid) * 2
                 stamp(slot)
+            apb = D.ARPROBE["bar"]
+            if const_expr(apb is not None):
+                t_arr = D.memrealtime()
+                D.drain_cta()
+                t_drn = D.memrealtime()
             D.grid_arrive(rf, e, tid, bid)
             buf = spec.first_loads(w) if spec is not None else None
             D.grid_wait(rf, e, tid, bid, CUS)
-            D.grid_wait(rf, e, tid, bid, CUS)
             if const_expr(PROFILE["addr"] is not None):
                 stamp(slot + 1)
+            if const_expr(apb is not None):
+                t_rel = D.memrealtime()
+                k = ((e - epoch - 1) * CUS + bid) * 4
+                if tid == 0:
+                    D.st_stamps(fx.Int64(apb), k, t_arr, t_drn)
+                    D.st_stamps(fx.Int64(apb), k + 2, t_rel, fx.Int64(0))
             return w, buf
 
         # ---- embedding (+ zero the attention counters: their totals change with pos)
-        S.embed_stage(c, M, G[G_TOK], G[G_EMBED], hb0, q0, hf0)
+        S.embed_stage(c, M, G[G_TOK], G[G_EMBED], hb0, q0, hf0, epoch + 1)
         if bid == 0:
-            for i in range_constexpr((M * NKV + NT - 1) // NT):
-                if tid + NT * i < M * NKV:
+            for i in range_constexpr((M * d.nkv + NT - 1) // NT):
+                if tid + NT * i < M * d.nkv:
                     D.st(fx.Int32(0), D.rsrc(cnt("attn")), tid + NT * i, D.CM_DEV)
 
         c0 = dict(c)
@@ -380,7 +438,7 @@ def build(cfg: Cfg):
                 buf,
                 part,
                 cnt("lm"),
-                lambda cg, tots: S.epi_raw(c, M, VOCAB, cg, tots[0], G[G_OUT]),
+                lambda cg, tots: S.epi_raw(c, M, d.vocab, cg, tots[0], G[G_OUT]),
             )
         else:
             # ---- final norm -> bf16 hidden states
@@ -394,6 +452,8 @@ def build(cfg: Cfg):
     @flyc.jit
     def launch(tab: Int64, glob: Int64, nlayers: Int32, stream: fx.Stream = _STREAM):
         key  # noqa: B018  a str closure value: FlyDSL puts it in the disk-cache key
+        D.TRACE.clear()
+        D.TRACE.update(d=d, ar=AR)
         kdec(tab, glob, nlayers).launch(grid=(CUS,), block=(NT,), stream=stream)
 
     return launch
@@ -461,7 +521,7 @@ def _gdn_layer(
     # out_proj (+ residual)
     w, buf = barrier_then(out, T(T_OUT_T), T(T_OUT_S), e0 + 2)
     S.prologue_scaled(c, out, xq, xs, y2, hssq, EPS, 128)
-    out.run(c, w, buf, part, cnt("out"), S.EpiRes(c, M, hb0, hb1, q1, hf1))
+    out.run(c, w, buf, part, cnt("out"), S.EpiRes(c, M, hb0, hb1, q1, hf1, (e0 + 2, 0)))
 
 
 @D.traced
@@ -498,7 +558,7 @@ def _attn_layer(
         buf,
         part,
         cnt("qkv"),
-        lambda cg, tots: S.epi_raw(c, M, QKV_N, cg, tots[0], y),
+        lambda cg, tots: S.epi_raw(c, M, D.TRACE["d"].qkv_n, cg, tots[0], y),
     )
     barrier_then(None, None, None, e0 + 1)
     for t in range(gw, ntask, c["cus"] * WAVES):
@@ -521,7 +581,7 @@ def _attn_layer(
         )
     w, buf = barrier_then(o, T(T_OUT_T), T(T_OUT_S), e0 + 2)
     S.prologue_scaled(c, o, xq, xs, y2, y2, EPS, 0)
-    o.run(c, w, buf, part, cnt("o"), S.EpiRes(c, M, hb0, hb1, q1, hf1))
+    o.run(c, w, buf, part, cnt("o"), S.EpiRes(c, M, hb0, hb1, q1, hf1, (e0 + 2, 0)))
 
 
 @D.traced
@@ -535,7 +595,7 @@ def _mlp(c, SP, T, e0, xq, xs, red, hb0, hb1, q0, q1, part, cnt, barrier_then, G
     gu.run(c, w, buf, part, cnt("gu"), lambda cg, tots: S.epi_act(c, M, cg, tots[0], y))
     w, buf = barrier_then(dn, T(T_DN_T), T(T_DN_S), e0 + 1)
     S.prologue_act(c, dn, xq, xs, y)
-    dn.run(c, w, buf, part, cnt("down"), S.EpiRes(c, M, hb1, hb0, q0, hf0))
+    dn.run(c, w, buf, part, cnt("down"), S.EpiRes(c, M, hb1, hb0, q0, hf0, (e0 + 1, 1)))
 
 
 def hf_ptrs(hb0, M):

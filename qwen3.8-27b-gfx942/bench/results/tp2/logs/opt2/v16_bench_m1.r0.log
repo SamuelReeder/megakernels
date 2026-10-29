@@ -1,0 +1,9 @@
+# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T08:31:34Z rank 0 env MK_TP=2 MK_AR=fp32 MK_SEED=
+# python bench/bench_decode.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 1 512 64 3
+load+pack+build 29s tp 2 ar fp32 cfg Cfg(M=1, cus=304, maxlen=640, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=1603584, ssm_s0=1603584, lm_head=True, tp=2, ar_dtype='fp32', ar_local=False, chunks=())
+/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/distributed/c10d_logger.py:83: FutureWarning: `torch.distributed.all_gather_into_tensor` is deprecated. Please use `torch.distributed.all_gather_single` instead.
+  return func(*args, **kwargs)
+rep 0: TPOT 5.625 ms (177.8 tok/s/user), fixed-token TPOT 5.562 ms, kernel median 5.642 ms
+rep 1: TPOT 5.656 ms (176.8 tok/s/user), fixed-token TPOT 5.588 ms, kernel median 5.615 ms
+rep 2: TPOT 5.663 ms (176.6 tok/s/user), fixed-token TPOT 5.601 ms, kernel median 5.652 ms
+{"M": 1, "ctx": 512, "steps": 64, "tp": 2, "rank": 0, "ar": "fp32", "ar_local": false, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-28 08:32:41", "runs": [{"tpot_ms": 5.625418186187744, "tpot_fixed_ms": 5.561996936798096, "kernel_ms_median": 5.6418538093566895, "kernel_ms_min": 5.575500965118408}, {"tpot_ms": 5.656094074249268, "tpot_fixed_ms": 5.588107585906982, "kernel_ms_median": 5.614712238311768, "kernel_ms_min": 5.555897235870361}, {"tpot_ms": 5.663456439971924, "tpot_fixed_ms": 5.600738525390625, "kernel_ms_median": 5.651957988739014, "kernel_ms_min": 5.585003852844238}]}

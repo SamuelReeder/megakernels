@@ -1,0 +1,28 @@
+plan /cluster/logs/qwen38-tp2/m6d3/plan.sh start 11:26:34 job 68197384
+slurmstepd: error: pyxis: child 3245228 failed with error code: 1
+slurmstepd: error: pyxis: failed to create container filesystem
+slurmstepd: error: pyxis: printing enroot log file:
+slurmstepd: error: pyxis:     [INFO] Extracting squashfs filesystem...
+slurmstepd: error: pyxis:     Write on output file failed because No space left on device
+slurmstepd: error: pyxis:     FATAL ERROR: writer: failed to write file /var/tmp/244237219/enroot-data/pyxis_68197384.129/usr/local/lib/python3.12/dist-packages/vllm/_C_stable_libtorch.abi3.so
+slurmstepd: error: pyxis:     Parallel unsquashfs: Using 32 processors
+slurmstepd: error: pyxis:     214853 inodes (221572 blocks) to write
+slurmstepd: error: pyxis:     
+slurmstepd: error: pyxis: couldn't start container
+slurmstepd: error: spank: required plugin spank_pyxis.so: task_init() failed with rc=-1
+slurmstepd: error: Failed to invoke spank plugin stack
+srun: error: banff-cyxtera-s70-4: task 0: Exited with exit code 1
+slurmstepd: error: pyxis: child 3245888 failed with error code: 1
+slurmstepd: error: pyxis: failed to create container filesystem
+slurmstepd: error: pyxis: printing enroot log file:
+slurmstepd: error: pyxis:     [INFO] Extracting squashfs filesystem...
+slurmstepd: error: pyxis:     Write on output file failed because No space left on device
+slurmstepd: error: pyxis:     FATAL ERROR: writer: failed to write file /var/tmp/244237219/enroot-data/pyxis_68197384.130/usr/local/lib/python3.12/dist-packages/vllm/_C_stable_libtorch.abi3.so
+slurmstepd: error: pyxis:     Parallel unsquashfs: Using 32 processors
+slurmstepd: error: pyxis:     214853 inodes (221572 blocks) to write
+slurmstepd: error: pyxis:     
+slurmstepd: error: pyxis: couldn't start container
+slurmstepd: error: spank: required plugin spank_pyxis.so: task_init() failed with rc=-1
+slurmstepd: error: Failed to invoke spank plugin stack
+srun: error: banff-cyxtera-s70-4: task 0: Exited with exit code 1
+plan done 11:27:40

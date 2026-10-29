@@ -1,0 +1,21 @@
+host banff-cyxtera-s70-4.adc.amd.com AMD Instinct MI300X cus 304 tp 2 rounds 128
+
+M=1 ar: exact True True ranks_equal True True
+  round (stamps) ar med 3.75 p99 4.24 max 34.81 us; local med 2.60 p99 2.92 us
+  all-reduce phase (stamps) med 1.18 p99 1.75 us; local phase med 0.20
+  launch/128 (events) ar 3.64 p99 3.71; local 2.56 us
+  added cost per all-reduce: med 1.15 us, p99 1.64 us, events 1.08 us
+  [40 %                            ] W 4.54 F 3.02 a(med) 1.15 -> TP2 5.44 ms vs TP1 7.56: +28.1 % faster
+  [40 %                            ] W 4.54 F 3.02 a(p99) 1.64 -> TP2 5.50 ms vs TP1 7.56: +27.2 % faster
+  [bytes / LM-head rate 3.85 TB/s  ] W 4.02 F 3.54 a(med) 1.15 -> TP2 5.70 ms vs TP1 7.56: +24.6 % faster
+  [bytes / LM-head rate 3.85 TB/s  ] W 4.02 F 3.54 a(p99) 1.64 -> TP2 5.76 ms vs TP1 7.56: +23.8 % faster
+
+M=8 ar: exact True True ranks_equal True True
+  round (stamps) ar med 9.83 p99 10.48 max 11.58 us; local med 2.76 p99 2.91 us
+  all-reduce phase (stamps) med 7.14 p99 7.94 us; local phase med 0.36
+  launch/128 (events) ar 10.02 p99 10.05; local 2.73 us
+  added cost per all-reduce: med 7.07 us, p99 7.72 us, events 7.29 us
+  [40 %                            ] W 6.16 F 4.10 a(med) 7.07 -> TP2 8.09 ms vs TP1 10.26: +21.2 % faster
+  [40 %                            ] W 6.16 F 4.10 a(p99) 7.72 -> TP2 8.17 ms vs TP1 10.26: +20.4 % faster
+  [bytes / LM-head rate 3.39 TB/s  ] W 4.57 F 5.69 a(med) 7.07 -> TP2 8.88 ms vs TP1 10.26: +13.4 % faster
+  [bytes / LM-head rate 3.39 TB/s  ] W 4.57 F 5.69 a(p99) 7.72 -> TP2 8.97 ms vs TP1 10.26: +12.6 % faster

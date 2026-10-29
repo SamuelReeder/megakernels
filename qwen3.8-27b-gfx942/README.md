@@ -48,6 +48,40 @@ the quality checks and the failed runs are in [`bench/RESULTS.md`](bench/RESULTS
 stock baselines for every checkpoint and engine are in
 [`bench/stock/results.md`](bench/stock/results.md).
 
+## Tensor parallel 2 (two MI300X over XGMI)
+
+The same kernel runs split over two GPUs (`Cfg.tp = 2`, vLLM's TP2 layout): one persistent
+launch per GPU and step, and the 128 all-reduces of a step (after out_proj / o_proj and after
+down) run inside the kernel over peer memory, with the tagged mailbox of vLLM's DSv4.1
+decode. Each rank sums the two partials in rank order, so both GPUs hold the same bits.
+
+| Batch | TP1 (1 GPU) | TP2 (2 GPUs) | TP2 faster by | vLLM TP2 FP8 + AITER | Speedup |
+|---:|---:|---:|---:|---:|---:|
+| 1 | 7.73 ms | **5.59 ms** | 27.7 % | 9.82 ms | **1.76×** |
+| 2 | 8.17 ms | **5.97 ms** | 26.9 % | 10.72 ms | **1.79×** |
+| 4 | 8.92 ms | **6.73 ms** | 24.6 % | 10.66 ms | **1.58×** |
+| 8 | 10.31 ms | **7.91 ms** | 23.2 % | 11.15 ms | **1.41×** |
+
+One node (banff-cyxtera-s70-4), 2026-10-28, context 512. Engine-level time per token on both
+sides: `bench/bench_decode.py` for the kernels, `bench/stock/vllm_latency_bench.sh` (`vllm bench
+latency`, nightly vLLM 0.32.1rc1, median of 3 runs) for vLLM, whose time includes its
+scheduler and sampler. TP2 passes the hard gates of
+[`docs/DESIGN-TP2.md`](docs/DESIGN-TP2.md) section 9 against the exact reference (median
+per-step error 1.07× TP1's, eval_text KL +9.6 %, bitwise deterministic, batch-invariant, ranks
+bitwise equal at every step). The old test_decode criterion is report only there: it prints
+FAIL at batch 1, seeds 0 and 2. Design, every decision with its measurement, and the logs:
+[`docs/DESIGN-TP2.md`](docs/DESIGN-TP2.md); raw logs, the spike code and the run scripts are
+under `bench/results/tp2/`.
+
+Reproducibility (milestone 5, passed): second day on the same node (2026-10-29): same bits
+(same logits hashes and gate values) and the same speed within 0.4 %. Second node (MI325X,
+quanta-ccs-aus-j02-45, job 68206615, 2026-10-29, source at commit 57d6a48, logs added in
+b7cb2e7): same logits hashes, the same gate values including eval_text KL, every gate passes,
+TP2 5.21 / 5.52 / 6.25 / 7.32 ms at batch 1 / 2 / 4 / 8 (19-24 % faster than TP1 there);
+`bench/results/tp2/logs/m5_node2/summary.txt`. The vLLM rank check did not run there.
+
+![TP2 decode speed against TP1 and stock vLLM TP2](docs/throughput_tp2.png)
+
 ## How it works
 
 ![Architecture: stages per layer, the MXFP4 weight stream inside one CU, the grid barrier](docs/architecture.svg)
@@ -91,9 +125,12 @@ mk/pack.py         offline weight packing
 mk/runner.py       host engine: buffers, pointer tables, one launch per step
 mk/reference.py    PyTorch reference of the decode step (exact and fp8-emulating modes)
 mk/vendor/         FlyDSL buffer_ops.py (Apache-2.0, header kept)
+mk/tp.py           TP2 harness of the standalone engine (one process per GPU)
+mk/sync.py, peer.py  copies of vLLM's DSv4.1 mailbox and PeerBuffer (no aiter in the image)
 tests/             kernel vs reference, real-text perplexity, determinism, reference vs HF
 bench/             decode benchmark, per-stage profiler, reproducibility script, stock baselines
-tools/             plots: throughput chart, per-CU timeline
+tools/             plots: throughput charts, per-CU timeline
+bench/results/tp2/ TP2 work: all-reduce spike, run plans, analysis scripts, raw logs
 ```
 
 ## Tests and benchmarks
@@ -108,8 +145,8 @@ python tools/plot_results.py
 
 ## Limits
 
-Decode only (the prompt goes in one token per step), greedy argmax outside the kernel, one GPU,
-M ≤ 16 rows, gfx942 only.
+Decode only (the prompt goes in one token per step), greedy argmax outside the kernel, one GPU
+or two (TP2, same node, XGMI), M ≤ 16 rows (TP2: M ≤ 8), gfx942 only.
 
 ## vLLM integration
 
@@ -120,3 +157,9 @@ vLLM's paged KV cache (TRITON_ATTN or ROCM_ATTN layout) and its GDN conv and SSM
 place; vLLM keeps prefill, the LM head and sampling. On one MI300X with the MXFP4
 checkpoint, TPOT is 7.8 / 8.1 / 8.8 / 10.5 ms at batch 1 / 2 / 4 / 8, against 41-43 ms for
 vLLM's own path (MXFP4 emulation on gfx942).
+
+Branch [`users/sareeder/qwen38-gfx942-tp2`](https://github.com/SamuelReeder/vllm/tree/users/sareeder/qwen38-gfx942-tp2)
+adds `--tensor-parallel-size 2`: the peer buffer is DSv4.1's `PeerBuffer` (aiter
+`UncachedIpcHeap`), created at model load. At TP2, TPOT is 5.58 / 6.06 / 6.87 / 8.15 ms at
+batch 1 / 2 / 4 / 8 against 24.5-25.8 ms for vLLM's own TP2 path, and the two ranks' kernel
+outputs were bitwise equal in all 4233 launches checked (docs/DESIGN-TP2.md, milestone 6).

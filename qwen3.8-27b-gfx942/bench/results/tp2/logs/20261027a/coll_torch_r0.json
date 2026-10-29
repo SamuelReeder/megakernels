@@ -1,0 +1,43 @@
+{
+ "host": "banff-cyxtera-s70-4.adc.amd.com",
+ "torch": "2.14.1+rocm7.2",
+ "tag": "torch",
+ "runs": [
+  {
+   "eager_med_us": 44.66300085186958,
+   "eager_p99_us": 135.1509988307953,
+   "graph_med_us": 9.751164354383945,
+   "graph_p99_us": 10.10510977357626,
+   "variant": "rccl",
+   "M": 1,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 41.97600111365318,
+   "eager_p99_us": 76.13500207662582,
+   "graph_med_us": 16.136476770043373,
+   "graph_p99_us": 17.909297719597816,
+   "variant": "rccl",
+   "M": 8,
+   "dtype": "torch.float32"
+  },
+  {
+   "eager_med_us": 33.236000686883926,
+   "eager_p99_us": 44.54300180077553,
+   "graph_med_us": 10.876882821321487,
+   "graph_p99_us": 11.294718831777573,
+   "variant": "rccl",
+   "M": 1,
+   "dtype": "torch.bfloat16"
+  },
+  {
+   "eager_med_us": 36.88399866223335,
+   "eager_p99_us": 45.78600078821182,
+   "graph_med_us": 15.517554245889187,
+   "graph_p99_us": 16.052844002842903,
+   "variant": "rccl",
+   "M": 8,
+   "dtype": "torch.bfloat16"
+  }
+ ]
+}

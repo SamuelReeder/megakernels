@@ -1,0 +1,40 @@
+TP1 seed ratios (M=1, M=8, seeds 0..2): [1.047, 55.325] -> factor F = 55.325
+tp1: test_decode criterion (c1) 17/18, TP1 bound (c2) 18/18
+  tp2fp32 M=1 s=0: 1-cos 0.000897 (TP1 0.000557, ratio   1.61) top1 0.938 (TP1 0.938) | c1 PASS c2 PASS
+  tp2fp32 M=1 s=1: 1-cos 0.000580 (TP1 0.000532, ratio   1.09) top1 0.938 (TP1 0.938) | c1 PASS c2 PASS
+  tp2fp32 M=1 s=2: 1-cos 0.002964 (TP1 0.000546, ratio   5.43) top1 1.000 (TP1 1.000) | c1 FAIL c2 PASS
+  tp2fp32 M=1 s=3: 1-cos 0.001423 (TP1 0.001976, ratio   0.72) top1 1.000 (TP1 1.000) | c1 PASS c2 PASS
+  tp2fp32 M=1 s=4: 1-cos 0.001862 (TP1 0.002718, ratio   0.69) top1 1.000 (TP1 1.000) | c1 PASS c2 PASS
+  tp2fp32 M=1 s=5: 1-cos 0.001475 (TP1 0.001410, ratio   1.05) top1 1.000 (TP1 0.938) | c1 PASS c2 PASS
+  tp2fp32 M=1 s=6: 1-cos 0.000510 (TP1 0.000511, ratio   1.00) top1 0.875 (TP1 0.812) | c1 PASS c2 PASS
+  tp2fp32 M=1 s=7: 1-cos 0.002206 (TP1 0.002897, ratio   0.76) top1 0.938 (TP1 0.875) | c1 PASS c2 PASS
+  tp2fp32 M=2 s=0: 1-cos 0.000895 (TP1 0.000579, ratio   1.55) top1 0.969 (TP1 0.938) | c1 FAIL c2 PASS
+  tp2fp32 M=2 s=3: 1-cos 0.001484 (TP1 0.001947, ratio   0.76) top1 0.969 (TP1 0.969) | c1 PASS c2 PASS
+  tp2fp32 M=2 s=4: 1-cos 0.004689 (TP1 0.005559, ratio   0.84) top1 1.000 (TP1 1.000) | c1 PASS c2 PASS
+  tp2fp32 M=2 s=5: 1-cos 0.001484 (TP1 0.002001, ratio   0.74) top1 1.000 (TP1 0.969) | c1 PASS c2 PASS
+  tp2fp32 M=2 s=6: 1-cos 0.069235 (TP1 0.067940, ratio   1.02) top1 0.969 (TP1 0.969) | c1 PASS c2 PASS
+  tp2fp32 M=2 s=7: 1-cos 0.002234 (TP1 0.002718, ratio   0.82) top1 0.969 (TP1 0.938) | c1 PASS c2 PASS
+  tp2fp32 M=4 s=0: 1-cos 0.003542 (TP1 0.001094, ratio   3.24) top1 0.953 (TP1 0.953) | c1 PASS c2 PASS
+  tp2fp32 M=8 s=0: 1-cos 0.010475 (TP1 0.012213, ratio   0.86) top1 0.930 (TP1 0.930) | c1 PASS c2 PASS
+  tp2fp32 M=8 s=1: 1-cos 0.003097 (TP1 0.002636, ratio   1.17) top1 0.977 (TP1 0.969) | c1 PASS c2 PASS
+  tp2fp32 M=8 s=2: 1-cos 0.147613 (TP1 0.145837, ratio   1.01) top1 0.961 (TP1 0.977) | c1 PASS c2 PASS
+tp2fp32: test_decode criterion (c1) 16/18, TP1 bound (c2) 18/18
+  tp2bf16 M=1 s=0: 1-cos 0.000559 (TP1 0.000557, ratio   1.00) top1 0.938 (TP1 0.938) | c1 PASS c2 PASS
+  tp2bf16 M=1 s=1: 1-cos 0.001680 (TP1 0.000532, ratio   3.16) top1 1.000 (TP1 0.938) | c1 PASS c2 PASS
+  tp2bf16 M=1 s=2: 1-cos 0.048582 (TP1 0.000546, ratio  88.98) top1 0.938 (TP1 1.000) | c1 FAIL c2 FAIL
+  tp2bf16 M=1 s=3: 1-cos 0.001552 (TP1 0.001976, ratio   0.79) top1 1.000 (TP1 1.000) | c1 PASS c2 PASS
+  tp2bf16 M=1 s=4: 1-cos 0.001477 (TP1 0.002718, ratio   0.54) top1 1.000 (TP1 1.000) | c1 PASS c2 PASS
+  tp2bf16 M=1 s=5: 1-cos 0.001297 (TP1 0.001410, ratio   0.92) top1 0.938 (TP1 0.938) | c1 PASS c2 PASS
+  tp2bf16 M=1 s=6: 1-cos 0.000524 (TP1 0.000511, ratio   1.03) top1 0.812 (TP1 0.812) | c1 FAIL c2 PASS
+  tp2bf16 M=1 s=7: 1-cos 0.002294 (TP1 0.002897, ratio   0.79) top1 0.812 (TP1 0.875) | c1 FAIL c2 FAIL
+  tp2bf16 M=2 s=0: 1-cos 0.000556 (TP1 0.000579, ratio   0.96) top1 0.969 (TP1 0.938) | c1 PASS c2 PASS
+  tp2bf16 M=2 s=3: 1-cos 0.001551 (TP1 0.001947, ratio   0.80) top1 0.938 (TP1 0.969) | c1 PASS c2 PASS
+  tp2bf16 M=2 s=4: 1-cos 0.110630 (TP1 0.005559, ratio  19.90) top1 1.000 (TP1 1.000) | c1 FAIL c2 PASS
+  tp2bf16 M=2 s=5: 1-cos 0.001561 (TP1 0.002001, ratio   0.78) top1 0.938 (TP1 0.969) | c1 PASS c2 PASS
+  tp2bf16 M=2 s=6: 1-cos 0.069316 (TP1 0.067940, ratio   1.02) top1 0.969 (TP1 0.969) | c1 PASS c2 PASS
+  tp2bf16 M=2 s=7: 1-cos 0.002333 (TP1 0.002718, ratio   0.86) top1 0.906 (TP1 0.938) | c1 PASS c2 PASS
+  tp2bf16 M=4 s=0: 1-cos 0.029705 (TP1 0.001094, ratio  27.15) top1 0.953 (TP1 0.953) | c1 PASS c2 PASS
+  tp2bf16 M=8 s=0: 1-cos 0.029568 (TP1 0.012213, ratio   2.42) top1 0.938 (TP1 0.930) | c1 PASS c2 PASS
+  tp2bf16 M=8 s=1: 1-cos 0.004705 (TP1 0.002636, ratio   1.78) top1 0.984 (TP1 0.969) | c1 PASS c2 PASS
+  tp2bf16 M=8 s=2: 1-cos 0.016999 (TP1 0.145837, ratio   0.12) top1 0.961 (TP1 0.977) | c1 FAIL c2 PASS
+tp2bf16: test_decode criterion (c1) 13/18, TP1 bound (c2) 16/18
