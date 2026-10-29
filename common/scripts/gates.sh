@@ -72,7 +72,7 @@ common_isa() { MK_TP=${MK_TP:-1} "$ROOT/common/scripts/isa_dump" "$1" "$2/isa"; 
   rocminfo | grep -m1 -oE 'gfx[0-9a-f]+'
   python -c "import torch, flydsl; print('torch', torch.__version__, 'flydsl', flydsl.__version__, torch.cuda.device_count(), 'GPUs')"
   cat "$ROOT/REVISION" 2>/dev/null || git -C "$ROOT" rev-parse HEAD
-} > "$O/env_r$rank.txt" 2>&1
+} > "$O/env_${parts// /_}_r$rank.txt" 2>&1
 
 for p in $parts; do
   mkdir -p "$O/$p"
@@ -90,9 +90,15 @@ for p in $parts; do
       MX=$MODELS/Qwen3.8-27B-Quark-AWQ-MXFP4
       export ARS="fp32 bf16"
       hashes q8tp2 "$MX"; isa q8tp2 "$MX"
+      # TP2 hard gates (qwen3.8 docs/DESIGN-TP2.md, "Gates from milestone 4 on"): ranks
+      # bitwise equal every step, determinism, eval_text (KL, batch invariance). The
+      # test_decode PASS line (c1) is report only: it fails at M = 1 seed 0 on the
+      # baseline as documented there (1 - worst cos 0.000897). G1 (median 1 - cos against
+      # TP1) follows from equal logits hashes.
       for ar in fp32 bf16; do
         for m in 1 8; do
-          gate q8tp2 test_decode_${ar}_m$m "$O/q8tp2/test_decode_${ar}_m${m}_r$rank.txt" env MK_TP=2 MK_AR=$ar python -B tests/test_decode.py "$MX" $m 64 16
+          log=$O/q8tp2/test_decode_${ar}_m${m}_r$rank.txt
+          gate q8tp2 ranks_equal_${ar}_m$m "$log" sh -c "MK_TP=2 MK_AR=$ar python -B tests/test_decode.py $MX $m 64 16; [ $rank != 0 ] || grep -q 'ranks bitwise equal every step: True' $log"
           gate q8tp2 determinism_${ar}_m$m "$O/q8tp2/determinism_${ar}_m${m}_r$rank.txt" env MK_TP=2 MK_AR=$ar python -B tests/test_determinism.py "$MX" $m 64
         done
       done
@@ -122,5 +128,5 @@ for p in $parts; do
       ;;
   esac
 done
-[ "$rank" = 0 ] && date -Is >> "$O/env_r$rank.txt"
+[ "$rank" = 0 ] && date -Is >> "$O/env_${parts// /_}_r$rank.txt"
 exit 0

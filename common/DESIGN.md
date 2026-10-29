@@ -573,6 +573,69 @@ entries (widths 1, 2, 4, 8) and passed.
 Not covered by this hotfix: the Gemma and Qwen3.8 TP2 vLLM branches, and the standalone
 Qwen3.6 and Gemma directories (their owners apply the same lines).
 
+## Milestone log
+
+### M1: oracles and baselines (2026-10-29, `main` `cceba50` + M0, sources `1a64394`)
+
+Oracles added: `<model>/tests/logits_hash.py` (oracle 3), `common/scripts/isa_dump`
+(oracle 2), `common/scripts/gates.sh` + `gates_job.sh` (sbatch wrapper), CPU goldens
+`common/tests/goldens.py` / `goldens.txt` (oracle 1), cache test `common/tests/cache_test.py`.
+Jobs on banff-cyxtera-s70-4, cache off: Qwen3.8 68207960 (with the cache test), Qwen3.6
+68207986, Gemma 68207987, Qwen3.8 TP2 68207988 (2 GPUs). Logs: `common/results/m1/`
+(`summary.txt`, `<part>/hashes.txt`, `<part>/isa_renorm.txt`, gate logs). `RUNS=2`: the
+logits hash ran twice per model; both runs are equal (`hash_run2=run1 PASS` for all four).
+
+First check: `main`'s Qwen3.8 `kernel.py` (TP2 merge with the compile-key conflict
+resolved) gives the pre-merge TP1 hashes: M = 1 `4db972e0ec306d4f`, M = 8 `cf305425fce9de61`
+(`q8/hashes.txt`; recorded in "Hotfix" above). The merge changed no bits.
+
+Logits hash inputs (deviation from "Test strategy": no reference prefill; the kernel
+writes its own KV, which covers the same code, and a reference prefill adds minutes per
+M): tokens `randint(0, 200000)`, CUDA generator seed 7, maxlen = steps + 64 (Qwen3.8: 128,
+as the hotfix). Qwen3.8 has no Engine path for `lm_head=False` (vLLM only): that build is
+not in its logits or ISA oracle. Gemma runs 1040 steps, past the 1024-position window.
+
+| Model | Steps, layers | lm | M = 1 | M = 2 | M = 4 | M = 8 |
+|---|---|---|---|---|---|---|
+| Qwen3.8 TP1 | 8, 64 | on | `4db972e0ec306d4f` | `c33baa53118edc27` | `412eec22e6dbe80b` | `cf305425fce9de61` |
+| Qwen3.8 TP2 fp32 (gathered) | 8, 64 | on | `1e8ad0ba3f15077a` | `ec3d5ed217c5c0c6` | `bf44cbcb806eaa8d` | `32d7b498e590659b` |
+| Qwen3.8 TP2 bf16 (gathered) | 8, 64 | on | `9489275e99206138` | `ffaf9971d594de69` | `d4e6389ed1a2448e` | `cc9e3b01889e1a4d` |
+| Qwen3.6 | 16, 40 | on | `d5604309e6d480d9` | `b7ca25b1820fd3c6` | `450529bb14a9acd7` | `cc940f489fa21d01` |
+| Qwen3.6 | 16, 40 | off | `416bf85f760cfce9` | `330e6a953f46de98` | `9c2ab9c777ba6878` | `7197290b3d310bc8` |
+| Gemma 4 | 1040, 30 | on | `b24507ff6293f91a` | `8036b849244aaac4` | `82c285a00cfcfb8b` | `fa2d2856bf90a8e4` |
+| Gemma 4 | 1040, 30 | off | `00e033b221ce103f` | `bfc9706774984895` | `50ef2de028a1eaf8` | `7122e51d62dd5c6a` |
+
+TP2 per-rank vocab-slice hashes are in `q8tp2/hashes.txt`.
+
+ISA (normalized `22_final_isa.s`, sha256 16; M = 1 / 8): Qwen3.8 TP1 `7a34625c72591084` /
+`32bbd1d67f3e014e`; TP2 fp32 `52e87a3c06736983` / `18040b8e5ecfa3c2`, bf16
+`b077d7ae35c914dc` / `78d9c7682e922348` (both ranks equal); Qwen3.6 on `8f9ca5691d1e1b07` /
+`987b6be70b787442`, off `3088f771e4013fcf` / `25df478d656b90b7`; Gemma on `c911f702945b840a`
+/ `10f9098f4a402300`, off `f74fdd1dd40e690b` / `8616a1d230537c9c`. The first `isa_dump`
+missed the symbol inside `.L<name>.num_vgpr` labels (`\b` before the name); fixed in
+`isa_dump`, and `isa_renorm.txt` re-applies the fixed rule to the kept dumps (the `isa.txt`
+files of the run hold the first rule).
+
+Hard gates (`summary.txt`): all PASS for Qwen3.8 TP1 (`test_decode` M = 1, 2, 4, 8;
+determinism M = 1, 8; `eval_text`), Qwen3.6 (plus `test_chaos` M = 1, 8), Gemma
+(`test_decode` M = 1, 2, 4, 8 at CTX 512 and M = 8 at CTX 2048; determinism 1100 steps M = 1,
+8; `eval_text` 1536; `test_attention`), Qwen3.8 TP2 (determinism fp32 / bf16 M = 1, 8; ranks
+bitwise equal in every `test_decode` step; `eval_text` fp32). `summary.txt` lists
+`q8tp2 test_decode_fp32_m1 FAIL`: that is the old `test_decode` criterion (c1), report only
+since TP2 milestone 4 (`qwen3.8-27b-gfx942/docs/DESIGN-TP2.md`, "Gates from milestone 4
+on"); it fails at M = 1 with 1 - worst cos 0.000897, the value recorded there. Not a red
+baseline. `gates.sh` now gates TP2 `test_decode` on "ranks bitwise equal" only.
+
+CPU goldens: 298 lines (pack outputs per model, `Gemv` / `MoeGemv` geometry at M = 1..8,
+cus 304, Qwen3.8 at TP1 and TP2), recorded on the login node, re-run equal.
+
+Cache test (`cache_test.txt`, Qwen3.6, fresh cache directory, cache on, all PASS):
+(a) two `Cfg` that differ in a field read as `cfg.*`: `lm_head` and `cta_red` each give a
+new entry and the cache-off result. (b) a comment line in `mk/dev.py` gives a new entry
+(the key hashes the bytes: a comment edit costs one recompile) and equal bits. (c) the
+`str` key in the launcher closure: same sources and `Cfg` twice hit the cache (no new
+entry); a `silu` edit gives a new entry with the cache-off result.
+
 ## Decisions
 
 - D1. Package `common/mkcore/` (FlyDSL gfx942 only), scripts in `common/scripts/`. Evidence:

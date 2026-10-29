@@ -24,7 +24,7 @@ for m in ${Ms//,/ }; do
       python -B tests/logits_hash.py "${args[@]}" > "$O/isa_${tag}_m${m}_$lm.log" 2>&1
     f=$(ls "$d"/*/22_final_isa.s 2>/dev/null | head -1)
     if [ -z "$f" ]; then echo "ISA $tag M=$m lm=$lm NO-DUMP"; continue; fi
-    sed -E 's/\b(qwen38|qwen36moe|gemma4)_decode_m[0-9]+_[0-9a-f]{8}\b/KERNEL/g' "$f" \
+    sed -E 's/(qwen38|qwen36moe|gemma4)_decode_m[0-9]+_[0-9a-f]{8}/KERNEL/g' "$f" \
       | grep -vE '^\s*(;|//)' > "$O/isa_${tag}_m${m}_$lm.s"
     echo "ISA $tag M=$m lm=$lm $(sha256sum < "$O/isa_${tag}_m${m}_$lm.s" | cut -c1-16)"
     rm -rf "$d"

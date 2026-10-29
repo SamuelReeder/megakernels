@@ -1,0 +1,19 @@
+{"run": "A1 lm_head=True", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "6b7fb50f3ec5102a", "finite": "True", "new_cache_files": 1}
+{"run": "A1 lm_head=False, same cache", "cache_on": true, "lm_head": "0", "chunks": "", "rc": 0, "hash": "b78c0fc8817b33c1", "finite": "True", "new_cache_files": 1}
+{"run": "A1 lm_head=False, cache off", "cache_on": false, "lm_head": "0", "chunks": "", "rc": 0, "hash": "b78c0fc8817b33c1", "finite": "True", "new_cache_files": 0}
+VERDICT A1 cfg.lm_head: PASS (base 6b7fb50f3ec5102a new 1; changed+cache b78c0fc8817b33c1 new 1; changed, cache off b78c0fc8817b33c1)
+{"run": "A2 default", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "6b7fb50f3ec5102a", "finite": "True", "new_cache_files": 1}
+{"run": "A2 MK_CFG=cta_red=0, same cache", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "88292b7377a71a1a", "finite": "True", "new_cache_files": 1}
+{"run": "A2 MK_CFG=cta_red=0, cache off", "cache_on": false, "lm_head": "1", "chunks": "", "rc": 0, "hash": "88292b7377a71a1a", "finite": "True", "new_cache_files": 0}
+VERDICT A2 cfg.cta_red: PASS (base 6b7fb50f3ec5102a new 1; changed+cache 88292b7377a71a1a new 1; changed, cache off 88292b7377a71a1a)
+{"run": "B base", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "6b7fb50f3ec5102a", "finite": "True", "new_cache_files": 1}
+{"run": "B comment in qwen3.6-35b-a3b-gfx942/mk/dev.py, same cache", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "6b7fb50f3ec5102a", "finite": "True", "new_cache_files": 1}
+{"run": "B comment in qwen3.6-35b-a3b-gfx942/mk/dev.py, cache off", "cache_on": false, "lm_head": "1", "chunks": "", "rc": 0, "hash": "6b7fb50f3ec5102a", "finite": "True", "new_cache_files": 0}
+VERDICT B comment edit qwen3.6-35b-a3b-gfx942/mk/dev.py: PASS (base 6b7fb50f3ec5102a new 1; changed+cache 6b7fb50f3ec5102a new 1; changed, cache off 6b7fb50f3ec5102a)
+{"run": "C0 first build", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "6b7fb50f3ec5102a", "finite": "True", "new_cache_files": 1}
+{"run": "C0 second build, same cache", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "6b7fb50f3ec5102a", "finite": "True", "new_cache_files": 0}
+VERDICT C0 same key: cache hit: PASS (base 6b7fb50f3ec5102a new 1; changed+cache 6b7fb50f3ec5102a new 0; changed, cache off 6b7fb50f3ec5102a)
+{"run": "C1 edited silu, same cache", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "22af8d4f5878b4b7", "finite": "True", "new_cache_files": 1}
+{"run": "C1 edited silu, cache off", "cache_on": false, "lm_head": "1", "chunks": "", "rc": 0, "hash": "22af8d4f5878b4b7", "finite": "True", "new_cache_files": 0}
+VERDICT C1 helper edit (str key in the launcher closure): PASS (base 6b7fb50f3ec5102a new 1; changed+cache 22af8d4f5878b4b7 new 1; changed, cache off 22af8d4f5878b4b7)
+PASS
