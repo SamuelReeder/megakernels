@@ -1,0 +1,25 @@
+[flydsl.compile] FLYDSL_DUMP_IR=1 dir=/tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe
+[flydsl.compile] dump 00_origin -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/00_origin.mlir
+[flydsl.compile] dump 01_fly_rewrite_func_signature -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/01_fly_rewrite_func_signature.mlir
+[flydsl.compile] dump 02_fly_canonicalize -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/02_fly_canonicalize.mlir
+[flydsl.compile] dump 03_fly_rocdl_expand_ops -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/03_fly_rocdl_expand_ops.mlir
+[flydsl.compile] dump 04_fly_layout_lowering -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/04_fly_layout_lowering.mlir
+[flydsl.compile] dump 05_fly_int_swizzle_simplify -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/05_fly_int_swizzle_simplify.mlir
+[flydsl.compile] dump 06_canonicalize -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/06_canonicalize.mlir
+[flydsl.compile] dump 07_fly_convert_atom_call_to_ssa_form -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/07_fly_convert_atom_call_to_ssa_form.mlir
+[flydsl.compile] dump 08_fly_promote_regmem_to_vectorssa -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/08_fly_promote_regmem_to_vectorssa.mlir
+[flydsl.compile] dump 09_convert_fly_to_rocdl -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/09_convert_fly_to_rocdl.mlir
+[flydsl.compile] dump 10_canonicalize -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/10_canonicalize.mlir
+[flydsl.compile] dump 11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl.mlir
+[flydsl.compile] dump 12_rocdl_attach_target -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/12_rocdl_attach_target.mlir
+[flydsl.compile] dump 13_convert_scf_to_cf -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/13_convert_scf_to_cf.mlir
+[flydsl.compile] dump 14_convert_cf_to_llvm -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/14_convert_cf_to_llvm.mlir
+[flydsl.compile] dump 15_gpu_to_llvm -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/15_gpu_to_llvm.mlir
+[flydsl.compile] dump 16_convert_vector_to_llvm -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/16_convert_vector_to_llvm.mlir
+[flydsl.compile] dump 17_convert_arith_to_llvm -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/17_convert_arith_to_llvm.mlir
+[flydsl.compile] dump 18_convert_func_to_llvm -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/18_convert_func_to_llvm.mlir
+[flydsl.compile] dump 19_reconcile_unrealized_casts -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/19_reconcile_unrealized_casts.mlir
+[flydsl.compile] dump 20_gpu_module_to_binary -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/20_gpu_module_to_binary.mlir
+[flydsl.compile] dump 21_llvm_ir -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/21_llvm_ir.ll
+[flydsl.compile] dump 22_final_isa -> /tmp/isa_dump_3060558_0_8_on/qwen38_decode_m8_0497dbbe/22_final_isa.s
+HASH tp2 ar bf16 rank 0 M=8 lm=on steps=1 layers=4 logits d4e234d475a0c55f rank-slice 5486941e4652c071 finite True

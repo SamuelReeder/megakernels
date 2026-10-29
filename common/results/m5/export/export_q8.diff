@@ -1,0 +1,42 @@
+Only in /tmp/export_check_2975165/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels: fp4.py
+Only in /tmp/export_check_2975165/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels: gemv.py
+diff -ru /tmp/export_check_2975165/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/kernel.py /tmp/export_check_2975165/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/kernel.py
+--- /tmp/export_check_2975165/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/kernel.py	2026-10-29 10:05:15.977590268 -0400
++++ /tmp/export_check_2975165/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/kernel.py	2026-10-29 10:05:16.183592488 -0400
+@@ -44,10 +44,21 @@
+ from . import stages as S
+ from . import tpdev as TD
+ from .dims import EPS, HD, Dims, H
+-from .gemv import Gemv, chunks
+ from .mkcore import dev as D
+ from .mkcore import key as K
+ from .mkcore.dev import _STREAM, CNT_STRIDE, EPOCH_WORD_LINE, NT, PROFILE, WAVES
++from .mkcore.gemv import Gemv
++
++# K chunks of the GEMVs (default 1); the packer follows. chunks() gives a TP size's
++# table, with an optional override ((name, C), ...): Cfg.chunks carries it, so it is in
++# the kernel name.
++CHUNKS = dict(out=2, o=2, down=4, lm=8)
++CHUNKS_TP = {1: CHUNKS, 2: CHUNKS}
++
++
++def chunks(tp=1, override=()):
++    return dict(CHUNKS_TP[tp], **dict(override))
++
+ 
+ NTAB = 18  # pointer-table slots per layer
+ NGLOB = 18  # global pointer-table slots
+diff -ru /tmp/export_check_2975165/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py /tmp/export_check_2975165/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py
+--- /tmp/export_check_2975165/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 10:05:15.975590246 -0400
++++ /tmp/export_check_2975165/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 10:05:16.181592466 -0400
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
+ # ruff: noqa: E501
+-# megakernels ?, common/mkcore SRC_HASH 1afbd2582f46812f
++# megakernels f7292f3f229af4c68d414425d101a8f4bd956073 dirty files: 0, common/mkcore SRC_HASH 17d642500f78c66d
+ """Shared FlyDSL gfx942 megakernel infrastructure of the megakernels models
+ (common/DESIGN.md). Imports no model module.
+ 
+Only in /tmp/export_check_2975165/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore: fp4.py
+Only in /tmp/export_check_2975165/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore: gemv.py

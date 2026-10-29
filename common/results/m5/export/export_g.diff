@@ -1,0 +1,133 @@
+Only in /tmp/export_check_2975165/g-base/vllm/models/gemma4/amd/specialized_decode/kernels: gemv.py
+diff -ru /tmp/export_check_2975165/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/kernel.py /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/kernel.py
+--- /tmp/export_check_2975165/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/kernel.py	2026-10-29 10:08:40.647795908 -0400
++++ /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/kernel.py	2026-10-29 10:08:40.853798128 -0400
+@@ -59,7 +59,6 @@
+     WINDOW,
+     H,
+ )
+-from .gemv import Gemv
+ from .mkcore import dev as D
+ from .mkcore import key as K
+ from .mkcore.dev import (
+@@ -71,6 +70,7 @@
+     PROFILE,
+     WAVES,
+ )
++from .mkcore.gemv import Gemv
+ 
+ NTAB = 24  # pointer-table slots per row
+ NGLOB = 32  # global pointer-table slots
+@@ -203,7 +203,7 @@
+     def specs(self):
+         M, cus, ch = self.M, self.cus, self.chunks()
+ 
+-        def g(name, n, k, c, kind="fp8"):
++        def g(name, n, k, c, kind="fp8_row"):
+             return Gemv(name, n, k, M, cus, WAVES, c, kind).check()
+ 
+         return dict(
+diff -ru /tmp/export_check_2975165/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/__init__.py /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/__init__.py
+--- /tmp/export_check_2975165/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 10:08:40.643795865 -0400
++++ /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 10:08:40.851798107 -0400
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
+ # ruff: noqa: E501
+-# megakernels ?, common/mkcore SRC_HASH 1afbd2582f46812f
++# megakernels f7292f3f229af4c68d414425d101a8f4bd956073 dirty files: 0, common/mkcore SRC_HASH 17d642500f78c66d
+ """Shared FlyDSL gfx942 megakernel infrastructure of the megakernels models
+ (common/DESIGN.md). Imports no model module.
+ 
+Only in /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/mkcore: fp4.py
+Only in /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/mkcore: gemv.py
+diff -ru /tmp/export_check_2975165/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/moe.py /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/moe.py
+--- /tmp/export_check_2975165/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/moe.py	2026-10-29 10:08:40.649795930 -0400
++++ /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/moe.py	2026-10-29 10:08:40.857798171 -0400
+@@ -50,8 +50,8 @@
+ 
+ from . import stages as S
+ from .dims import NDS, NE, TOPK
+-from .gemv import fp8_compute, fp8_load
+ from .mkcore import dev as D
++from .mkcore.gemv import fp8_row_compute, fp8_row_load
+ 
+ LGN = NE  # router GEMV rows
+ NSLOT = TOPK + NDS  # 8 routed slots + the dense pseudo-experts
+@@ -271,7 +271,7 @@
+     # per-group last arriver)
+     rows: bool = False
+ 
+-    kind = "fp8"
++    kind = "fp8_row"
+     esize = 1
+     slots = 1  # (prologue_norm interface: all K in LDS)
+ 
+@@ -376,7 +376,9 @@
+ 
+     def _load_piece(self, w, R, pi):
+         ub = self._ubase(R, pi)
+-        return [fp8_load(w["rt"], w["rs"], ub + s, w["lane"]) for s in range(self.KSp)]
++        return [
++            fp8_row_load(w["rt"], w["rs"], ub + s, w["lane"]) for s in range(self.KSp)
++        ]
+ 
+     @D.traced
+     def run(self, c, w, R, part, cnt, fin, pos0=None):
+@@ -414,7 +416,9 @@
+             acc = fx.Vector.filled(4, 0.0, fx.Float32)
+             for s in range_constexpr(KSp):
+                 xo = ch * KSp + s
+-                acc = acc + fp8_compute(w, arow + xo * 128, xof + xo, self.XSR, buf[s])
++                acc = acc + fp8_row_compute(
++                    w, arow + xo * 128, xof + xo, self.XSR, buf[s]
++                )
+             if const_expr(self.mode == "gu"):
+                 if w["gl"] < self.MT:
+                     D.st(acc, rp, (pi * 64 + w["lane"]) * 4, D.CM_DEV)
+@@ -465,7 +469,9 @@
+             R.eid_of(gid // self.G) * self.upe
+             + ((q % self.C) * self.G + gid % self.G) * self.KSp
+         )
+-        return [fp8_load(w["rt"], w["rs"], ub + s, w["lane"]) for s in range(self.KSp)]
++        return [
++            fp8_row_load(w["rt"], w["rs"], ub + s, w["lane"]) for s in range(self.KSp)
++        ]
+ 
+     @D.traced
+     def run_cta(self, c, w, R, fin, pref, pflag, ep):
+@@ -516,7 +522,9 @@
+             acc = fx.Vector.filled(4, 0.0, fx.Float32)
+             for s in range_constexpr(KSp):
+                 xo = ch * KSp + s
+-                acc = acc + fp8_compute(w, arow + xo * 128, xof + xo, self.XSR, buf[s])
++                acc = acc + fp8_row_compute(
++                    w, arow + xo * 128, xof + xo, self.XSR, buf[s]
++                )
+             if t == hs:
+                 # the head continues the previous wave's tail group: its prefix
+                 _lds_wait(pflag + (wv - 1), ep)
+diff -ru /tmp/export_check_2975165/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/pack.py /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/pack.py
+--- /tmp/export_check_2975165/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/pack.py	2026-10-29 10:08:40.643795865 -0400
++++ /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/pack.py	2026-10-29 10:08:40.851798107 -0400
+@@ -25,7 +25,7 @@
+ 
+ import torch
+ 
+-from .gemv import PAD_TILES
++from .mkcore.gemv import PAD_TILES
+ 
+ 
+ def gu_order(t: torch.Tensor) -> torch.Tensor:
+diff -ru /tmp/export_check_2975165/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/stages.py /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/stages.py
+--- /tmp/export_check_2975165/g-base/vllm/models/gemma4/amd/specialized_decode/kernels/stages.py	2026-10-29 10:08:40.647795908 -0400
++++ /tmp/export_check_2975165/g-new/vllm/models/gemma4/amd/specialized_decode/kernels/stages.py	2026-10-29 10:08:40.857798171 -0400
+@@ -327,7 +327,7 @@
+ @D.traced
+ def prologue_qkv(c, g, xq, xs, red, hh, k0, live, lnw):
+     """Qkv GEMV input: x = h * rstd(h) * input_layernorm, quantized (g.C == 1: all K)."""
+-    assert g.C == 1 and g.K == H and g.kind == "fp8"
++    assert g.C == 1 and g.K == H and g.kind == "fp8_row"
+     M = g.M
+     zero_xs_tail(c, g, xs)
+     wv = _w8(D.rsrc(lnw), k0)

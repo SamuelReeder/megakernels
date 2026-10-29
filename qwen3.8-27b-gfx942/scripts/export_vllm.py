@@ -12,7 +12,6 @@ own PeerBuffer and TP group).
 Usage: python scripts/export_vllm.py VLLM_DIR
 """
 import pathlib
-import re
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parents[2] / "common" / "scripts"))

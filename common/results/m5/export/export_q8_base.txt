@@ -1,0 +1,5 @@
+Found 6 errors (6 fixed, 0 remaining).
+5 files reformatted, 5 files left unchanged
+All checks passed!
+exported dims, tpdev, fp4, gemv, stages, mixer, kernel and mkcore to /tmp/export_check_2975165/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels
+rc 0

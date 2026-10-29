@@ -756,6 +756,58 @@ Evidence (`common/results/m4/`): gates through `common/scripts/mkrun` on allocat
   check is not re-run). Open for M8: the vLLM runtime files of each branch must not
   import `kernels.dev` (not checked here; the re-export at M8 runs the vLLM tests).
 
+### M5: `mkcore.gemv` and `mkcore.fp4` (2026-10-29, sources `f7292f3`)
+
+Change (D8): Qwen3.6's `gemv.py` (with the `cta` mode) becomes `common/mkcore/gemv.py`,
+plus Qwen3.8's `mx` kind and the TP2 deferred protocol (`la_finish`, `la_reduce(...,
+push_only)`). Kinds: `fp8_b128` (Qwen3.6), `fp8_row` (Gemma), `mx`, `bf16`; public
+helpers `fp8_b128_load` / `_compute`, `fp8_row_load` / `_compute` (the MoE modules import
+their pair), `mfma_fp8`. The empty-wave select `np_` runs only when `small`. `fp4.py`
+moves to `mkcore` without `unpack_ref` (now in Qwen3.8 `reference.py`, no caller). The
+Qwen3.8 chunk table (`CHUNKS`, `CHUNKS_TP`, `chunks`) moves from its `gemv.py` to its
+`kernel.py`. `Gemv.kind` defaults to `bf16` (every caller passes the kind). Exports drop
+`gemv` (and Qwen3.8 `fp4`) from `MODULES`; `copy_mkcore` deletes the stale
+`kernels/gemv.py` / `fp4.py`. `isa_dump` and `export_isa.py` find Qwen3.8 by `mk/tp.py`.
+The goldens record `small` only when true and `NGC` / `NPWC` only for `cta` GEMVs (since
+M5 every `Gemv` has them); `goldens.txt` is re-recorded with that rule on `main`
+`dc0ee48`, and M5 equals it (298 lines, login node).
+
+Evidence (`common/results/m5/`): allocations 68208933 (Qwen3.8), 68208934 (Qwen3.6 and
+its bench), 68208935 (Gemma and its benches), 68208936 (TP2), banff-cyxtera-s70-4, base =
+M1. Export check: job 68208937 (`export/`, base = `main` `dc0ee48`).
+
+- I-bits: every logits hash equals M1 (all four `hashes.txt=base PASS`).
+- I-isa: Qwen3.8 TP1 and TP2 fp32 / bf16: tier A (`isa.txt=base PASS`). Qwen3.6 and
+  Gemma: tier B as D8 expects (`isa.txt=base FAIL`, new hashes in `<part>/isa.txt`).
+- I-gates: all 49 hard-gate lines PASS (`summary.txt`; the two FAIL lines are the
+  expected ISA changes).
+- Tier B TPOT (`bench/bench_decode.py CKPT M 512 256 3`, median of its 3 repetitions, ms;
+  `main` and M5 alternate per M in one allocation, same node and day):
+
+  | Qwen3.6 | M = 1 | M = 2 | M = 4 | M = 8 |
+  |---|---|---|---|---|
+  | `main` | 3.103 | 3.750 | 5.011 | 6.611 |
+  | M5 | 3.086 | 3.746 | 4.968 | 6.637 |
+  | change | -0.5 % | -0.1 % | -0.9 % | +0.4 % |
+
+  | Gemma (3 rounds) | M = 1 | M = 2 | M = 4 | M = 8 |
+  |---|---|---|---|---|
+  | `main` r1 / r2 / r3 | 3.735 / 3.759 / 3.758 | 4.251 / 4.237 / 4.115 | 4.504 / 4.543 / 4.581 | 5.812 / 5.838 / 5.801 |
+  | M5 r1 / r2 / r3 | 3.749 / 3.731 / 3.717 | 4.213 / 4.260 / 4.208 | 4.570 / 4.560 / 4.549 | 5.809 / 5.828 / 5.787 |
+  | median change | -0.7 % | -0.6 % | +0.4 % | -0.1 % |
+
+  Gemma round 1 (`bench/`) ran while the Qwen3.8 and TP2 gates shared the node and gave
+  +1.5 % at M = 4; rounds 2 and 3 (`bench2/`) ran with only the TP2 gates beside them.
+  The table's change is the median of the three rounds, each a median of 3 repetitions
+  (a deviation from D9's single median of 3, chosen after round 1). All within 1 %.
+- Oracle 5: the three M5 exports pass vLLM's ruff (`rc 0`); this re-checks the Qwen3.8
+  D403 fix of M4 (`5bcce3f`). The Qwen3.8 export builds with M4's exported ISA
+  (`8948b45554c46053`, tier A); Qwen3.6 `f5ad5702d077723c` and Gemma `a0c04b38a45dcac5`
+  change with the tier B kernels. The export diff against `main` is the move of
+  `gemv.py` / `fp4.py` into `kernels/mkcore/` and the new imports.
+- Open for M8: the vLLM runtime files that import `kernels.gemv` or `kernels.fp4` (the
+  weight packers) must import them from `kernels.mkcore` (with `kernels.dev`, M4).
+
 ## Decisions
 
 - D1. Package `common/mkcore/` (FlyDSL gfx942 only), scripts in `common/scripts/`. Evidence:
@@ -896,6 +948,11 @@ Re-inventory after M9. Candidates, each with the R-share rule:
    binary (see "Compile cache test"). The hotfix covers Qwen3.8 TP1 and the Qwen3.8 and
    Qwen3.6 vLLM branches. Open: the Gemma and TP2 vLLM branches.
 2. to 6.: decided, see D13.
+7. Open: the Gemma kernel at M = 1 with `lm_head` on does not compile to the same ISA
+   from build to build on unchanged code (M3 log: 6 builds of `main` gave 2 variants,
+   6 builds of the M4 tree 3 variants; `PYTHONHASHSEED=0` does not fix it). The logits
+   hashes are equal for every variant, and the other 17 ISA-oracle builds are stable.
+   Not investigated; the ISA oracle accepts a variant seen in repeated builds there.
 
 ## Disposable
 

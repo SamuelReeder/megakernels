@@ -1,0 +1,16 @@
+ M vllm/models/gemma4/amd/specialized_decode/kernels/attention.py
+ D vllm/models/gemma4/amd/specialized_decode/kernels/dev.py
+ D vllm/models/gemma4/amd/specialized_decode/kernels/gemv.py
+ M vllm/models/gemma4/amd/specialized_decode/kernels/kernel.py
+ M vllm/models/gemma4/amd/specialized_decode/kernels/moe.py
+ M vllm/models/gemma4/amd/specialized_decode/kernels/pack.py
+ M vllm/models/gemma4/amd/specialized_decode/kernels/stages.py
+?? vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/
+ .../amd/specialized_decode/kernels/attention.py    |   4 +-
+ .../gemma4/amd/specialized_decode/kernels/dev.py   | 416 -------------------
+ .../gemma4/amd/specialized_decode/kernels/gemv.py  | 445 ---------------------
+ .../amd/specialized_decode/kernels/kernel.py       |  73 ++--
+ .../gemma4/amd/specialized_decode/kernels/moe.py   |  22 +-
+ .../gemma4/amd/specialized_decode/kernels/pack.py  |   2 +-
+ .../amd/specialized_decode/kernels/stages.py       |   8 +-
+ 7 files changed, 51 insertions(+), 919 deletions(-)

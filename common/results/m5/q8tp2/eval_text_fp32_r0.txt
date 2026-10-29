@@ -1,0 +1,12 @@
+5 passages, [145, 98, 77, 189, 83] tokens
+tp 2 ar fp32: ranks bitwise equal every step: True
+mxfp4 runs 144s
+bf16 runs 227s
+passage 0: ppl kernel 1.132 w4 1.138 bf16 1.147 | top1 kernel=w4 0.993 kernel=bf16 0.986 w4=bf16 0.993 | KL(bf16||kernel) 0.0143 KL(bf16||w4) 0.0148 | batch-invariant True
+passage 1: ppl kernel 3.647 w4 3.624 bf16 3.448 | top1 kernel=w4 0.969 kernel=bf16 0.929 w4=bf16 0.939 | KL(bf16||kernel) 0.0268 KL(bf16||w4) 0.0246 | batch-invariant True
+passage 2: ppl kernel 1.428 w4 1.433 bf16 1.418 | top1 kernel=w4 0.987 kernel=bf16 1.000 w4=bf16 0.987 | KL(bf16||kernel) 0.0052 KL(bf16||w4) 0.0052 | batch-invariant True
+passage 3: ppl kernel 1.303 w4 1.274 bf16 1.163 | top1 kernel=w4 1.000 kernel=bf16 0.974 w4=bf16 0.974 | KL(bf16||kernel) 0.0985 KL(bf16||w4) 0.0787 | batch-invariant True
+passage 4: ppl kernel 2.532 w4 2.521 bf16 2.462 | top1 kernel=w4 0.976 kernel=bf16 0.940 w4=bf16 0.940 | KL(bf16||kernel) 0.0195 KL(bf16||w4) 0.0159 | batch-invariant True
+all: ppl kernel 1.657 w4 1.645 bf16 1.580
+all: KL(bf16||kernel) 0.04279 over 592 positions
+PASS

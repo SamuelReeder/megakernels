@@ -1,0 +1,32 @@
+/tmp/export_check_2975165/q6-new/vllm/__init__.py:7: RuntimeWarning: Failed to read commit hash:
+No module named 'vllm._version'
+  from .version import __version__, __version_tuple__  # isort:skip
+[aiter] WARNING: NUMA balancing is enabled, which may cause errors. It is recommended to disable NUMA balancing by running "sudo sh -c 'echo 0 > /proc/sys/kernel/numa_balancing'" for more details: https://rocm.docs.amd.com/en/latest/how-to/system-optimization/mi300x.html#disable-numa-auto-balancing
+[aiter] import [module_aiter_core] under /usr/local/lib/python3.12/dist-packages/aiter/jit/module_aiter_core.so
+kernel module /tmp/export_check_2975165/q6-new/vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/kernel.py
+W1029 10:07:40.468647 2984510 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 325558064 (priority and CU-mask from the descriptor are not preserved)
+[flydsl.compile] FLYDSL_DUMP_IR=1 dir=/tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b
+[flydsl.compile] dump 00_origin -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/00_origin.mlir
+[flydsl.compile] dump 01_fly_rewrite_func_signature -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/01_fly_rewrite_func_signature.mlir
+[flydsl.compile] dump 02_fly_canonicalize -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/02_fly_canonicalize.mlir
+[flydsl.compile] dump 03_fly_rocdl_expand_ops -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/03_fly_rocdl_expand_ops.mlir
+[flydsl.compile] dump 04_fly_layout_lowering -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/04_fly_layout_lowering.mlir
+[flydsl.compile] dump 05_fly_int_swizzle_simplify -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/05_fly_int_swizzle_simplify.mlir
+[flydsl.compile] dump 06_canonicalize -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/06_canonicalize.mlir
+[flydsl.compile] dump 07_fly_convert_atom_call_to_ssa_form -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/07_fly_convert_atom_call_to_ssa_form.mlir
+[flydsl.compile] dump 08_fly_promote_regmem_to_vectorssa -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/08_fly_promote_regmem_to_vectorssa.mlir
+[flydsl.compile] dump 09_convert_fly_to_rocdl -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/09_convert_fly_to_rocdl.mlir
+[flydsl.compile] dump 10_canonicalize -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/10_canonicalize.mlir
+[flydsl.compile] dump 11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl.mlir
+[flydsl.compile] dump 12_rocdl_attach_target -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/12_rocdl_attach_target.mlir
+[flydsl.compile] dump 13_convert_scf_to_cf -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/13_convert_scf_to_cf.mlir
+[flydsl.compile] dump 14_convert_cf_to_llvm -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/14_convert_cf_to_llvm.mlir
+[flydsl.compile] dump 15_gpu_to_llvm -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/15_gpu_to_llvm.mlir
+[flydsl.compile] dump 16_convert_vector_to_llvm -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/16_convert_vector_to_llvm.mlir
+[flydsl.compile] dump 17_convert_arith_to_llvm -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/17_convert_arith_to_llvm.mlir
+[flydsl.compile] dump 18_convert_func_to_llvm -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/18_convert_func_to_llvm.mlir
+[flydsl.compile] dump 19_reconcile_unrealized_casts -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/19_reconcile_unrealized_casts.mlir
+[flydsl.compile] dump 20_gpu_module_to_binary -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/20_gpu_module_to_binary.mlir
+[flydsl.compile] dump 21_llvm_ir -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/21_llvm_ir.ll
+[flydsl.compile] dump 22_final_isa -> /tmp/export_check_2975165/dump_q6_export/qwen36moe_decode_m1_49fdf81b/22_final_isa.s
+HASH tp1 M=1 lm=on steps=1 layers=4 logits 99940e7b88c2ba7a finite True
