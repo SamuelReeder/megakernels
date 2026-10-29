@@ -9,7 +9,7 @@ tensor (GDN: conv and SSM state; attention: KV cache) before and after the call.
 after a prefill is the input of the first decode step (kernel or vLLM's graph).
 Kernel on: every eager or captured Qwen35Gfx942Decode.run also writes its input_ids sum
 (token, the only per-step input not in the caches) with a "launch" tag.
-A bit sum is sum(int16 words) in int64: equal tensors give equal sums; a differing sum
+A bit sum is the int64 sum of the same-size integer view: equal tensors give equal sums; a differing sum
 proves a differing tensor. Two runs are compared line by line (scratch/m6/statecmp.py).
 Usage: PYTHONPATH=scratch/m6/statecheck:$PYTHONPATH STATECHECK_DIR=DIR python bench/vllm_e2e.py ...
 """
@@ -31,11 +31,9 @@ def _bits(t):
 
     if t.numel() == 0:
         return torch.zeros((), dtype=torch.int64, device=t.device)
-    if t.element_size() == 1:
-        return t.view(torch.uint8).sum(dtype=torch.int64)
-    if t.stride(-1) != 1 or (t.shape[-1] * t.element_size()) % 2:
-        t = t.contiguous()
-    return t.view(torch.int16).sum(dtype=torch.int64)
+    # a same-size integer view: no copy, any strides (a copy of a cache would not fit)
+    it = {1: torch.uint8, 2: torch.int16, 4: torch.int32, 8: torch.int64}[t.element_size()]
+    return t.view(it).sum(dtype=torch.int64)
 
 
 def _tensors(x):
@@ -95,12 +93,14 @@ def _patch_model(mod):
                 post = _cache_sums(self)
                 h = out[0] if isinstance(out, tuple) else out
                 ids = _bits(input_ids) if input_ids is not None else None
+                emb = k.get("inputs_embeds")
+                emb = None if emb is None else _bits(emb).item()
                 n = 0 if positions is None else positions.shape[-1]
                 _state["n"] += 1
                 _file().write(
                     f"fwd {_state['n']} tokens {n} ids {None if ids is None else ids.item()} "
                     f"pos {None if positions is None else _bits(positions).item()} "
-                    f"hidden {_bits(h).item()} | pre {_fmt(pre)} | post {_fmt(post)}\n"
+                    f"emb {emb} hidden {_bits(h).item()} | pre {_fmt(pre)} | post {_fmt(post)}\n"
                 )
                 return out
             finally:
