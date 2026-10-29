@@ -31,10 +31,6 @@ def _patch(RD):
             return
         self._rc = torch.zeros(3, dtype=torch.int64, device=self.device)
         self._rc_host = torch.zeros(3, dtype=torch.int64).pin_memory()
-        # checksum of every GDN conv and SSM state before each of the first 64 launches
-        self._cs = torch.zeros(64, dtype=torch.int64, device=self.device)
-        self._cs_host = torch.zeros(64, dtype=torch.int64).pin_memory()
-        self._gdn = [caches[n] for n in self.gdn_names]
         path = os.path.join(OUT, f"rankcheck_r{self.rank}.txt")
 
         def writer():
@@ -42,23 +38,12 @@ def _patch(RD):
                 v = self._rc_host.tolist()
                 with open(path, "w") as f:
                     f.write(f"rank {self.rank} mismatching_steps {v[0]} steps {v[1]} epoch {v[2]}\n")
-                    f.write("gdn state checksums before launch 0..63: "
-                            + " ".join(str(x) for x in self._cs_host.tolist()) + "\n")
                 time.sleep(1)
 
         threading.Thread(target=writer, daemon=True).start()
 
 
     def run(self, step, input_ids, inputs_embeds, **kwargs):
-        if hasattr(self, "_rc"):
-            cs = sum(
-                conv.view(torch.int16).sum(dtype=torch.int64)
-                + ssm.view(torch.int32).sum(dtype=torch.int64)
-                for conv, ssm in self._gdn
-            )
-            i = torch.clamp(self._rc[1:2], max=63)
-            self._cs.index_copy_(0, i, cs.view(1))
-            self._cs_host.copy_(self._cs, non_blocking=True)
         out = orig_run(self, step, input_ids, inputs_embeds, **kwargs)
         if self.tp > 1 and hasattr(self, "_rc"):
             from vllm.distributed import get_tp_group

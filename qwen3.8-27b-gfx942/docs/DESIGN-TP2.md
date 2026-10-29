@@ -605,6 +605,24 @@ comes from the 65-token latency, not from the 1-token run. Batch 4 is still at o
 batch 2 in two of the three runs; the medians differ by 0.06 ms, inside the spread.
 The final table with the optimized kernel is in section 11, optimization log.
 
+### Milestone 5: reproducibility
+
+Each run repeats `scratch/m3/plans/final.sh` (gates and speed, TP1 on GPU 0 of the same
+node) from a frozen copy of the final source, started by `scratch/m3/m5_watch.sh` when the
+held job starts. `scratch/m3/final_summary.py` gives the table.
+
+| Run | Node, date, job | G1 ratio | G2 KL | G3-G5 | Logits hash (M = 1, 8) | TP2 faster than TP1, M = 1 / 2 / 4 / 8 | TP2 ms, M = 1 / 2 / 4 / 8 |
+|---|---|---:|---:|---|---|---|---|
+| 1 | banff-cyxtera-s70-4, 2026-10-28, 68197384 (`final/`) | 1.07 | +9.6 % | PASS | dc59fa9e, eca6810e | 27.7 / 26.9 / 24.6 / 23.2 % | 5.593 / 5.972 / 6.727 / 7.912 |
+| 2 | banff-cyxtera-s70-4, 2026-10-29, 68198806 (`m5_day2/`) | 1.07 | +9.6 % | PASS | dc59fa9e, eca6810e | 28.3 / 27.7 / 25.1 / 24.1 % | 5.613 / 5.993 / 6.742 / 7.909 |
+
+The second day computes the same bits (same hashes, same gate values) and the same speed
+within 0.4 %. TP1 on that day: 7.824 / 8.284 / 9.004 / 10.415 ms. The rank check in vLLM
+ran twice more on day 2: 4230 and 4237 launches, 0 with differing ranks
+(`m5_day2/r*/rankcheck_r*.txt`); those two runs also summed every GDN state each step (a
+diagnosis since dropped: the sum cost 3.5 ms a step, and the logged sums were those of
+warm-up launches), so their TPOT is not a measurement.
+
 ### Milestone 6: vLLM at TP2 (2026-10-28, banff-cyxtera-s70-4, job 68197384)
 
 Branch `users/sareeder/qwen38-gfx942-tp2` of vLLM (fork `SamuelReeder/vllm`), on top of

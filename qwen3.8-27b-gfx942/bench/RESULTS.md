@@ -89,10 +89,3 @@ megakernel batch-1 benchmark (the same error at its first synchronize). The late
 processes of the same job ran: batch 2, 4 and 8 within 1.2 % of 2026-10-22, the
 determinism check and the kernel-vs-reference check passed. The stock baseline of
 that day is missing.
-
-## Tensor parallel 2
-
-Two MI300X of one node over XGMI, one launch per GPU, in-kernel all-reduce: the speed and
-gate tables, every optimization with its measurement, stock vLLM TP2 (FP8, BF16, MXFP4) and
-the vLLM TP2 integration are in [`../docs/DESIGN-TP2.md`](../docs/DESIGN-TP2.md) (sections 9,
-11, 14); the logs are under `scratch/logs/` (`final/` for the final kernel).
