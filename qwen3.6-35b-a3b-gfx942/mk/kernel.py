@@ -27,10 +27,13 @@ The barrier epoch lives on the device (word EPOCH_WORD of the flag buffer), so a
 launch has no per-step host argument and can be captured in a graph.
 
 Every compile-time setting is a Cfg field or a debug global, and the kernel name holds a
-hash of all of them: FlyDSL's disk cache keys on the name, not on the fields.
+hash of all of them. FlyDSL's disk cache does not key on the name; it keys on
+compile_key, which the launcher holds.
 """
 
 import functools
+import hashlib
+import pathlib
 import zlib
 from dataclasses import asdict, dataclass
 
@@ -132,9 +135,9 @@ class Cfg:
     debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
     fence: bool = False  # L2 write-back / invalidate at every grid barrier (dev.grid_*)
     chaos: bool = False  # random delays before arrivals and counter atomics (dev.CHAOS)
-    # in_proj fp8, qkv, out_proj, router: CTA-local split-K, LDS reduction (gemv.Gemv.cta;
-    # needs their K chunks = 1). False: the global last-arriver hand-off (before
-    # 2026-10-29; docs/DESIGN.md, "Fixed stage cost")
+    # in_proj fp8, qkv, out_proj, router: CTA-local split-K, LDS reduction
+    # (gemv.Gemv.cta; needs their K chunks = 1). False: the global last-arriver
+    # hand-off (before 2026-10-29; docs/DESIGN.md, "Fixed stage cost")
     cta_red: bool = True
     # norm / scaled prologues only in CTAs that stream units of the GEMV (Gemv.busy):
     # in_proj b / a, out_proj, router
@@ -189,10 +192,24 @@ PROFILE = {
 
 
 def kernel_name(cfg: Cfg) -> str:
-    """Every compile-time setting goes into the name (FlyDSL's disk cache keys on it):
-    the Cfg fields and the debug globals (PROFILE and PROBE addresses are baked in)."""
+    """Every compile-time setting goes into the name: the Cfg fields and the debug
+    globals (PROFILE and PROBE addresses are baked in). FlyDSL's disk cache does not key
+    on the name; it keys on compile_key."""
     key = repr((cfg, PROFILE, D.PROBE))
     return f"qwen36moe_decode_m{cfg.M}_{zlib.crc32(key.encode()):08x}"
+
+
+def compile_key(cfg, *extra) -> str:
+    """Key of FlyDSL's disk cache for one build. FlyDSL 0.4.0 keys on the launcher's
+    source and scalar closure values only: not on helpers called as D.*, cfg fields
+    read as cfg.*, or the kernel name (megakernels common/DESIGN.md, "Compile cache
+    test"). This key covers every .py file of this package and repr((cfg, *extra));
+    the launcher holds it."""
+    d = pathlib.Path(__file__).resolve().parent
+    h = hashlib.sha256(repr((cfg, *extra)).encode())
+    for p in sorted(d.rglob("*.py")):
+        h.update(str(p.relative_to(d)).encode() + b"\0" + p.read_bytes())
+    return h.hexdigest()
 
 
 def build(cfg: Cfg):
@@ -248,6 +265,8 @@ def build(cfg: Cfg):
         v = D.ld(r, 2 * i, 2)
         return (fx.Int64(D.uniform(v[1])) << 32) | fx.Int64(fx.Uint32(D.uniform(v[0])))
 
+    # the kernel name is not in FlyDSL's disk-cache key; `key` is (see compile_key)
+    key = compile_key(cfg, PROFILE, D.PROBE)
     name = kernel_name(cfg)
 
     @flyc.kernel(name=name, known_block_size=[NT, 1, 1])
@@ -382,6 +401,7 @@ def build(cfg: Cfg):
 
     @flyc.jit
     def launch(tab: Int64, glob: Int64, nlayers: Int32, stream: fx.Stream = _STREAM):
+        key  # noqa: B018  a str closure value: FlyDSL puts it in the disk-cache key
         kdec(tab, glob, nlayers).launch(grid=(CUS,), block=(NT,), stream=stream)
 
     return launch

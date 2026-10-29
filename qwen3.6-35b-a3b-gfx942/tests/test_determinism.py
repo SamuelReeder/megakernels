@@ -10,6 +10,7 @@
    vLLM pads a batch), row 0 must again be bitwise equal to the M = 1 run.
 Usage: python tests/test_determinism.py FP8_DIR [M] [STEPS]
 """
+import hashlib
 import sys
 
 import torch
@@ -37,6 +38,7 @@ def main():
     a, b, c = run(e, toks[:, :M]), run(e, toks[:, :M]), run(e, toks[:, :M])
     same = torch.equal(a, b) and torch.equal(a, c)
     print(f"M={M} steps={steps}: 3 runs bitwise equal: {same}")
+    print(f"logits sha256: {hashlib.sha256(a.float().cpu().numpy().tobytes()).hexdigest()[:16]}")
     del e
 
     ok = same
