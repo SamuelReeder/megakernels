@@ -835,8 +835,8 @@ M5 ISA for Qwen3.6 and Gemma):
   boundaries step 1`, rel err 4.69e-3 > 2e-3). M6 changes no code that test traces (it
   builds attention only, with `mkcore.dev`, unchanged since M4), and its steps >= 1 draw
   unseeded inputs (`torch.randn_like`, line 214), so the failing input is not
-  reproducible. Classified as a pre-existing flake; a 5 x 5 rerun of `main` and M6
-  (`attnprobe/`) was queued but not finished at handoff. The first TP2 run lost its node
+  reproducible. Classified as a pre-existing flake: the 5 x 5 rerun of `main` and M6
+  (`attnprobe/`, job 68209742) passes all 10 runs, max rel err 1.24e-3. The first TP2 run lost its node
   `/tmp` tree mid-run (cleanup error by the operator): `summary.txt` keeps its two FAIL
   lines; the full TP2 rerun (`q8tp2_rerun/`, `summary_q8tp2_rerun.txt`) passes all 14.
 - Oracle 5 (`export/`): the M6 exports build with M5's exported ISA (Qwen3.8
@@ -846,8 +846,13 @@ M5 ISA for Qwen3.6 and Gemma):
   plus `runtime/weights.py` on `mkcore.pack`): Qwen3.6 (`TRITON_ATTN`) 1090 / 1090
   tokens and every top-5 logprob equal (`qwen3.6-35b-a3b-gfx942/bench/results/cm6/`);
   Gemma 1240 / 1240 tokens and top-5 equal (`gemma4.../bench/results/cm6/`). Qwen3.8
-  TP1 / TP2 runs were in flight at handoff (`qwen3.8-27b-gfx942/bench/results/cm6/` when
-  done).
+  (job 68209745, `qwen3.8-27b-gfx942/bench/results/cm6/`): TP1 857 / 857 tokens and
+  every logprob equal; TP2 4 of 8 prompts identical, first logprob difference at decode
+  position 1 or 2, two prompts change token at 96 and 111. This is the documented
+  run-to-run spread of vLLM's TP2 path (`docs/DESIGN-TP2.md`, "Run-to-run repeatability":
+  kernel on, 6 of 8, first difference at position 1 or 2); the TP2 kernel ISA is tier A.
+  TPOT (ms, B = 1/2/4/8, single runs, shared node): TP1 base 8.12/8.99/10.15/12.38, M6
+  8.32/8.91/10.07/12.34; TP2 base 6.24/6.82/7.72/9.38, M6 6.28/6.82/7.73/9.44.
 
 ## Decisions
 
