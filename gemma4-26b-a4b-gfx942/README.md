@@ -17,7 +17,7 @@ On one MI300X, TP1, 512-token prompts of real text, 256 output tokens:
   batch 2, against 4.43 and 4.85 ms with the kernel off.
 - **FP8 weights** (`RedHatAI/gemma-4-26B-A4B-it-FP8-dynamic`, one scale per output row)
   with fp8 activations: perplexity on five passages 216.2 against 226.8 for the same
-  weights with fp32 activations and 242.7 for the BF16 checkpoint.
+  weights with bf16 activations (GEMV inputs) and 242.7 for the BF16 checkpoint.
 - **Bitwise deterministic** and batch-invariant: a row gives the same bits alone or in a
   batch of 2, 4 or 8, with or without padding rows. No float atomics.
 
