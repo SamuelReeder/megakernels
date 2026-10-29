@@ -1,0 +1,54 @@
+host=banff-cyxtera-s70-4.adc.amd.com date=2026-10-29T15:55:54+00:00
+arch=gfx9 gfx942 
+install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel
+install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/qwen38_standin
+install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/qwen38_standin/hkp-packed.marker
+install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/qwen38_standin/kernel_matches_model_and_m.umd.json
+install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/qwen38_standin/megakernel.kdp.json
+install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/qwen38_standin/megakernel.kmd.json
+install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/qwen38_standin/megakernel.udd.json
+install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/qwen38_standin/megakernel.ued.json
+install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/qwen38_standin/megakernel_flydsl.kdp.json
+[2026-10-29 15:56:07.297] [tid 649851] [warning] [hip_kernel_provider_plugin] ingestor: engine 'hipkernel:Megakernel' (1ea37de2-144e-5c63-8e45-2d933f10e747) ships no heuristic; kernels rank by priority, then descriptor id
+[2026-10-29 15:56:07.297] [tid 649851] [warning] [hipdnn_backend] Plugin path 'hipdnn_plugins/heuristics/' is invalid - expected either a directory containing plugins or a path to a plugin file
+[2026-10-29 15:56:07.297] [tid 649851] [warning] [hipdnn_backend] Plugin loading found no plugin libraries in any of the 1 configured plugin path(s): hipdnn_plugins/heuristics/
+stream 0x1ede3d0
+== M=1
+  validate: OK
+  build_operation_graph: OK
+  create_execution_plans: OK
+  check_support: OK
+[2026-10-29 15:56:07.509] [tid 649851] [warning] [hipdnn_backend] No heuristic policy order configured, falling back to built-in defaults [SelectionHeuristic::Config, SelectionHeuristic::StaticOrdering]. Set HIPDNN_HEUR_POLICY_ORDER or the descriptor attribute to silence this warning.
+[2026-10-29 15:56:07.509] [tid 649851] [warning] [BuiltInConfig] policyFinalize: exact-match cache unavailable (shard could not be opened, locked, read, or its version did not match this build); consulting fuzzy rules only
+  build_plans: OK
+  engine id 5579872954606985484 name hipkernel:Megakernel workspace 0
+  graph build+plan ms 1.2
+  execute: OK
+  pattern OK: glob[0]=0x4d4b014000000000 glob[N-1]=0x4d4b014000025fff glob[N]=0x123456789abcdef
+  execute x1000: host us/call 2.21, wall incl. GPU us/call 2.22
+  capture execute: OK
+  after capture (not launched) glob[0]=0x0 graph nodes=1
+  graph replay pattern OK glob[0]=0x4d4b014000000000
+  graph replay x1000: host us/call 5.73, wall us/call 6.11
+== M=8
+  validate: OK
+  build_operation_graph: OK
+  create_execution_plans: OK
+  check_support: OK
+[2026-10-29 15:56:07.550] [tid 649851] [warning] [hipdnn_backend] No heuristic policy order configured, falling back to built-in defaults [SelectionHeuristic::Config, SelectionHeuristic::StaticOrdering]. Set HIPDNN_HEUR_POLICY_ORDER or the descriptor attribute to silence this warning.
+[2026-10-29 15:56:07.550] [tid 649851] [warning] [BuiltInConfig] policyFinalize: exact-match cache unavailable (shard could not be opened, locked, read, or its version did not match this build); consulting fuzzy rules only
+  build_plans: OK
+  engine id 5579872954606985484 name hipkernel:Megakernel workspace 0
+  graph build+plan ms 0.7
+  execute: OK
+  pattern OK: glob[0]=0x4d4b084000000000 glob[N-1]=0x4d4b084000025fff glob[N]=0x123456789abcdef
+  execute x1000: host us/call 2.24, wall incl. GPU us/call 2.25
+  capture execute: OK
+  after capture (not launched) glob[0]=0x0 graph nodes=1
+  graph replay pattern OK glob[0]=0x4d4b084000000000
+  graph replay x1000: host us/call 5.07, wall us/call 5.61
+== M=4
+  validate: OK
+  build_operation_graph: OK
+  create_execution_plans: FAIL No engine configurations available for the graph.
+  graph build+plan ms 0.1

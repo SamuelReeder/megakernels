@@ -1,0 +1,18 @@
+host=quanta-ccs-aus-f01-19.adc.amd.com nproc=64 date=2026-10-29T11:52:48-04:00 EXTRA=-DENABLE_MEGAKERNEL_ENGINE=ON
+zstandard+msgpack ok
+rocm-kpack
+configure_rc=0 configure_s=2
+-- [hipdnn] hipDNN: kernel ingestor enabled
+-- [hip-kernel-provider] Kernel ingestor enabled. Descriptors build into:
+-- [hip-kernel-provider] kpack: using rocm_kpack from /opt/rocm-kpack/python (shipped by the build environment)
+-- [hip-kernel-provider] hkp: rocKE disabled (HIPKERNELPROVIDER_ENABLE_ROCKE=OFF); packing with the hip producer only
+-- [hip-kernel-provider] kpack: using rocm_kpack from /opt/rocm-kpack/python (shipped by the build environment)
+build_rc=0 build_s=29
+install_rc=0 install_s=0
+/work/install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/kpack/hip_kernel_provider_gfx942.kpack
+/work/install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/qwen38_standin/megakernel_flydsl.kdp.json
+/work/install/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/qwen38_standin/megakernel.kdp.json
+/work/install/lib/hipdnn_plugins/engines/arch_content/asm_sdpa/gfx950/hip_kernel_provider_sdpa_gfx950.kpack
+/work/install/lib/hipdnn_plugins/engines/arch_content/asm_sdpa/gfx942/hip_kernel_provider_sdpa_gfx942.kpack
+build/projects/hipdnn/python/frontend_bindings/hipdnn_frontend_python.abi3.so
+33M	/work/install

@@ -1,0 +1,56 @@
+### ARGS=--model qwen3.8-27b-flydsl --build-only --m 1 8 4
+host=banff-cyxtera-s70-4.adc.amd.com date=2026-10-29T15:57:03+00:00
+arch=gfx9 gfx942 
+[2026-10-29 15:57:04.119] [tid 665662] [warning] [hip_kernel_provider_plugin] ingestor: engine 'hipkernel:Megakernel' (1ea37de2-144e-5c63-8e45-2d933f10e747) ships no heuristic; kernels rank by priority, then descriptor id
+[2026-10-29 15:57:04.119] [tid 665662] [warning] [hipdnn_backend] Plugin path 'hipdnn_plugins/heuristics/' is invalid - expected either a directory containing plugins or a path to a plugin file
+[2026-10-29 15:57:04.119] [tid 665662] [warning] [hipdnn_backend] Plugin loading found no plugin libraries in any of the 1 configured plugin path(s): hipdnn_plugins/heuristics/
+stream 0x1d19320
+== M=1
+  validate: OK
+  build_operation_graph: OK
+  create_execution_plans: OK
+  check_support: OK
+[2026-10-29 15:57:04.503] [tid 665662] [warning] [hipdnn_backend] No heuristic policy order configured, falling back to built-in defaults [SelectionHeuristic::Config, SelectionHeuristic::StaticOrdering]. Set HIPDNN_HEUR_POLICY_ORDER or the descriptor attribute to silence this warning.
+[2026-10-29 15:57:04.503] [tid 665662] [warning] [BuiltInConfig] policyFinalize: exact-match cache unavailable (shard could not be opened, locked, read, or its version did not match this build); consulting fuzzy rules only
+  build_plans: OK
+  engine id 5579872954606985484 name hipkernel:Megakernel workspace 0
+  graph build+plan ms 3.7
+== M=8
+  validate: OK
+  build_operation_graph: OK
+[2026-10-29 15:57:04.526] [tid 665662] [warning] [hipdnn_backend] No heuristic policy order configured, falling back to built-in defaults [SelectionHeuristic::Config, SelectionHeuristic::StaticOrdering]. Set HIPDNN_HEUR_POLICY_ORDER or the descriptor attribute to silence this warning.
+[2026-10-29 15:57:04.526] [tid 665662] [warning] [BuiltInConfig] policyFinalize: exact-match cache unavailable (shard could not be opened, locked, read, or its version did not match this build); consulting fuzzy rules only
+  create_execution_plans: OK
+  check_support: OK
+  build_plans: OK
+  engine id 5579872954606985484 name hipkernel:Megakernel workspace 0
+  graph build+plan ms 3.5
+== M=4
+  validate: OK
+  build_operation_graph: OK
+  create_execution_plans: FAIL No engine configurations available for the graph.
+  graph build+plan ms 0.2
+### ARGS=--outputs 1 --m 1 --iters 200
+host=banff-cyxtera-s70-4.adc.amd.com date=2026-10-29T15:57:19+00:00
+arch=gfx9 gfx942 
+[2026-10-29 15:57:20.055] [tid 666867] [warning] [hip_kernel_provider_plugin] ingestor: engine 'hipkernel:Megakernel' (1ea37de2-144e-5c63-8e45-2d933f10e747) ships no heuristic; kernels rank by priority, then descriptor id
+[2026-10-29 15:57:20.055] [tid 666867] [warning] [hipdnn_backend] Plugin path 'hipdnn_plugins/heuristics/' is invalid - expected either a directory containing plugins or a path to a plugin file
+[2026-10-29 15:57:20.055] [tid 666867] [warning] [hipdnn_backend] Plugin loading found no plugin libraries in any of the 1 configured plugin path(s): hipdnn_plugins/heuristics/
+stream 0x19f61e0
+== M=1
+  validate: OK
+  build_operation_graph: OK
+  create_execution_plans: OK
+  check_support: OK
+[2026-10-29 15:57:20.442] [tid 666867] [warning] [hipdnn_backend] No heuristic policy order configured, falling back to built-in defaults [SelectionHeuristic::Config, SelectionHeuristic::StaticOrdering]. Set HIPDNN_HEUR_POLICY_ORDER or the descriptor attribute to silence this warning.
+[2026-10-29 15:57:20.442] [tid 666867] [warning] [BuiltInConfig] policyFinalize: exact-match cache unavailable (shard could not be opened, locked, read, or its version did not match this build); consulting fuzzy rules only
+  build_plans: OK
+  engine id 5579872954606985484 name hipkernel:Megakernel workspace 0
+  graph build+plan ms 1.8
+  execute: OK
+  pattern OK: glob[0]=0x4d4b014000000000 glob[N-1]=0x4d4b014000025fff glob[N]=0x123456789abcdef
+  execute x200: host us/call 4.30, wall incl. GPU us/call 4.39
+  capture execute: OK
+  after capture (not launched) glob[0]=0x0 graph nodes=1
+  graph replay pattern OK glob[0]=0x4d4b014000000000
+  graph replay x200: host us/call 7.91, wall us/call 8.51
