@@ -132,6 +132,10 @@ class Cfg:
     debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
     fence: bool = False  # L2 write-back / invalidate at every grid barrier (dev.grid_*)
     chaos: bool = False  # random delays before arrivals and counter atomics (dev.CHAOS)
+    # grid barrier: 0 = per-CTA flags + 8 leader CTAs (two device hops); g > 0 = g
+    # device-scope arrival counters polled by every CTA (one hop; dev.grid_wait)
+    bar_ng: int = 0
+    pf: int = 1  # dense GEMVs: P-unit weight blocks loaded at the barrier (gemv.Gemv.pf)
 
     def chunks(self):
         return {k[2:]: v for k, v in asdict(self).items() if k.startswith("c_")}
@@ -149,7 +153,7 @@ class Cfg:
         M, cus, ch = self.M, self.cus, self.chunks()
 
         def g(name, n, k, kind="fp8"):
-            return Gemv(name, n, k, M, cus, WAVES, ch[name], kind).check()
+            return Gemv(name, n, k, M, cus, WAVES, ch[name], kind, pf=self.pf).check()
 
         return dict(
             inp=g("inp", QKVZ_N, H),
@@ -195,6 +199,7 @@ def build(cfg: Cfg):
     D.CHAOS["on"] = cfg.chaos
     S.NT = NT
     NP = MO.npos_max(M)
+    assert 0 <= cfg.bar_ng <= min(CUS, 64), "counter lines live in the CTA flag lines"
     XQB = max(s.XR * (s.XROWS if isinstance(s, MO.MoeGemv) else M) for s in SP.values())
     XBB = SP["ba"].XR * M  # in_proj's bf16 x (b / a), beside the fp8 x
     XSF = 32 * max(s.XSR for s in SP.values())
@@ -306,9 +311,9 @@ def build(cfg: Cfg):
             if const_expr(PROFILE["addr"] is not None):
                 slot = ((e - epoch - 1) * CUS + bid) * 2
                 stamp(slot)
-            D.grid_arrive(rf, e, tid, bid, cfg.fence)
+            D.grid_arrive(rf, e, tid, bid, cfg.fence, cfg.bar_ng, G[G_FLAGS])
             buf = spec.first_loads(w) if spec is not None else None
-            D.grid_wait(rf, e, tid, bid, CUS, cfg.fence)
+            D.grid_wait(rf, e, tid, bid, CUS, cfg.fence, cfg.bar_ng)
             if const_expr(PROFILE["addr"] is not None):
                 stamp(slot + 1)
             return w, buf

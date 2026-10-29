@@ -83,7 +83,7 @@ class Engine:
             M, cus, maxlen, block, nb, *kv_s, xpack, PAGE, PAGE, lm_head,
             debug_route=debug_route, fence=fence,
             **{"c_" + k: v for k, v in PK.chunks.items()},
-            **{k: bool(int(v)) for k, v in over.items()},
+            **{k: type(getattr(KK.Cfg, k))(int(v)) for k, v in over.items()},
         )
         self.launch = KK.build(self.cfg)
         z = lambda *s, dt=torch.float32: torch.zeros(*s, dtype=dt, device=device)  # noqa: E731

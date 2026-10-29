@@ -95,6 +95,7 @@ class Gemv:
     kind: str = "fp8"  # "fp8" | "bf16"
     P: int = 2  # units per pipeline block
     gpc: int = 1  # groups per counter (last-arriver granularity)
+    pf: int = 1  # P-unit blocks loaded at the barrier and kept in flight (1 or 2)
 
     @property
     def G(self):
@@ -176,8 +177,9 @@ class Gemv:
     def check(self):
         assert self.N % 16 == 0 and self.K % 128 == 0 and self.KS % self.C == 0
         assert self.KSc >= self.P, "a pipeline block may cross at most one piece end"
-        assert PAD_TILES >= 3 * self.P - 1, (
-            "loads run up to 3 P - 1 units past the stream"
+        assert self.pf in (1, 2)
+        assert PAD_TILES >= (self.pf + 2) * self.P - 1, (
+            "loads run up to (pf + 2) P - 1 units past the stream"
         )
         assert (self.U + 1) * self.NW < 2**31
         assert self.G % self.gpc == 0
@@ -257,7 +259,7 @@ class Gemv:
         return w
 
     def first_loads(self, w):
-        return [self.load(w, w["u0"] + p) for p in range(self.P)]
+        return [self.load(w, w["u0"] + p) for p in range(self.P * self.pf)]
 
     @D.traced
     def run(self, c, w, buf, part, cnt, epilogue):
@@ -322,18 +324,30 @@ class Gemv:
         D.PROBE["on"] = D.PROBE.get("stage") == self.name
         D.probe(c, 0)
         nblk = (u1 - u0 + P - 1) // P
-        buf_a = buf
+        buf_a = buf[:P]
         pc0 = u0 // KSc
         st = (u0 % KSc, pc0 % G, pc0 // G)
         acc_a = z4
         acc_b = z4
-        for i in range(0, (nblk + 1) // 2):
-            ub = u0 + 2 * i * P
-            buf_b = [self.load(w, ub + P + p) for p in range_constexpr(P)]
-            st, acc_a, acc_b = block(ub, st, buf_a, acc_a, acc_b)
-            buf_a = [self.load(w, ub + 2 * P + p) for p in range_constexpr(P)]
-            if 2 * i + 1 < nblk:
-                st, acc_a, acc_b = block(ub + P, st, buf_b, acc_a, acc_b)
+        if const_expr(self.pf == 1):
+            for i in range(0, (nblk + 1) // 2):
+                ub = u0 + 2 * i * P
+                buf_b = [self.load(w, ub + P + p) for p in range_constexpr(P)]
+                st, acc_a, acc_b = block(ub, st, buf_a, acc_a, acc_b)
+                buf_a = [self.load(w, ub + 2 * P + p) for p in range_constexpr(P)]
+                if 2 * i + 1 < nblk:
+                    st, acc_a, acc_b = block(ub + P, st, buf_b, acc_a, acc_b)
+        else:
+            # two blocks in flight from the barrier on: the next block's loads are
+            # issued before this block computes
+            buf_b = buf[P:]
+            for i in range(0, (nblk + 1) // 2):
+                ub = u0 + 2 * i * P
+                st, acc_a, acc_b = block(ub, st, buf_a, acc_a, acc_b)
+                buf_a = [self.load(w, ub + 2 * P + p) for p in range_constexpr(P)]
+                if 2 * i + 1 < nblk:
+                    st, acc_a, acc_b = block(ub + P, st, buf_b, acc_a, acc_b)
+                buf_b = [self.load(w, ub + 3 * P + p) for p in range_constexpr(P)]
         D.probe(c, 1)
         last = u1 - 1
         if ((last // KSc) != ((u0 + (nblk - 1) * P) // KSc)) & (nblk > 0):

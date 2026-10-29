@@ -291,46 +291,53 @@ def _asm(text):
 
 
 @traced
-def grid_arrive(rf, epoch, tid, bid, fence=False):
+def grid_arrive(rf, epoch, tid, bid, fence=False, ng=0, fa=None):
     """Barrier arrival: drain this CTA's memory ops (its stores become visible), then
-    store epoch to the CTA's flag line. Issue prefetch loads after this, not before:
-    s_waitcnt vmcnt(0) also waits for loads (measured: prefetching before the arrival
-    is slower). fence: also write back this XCD's dirty L2 lines first (agent-scope
-    release, buffer_wbl2 sc1)."""
+    store epoch to the CTA's flag line (ng = 0), or add 1 to counter line bid % ng of
+    the flag buffer at 64-bit address fa (ng > 0, device-scope atomic). Issue prefetch
+    loads after this, not before: s_waitcnt vmcnt(0) also waits for loads (measured:
+    prefetching before the arrival is slower). fence: also write back this XCD's dirty
+    L2 lines first (agent-scope release, buffer_wbl2 sc1)."""
     if const_expr(CHAOS["on"]):
         chaos_sleep(bid)
     if const_expr(fence):
         _asm("buffer_wbl2 sc1")
     rocdl.s_waitcnt(vmcnt=0)
     gpu.barrier()
-    if tid == 0:
-        st(epoch, rf, bid * LINE, CM_DEV)
+    if const_expr(ng > 0):
+        if tid == 0:
+            atomic_add_dev(fa + (bid % ng) * (LINE * 4), 1)
+    else:
+        if tid == 0:
+            st(epoch, rf, bid * LINE, CM_DEV)
 
 
 @traced
-def grid_wait(rf, epoch, tid, bid, cus, fence=False):
-    """Barrier completion. Leader x < 8 waits for the CTAs b % 8 == x (its XCD under
-    round-robin dispatch) and stores epoch to line cus + x; every CTA waits for the
-    8 leader lines. Epochs only grow. fence: then invalidate this XCD's non-local L2
-    lines and the CU's L1 (agent-scope acquire, buffer_inv sc1)."""
-    if bid < 8:
-        nx = (cus - bid + 7) // 8
-        if tid < nx:
-            poll_ge(rf, (bid + 8 * tid) * LINE, epoch)
-        gpu.barrier()
-        if tid == 0:
-            st(epoch, rf, (cus + bid) * LINE, CM_DEV)
-    if tid < 8:
-        poll_ge(rf, (cus + tid) * LINE, epoch)
+def grid_wait(rf, epoch, tid, bid, cus, fence=False, ng=0):
+    """Barrier completion. ng = 0: leader x < 8 waits for the CTAs b % 8 == x (its XCD
+    under round-robin dispatch) and stores epoch to line cus + x; every CTA waits for
+    the 8 leader lines. ng > 0: lane g < ng of every CTA waits until counter g holds
+    epoch x (its CTA count): one device round trip fewer than the leader hop. Epochs
+    and counters only grow (wrap-around compare); the counters start at 0 with the
+    epoch word. fence: then invalidate this XCD's non-local L2 lines and the CU's L1
+    (agent-scope acquire, buffer_inv sc1)."""
+    if const_expr(ng > 0):
+        if tid < ng:
+            poll_ge(rf, tid * LINE, epoch * ((cus - tid + (ng - 1)) // ng))
+    else:
+        if bid < 8:
+            nx = (cus - bid + 7) // 8
+            if tid < nx:
+                poll_ge(rf, (bid + 8 * tid) * LINE, epoch)
+            gpu.barrier()
+            if tid == 0:
+                st(epoch, rf, (cus + bid) * LINE, CM_DEV)
+        if tid < 8:
+            poll_ge(rf, (cus + tid) * LINE, epoch)
     gpu.barrier()
     if const_expr(fence):
         _asm("buffer_inv sc1")
         rocdl.s_waitcnt(vmcnt=0)
-
-
-def grid_barrier(rf, epoch, tid, bid, cus):
-    grid_arrive(rf, epoch, tid, bid)
-    grid_wait(rf, epoch, tid, bid, cus)
 
 
 FENCE = {"on": False}  # debug (Cfg.fence): agent-scope release / acquire around atomics

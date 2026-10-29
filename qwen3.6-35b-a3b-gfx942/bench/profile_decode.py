@@ -5,7 +5,9 @@ stage kind, the median over layers of: span (first release -> last arrival), the
 per-CTA busy time, and the barrier cost (last arrival -> last release).
 PROBE=<stage> (gdn, attn, or a GEMV name: inp, out, qkv, o, router, lm) adds per-wave
 stamps of the last layer of that kind.
-Usage: [PROBE=...] python bench/profile_decode.py FP8_DIR M CTX [TIMELINE.json]
+PSTEPS=<n> profiles n - 1 more greedy steps first; their timelines go to TIMELINE_s<k>.json
+(tools/stage_breakdown.py pools them).
+Usage: [PROBE=...] [PSTEPS=...] python bench/profile_decode.py FP8_DIR M CTX [TIMELINE.json]
 """
 import json
 import os
@@ -41,6 +43,31 @@ g = torch.Generator(device="cuda").manual_seed(1234)
 for t in range(CTX):  # distinct random prompts per row, then one greedy step
     logits = eng.step(torch.randint(0, 200000, (M,), device="cuda", generator=g))
 tok = logits.argmax(-1)
+names = []
+for i in range(NL):
+    names += (["qkv", "attn", "o"] if is_attn(i) else ["inp", "gdn", "out"]) + ["router", "e1", "e2"]
+names += ["lm"]
+assert len(names) == NB - 1
+
+
+def stamps():
+    p = prof.double().cpu() / 100.0  # us (100 MHz clock)
+    t0 = p[0, :, 0].min()
+    return p - t0, t0
+
+
+def dump(p, out):  # (arrive, release) per barrier and CTA for tools/timeline.py
+    json.dump({"M": M, "ctx": CTX, "gpu": torch.cuda.get_device_name(0), "cus": CUS, "stages": names,
+               "us": [[[round(v, 2) for v in cta] for cta in bar] for bar in p.tolist()]},
+              open(out, "w"))
+
+
+for k in range(int(os.environ.get("PSTEPS", "1")) - 1):
+    prof.zero_()
+    tok = eng.step(tok).argmax(-1)
+    torch.cuda.synchronize()
+    if len(sys.argv) > 4:
+        dump(stamps()[0], sys.argv[4].replace(".json", f"_s{k}.json"))
 torch.cuda.synchronize()
 prof.zero_()
 probes.zero_()
@@ -49,14 +76,7 @@ ev[0].record()
 eng.step(tok)
 ev[1].record()
 torch.cuda.synchronize()
-p = prof.double().cpu() / 100.0  # us (100 MHz clock)
-t0 = p[0, :, 0].min()
-p -= t0
-names = []
-for i in range(NL):
-    names += (["qkv", "attn", "o"] if is_attn(i) else ["inp", "gdn", "out"]) + ["router", "e1", "e2"]
-names += ["lm"]
-assert len(names) == NB - 1
+p, t0 = stamps()
 rows = {}
 for b in range(NB - 1):
     rel, arr = p[b, :, 1], p[b + 1, :, 0]
@@ -64,10 +84,8 @@ for b in range(NB - 1):
     busy = (arr - rel).mean().item()
     bar = (p[b, :, 1].max() - p[b, :, 0].max()).item()
     rows.setdefault(names[b], []).append((span, busy, bar))
-if len(sys.argv) > 4:  # (arrive, release) per barrier and CTA for tools/timeline.py
-    json.dump({"M": M, "ctx": CTX, "gpu": torch.cuda.get_device_name(0), "cus": CUS, "stages": names,
-               "us": [[[round(v, 2) for v in cta] for cta in bar] for bar in p.tolist()]},
-              open(sys.argv[4], "w"))
+if len(sys.argv) > 4:
+    dump(p, sys.argv[4])
 total = p[NB - 1, :, 0].max().item()
 print(f"M={M} ctx={CTX}: embed (start -> first arrival) {p[0, :, 0].max().item():.1f} us; "
       f"step total {total:.1f} us (CUDA events around this single launch, launch latency "
