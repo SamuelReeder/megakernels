@@ -33,7 +33,12 @@ def _bits(t):
         return torch.zeros((), dtype=torch.int64, device=t.device)
     # a same-size integer view: no copy, any strides (a copy of a cache would not fit)
     it = {1: torch.uint8, 2: torch.int16, 4: torch.int32, 8: torch.int64}[t.element_size()]
-    return t.view(it).sum(dtype=torch.int64)
+    # sum(dtype=int64) converts its whole input first: sum slices of at most 2**26 elements
+    t = t.view(it)
+    if t.dim() == 0:
+        return t.to(torch.int64)
+    step = max(1, (1 << 26) // max(1, t[0].numel()))
+    return torch.stack([t[i:i + step].sum(dtype=torch.int64) for i in range(0, t.shape[0], step)]).sum()
 
 
 def _tensors(x):
