@@ -42,6 +42,7 @@ from flydsl.expr.typing import Int32, Int64
 
 from mkcore import dev as D
 from mkcore import key as K
+from mkcore import stagelib as SL
 from mkcore.dev import _STREAM, CNT_STRIDE, EPOCH_WORD_LINE, LDS_MAX, NT, PROFILE, WAVES
 
 from . import mixer as X
@@ -358,7 +359,7 @@ def build(cfg: Cfg):
                 buf,
                 part,
                 cnt("lm"),
-                lambda cg, tots: S.epi_raw(c, M, VOCAB, cg, tots[0], G[G_OUT]),
+                lambda cg, tots: SL.epi_raw(c, M, VOCAB, cg, tots[0], G[G_OUT]),
             )
         else:
             # ---- final norm -> bf16 hidden states
@@ -423,7 +424,7 @@ def _gdn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, c
         ba.first_loads(wb),
         part + fx.Int64(inp.part_floats() * 4),
         cnt("ba"),
-        lambda cg, tots: S.epi_raw(c, M, INP_N, cg, tots[0], y, QKVZ_N),
+        lambda cg, tots: SL.epi_raw(c, M, INP_N, cg, tots[0], y, QKVZ_N),
     )
     # GDN core
     barrier_then(None, None, None, e0 + 1)
@@ -467,7 +468,7 @@ def _attn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, 
         buf,
         part,
         cnt("qkv"),
-        lambda cg, tots: S.epi_raw(c, M, QKV_N, cg, tots[0], y),
+        lambda cg, tots: SL.epi_raw(c, M, QKV_N, cg, tots[0], y),
     )
     barrier_then(None, None, None, e0 + 1)
     for t in range(gw, ntask, c["cus"] * WAVES):
@@ -510,7 +511,7 @@ def _moe_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, cnt,
         buf,
         part,
         cnt("router"),
-        lambda cg, tots: S.epi_raw(c, M, MO.LGN, cg, tots[0], G[G_LOGIT]),
+        lambda cg, tots: SL.epi_raw(c, M, MO.LGN, cg, tots[0], G[G_LOGIT]),
     )
     # S5: routing (every CTA), then the experts' gate_up on fp8(norm(h1))
     barrier_then(None, None, None, e0 + 4)

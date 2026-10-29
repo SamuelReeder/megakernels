@@ -40,6 +40,7 @@ from flydsl.expr.typing import Int32, Int64
 
 from mkcore import dev as D
 from mkcore import key as K
+from mkcore import stagelib as SL
 from mkcore.dev import _STREAM, CNT_STRIDE, EPOCH_WORD_LINE, LDS_MAX, NT, PROFILE, WAVES
 
 from . import attention as A
@@ -371,7 +372,7 @@ def _attn_layer_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_t
     else:
         _qkv_rebuild(c, M, qkv, xq, xs, red, G, T, Tp)
     qkv.run(c, w, buf, part, cnt("qkv"),
-            lambda cg, tots: S.epi_raw(c, M, qkv.N, cg, tots[0], G[G_Y]))
+            lambda cg, tots: SL.epi_raw(c, M, qkv.N, cg, tots[0], G[G_Y]))
     # attention tasks
     barrier_then(None, None, None, e0 + 1)
     wlw = wl + c["wave"] * geo.WLF
@@ -417,7 +418,7 @@ def _moe_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw
         S.prologue_router(c, rtr, xq, red, G[G_H], G[G_A], G[G_SSQA], T(T_PA_LN),
                           T(T_RSCALE), G[G_H1], G[G_RSTD1])
     rtr.run(c, w, buf, part, cnt("router"),
-            lambda cg, tots: S.epi_raw(c, M, MO.LGN, cg, tots[0], logit))
+            lambda cg, tots: SL.epi_raw(c, M, MO.LGN, cg, tots[0], logit))
     # routing (every CTA), then gate_up of the routed experts and the dense MLP
     barrier_then(None, None, None, e0 + 4)
     MO.routing(c, M, logit, G[G_ROWV], T(T_PES), R)

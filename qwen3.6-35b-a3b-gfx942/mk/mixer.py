@@ -33,6 +33,7 @@ from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
 from flydsl.expr.typing import T
 
 from mkcore import dev as D
+from mkcore import stagelib as SL
 from mkcore.dev import bf16r, pack_bf2
 
 from . import stages as S
@@ -512,7 +513,7 @@ def prologue_attn(c, g, xq, xs, cfg, rec, y_qkv, pos_ptr, slotp):
     then x = o / sum * sigmoid(gate). Rows without a KV slot (padding) give x = 0."""
     assert g.Kc == HD and g.slots == 1
     M, tid, NT = g.M, c["tid"], S.NT
-    S.zero_xs_tail(c, g, xs)
+    SL.zero_xs_tail(c, g, xs)
     rr, ry, rp, rs = D.rsrc(rec), D.rsrc(y_qkv), D.rsrc(pos_ptr), D.rsrc(slotp)
     h = fx.min(g.chunk0(c["bid"]), g.C - 1)  # the CTA's head
     j, hh = h // GQ, h % GQ
@@ -569,5 +570,5 @@ def prologue_attn(c, g, xq, xs, cfg, rec, y_qkv, pos_ptr, slotp):
         gv = [gt[0][0], gt[0][1], gt[0][2], gt[0][3], gt[1][0], gt[1][1], gt[1][2], gt[1][3]]
         x = [(n > 0).select(st[10 * q + 2 + e] * inv * D.sigmoid(gv[e]), fx.Float32(0.0))
              for e in range(8)]
-        S.store_quant8(c, g, xq, xs, x, t, d, tid + NT * i < nch)
+        SL.store_quant8(c, g, xq, xs, x, t, d, tid + NT * i < nch)
     gpu.barrier()

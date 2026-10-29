@@ -40,6 +40,7 @@ from flydsl.expr.typing import Int32, Int64
 
 from mkcore import dev as D
 from mkcore import key as K
+from mkcore import stagelib as SL
 from mkcore.dev import _STREAM, CNT_STRIDE, EPOCH_WORD_LINE, NT, PROFILE, WAVES
 
 from . import mixer as X
@@ -430,7 +431,7 @@ def build(cfg: Cfg):
                 buf,
                 part,
                 cnt("lm"),
-                lambda cg, tots: S.epi_raw(c, M, d.vocab, cg, tots[0], G[G_OUT]),
+                lambda cg, tots: SL.epi_raw(c, M, d.vocab, cg, tots[0], G[G_OUT]),
             )
         else:
             # ---- final norm -> bf16 hidden states
@@ -550,7 +551,7 @@ def _attn_layer(
         buf,
         part,
         cnt("qkv"),
-        lambda cg, tots: S.epi_raw(c, M, TD.TRACE["d"].qkv_n, cg, tots[0], y),
+        lambda cg, tots: SL.epi_raw(c, M, TD.TRACE["d"].qkv_n, cg, tots[0], y),
     )
     barrier_then(None, None, None, e0 + 1)
     for t in range(gw, ntask, c["cus"] * WAVES):
