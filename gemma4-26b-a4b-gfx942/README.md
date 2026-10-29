@@ -6,51 +6,64 @@ sliding-window and 5 full-attention layers, the 128-expert top-8 MoE beside a de
 MLP, the sandwich norms) and the final norm run inside one launch per step, for 1 to 8
 sequences. The kernel reads and writes vLLM's paged KV cache in place.
 
-On one MI300X, TP1, 512-token prompts of real text, 256 output tokens:
+On one MI300X, TP1, 512-token prompts of real text, 256 output tokens, measured in one job
+on 2026-10-29 (the node ran slower that day than on 2026-10-28; see below):
 
-- **Batch 1: 3.58 ms per token, 279 tok/s**, against 4.43 ms (226 tok/s) for vLLM's own
-  path on the same GPU and the same prompts: **1.24x**. Batch 2: **1.16x**.
-- **Batch 4 and 8: slower than vLLM** (0.95x, 0.92x). At batch 8 the expert weights of
-  about 52 distinct experts per layer dominate, and vLLM's fused MoE reads them faster.
-  Inside vLLM the kernel therefore serves batch 1 and 2 only.
-- **Inside vLLM** (vllm#61311 specialized decode): 3.59 ms at batch 1 and 4.23 ms at
-  batch 2, against 4.43 and 4.85 ms with the kernel off.
+- **Batch 1: 3.75 ms per token, 267 tok/s**, against 5.83 ms for vLLM's own path in the same
+  job: **1.56x**. Batch 2: **1.51x**, batch 4: **1.52x**, batch 8: **1.35x** (5.92 ms,
+  1351 tok/s).
+- **Batch 4 and 8 are now faster than vLLM** too. The expert stages no longer hand partial
+  sums through last-arriver chains (milestone 8): the down stage reduces by row and the
+  gate_up stage folds its K chunks inside each CTA. Against the previous kernel in the same
+  job: -3 % / -10 % / -25 % / -24 % at batch 1 / 2 / 4 / 8.
+- **Inside vLLM** (vllm#61311 specialized decode, now every width 1 to 8): 3.66 / 4.22 /
+  4.67 / 5.86 ms at batch 1 / 2 / 4 / 8, against 5.83 / 6.30 / 6.97 / 7.98 ms with the
+  kernel off.
 - **FP8 weights** (`RedHatAI/gemma-4-26B-A4B-it-FP8-dynamic`, one scale per output row)
   with fp8 activations: perplexity on five passages 216.2 against 226.8 for the same
   weights with bf16 activations (GEMV inputs) and 242.7 for the BF16 checkpoint.
 - **Bitwise deterministic** and batch-invariant: a row gives the same bits alone or in a
-  batch of 2, 4 or 8, with or without padding rows. No float atomics.
+  batch of 2, 4 or 8, with or without padding rows. No float atomics. The milestone-8
+  changes give the same bits as the previous kernel.
 
 ![Decode speed vs vLLM and SGLang on the same MI300X](docs/throughput.png)
 
 ## Results
 
-| Batch | vLLM FP8, kernel off | vLLM FP8 + megakernel | vLLM FP8, `bench serve` | SGLang BF16 | Megakernel FP8 | Speedup | Total tok/s |
-|---:|---:|---:|---:|---:|---:|---:|---:|
-| 1 | 4.43 ms | **3.59 ms** | 4.54 ms | 9.16 ms | **3.58 ms** | **1.24x** | 279 |
-| 2 | 4.85 ms | **4.23 ms** | 4.74 ms | 9.83 ms | **4.18 ms** | **1.16x** | 478 |
-| 4 | 5.02 ms | 5.01 ms (vLLM's path) | 5.24 ms | 10.45 ms | 5.29 ms | 0.95x | 756 |
-| 8 | 6.22 ms | 6.16 ms (vLLM's path) | 5.98 ms | 11.76 ms | 6.77 ms | 0.92x | 1182 |
+| Batch | vLLM FP8, kernel off | vLLM FP8 + megakernel | Megakernel before (main 13b25e7) | Megakernel FP8 | Speedup | Total tok/s |
+|---:|---:|---:|---:|---:|---:|---:|
+| 1 | 5.83 ms | **3.66 ms** | 3.87 ms | **3.75 ms** | **1.56x** | 267 |
+| 2 | 6.30 ms | **4.22 ms** | 4.63 ms | **4.18 ms** | **1.51x** | 479 |
+| 4 | 6.97 ms | **4.67 ms** | 6.12 ms | **4.59 ms** | **1.52x** | 872 |
+| 8 | 7.98 ms | **5.86 ms** | 7.76 ms | **5.92 ms** | **1.35x** | 1351 |
 
-Time per output token on banff-cyxtera-s70-4 (MI300X), 2026-10-28.
+Time per output token on banff-cyxtera-s70-4 (MI300X), 2026-10-29, all columns in one
+Slurm job (68206666).
 
 - Megakernel: `bench/bench_decode.py`, real-text prompts, median of 3 runs
-  (`bench/results/m7/bench_text_m*.txt`). Speedup: against vLLM FP8 with the kernel off.
+  (`bench/results/m8/bench_new_m*.txt`; before: `bench_main_m*.txt`, a clean export of
+  main). Speedup: against vLLM FP8 with the kernel off.
 - vLLM 0.32.1rc1 nightly, kernel off and on: `bench/vllm_e2e.py`, the same real-text
-  prompts (`bench/results/m6/off4.json`, `on4.json`, `compare4.txt`).
-- `vllm bench serve` (random-token prompts) and SGLang 0.5.10 `bench_one_batch`:
-  `bench/results/stock/summary.md`. SGLang's FP8 path fails on this checkpoint
-  (`This GEMM is not supported!`); vLLM + AITER fails on FP8 (no GELU_TANH in its FP8 MoE),
-  and without AITER's MoE it is slower than vLLM's default (5.06 ms at batch 1).
-- Random-token prompts route to fewer distinct experts: the megakernel takes 3.56 / 4.06 /
-  4.80 / 5.93 ms with them (`bench/results/m4/suite/bench_m*.txt`).
+  prompts (`bench/results/m8/vllm_off.json`, `vllm_on_all_widths.json`,
+  `vllm_compare_all_widths.txt`).
+- The node was slower on 2026-10-29 than on 2026-10-28 while other jobs ran on its other
+  GPUs (the same main kernel: 6.72 ms at batch 8 in the morning, 7.76 ms later;
+  `bench/results/m8/drift_main_vs_tree_m8.txt`); vLLM's own path slowed more (6.22 ->
+  7.98 ms). Against the 2026-10-28 vLLM numbers (4.43 / 4.85 / 5.02 / 6.22 ms,
+  `bench/results/m6/`) the new kernel measured on the slower day is still faster at
+  batch 1, 2, 4 and 8.
+- `vllm bench serve` (random-token prompts) and SGLang 0.5.10 `bench_one_batch`
+  (2026-10-28): `bench/results/stock/summary.md`. SGLang's FP8 path fails on this checkpoint
+  (`This GEMM is not supported!`); vLLM + AITER fails on FP8 (no GELU_TANH in its FP8 MoE).
 
 Quality (`bench/results/m2/` to `m4/`): the PyTorch reference (`mk/reference.py`) matches
 HF transformers in fp32 at logits cosine 0.99942 (worst position) and top-1 99.9 % over a
 1300-token prompt (`bench/results/m2/ref_vs_hf_fp32.txt`). The kernel against the
 reference at M = 1, 2, 4, 8 and contexts 512, 2048 and 4096 (past the 1024 window): all
 pass (`bench/results/m4/suite/test_decode_*.txt`). Determinism: three runs bitwise
-equal at M = 1 and 8 over 1100 steps.
+equal at M = 1 and 8 over 1100 steps. Milestone 8 (`bench/results/m8/final_gates.txt`):
+test_decode at M = 1, 2, 4, 8 (CTX 512), determinism and batch invariance at M = 1 and 8
+over 1100 steps, and eval_text (the same perplexities, 216.183 and 85.291) pass.
 
 Second node (`bench/results/m5/quanta-ccs-aus-j02-45_68199254/`): every test passes on an
 MI325X, with the same perplexities as on the MI300X; TPOT 3.45 / 4.03 / 5.03 / 6.45 ms at
@@ -73,7 +86,10 @@ batch 1 / 2 / 4 / 8. Second day on the day-1 MI300X
 - **MoE + dense MLP.** Every CTA computes the top-8 routing of all rows (softmax over 128
   fp32 logits, renormalized, times `per_expert_scale`). One grouped FP8 GEMV streams each
   selected expert once, and the dense 2112-wide GeGLU MLP rides along as three 704-wide
-  pseudo-experts. The stage comes from the Qwen3.6-35B-A3B kernel (copy and diverge).
+  pseudo-experts. From the Qwen3.6-35B-A3B kernel (copy and diverge), then (milestone 8):
+  at batch >= 2 each CTA owns whole output groups of gate_up and folds their K chunks in
+  its waves (`e1_cta`), and the down stage's partials are reduced by row in the combine
+  CTAs (`e2_rows`): no last-arriver chains, the same bits.
 - **Deferred residual.** Gemma's sandwich norms need whole rows after every projection.
   Stages store raw outputs with their sums of squares; consumers rebuild h1 and h. A few
   CTAs publish each rebuilt row in FP8 for the next stage (`router_publish`,
@@ -93,13 +109,16 @@ for the slowest CU. At batch 1 the 180 layer stages take about 3.1 ms and the LM
 0.29 ms (`bench/results/m7/profile_m1.txt`). A layer streams about 100 MB of weights (about
 23 us at 4.3 TB/s) but takes about 100 us: the fixed cost per stage (barrier, prologue,
 partial hand-off) and the attention task's serial load chain dominate. At batch 8 the
-expert stages take 71 us (gate_up) and 65 us (down) per layer
-(`bench/results/m7/profile_m8.txt`). Whole step: [`docs/timeline_m1.png`](docs/timeline_m1.png).
+expert stages took 74 us (gate_up) and 68 us (down) per layer before milestone 8, about
+twice their weight-stream time (`bench/results/m8/base_profile_m4_m8.txt`); the analysis
+and the changes are in `docs/DESIGN.md`, "Milestone 8". Whole step:
+[`docs/timeline_m1.png`](docs/timeline_m1.png).
 
 ## vLLM integration
 
-Branch [`users/sareeder/gemma4-gfx942-specialized-decode`](https://github.com/SamuelReeder/vllm/tree/users/sareeder/gemma4-gfx942-specialized-decode)
-(stacked on the Qwen3.6 branch and vllm#61311) adds a DecodeSpec for this model. The
+Branch [`users/sareeder/gemma4-moe-batch`](https://github.com/SamuelReeder/vllm/tree/users/sareeder/gemma4-moe-batch)
+(on `users/sareeder/gemma4-gfx942-specialized-decode`, stacked on the Qwen3.6 branch and
+vllm#61311) adds a DecodeSpec for this model; the kernel serves every width, 1 to 8. The
 kernel reads vLLM's KV cache in place (TRITON_ATTN, 6 KV cache groups: 5 sliding-window
 groups with 16-token blocks, 1 full group with 32-token blocks) and returns the normed
 hidden states; vLLM keeps prefill, the LM head with the logit soft-cap, and sampling.
@@ -160,6 +179,5 @@ python tools/plot_results.py 'bench/results/m7/bench_text_m{b}.txt' \
 - Decode only: the prompt goes in one token per step outside vLLM; in vLLM, vLLM runs
   prefill. Greedy argmax outside the kernel.
 - One GPU (TP1), 1 to 8 rows, gfx942 (MI300X) only. FP8 checkpoint only.
-- Slower than vLLM at batch 4 and 8 on real text; vLLM serves those batches itself.
 - Text only: no vision or audio inputs.
 - The kernel's weight copy costs 24.4 GiB inside vLLM.

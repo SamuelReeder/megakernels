@@ -80,7 +80,7 @@ def main():
     out = sys.argv[4] if len(sys.argv) > 4 else os.path.join(ROOT, "docs", "throughput.png")
     series = [  # (engine, label, line style, batch -> TPOT ms)
         ("megakernel", "megakernel FP8 (standalone)", "-", megakernel(pattern)),
-        ("vLLM+mk", "vLLM FP8 + megakernel (batch 1, 2)", "-", e2e(on)),
+        ("vLLM+mk", "vLLM FP8 + megakernel", "-", e2e(on)),
         ("vLLM", "vLLM FP8 (kernel off)", "-", e2e(off)),
         ("vLLM", "vLLM FP8, `bench serve`", (0, (5, 3)), vllm("vllm_gemma-4-26B-A4B-it-FP8-dynamic")),
         ("SGLang", "SGLang BF16", "-", sglang("sglang_gemma-4-26B-A4B-it")),
@@ -107,10 +107,10 @@ def main():
     fig.text(0.01, -0.1, "Gemma 4 26B-A4B (RedHatAI FP8-dynamic checkpoint), one MI300X (gfx942), "
              "TP1, 512-token prompts, 256 output tokens. Megakernel standalone: "
              "bench/bench_decode.py,\nreal-text prompts, median of 3. vLLM 0.32.1rc1 nightly, "
-             "kernel on / off: bench/vllm_e2e.py, real-text prompts (the kernel serves batch 1 "
-             "and 2; batch 4 and 8\nrun vLLM's path). `bench serve`: random-token prompts. "
-             "SGLang 0.5.10 `bench_one_batch` (its FP8 path fails on this checkpoint). "
-             "Labels: standalone speedup over vLLM FP8.", color=MUTED, fontsize=8.2)
+             "kernel on (every batch) / off: bench/vllm_e2e.py, real-text prompts, the same "
+             "job as the megakernel\nruns. `bench serve` (random-token prompts) and SGLang "
+             "0.5.10 `bench_one_batch` (its FP8 path fails on this checkpoint): an earlier "
+             "day. Labels: standalone speedup over vLLM FP8.", color=MUTED, fontsize=8.2)
     fig.savefig(out, facecolor=SURFACE, bbox_inches="tight")
     print("wrote", out)
 

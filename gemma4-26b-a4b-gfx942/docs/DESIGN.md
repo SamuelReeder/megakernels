@@ -1,6 +1,6 @@
 # Gemma 4 26B-A4B decode megakernel for gfx942 (FlyDSL): design
 
-Status: milestones 1 to 7 done. The kernel runs every layer of a decode step
+Status: milestones 1 to 8 done (milestone 8: the expert stages at batch 4 and 8). The kernel runs every layer of a decode step
 in one persistent launch, passes the correctness suite (`bench/results/m4/suite/`) and runs
 inside vLLM ("Milestone 6"). Milestones 1 and 2 were signed off on 2026-10-27; from
 milestone 3 on, the decisions below were made without sign-off, each with its evidence and
@@ -494,6 +494,39 @@ NGR / 304 groups (at npos 36: 10 or 11, 5 %).
 Decision 11 (milestone 8): `e1_cta` defaults to on for M >= 2 and off for M = 1. Evidence:
 the table above (M = 1 never reaches the threshold, npos <= 11, and the second code path
 costs 5 %). Rejected: on for all M.
+
+Also kept: the FlyDSL compile key (`kernel.compile_key`, from the `mk-common` work): the
+launcher holds a hash of the package sources and the Cfg, because FlyDSL 0.4.0's disk
+cache does not key on the kernel name. Rejected again after `e1_cta` (`ab_depth_batch_after_cta.txt`):
+three pieces in flight (+1 % / +3 %) and `moe_batch` (0 % / +3.5 %); both were removed.
+
+### Final measurement (same job, 2026-10-29)
+
+`bench_decode.py`, median of 3 (`bench_main_m*.txt`: a clean export of main 13b25e7;
+`bench_new_m*.txt`: this branch); vLLM `bench/vllm_e2e.py` kernel off and on, the kernel
+serving widths 1 to 8 (`vllm_off.json`, `vllm_on_all_widths.json`,
+`vllm_compare_all_widths.txt`):
+
+| Batch | main | this branch | change | vLLM off | vLLM + kernel | kernel vs vLLM off |
+|---|---|---|---|---|---|---|
+| 1 | 3.865 ms | 3.745 ms | -3.1 % | 5.83 ms | 3.66 ms | 1.56x |
+| 2 | 4.627 ms | 4.177 ms | -9.7 % | 6.30 ms | 4.22 ms | 1.51x |
+| 4 | 6.125 ms | 4.589 ms | -25.1 % | 6.97 ms | 4.67 ms | 1.52x |
+| 8 | 7.763 ms | 5.920 ms | -23.7 % | 7.98 ms | 5.86 ms | 1.35x |
+
+The node was slower than on 2026-10-28 (main at batch 8: 6.72 ms in the morning); vLLM's
+own path slowed more than the kernel. The kernel measured in this job is also faster than
+vLLM's 2026-10-28 numbers (4.43 / 4.85 / 5.02 / 6.22 ms) at every batch. Gates
+(`final_gates.txt`): test_decode M = 1, 2, 4, 8 at CTX 512, determinism and batch
+invariance M = 1 and 8 over 1100 steps, eval_text (perplexities unchanged: 216.183, 85.291):
+PASS. In vLLM with all widths served: the kernel ran 255 of 255 decode steps at batch 8;
+greedy outputs follow vLLM's own path until near-ties (every first divergence at a logprob
+gap <= 1.25, as in milestone 6).
+
+Decision 12 (milestone 8): the vLLM DecodeSpec serves every width 1 to 8 (branch
+`users/sareeder/gemma4-moe-batch` of the vLLM fork, on
+`users/sareeder/gemma4-gfx942-specialized-decode`). Evidence: the table above. Replaces
+decision 9. Rejected: keep widths 1 and 2 (slower at 4 and 8 by 1.49x and 1.36x).
 
 ## Decisions
 
