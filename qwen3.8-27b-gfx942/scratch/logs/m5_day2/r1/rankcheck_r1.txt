@@ -1,0 +1,2 @@
+rank 1 mismatching_steps 0 steps 4237 epoch 1360077
+gdn state checksums before launch 0..63: 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0

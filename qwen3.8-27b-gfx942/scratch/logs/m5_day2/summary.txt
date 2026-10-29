@@ -1,0 +1,13 @@
+node banff-cyxtera-s70-4.adc.amd.com  date 2026-10-29
+G1 median per-step 1-cos to exact: TP2 0.000406 TP1 0.000377 ratio 1.074 (<= 1.2) PASS (n 128 / 128)
+G2 eval_text KL: TP2 0.04279 TP1 0.03904 (+9.6 %, <= +10 %) PASS
+G3 ranks bitwise equal in every TP2 run: PASS
+G4 determinism M = 1, 8: PASS; logits sha256 ['dc59fa9ecba1e506', 'eca6810ec44f5829']
+G5 batch-invariant rows (eval_text): PASS
+non-finite steps in test_decode runs: 0 (16 runs report it)
+speed (bench_decode ctx 512, 64 steps, median of 3 fixed-token TPOT, ms):
+  M = 1: TP1 7.824  TP2 5.613  TP2 faster by 28.3 %
+  M = 2: TP1 8.284  TP2 5.993  TP2 faster by 27.7 %
+  M = 4: TP1 9.004  TP2 6.742  TP2 faster by 25.1 %
+  M = 8: TP1 10.415  TP2 7.909  TP2 faster by 24.1 %
+report only (old test_decode criterion): tp2_dec_m1_s0=FAIL tp2_dec_m1_s1=PASS tp2_dec_m1_s2=FAIL tp2_dec_m2_s0=PASS tp2_dec_m4_s0=PASS tp2_dec_m8_s0=PASS tp2_dec_m8_s1=PASS tp2_dec_m8_s2=PASS

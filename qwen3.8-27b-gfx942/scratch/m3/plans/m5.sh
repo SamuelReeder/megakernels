@@ -1,5 +1,5 @@
 # Milestone 5: the final run (gates and speed, TP1 and TP2) on another node or day, then
-# the vLLM diagnosis of scratch/m3/plans/m6d.sh (rank equality, GDN state checksums).
+# the vLLM rank-equality check of scratch/m6/rankcheck (two runs).
 . $SRC/scratch/m3/plans/final.sh
 mkdir -p $OUT/r1 $OUT/r2
 VS=/cluster/logs/qwen38-tp2/vllm-src
