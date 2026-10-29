@@ -290,6 +290,15 @@ Expected time at M = 1: 0.9 ms of weight stream plus about 240 x 7 to 9 us of fi
 stage cost (1.7 to 2.2 ms), so about 2.6 to 3.1 ms per token. The fixed cost dominates;
 milestone 4 attacks it (see "Open questions"). This is an estimate, not a measurement.
 
+## Reuse
+
+From `common/mkcore` (`common/DESIGN.md`): `dev` (barrier, DPP reductions, buffer
+loads), `gemv.Gemv` (the split-K FP8 / bf16 stream, `fp8_b128` kind), `pack`
+(`unit_order`, FP8 tiles), `stagelib` (`store_quant8`), `key` (compile key) and
+`vendor.buffer_ops`. In `mk/`: `dims.py`, `kernel.py` (`Cfg`, `build`, stage schedule),
+`stages.py` (`rstd_from_ssq`, `prologue_scaled`, the norm prologues and epilogues),
+`mixer.py`, `moe.py`, `reference.py`, `runner.py`, `pack.py` (`Packed`).
+
 ## Numerics
 
 | Quantity | Format |

@@ -71,6 +71,16 @@ attn layer (i % 4 == 3): qkv GEMV     | attention tasks | o_proj GEMV   | gate_u
   k_new, QK^T on the bf16 MFMA, softmax, P V on the VALU, a partial record. The last
   arriver of (row, kv head) merges the records and applies the output gate.
 
+## Reuse
+
+From `common/mkcore` (`common/DESIGN.md`): `dev` (barrier, DPP reductions, buffer
+loads), `gemv.Gemv` (the split-K MXFP4 / bf16 stream), `fp4` (MXFP4 tile layout),
+`pack` (`gu_order`, `pack_bf16`), `stagelib` (`store_quant8`), `key` (compile key) and
+`vendor.buffer_ops`. In `mk/`: `dims.py`, `kernel.py` (`Cfg`, `build`, stage schedule),
+`stages.py` (`rstd_from_ssq`, `prologue_scaled`, the norm prologues, the TP all-reduce
+epilogues), `mixer.py`, `reference.py`, `runner.py`, `pack.py` (`Packed`, TP sharding),
+and the TP code `sync.py`, `peer.py`, `tp.py`, `tpdev.py` (trace state, R-state).
+
 ## Numerics
 
 | Quantity | Format |
