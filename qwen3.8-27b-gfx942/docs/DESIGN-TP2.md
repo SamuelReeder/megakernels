@@ -901,3 +901,6 @@ Decided 2026-10-29 (milestone 5, second node):
   start at the scheduler's prefill composition, which is vLLM's path. Written up with the
   evidence; no kernel change and no gate re-run. Rejected: change `bench/vllm_e2e.py` to
   force one prefill composition (it would hide the behaviour, not explain it).
+- Standalone repo push: `repos/qwen38-gfx942-mk` had no remote. A private GitHub repo
+  `SamuelReeder/qwen38-gfx942-mk` was created for it; `master` and `users/sareeder/tp2`
+  are pushed there for the import into megakernels. Rejected: a public repo (not asked).
