@@ -41,6 +41,42 @@ CH = 64  # attention positions per task
 PVB = 16  # P V: positions per load batch
 REC = 2 * 8 + 6 * HD  # partial record floats (max[6] sum[6] padded to 16, o[6][256])
 GQ = NQ // NKV  # 6 q heads per kv head
+# the run-time cache geometry (kernel.Cfg.rt_geom): i32 glob words in this order;
+# GEO_ATT: the attention stage's, loaded together
+GEO_ATT = ("block", "cpb", "ncmax", "maxblocks", "kv_s0", "kv_s1", "kv_s2", "kv_sv")
+GEO = GEO_ATT + ("conv_s0", "ssm_s0")
+GEO_I64 = ("kv_s0", "conv_s0", "ssm_s0")  # strides multiplied into 64-bit addresses
+# rt_geom level -> (Cfg fields not compiled in, GEO words loaded at run time)
+RT = {
+    1: (("maxlen", "block", "maxblocks", "kv_s0", "kv_s1", "kv_s2", "kv_sv", "conv_s0",
+         "ssm_s0"), GEO),
+    2: (("maxlen", "maxblocks"), ("maxblocks", "ncmax")),
+}
+
+
+class Geo:
+    """The cache geometry a stage reads: cfg's constants, or (the run-time words of
+    cfg.rt_geom) the GEO words of glob from i32 word `word0`, loaded where get / attn
+    is called (call them in the scope that uses the values). cfg: the compiled Cfg."""
+
+    def __init__(self, cfg, rg, word0):
+        self.cfg, self.rg, self.word0 = cfg, rg, word0
+        self.rt = RT[cfg.rt_geom][1] if cfg.rt_geom else ()
+
+    def get(self, *names):
+        out = []
+        for n in names:
+            if n not in self.rt:
+                out.append(getattr(self.cfg, n))
+                continue
+            v = D.uniform(D.ld(self.rg, self.word0 + GEO.index(n)))
+            out.append(fx.Int64(v) if n in GEO_I64 else v)
+        return out
+
+    def attn(self):
+        """attn_task's geometry: dict of GEO_ATT plus kv_xpack (compile time)."""
+        return dict(zip(GEO_ATT, self.get(*GEO_ATT)), kv_xpack=self.cfg.kv_xpack)
+
 
 
 # ------------------------------------------------------------------ GDN
@@ -205,15 +241,16 @@ def rms_rope(lane, vals, w_word, cs, rope):
 
 @D.traced
 def attn_task(
-    c, task, cfg, y_qkv, qn_w, kn_w, rope_cs, kv, bt, slotp, pos_ptr, rec, cnt, og, wl
+    c, task, g, y_qkv, qn_w, kn_w, rope_cs, kv, bt, slotp, pos_ptr, rec, cnt, og, wl
 ):
     """One (m, j, ci) task; wl: this wave's LDS (GQ * HD + 2 * HD // 2 floats).
     Chunk ci covers positions [p0, pe) inside KV block b = ci // cpb (see kernel.Cfg).
-    Returns nothing; the last arriver of (m, j) writes og."""
+    g: the cache geometry (Geo.attn). Returns nothing; the last arriver of (m, j)
+    writes og."""
     lane = c["lane"]
     NKV = TD.TRACE["d"].nkv
     D.PROBE["on"] = D.PROBE.get("stage") == "attn"
-    ncmax, cpb, B = cfg.ncmax, cfg.cpb, cfg.block
+    ncmax, cpb, B = g["ncmax"], g["cpb"], g["block"]
     m = task // (NKV * ncmax)
     j = task % (NKV * ncmax) // ncmax
     ci = task % ncmax
@@ -223,8 +260,8 @@ def attn_task(
     p0 = b * B + ci % cpb * CH
     if (p0 <= pos) & (slot >= 0):
         pe = fx.min(p0 + CH, (b + 1) * B)
-        blk = D.uniform(D.ld(D.rsrc(bt), m * cfg.maxblocks + b))
-        base = kv + (fx.Int64(blk) * cfg.kv_s0 + j * cfg.kv_s1) * 2
+        blk = D.uniform(D.ld(D.rsrc(bt), m * g["maxblocks"] + b))
+        base = kv + (fx.Int64(blk) * g["kv_s0"] + j * g["kv_s1"]) * 2
         _attn_chunk(
             c,
             lane,
@@ -235,7 +272,7 @@ def attn_task(
             p0,
             pe,
             b * B,
-            cfg,
+            g,
             y_qkv,
             qn_w,
             kn_w,
@@ -259,7 +296,7 @@ def _attn_chunk(
     p0,
     pe,
     pb,
-    cfg,
+    g,
     y_qkv,
     qn_w,
     kn_w,
@@ -280,7 +317,7 @@ def _attn_chunk(
     ybase = m * QKV_N
     d0 = 4 * lane
     rk = D.rsrc(base)
-    s2, sv, B, xp = cfg.kv_s2, cfg.kv_sv, cfg.block, cfg.kv_xpack
+    s2, sv, B, xp = g["kv_s2"], g["kv_sv"], g["block"], g["kv_xpack"]
     lastp = fx.min(pos, pe - 1)  # the chunk's last live position
     p = p0 + lane
     live = p <= lastp
@@ -422,7 +459,7 @@ def _attn_chunk(
     D.probe(c, 7)
     # ---- partial record
     rr = D.rsrc(rec)
-    ncmax = cfg.ncmax
+    ncmax = g["ncmax"]
     rbase = ((m * NKV + j) * ncmax + ci) * REC
     if lane < GQ:
         D.st(_sel6(lane, mx), rr, rbase + lane, D.CM_DEV)
@@ -432,7 +469,7 @@ def _attn_chunk(
     # ---- last arriver of (m, j) merges the chunks
     rocm_wait()
     nchunk = (
-        pos // cfg.block * cfg.cpb + pos % cfg.block // CH + 1
+        pos // g["block"] * g["cpb"] + pos % g["block"] // CH + 1
     )  # chunks up to pos's
     old = fx.Int32(0)
     if lane == 0:

@@ -1,0 +1,39 @@
+#!/bin/bash
+# Spike rtgeom (disposable): run a command on the held 1-GPU allocation (job name rtgeom,
+# or RT_JOB) like common/scripts/mkrun. Ships qwen3.8-27b-gfx942/, common/ and spike/rtgeom/
+# to the node's /tmp/rtgeom_<job>/mk (and, image vllm, the files of the vLLM spike branch
+# to /tmp/rtgeom_<job>/vllm-overlay), runs the command in /work/mk/qwen3.8-27b-gfx942
+# (/work = /tmp/rtgeom_<job>), and copies /work/out back to spike/rtgeom/out/.
+# Usage: spike/rtgeom/rtrun hipdnn|vllm '<command>'
+#   hipdnn: hipdnn_latest_gfx942.sqsh + ~/mk/venv (as mkrun); vllm: the vLLM nightly image.
+set -euo pipefail
+here=$(cd "$(dirname "$0")" && pwd)
+root=$(cd "$here/../.." && pwd)
+img=$1
+shift
+VLLM=${VLLM:-/home/sareeder/ROCm-workspace/worktrees/vllm/qwen38-rtgeom-spike}
+job=${RT_JOB:-$(ssh -o BatchMode=yes alola "squeue -h -u \$USER -n rtgeom -t R -o %i | head -1")}
+[ -n "$job" ] || { echo "no rtgeom allocation" >&2; exit 2; }
+W=/tmp/rtgeom_$job
+rev="$(git -C "$root" rev-parse HEAD) dirty: $(git -C "$root" status --porcelain qwen3.8-27b-gfx942 common spike/rtgeom | grep -v ' spike/rtgeom/out' | wc -l)"
+tar -C "$root" --exclude __pycache__ --exclude spike/rtgeom/out --exclude '*.co' \
+  -cf - qwen3.8-27b-gfx942 common spike/rtgeom | ssh -o BatchMode=yes alola \
+  "srun --jobid=$job --overlap -n1 --time=3 bash -c 'rm -rf $W/mk && mkdir -p $W/mk $W/out && tar -xf - -C $W/mk && echo \"$rev\" > $W/mk/REVISION'"
+if [ "$img" = vllm ]; then
+  vrev="$(git -C "$VLLM" rev-parse HEAD) dirty: $(git -C "$VLLM" status --porcelain | wc -l)"
+  git -C "$VLLM" diff --name-only 0b5a1a0ae~1 -- vllm | tar -C "$VLLM" -cf - -T - | ssh -o BatchMode=yes alola \
+    "srun --jobid=$job --overlap -n1 --time=3 bash -c 'rm -rf $W/vllm-overlay && mkdir -p $W/vllm-overlay && tar -xf - -C $W/vllm-overlay && echo \"$vrev\" > $W/vllm-overlay/REVISION'"
+  image=/home/AMD/sareeder/mk/images/vllm-rocm-nightly-00b6c4c5.sqsh
+  pre="export FLYDSL_RUNTIME_ENABLE_CACHE=0 PIP_CACHE_DIR=/tmp/pipcache PYTHONDONTWRITEBYTECODE=1"
+else
+  image=/cluster/images/hipdnn/hipdnn_latest_gfx942.sqsh
+  pre="export PIP_CACHE_DIR=/tmp/pipcache FLYDSL_RUNTIME_ENABLE_CACHE=0 PYTHONPYCACHEPREFIX=/tmp/pycache; . \$HOME/mk/venv/bin/activate"
+fi
+rc=0
+ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=${RT_TIME:-60} \
+  --container-image=$image --container-mounts=/cluster:/cluster,/home/AMD/sareeder:/home/AMD/sareeder,$W:/work \
+  bash -lc '$pre; cd /work/mk/qwen3.8-27b-gfx942 && echo node \$(hostname) job $job rev \$(cat /work/mk/REVISION) >&2; $*' 2>&1" || rc=$?
+mkdir -p "$here/out"
+ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=3 bash -c 'tar -C $W -cf - out'" \
+  | tar -C "$here" -xf - 2>/dev/null || true
+exit $rc

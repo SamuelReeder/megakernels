@@ -343,10 +343,10 @@ class EpiConv:
     """in_proj epilogue: y[:, n] = tot for the z / b / a columns; for the q / k / v
     channels (n < CONV_DIM) the causal depthwise conv (4 taps over the 3 stored inputs
     and this one) + SiLU, and the conv state shifts by one. Row t's state is the bf16
-    [3][CONV_DIM] (oldest first) at conv + sidx[t] conv_s0 bytes; slot 0 (a padding
-    row) is not written. Each channel has one last arriver, so its state is read and
-    written by one thread. pre(grp) loads the state and the taps with the GEMV's partial
-    loads."""
+    [3][CONV_DIM] (oldest first) at conv + sidx[t] conv_s0() bytes (conv_s0: a callable,
+    see mixer.Geo); slot 0 (a padding row) is not written. Each channel has one last
+    arriver, so its state is read and written by one thread. pre(grp) loads the state
+    and the taps with the GEMV's partial loads."""
 
     def __init__(self, c, M, y, conv, convw, sidx, conv_s0):
         self.c, self.M, self.y, self.conv, self.convw = c, M, y, conv, convw
@@ -357,10 +357,11 @@ class EpiConv:
         rows of a wave differ and their slots can lie more than 4 GB apart, so the state
         goes through per-lane global addresses."""
         rsx = D.rsrc(self.sidx)
+        s0 = self.conv_s0()
         out = []
         for r in range_constexpr(4):
             sl = D.ld(rsx, fx.min(4 * self.c["gl"] + r, self.M - 1))
-            out.append((sl, self.conv + fx.Int64(sl) * self.conv_s0))
+            out.append((sl, self.conv + fx.Int64(sl) * s0))
         return out
 
     def pre(self, grp):

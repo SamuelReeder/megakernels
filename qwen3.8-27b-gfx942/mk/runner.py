@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import torch
 
 from . import kernel as KK
@@ -43,7 +45,12 @@ class Engine:
         group=None,
         ar_dtype: str = "fp32",
         ar_local: bool = False,
+        rt_geom: int | None = None,
     ):
+        """rt_geom (spike; default: env MK_RTGEOM, else 0): build the run-time-geometry
+        kernel (kernel.Cfg.rt_geom) and pass the geometry in glob."""
+        if rt_geom is None:
+            rt_geom = int(os.environ.get("MK_RTGEOM", "0"))
         self.PK, self.M, self.maxlen, self.layers = PK, M, maxlen, layers
         tp, rank = PK.tp, PK.rank
         d = self.d = Dims(tp)
@@ -73,6 +80,7 @@ class Engine:
             ar_dtype=ar_dtype,
             ar_local=ar_local,
             chunks=PK.chunks,
+            rt_geom=rt_geom,
         )
         self.launch = KK.build(self.cfg)
         z = lambda *s, dt=torch.float32: torch.zeros(*s, dtype=dt, device=device)  # noqa: E731
@@ -102,7 +110,8 @@ class Engine:
         self.sidx = torch.arange(1, M + 1, dtype=torch.int32, device=device)
         self.kv = z(na, M * nb + 1, 2, block, NKV * HD, dt=torch.bfloat16)
         self.state = z(ng, M + 1, PAGE, dt=torch.uint8)
-        g = [0] * KK.NGLOB
+        g = [0] * (KK.NGLOB + KK.NGEO)
+        g[KK.G_GEOM :] = self.cfg.geom_slots()
         g[KK.G_EMBED], g[KK.G_LM], g[KK.G_FNORM] = (
             PK.embed.data_ptr(),
             PK.lm_head.data_ptr(),

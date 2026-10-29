@@ -1,0 +1,41 @@
+Displaying notes found in: .note
+  Owner                Data size 	Description
+  AMDGPU               0x00000245	NT_AMDGPU_METADATA (AMDGPU Metadata)
+    AMDGPU Metadata:
+        ---
+amdhsa.kernels:
+  - .agpr_count:     0
+    .args:
+      - .offset:         0
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         8
+        .size:           8
+        .value_kind:     by_value
+      - .offset:         16
+        .size:           4
+        .value_kind:     by_value
+    .group_segment_fixed_size: 57408
+    .kernarg_segment_align: 8
+    .kernarg_segment_size: 20
+    .max_flat_workgroup_size: 512
+    .name:           qwen38_decode_m1_39a66550
+    .private_segment_fixed_size: 28
+    .reqd_workgroup_size:
+      - 512
+      - 1
+      - 1
+    .sgpr_count:     106
+    .sgpr_spill_count: 297
+    .symbol:         qwen38_decode_m1_39a66550.kd
+    .uniform_work_group_size: 1
+    .uses_dynamic_stack: false
+    .vgpr_count:     256
+    .vgpr_spill_count: 6
+    .wavefront_size: 64
+amdhsa.target:   amdgcn-amd-amdhsa-unknown-gfx942
+amdhsa.version:
+  - 1
+  - 2
+...
+
