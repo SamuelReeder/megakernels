@@ -1,0 +1,15 @@
+{"case": "A_attr_helper_same_dir", "change": {"A": 2}, "base": 11111, "changed_cache_on": 11111, "changed_cache_off": 11112, "cache_files_after_base": 1, "cache_files_after_changed": 1, "verdict": "STALE: cache served the old binary"}
+{"case": "O_attr_helper_other_dir", "change": {"O": 2}, "base": 11111, "changed_cache_on": 11111, "changed_cache_off": 11121, "cache_files_after_base": 1, "cache_files_after_changed": 1, "verdict": "STALE: cache served the old binary"}
+{"case": "D_direct_helper_same_dir", "change": {"D": 2}, "base": 11111, "changed_cache_on": 11211, "changed_cache_off": 11211, "cache_files_after_base": 1, "cache_files_after_changed": 2, "verdict": "key changes"}
+{"case": "K_closure_int", "change": {"K": 2}, "base": 11111, "changed_cache_on": 12111, "changed_cache_off": 12111, "cache_files_after_base": 1, "cache_files_after_changed": 2, "verdict": "key changes"}
+{"case": "C_closure_dataclass_field", "change": {"C": 2}, "base": 11111, "changed_cache_on": 11111, "changed_cache_off": 21111, "cache_files_after_base": 1, "cache_files_after_changed": 1, "verdict": "STALE: cache served the old binary"}
+{"case": "N_kernel_name_only", "change": {"N": "ct_kernel_b"}, "base": 11111, "changed_cache_on": 11111, "changed_cache_off": 11111, "cache_files_after_base": 1, "cache_files_after_changed": 1, "verdict": "key unchanged (name not in key)"}
+{"case": "X_attr_helper_plus_str_key", "change": {"A": 2, "X": "key2"}, "base": 11111, "changed_cache_on": 11112, "changed_cache_off": 11112, "cache_files_after_base": 1, "cache_files_after_changed": 2, "verdict": "key changes"}
+SUMMARY
+A_attr_helper_same_dir       base  11111 changed(cache on)  11111 changed(cache off)  11112 new cache file False: STALE: cache served the old binary
+O_attr_helper_other_dir      base  11111 changed(cache on)  11111 changed(cache off)  11121 new cache file False: STALE: cache served the old binary
+D_direct_helper_same_dir     base  11111 changed(cache on)  11211 changed(cache off)  11211 new cache file True: key changes
+K_closure_int                base  11111 changed(cache on)  12111 changed(cache off)  12111 new cache file True: key changes
+C_closure_dataclass_field    base  11111 changed(cache on)  11111 changed(cache off)  21111 new cache file False: STALE: cache served the old binary
+N_kernel_name_only           base  11111 changed(cache on)  11111 changed(cache off)  11111 new cache file False: key unchanged (name not in key)
+X_attr_helper_plus_str_key   base  11111 changed(cache on)  11112 changed(cache off)  11112 new cache file True: key changes
