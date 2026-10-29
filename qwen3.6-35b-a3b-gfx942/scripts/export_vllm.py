@@ -2,9 +2,9 @@
 
 common/scripts/export_lib.py does the shared steps: the copy ships common/mkcore as
 kernels/mkcore (AITER's FlyDSL buffer_ops instead of mkcore/vendor; runtime/weights.py
-packs vLLM's loaded tensors with kernels/mkcore/pack.py), and ruff sorts the imports and
-formats the copy with vLLM's config. mk/pack.py (the checkpoint loader `Packed`, needs
-mk/reference.py) is not exported.
+packs vLLM's loaded tensors with kernels/mkcore/pack.py), and ruff sorts the imports,
+formats the copy with vLLM's config and checks it. mk/pack.py (the checkpoint loader
+`Packed`, needs mk/reference.py) is not exported.
 Usage: python scripts/export_vllm.py VLLM_DIR
 """
 
@@ -29,6 +29,7 @@ def main():
     files += E.copy_mkcore(dst, E.SPDX)
     E.ruff(root, files, "check", "--fix", "--select", "I")
     E.ruff(root, files, "format")
+    E.ruff(root, files, "check")
     print("exported", ", ".join(MODULES), "and mkcore to", dst)
 
 
