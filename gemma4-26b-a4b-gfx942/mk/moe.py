@@ -92,10 +92,12 @@ def slot_of(slot_ptr, NP, m, p):
 
 
 @D.traced
-def routing(c, M, logits, rowv, pes, R: Route):
+def routing(c, M, logits, rowv, pes, R: Route, prefetch=False):
     """Build R's tables from logits fp32 [M][LGN] (device scope), the row-valid flags
     rowv i32 [M] and the layer's per_expert_scale (bf16 [NE]). Wave m does row m; wave 0
-    builds the position list."""
+    builds the position list. prefetch (Cfg.route_prefetch): lane l loads the scales of
+    experts 2 l, 2 l + 1 beside the logits, and the picks read them from the lanes (no
+    global load after the top-8)."""
     lane, wave, tid = c["lane"], c["wave"], c["tid"]
     NT = S.NT
     D.PROBE["on"] = D.PROBE.get("stage") == "route"
@@ -104,6 +106,8 @@ def routing(c, M, logits, rowv, pes, R: Route):
         rl = D.rsrc(logits)
         m = wave
         valid = D.uniform(D.ld(D.rsrc(rowv), m)) != 0
+        if const_expr(prefetch):
+            pesw = D.ld(D.rsrc(pes), fx.min(lane, NE // 2 - 1))
         v = [D.ldf(rl, m * LGN + lane + 64 * k, cm=D.CM_DEV) for k in range(NE // 64)]
         vals, picks = [], []
         for j in range_constexpr(TOPK):
@@ -128,10 +132,15 @@ def routing(c, M, logits, rowv, pes, R: Route):
         for j in range_constexpr(1, TOPK):
             tot = tot + ws[j]
         D.probe(c, 11)  # top-8 done
+        if const_expr(prefetch):
+            pws = [D.gather(pesw, picks[j] // 2) for j in range(TOPK)]
         if lane == 0:
             rp = D.rsrc(pes)
             for j in range_constexpr(TOPK):
-                pw = D.ld(rp, picks[j] // 2)
+                if const_expr(prefetch):
+                    pw = pws[j]
+                else:
+                    pw = D.ld(rp, picks[j] // 2)
                 sc = (picks[j] % 2 == 0).select(D.bf_lo(pw), D.bf_hi(pw))
                 fx.ptr_store(ws[j] / tot * sc, R.w + (m * NSLOT + j))
                 fx.ptr_store(valid.select(picks[j], fx.Int32(-1)), R.pick + (m * TOPK + j))
@@ -234,6 +243,11 @@ class MoeGemv:
     mode: str  # "gu" | "down"
     waves: int = 8
     C: int = 1  # K chunks per expert
+    depth: int = 2  # pieces in flight per wave (the current one and depth - 1 prefetched)
+    batch: bool = False  # batched last-arriver tail (MoeGemv._tail_gu / _tail_down)
+    # down only: row-major partials, one arrival per CTA, rows reduced by reduce_row (no
+    # per-group last arriver)
+    rows: bool = False
 
     kind = "fp8"
     esize = 1
@@ -357,9 +371,14 @@ class MoeGemv:
         rp = D.rsrc(part)
         G, KSp = self.G, self.KSp
         rslot = R.slot
-        buf = self._load_piece(w, R, fx.min(p0, T_ - 1))
+        # depth - 1 pieces in flight ahead of the current one; with batch, loads past the
+        # wave's range repeat its last piece (no other wave's weights are read for nothing)
+        DP = self.depth
+        lim = fx.max(p1 - 1, p0) if self.batch else T_ - 1
+        bufs = [self._load_piece(w, R, fx.min(p0 + d, lim)) for d in range(DP - 1)]
         for pi in range(p0, p1):
-            nxt = self._load_piece(w, R, fx.min(pi + 1, T_ - 1))
+            bufs = bufs + [self._load_piece(w, R, fx.min(pi + (DP - 1), lim))]
+            buf = bufs[0]
             pos = pi // self.ppe
             pl = pi % self.ppe
             ch = pl // G
@@ -382,6 +401,15 @@ class MoeGemv:
             if const_expr(self.mode == "gu"):
                 if w["gl"] < self.MT:
                     D.st(acc, rp, (pi * 64 + w["lane"]) * 4, D.CM_DEV)
+            elif const_expr(self.rows):
+                # row-major partials [m][slot][chunk][N]: the row reducers read them
+                for r in range_constexpr(4):
+                    m = 4 * w["gl"] + r
+                    if m < self.M:
+                        j = slot_of(rslot, self.NP, m, pos)
+                        if j >= 0:
+                            D.st(acc[r], rp, self._p3(m, j, ch, g * 16 + w["col"]),
+                                 D.CM_DEV)
             else:
                 for r in range_constexpr(4):
                     m = 4 * w["gl"] + r
@@ -389,9 +417,38 @@ class MoeGemv:
                         j = slot_of(rslot, self.NP, m, pos)
                         if j >= 0:
                             D.st(acc[r], rp, self._p2(g, j, ch, w["col"], m), D.CM_DEV)
-            buf = nxt
+            bufs = bufs[1:]
         D.probe(c, 1)
         rocdl.s_waitcnt(vmcnt=0)
+        if const_expr(self.rows):
+            # all partials of the CTA are stored: one arrival per CTA on cnt (the row
+            # reducers wait for cus arrivals, reduce_row)
+            gpu.barrier()
+            if c["tid"] == 0:
+                D.atomic_add_dev(cnt, 1)
+        elif const_expr(self.batch):
+            # every atomic goes out before the first result is used (round trips overlap)
+            raw = []
+            for k in range_constexpr(self.PMAX):
+                pi = p0 + k
+                old = fx.Int32(0)
+                if (w["lane"] == 0) & (pi < p1):
+                    old = D.atomic_add_dev(cnt + self._cg(pi) * 4, 1)
+                raw.append(old)
+            olds = [D.uniform(o) for o in raw]
+            D.probe(c, 3)
+            if const_expr(self.mode == "gu"):
+                self._tail_gu(w, R, rp, cnt, fin, olds, p0, p1)
+            else:
+                self._tail_down(w, R, rp, cnt, fin, olds, p0, p1, npos)
+        else:
+            self._tail_serial(w, R, rp, cnt, fin, p0, p1, npos, c)
+        D.probe(c, 2)
+
+    @D.traced
+    def _tail_serial(self, w, R, rp, cnt, fin, p0, p1, npos, c):
+        """Count the wave's pieces; each completed counter's reduction in turn."""
+        G = self.G
         olds = []
         for k in range_constexpr(self.PMAX):
             pi = p0 + k
@@ -423,7 +480,75 @@ class MoeGemv:
                         if w["lane"] == 0:
                             D.st(fx.Int32(0), D.rsrc(cnt), NSUB * G + gg, D.CM_DEV)
                         self._reduce_down(w, R, rp, gg, fin)
-        D.probe(c, 2)
+
+    @D.traced
+    def _tail_gu(self, w, R, rp, cnt, fin, olds, p0, p1):
+        """Batched gu tail: the counters of the pieces this wave completed are reset,
+        then their reductions run two at a time (the partial loads of both go out
+        together). The sums and the epilogue are those of _reduce_gu."""
+        lasts = []
+        for k in range_constexpr(self.PMAX):
+            pi = p0 + k
+            lk = (pi < p1) & ((olds[k] + 1) == self.C)
+            if lk & (w["lane"] == 0):
+                D.st(fx.Int32(0), D.rsrc(cnt), self._cg(pi), D.CM_DEV)
+            lasts.append(lk)
+        for k0 in range_constexpr(0, self.PMAX, 2):
+            if const_expr(k0 + 1 < self.PMAX):
+                if lasts[k0] | lasts[k0 + 1]:
+                    self._reduce_gu2(w, R, rp, p0 + k0, lasts[k0], lasts[k0 + 1], fin)
+            else:
+                if lasts[k0]:
+                    pi = p0 + k0
+                    self._reduce_gu(w, R, rp, pi // self.ppe, pi % self.G, fin)
+
+    @D.traced
+    def _reduce_gu2(self, w, R, rp, pa, la, lb, fin):
+        """_reduce_gu of pieces pa (if la) and pa + 1 (if lb), loads issued together
+        (a piece that is not reduced reads the other one's partials, stores nothing)."""
+        pb = lb.select(pa + 1, pa)
+        ps, lv = [pa, pb], [la, lb]
+        vs = [
+            [
+                D.ld(rp, (((ps[i] // self.ppe * self.ppe + ch * self.G + ps[i] % self.G)
+                           * 64) + w["lane"]) * 4, 4, T.f32, D.CM_DEV)
+                for ch in range(self.C)
+            ]
+            for i in range(2)
+        ]
+        for i in range_constexpr(2):
+            tot = vs[i][0]
+            for ch in range_constexpr(1, self.C):
+                tot = tot + vs[i][ch]
+            fin(ps[i] // self.ppe, ps[i] % self.G, tot, lv[i])
+
+    @D.traced
+    def _tail_down(self, w, R, rp, cnt, fin, olds, p0, p1, npos):
+        """Batched down tail: the level-2 atomics of all sub-counters this wave
+        completed go out together; the reductions (_reduce_down) store without waiting;
+        one drain and one count of the reduced groups at the end (fin.count_n)."""
+        G = self.G
+        raw = []
+        for k in range_constexpr(self.PMAX):
+            pi = p0 + k
+            sub = pi // self.ppe % NSUB
+            total = self.C * ((npos - sub + NSUB - 1) // NSUB)
+            o2 = fx.Int32(-2)
+            if (w["lane"] == 0) & (pi < p1) & ((olds[k] + 1) == total):
+                D.st(fx.Int32(0), D.rsrc(cnt), self._cg(pi), D.CM_DEV)
+                o2 = D.atomic_add_dev(cnt + (NSUB * G + pi % G) * 4, 1)
+            raw.append(o2)
+        nsub = fx.min(npos, NSUB)
+        nred = fx.Int32(0)
+        for k in range_constexpr(self.PMAX):
+            gg = (p0 + k) % G
+            lk = (D.uniform(raw[k]) + 1) == nsub
+            if lk:
+                if w["lane"] == 0:
+                    D.st(fx.Int32(0), D.rsrc(cnt), NSUB * G + gg, D.CM_DEV)
+                self._reduce_down(w, R, rp, gg, fin)
+            nred = nred + lk.select(fx.Int32(1), fx.Int32(0))
+        fin.count_n(nred)
 
     def _cg(self, pi):
         """Counter of piece pi. gu: (position, group), C arrivals. down: (pos % NSUB,
@@ -436,6 +561,10 @@ class MoeGemv:
 
     def _p2(self, g, j, ch, col, m):
         return (((g * NSLOT + j) * self.C + ch) * 16 + col) * 16 + m
+
+    def _p3(self, m, j, ch, n):
+        """Row-major down partial (rows mode): [m][slot j][chunk][column n]."""
+        return ((m * NSLOT + j) * self.C + ch) * self.N + n
 
     @D.traced
     def _reduce_gu(self, w, R, rp, pos, g, fin):
@@ -483,6 +612,51 @@ class MoeGemv:
                 fx.Vector.from_elements(d_, fx.Float32)], pre)
 
 
+@D.traced
+def reduce_row(c, sp, m, R, part, e, ssq_e, d, ssq_d):
+    """Down stage, rows mode (Cfg.e2_rows), CTA cus - M + m once every CTA has arrived:
+    row m of e and d and their 16-column sums of squares, stored as the EpiDE epilogue
+    stores them. The arithmetic of MoeGemv._reduce_down per column (slot sums in chunk
+    order; e = the rank-order sum of w_j x slot sum over the routed slots, d = the sum of
+    the dense slots) and of stages._epi_ssq (the same 16-lane DPP butterfly): the same
+    bits. 16 lanes per group of 16 columns, 32 groups per round."""
+    tid, lane = c["tid"], c["lane"]
+    col = lane % 16
+    N = sp.N
+    rp = D.rsrc(part)
+    ro_e, rq_e, ro_d, rq_d = D.rsrc(e), D.rsrc(ssq_e), D.rsrc(d), D.rsrc(ssq_d)
+    ws = [fx.ptr_load(R.w + (m * NSLOT + j)) for j in range(TOPK)]
+    used = [fx.ptr_load(R.pick + (m * TOPK + j)) >= 0 for j in range(TOPK)]
+    RG = S.NT // 16
+    for r0 in range_constexpr((sp.G + RG - 1) // RG):
+        gi = r0 * RG + tid // 16
+        live = gi < sp.G
+        g = fx.min(gi, sp.G - 1)
+        n = g * 16 + col
+        vs = [[D.ldf(rp, sp._p3(m, j, ch, n), cm=D.CM_DEV) for ch in range(sp.C)]
+              for j in range(NSLOT)]
+        te = fx.Float32(0.0)
+        td = fx.Float32(0.0)
+        for j in range_constexpr(NSLOT):
+            s = vs[j][0]
+            for ch in range_constexpr(1, sp.C):
+                s = s + vs[j][ch]
+            if const_expr(j < TOPK):
+                wj = used[j].select(ws[j], fx.Float32(0.0))
+                s = used[j].select(s, fx.Float32(0.0))
+                te = te + wj * s
+            else:
+                td = td + s
+        se = D.xor_sum(te * te, lane, (1, 2, 4, 8))
+        sd = D.xor_sum(td * td, lane, (1, 2, 4, 8))
+        if live:
+            D.st(te, ro_e, m * N + n, D.CM_DEV)
+            D.st(td, ro_d, m * N + n, D.CM_DEV)
+            if col == 0:
+                D.st(se, rq_e, m * (N // 16) + g, D.CM_DEV)
+                D.st(sd, rq_d, m * (N // 16) + g, D.CM_DEV)
+
+
 class EpiAct:
     """S5 last arriver: group g of position pos holds gate rows 8 g .. + 7 (lanes col <
     8) and the up rows (col + 8) of act columns 8 g + col; store gelu_tanh(gate) * up to
@@ -492,19 +666,23 @@ class EpiAct:
     def __init__(self, c, M, R, act, fi):
         self.c, self.M, self.R, self.act, self.fi = c, M, R, act, fi
 
-    def __call__(self, pos, g, tot):
-        _epi_act(self.c, self.M, self.R, self.act, self.fi, pos, g, tot)
+    def __call__(self, pos, g, tot, live=None):
+        _epi_act(self.c, self.M, self.R, self.act, self.fi, pos, g, tot, live)
 
 
 @D.traced
-def _epi_act(c, M, R, act, fi, pos, g, tot):
+def _epi_act(c, M, R, act, fi, pos, g, tot, live=None):
+    """live (wave-uniform, optional): False stores nothing (MoeGemv._reduce_gu2)."""
     col, lane = c["col"], c["lane"]
     ra = D.rsrc(act)
     rslot = R.slot
     for r in range_constexpr(4):
         m = 4 * c["gl"] + r
         up = D.gather_f(tot[r], lane + 8)
-        if (m < M) & (col < 8):
+        ok = (m < M) & (col < 8)
+        if const_expr(live is not None):
+            ok = ok & live
+        if ok:
             j = slot_of(rslot, R.NP, m, pos)
             if j >= 0:
                 D.st(D.gelu_tanh(tot[r]) * up, ra, (m * NSLOT + j) * fi + g * 8 + col,

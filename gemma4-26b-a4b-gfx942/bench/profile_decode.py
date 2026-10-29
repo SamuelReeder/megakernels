@@ -30,6 +30,9 @@ CUS = torch.cuda.get_device_properties(0).multi_processor_count
 NB = KK.barriers_per_step(NL) + 1
 prof = torch.zeros(NB, CUS, 2, dtype=torch.int64, device="cuda")
 KK.PROFILE["addr"] = prof.data_ptr()
+npos = torch.zeros(NL, dtype=torch.int32, device="cuda")
+KK.PROFILE["npos"] = npos.data_ptr()
+NSTEP = int(os.environ.get("PSTEPS", "1"))  # profiled decode steps (medians over all)
 PSTAGE = os.environ.get("PROBE")
 probes = torch.zeros(CUS * 8, 16, dtype=torch.int64, device="cuda")
 if PSTAGE:
@@ -46,28 +49,51 @@ for t in range(CTX):
     logits = eng.step(prompt[t])
 tok = logits.argmax(-1)
 torch.cuda.synchronize()
-prof.zero_()
-probes.zero_()
-ev = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
-ev[0].record()
-eng.step(tok)
-ev[1].record()
-torch.cuda.synchronize()
-p = prof.double().cpu() / 100.0  # us (100 MHz clock)
-t0 = p[0, :, 0].min()
-p -= t0
 names = []
 for i in range(NL):
     names += ["qkv", "attn", "o", "router", "e1", "e2"]
 names += ["lm"]
 assert len(names) == NB - 1
+SP = eng.cfg.specs()
+
+
+def stage_bytes(b, np_):
+    """Weight bytes stage b streams (fp8 unit 2048 B + 16 fp32 scales; bf16 unit 4 KiB)."""
+    n, li = names[b], b // 6
+    if n in ("qkv", "o"):
+        s = SP[n + ("_f" if li % 6 == 5 else "_s")]
+    elif n in ("router", "lm"):
+        s = SP[n]
+    elif n in ("e1", "e2"):
+        return np_[li] * SP[n].upe * 2112
+    else:
+        return 0
+    return s.U * (2112 if s.kind == "fp8" else 4096)
+
+
 rows = {}
-for b in range(NB - 1):
-    rel, arr = p[b, :, 1], p[b + 1, :, 0]
-    span = (arr.max() - rel.min()).item()
-    busy = (arr - rel).mean().item()
-    bar = (p[b, :, 1].max() - p[b, :, 0].max()).item()
-    rows.setdefault(names[b], []).append((span, busy, bar))
+for step in range(NSTEP):
+    prof.zero_()
+    probes.zero_()
+    ev = torch.cuda.Event(enable_timing=True), torch.cuda.Event(enable_timing=True)
+    ev[0].record()
+    logits = eng.step(tok)
+    ev[1].record()
+    torch.cuda.synchronize()
+    tok = logits.argmax(-1)
+    np_ = npos.tolist()
+    p = prof.double().cpu() / 100.0  # us (100 MHz clock)
+    t0 = p[0, :, 0].min()
+    p -= t0
+    for b in range(NB - 1):
+        rel, arr = p[b, :, 1], p[b + 1, :, 0]
+        span = (arr.max() - rel.min()).item()
+        busy = (arr - rel).mean().item()
+        bar = (p[b, :, 1].max() - p[b, :, 0].max()).item()
+        rows.setdefault(names[b], []).append((span, busy, bar, stage_bytes(b, np_)))
+    if NSTEP > 1:
+        print(f"step {step}: {(p[NB - 1, :, 0].max()).item():.1f} us, distinct experts per "
+              f"layer {[x - 3 for x in np_]}")
 if len(sys.argv) > 4:  # (arrive, release) per barrier and CTA for tools/timeline.py
     json.dump({"M": M, "ctx": CTX, "gpu": torch.cuda.get_device_name(0), "cus": CUS, "stages": names,
                "us": [[[round(v, 2) for v in cta] for cta in bar] for bar in p.tolist()]},
@@ -75,13 +101,17 @@ if len(sys.argv) > 4:  # (arrive, release) per barrier and CTA for tools/timelin
 total = p[NB - 1, :, 0].max().item()
 print(f"M={M} ctx={CTX}: embed (start -> first arrival) {p[0, :, 0].max().item():.1f} us; "
       f"step total {total:.1f} us (CUDA events around this single launch, launch latency "
-      f"included: {ev[0].elapsed_time(ev[1]) * 1000:.1f} us)")
-print(f"{'stage':6} {'n':>3} {'span us':>8} {'busy us':>8} {'barrier us':>10} {'sum span us':>11}")
+      f"included: {ev[0].elapsed_time(ev[1]) * 1000:.1f} us); medians over {NSTEP} step(s)")
+print(f"{'stage':6} {'n':>3} {'span us':>8} {'busy us':>8} {'barrier us':>10} "
+      f"{'sum span us':>11} {'MB':>7} {'TB/s span':>9} {'TB/s busy':>9}")
 acc = 0.0
 for k, v in rows.items():
-    acc += sum(r[0] + r[2] for r in v)
-    print(f"{k:6} {len(v):3d} {stt.median(r[0] for r in v):8.1f} {stt.median(r[1] for r in v):8.1f} "
-          f"{stt.median(r[2] for r in v):10.2f} {sum(r[0] for r in v):11.1f}")
+    acc += sum(r[0] + r[2] for r in v) / NSTEP
+    mb = stt.median(r[3] for r in v) / 1e6
+    bw = lambda i: stt.median(r[3] / r[i] / 1e6 for r in v)  # noqa: E731
+    print(f"{k:6} {len(v) // NSTEP:3d} {stt.median(r[0] for r in v):8.1f} "
+          f"{stt.median(r[1] for r in v):8.1f} {stt.median(r[2] for r in v):10.2f} "
+          f"{sum(r[0] for r in v) / NSTEP:11.1f} {mb:7.1f} {bw(0):9.2f} {bw(1):9.2f}")
 print(f"sum of spans + barriers {acc:.1f} us")
 pr = probes.double().cpu() / 100.0 - t0
 if PSTAGE == "route":

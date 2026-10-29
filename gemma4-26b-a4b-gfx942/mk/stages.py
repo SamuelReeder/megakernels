@@ -123,20 +123,26 @@ def _epi_ssq_t(c, M, grp, tot, out, ssq):
 class EpiDE:
     """Expert-down epilogue (moe._reduce_down): tots = [e, d]; stores both raw with their
     16-column sums of squares. done (Cfg.combine_rows): then, if `count`, adds the group
-    to the device counter `done` that the combine CTAs wait on."""
+    to the device counter `done` that the combine CTAs wait on. defer (MoeGemv.batch):
+    the caller counts its groups at once with count_n after its last reduction."""
 
-    def __init__(self, c, M, e, ssq_e, d, ssq_d, done=None, count=None):
+    def __init__(self, c, M, e, ssq_e, d, ssq_d, done=None, count=None, defer=False):
         self.c, self.M = c, M
         self.e, self.ssq_e, self.d, self.ssq_d = e, ssq_e, d, ssq_d
-        self.done, self.count = done, count
+        self.done, self.count, self.defer = done, count, defer
 
     def pre(self, grp):
         return None
 
     def __call__(self, grp, tots, pre):
         _epi_de(self.c, self.M, grp, tots[0], tots[1], self.e, self.ssq_e, self.d, self.ssq_d)
-        if const_expr(self.done is not None):
+        if const_expr((self.done is not None) and not self.defer):
             _count_done(self.c, self.done, self.count)
+
+    def count_n(self, n):
+        """n groups reduced by this wave (deferred counting)."""
+        if const_expr(self.done is not None):
+            _count_done_n(self.c, self.done, self.count, n)
 
 
 @D.traced
@@ -144,6 +150,13 @@ def _count_done(c, done, count):
     rocdl.s_waitcnt(vmcnt=0)  # this group's stores before its count
     if count & (c["lane"] == 0):
         D.atomic_add_dev(done, 1)
+
+
+@D.traced
+def _count_done_n(c, done, count, n):
+    rocdl.s_waitcnt(vmcnt=0)  # the stores of all n groups before their count
+    if count & (c["lane"] == 0) & (n > 0):
+        D.atomic_add_dev(done, n)
 
 
 @D.traced

@@ -34,7 +34,7 @@ from dataclasses import asdict, dataclass
 
 import flydsl.compiler as flyc
 import flydsl.expr as fx
-from flydsl.expr import const_expr, gpu
+from flydsl.expr import const_expr, gpu, rocdl
 from flydsl.expr.typing import Int32, Int64
 
 from . import attention as A
@@ -100,6 +100,16 @@ class Cfg:
     # (stages.combine_row), which the qkv prologue copies (layers > 0); else every CTA
     # rebuilds all rows of h in the qkv prologue
     combine_rows: bool = True
+    # expert stages (moe.MoeGemv): pieces in flight per wave (gate_up, down), and the
+    # batched last-arriver tail (atomics and reductions overlapped, one drain per wave)
+    d_e1: int = 2
+    d_e2: int = 2
+    moe_batch: bool = False
+    route_prefetch: bool = True  # routing loads per_expert_scale beside the logits
+    # down stage: row-major partials, every CTA counts itself once, and the combine CTAs
+    # reduce their rows (moe.reduce_row) instead of a last arriver per column group
+    # (needs combine_rows)
+    e2_rows: bool = True
     debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
     fence: bool = False  # L2 write-back / invalidate at every grid barrier (dev.grid_*)
 
@@ -124,8 +134,10 @@ class Cfg:
             o_s=g("o_s", H, O_S, ch["o"]),
             o_f=g("o_f", H, O_F, ch["o"]),
             router=g("router", MO.LGN, H, ch["router"], "bf16"),
-            e1=MO.MoeGemv("e1", 2 * EFF, H, M, cus, "gu", WAVES, ch["e1"]).check(),
-            e2=MO.MoeGemv("e2", H, EFFP, M, cus, "down", WAVES, ch["e2"]).check(),
+            e1=MO.MoeGemv("e1", 2 * EFF, H, M, cus, "gu", WAVES, ch["e1"], self.d_e1,
+                          self.moe_batch).check(),
+            e2=MO.MoeGemv("e2", H, EFFP, M, cus, "down", WAVES, ch["e2"], self.d_e2,
+                          self.moe_batch, self.e2_rows).check(),
             lm=g("lm", VOCAB, H, ch["lm"], "bf16"),
         )
 
@@ -137,8 +149,9 @@ CNT_REGION = dict(qkv=0, o=1, router=2, e1=3, e2=4, lm=5, attn=6, done=7)
 
 
 PROFILE = {
-    "addr": None
-}  # debug: i64 [barriers][CUS][2] = (arrive, wait end) per CTA, 100 MHz
+    "addr": None,  # debug: i64 [barriers][CUS][2] = (arrive, wait end) per CTA, 100 MHz
+    "npos": None,  # debug: i32 [layers]: MoE positions (distinct experts + 3) per layer
+}
 
 
 def kernel_name(cfg: Cfg) -> str:
@@ -162,6 +175,7 @@ def lds_bytes(cfg: Cfg):
 def build(cfg: Cfg):
     M, CUS = cfg.M, cfg.cus
     assert 1 <= M <= WAVES, "the routing and the rstd reductions give each row one wave"
+    assert cfg.combine_rows or not cfg.e2_rows, "e2_rows: the combine CTAs reduce the rows"
     SP = cfg.specs()
     GEO = {False: cfg.geo(False), True: cfg.geo(True)}
     D.FENCE["on"] = cfg.fence
@@ -326,6 +340,13 @@ def _moe(env, R, nlayers):
 
 
 @D.traced
+def _store_npos(c, npos, li):
+    """Debug (bench/profile_decode.py): CTA 0 stores layer li's MoE position count."""
+    if (c["bid"] == 0) & (c["tid"] == 0):
+        D.st(npos, D.rsrc(fx.Int64(PROFILE["npos"])), li, D.CM_DEV)
+
+
+@D.traced
 def _attn_layer_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw,
                   cfg, li, geo, kind):
     qkv, o = SP["qkv_" + kind], SP["o_" + kind]
@@ -393,9 +414,11 @@ def _moe_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw
             lambda cg, tots: S.epi_raw(c, M, MO.LGN, cg, tots[0], logit))
     # routing (every CTA), then gate_up of the routed experts and the dense MLP
     barrier_then(None, None, None, e0 + 4)
-    MO.routing(c, M, logit, G[G_ROWV], T(T_PES), R)
+    MO.routing(c, M, logit, G[G_ROWV], T(T_PES), R, cfg.route_prefetch)
     if const_expr(cfg.debug_route):
         MO.route_hash(c, M, R, G[G_SPARE], li, c["cus"], NL)
+    if const_expr(PROFILE["npos"] is not None):
+        _store_npos(c, R.n(), li)
     if const_expr(cfg.router_publish):
         S.prologue_gu_copy(c, e1, xq, xs, G[G_XG], G[G_XGS])
     else:
@@ -407,10 +430,28 @@ def _moe_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw
     pos0 = e2.cta_pos0(c["bid"], R.n())
     MO.prologue_act_moe(c, e2, xq, xs, G[G_ACT], R, pos0)
     w2 = e2.setup(c, xq, xs, T(T_E2_T), T(T_E2_S))
-    if const_expr(cfg.combine_rows):
+    if const_expr(cfg.e2_rows):
+        # every CTA counts itself on `done` after its partials; CTAs cus - M + m wait for
+        # all, reduce row m (e, d, sums of squares), then run combine_row
+        more = li + 1 < nlayers  # the last layer's h is rebuilt by the final stage
+        e2.run(c, w2, R, part, cnt("done"), None, pos0)
+        m = c["bid"] - (cfg.cus - M)
+        if m >= 0:
+            if c["tid"] == 0:
+                D.poll_ge(D.rsrc(cnt("done")), 0, fx.Int32(cfg.cus))
+            gpu.barrier()  # every CTA has stored its partials
+            MO.reduce_row(c, e2, m, R, part, G[G_E], G[G_SSQE], G[G_D], G[G_SSQD])
+            if more:
+                rocdl.s_waitcnt(vmcnt=0)
+                gpu.barrier()  # the row's e, d and sums are stored (combine_row loads them)
+                S.combine_row(c, m, red, G[G_H1], G[G_D], G[G_E], G[G_SSQD], G[G_SSQE],
+                              T(T_POST1), T(T_POST2), T(T_POSTF), T(T_LS), Tn(T_IN_LN),
+                              G[G_H], G[G_XQ], G[G_XQS])
+    elif const_expr(cfg.combine_rows):
         more = li + 1 < nlayers  # the last layer's h is rebuilt by the final stage
         e2.run(c, w2, R, part, cnt("e2"),
-               S.EpiDE(c, M, G[G_E], G[G_SSQE], G[G_D], G[G_SSQD], cnt("done"), more),
+               S.EpiDE(c, M, G[G_E], G[G_SSQE], G[G_D], G[G_SSQD], cnt("done"), more,
+                       e2.batch),
                pos0)
         m = c["bid"] - (cfg.cus - M)
         if more & (m >= 0):
