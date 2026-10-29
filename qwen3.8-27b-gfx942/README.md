@@ -71,6 +71,9 @@ ranks are bitwise equal at every step. Design, every decision with its measureme
 logs: [`docs/DESIGN-TP2.md`](docs/DESIGN-TP2.md); raw logs and the disposable spike code
 are under `scratch/`.
 
+Reproducibility: second day on the same node (2026-10-29): same bits (same logits hashes and
+gate values) and the same speed within 0.4 %. Second node: pending (job 68206615).
+
 ![TP2 decode speed against TP1 and stock vLLM TP2](docs/throughput_tp2.png)
 
 ## How it works
