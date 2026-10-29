@@ -1,6 +1,6 @@
 #!/bin/bash
 # Full verification + benchmark suite (about 1 h on one MI300X). Run from the repo root
-# inside the hipdnn gfx942 image with the venv of scripts/setup_env.sh:
+# inside the hipdnn gfx942 image with the venv of common/scripts/setup_env.sh:
 #   bash tests/run_suite.sh MODELS_DIR OUT_DIR
 # MODELS_DIR holds Qwen3.8-27B (BF16) and Qwen3.8-27B-Quark-AWQ-MXFP4.
 set -uo pipefail

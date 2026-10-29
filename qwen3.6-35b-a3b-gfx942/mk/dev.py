@@ -15,7 +15,7 @@ from flydsl.expr import const_expr, gpu, rocdl
 from flydsl.expr import math as fmath
 from flydsl.expr.typing import T
 
-from .vendor import buffer_ops as bo
+from mkcore.vendor import buffer_ops as bo
 
 CM_DEV = 16
 CM_NT = 2

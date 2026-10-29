@@ -21,13 +21,13 @@ def check_cfg(cfg) -> None:
     """Assert that cfg has every COMMON_FIELDS field with its type."""
     names = {f.name for f in dataclasses.fields(cfg)}
     for name, t in COMMON_FIELDS.items():
-        assert name in names, f"{type(cfg).__name__} has no field {name} (mkcore.key.COMMON_FIELDS)"
+        assert name in names, f"{type(cfg).__name__} lacks {name} (COMMON_FIELDS)"
         v = getattr(cfg, name)
         assert isinstance(v, t) and (t is bool or not isinstance(v, bool)), (name, v)
 
 
 def source_hash(pkg_dir) -> str:
-    """sha256 over the sorted relative paths and bytes of the .py files under pkg_dir."""
+    """sha256 over the sorted relative paths and bytes of the .py files in pkg_dir."""
     d = pathlib.Path(pkg_dir).resolve()
     h = hashlib.sha256()
     for p in sorted(d.rglob("*.py")):

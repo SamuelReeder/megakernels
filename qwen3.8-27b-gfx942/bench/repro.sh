@@ -1,7 +1,7 @@
 #!/bin/bash
 # Reproducibility run: correctness smoke + decode benchmark at M = 1, 2, 4, 8 on the
 # node this runs on. Run inside the hipdnn gfx942 image with the venv of
-# scripts/setup_env.sh, from the repository root:
+# common/scripts/setup_env.sh, from the model directory:
 #   bash bench/repro.sh MODEL_DIR OUT_DIR
 set -uo pipefail
 MODEL=$1

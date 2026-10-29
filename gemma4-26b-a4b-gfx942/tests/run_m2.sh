@@ -1,6 +1,6 @@
 #!/bin/bash
 # Milestone 2 (reference) and attention-stage checks. Run from this directory inside the
-# hipdnn gfx942 image with the venv of the Qwen3.8 scripts/setup_env.sh:
+# hipdnn gfx942 image with the venv of common/scripts/setup_env.sh:
 #   bash tests/run_m2.sh MODELS_DIR OUT_DIR
 # MODELS_DIR holds gemma-4-26B-A4B-it (BF16) and gemma-4-26B-A4B-it-FP8-dynamic.
 set -uo pipefail

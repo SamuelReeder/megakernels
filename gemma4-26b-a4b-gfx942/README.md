@@ -135,16 +135,16 @@ hidden states; vLLM keeps prefill, the LM head with the logit soft-cap, and samp
 ## Quick start (Alola cluster)
 
 ```bash
-salloc -p miopen -A miopen -J g4dev --constraint="GFX942&MARKHAM" --gres=gpu:1 \
+salloc -p miopen -A miopen -J mkdev --constraint="GFX942&MARKHAM" --gres=gpu:1 \
        --cpus-per-task=16 --mem=200G -t 12:00:00 --no-shell
 # models in ~/mk/models: gemma-4-26B-A4B-it (BF16) and gemma-4-26B-A4B-it-FP8-dynamic
-scripts/mkrun 'python tests/test_decode.py $G4/gemma-4-26B-A4B-it-FP8-dynamic 1 30 16 2048'
-scripts/mkrun 'python bench/bench_decode.py $G4/gemma-4-26B-A4B-it-FP8-dynamic 1 512 256 3'
+../common/scripts/mkrun . 'python tests/test_decode.py $G4/gemma-4-26B-A4B-it-FP8-dynamic 1 30 16 2048'
+../common/scripts/mkrun . 'python bench/bench_decode.py $G4/gemma-4-26B-A4B-it-FP8-dynamic 1 512 256 3'
 ```
 
-`scripts/mkrun '<command>'` ships this directory to the held allocation (the job named
-`g4dev`, or `MK_JOB=<jobid>`) and runs the command in the hipdnn gfx942 image with the venv
-of `qwen3.8-27b-gfx942/scripts/setup_env.sh` (torch + ROCm, FlyDSL 0.4.0).
+`../common/scripts/mkrun . '<command>'` ships this directory and `common/` to the held allocation (the job named
+`mkdev`, or `MK_JOB=<jobid>`) and runs the command in the hipdnn gfx942 image with the venv
+of `common/scripts/setup_env.sh` (torch + ROCm, FlyDSL 0.4.0).
 
 ## Repository layout
 
