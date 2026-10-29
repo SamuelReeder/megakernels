@@ -46,9 +46,11 @@ def store_quant8_at(c, xq, xs, x, row, xr, xsr, k0, live):
 
 @D.traced
 def epi_raw(c, M, N, grp, tot, out, off=0):
-    """out[:, off + 16 grp + col] = tot (fp32 [M][N])."""
+    """out[:, off + 16 grp + col] = tot (fp32 [M][N]). off=None leaves the offset term
+    out of the index (Qwen3.8's form: `+ 0` changes its ISA in the vLLM image)."""
     ro = D.rsrc(out)
     for r in range_constexpr(4):
         t = 4 * c["gl"] + r
         if t < M:
-            D.st(tot[r], ro, t * N + off + grp * 16 + c["col"], D.CM_DEV)
+            i = t * N + grp * 16 if off is None else t * N + off + grp * 16
+            D.st(tot[r], ro, i + c["col"], D.CM_DEV)
