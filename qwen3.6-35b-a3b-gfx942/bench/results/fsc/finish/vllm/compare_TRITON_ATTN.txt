@@ -1,0 +1,31 @@
+kernel off: /home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/vllm/off_TRITON_ATTN.json (TRITON_ATTN), kernel on: /home/AMD/sareeder/mk/fixed-stage-cost-src/bench/results/fsc/finish/vllm/on_TRITON_ATTN.json (TRITON_ATTN)
+kernel steps during the 8-prompt generate: on 159, off 0
+prompt 0: identical 80/160, first divergence at token 78: off 369 on 1061, logprob gap under off 0.1250, under on 0.2500
+  off: '\n\n<think>\n\n</think>\n\nThe sentence **"The quick brown fox jumps over the lazy dog"** is famous primarily because it is a **pangram**.\n\n### What is a Pangram?\nA p'
+  on:  '\n\n<think>\n\n</think>\n\nThe sentence **"The quick brown fox jumps over the lazy dog"** is famous primarily because it is a **pangram**.\n\n### What is a Pangram?\nA p'
+prompt 1: identical 102/160, first divergence at token 101: off 4523 on 4829, logprob gap under off 0.0000, under on 0.1250
+  off: '\n\n```python\ndef fibonacci(n):\n    """\n    Returns the n-th Fibonacci number.\n    """\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:'
+  on:  '\n\n```python\ndef fibonacci(n):\n    """\n    Returns the n-th Fibonacci number.\n    """\n    if n <= 0:\n        return 0\n    elif n == 1:\n        return 1\n    else:'
+prompt 2: identical 83/160, first divergence at token 78: off 557 on 579, logprob gap under off 0.0000, under on 0.2500
+  off: "\n\n<think>\nHere's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Task:** List the planets of the solar system\n   - **Order:** From the Sun (outward)\n   "
+  on:  "\n\n<think>\nHere's a thinking process:\n\n1.  **Analyze User Input:**\n   - **Task:** List the planets of the solar system\n   - **Order:** From the Sun (outward)\n   "
+prompt 3: identical 57/160, first divergence at token 23: off 303 on 314, logprob gap under off 0.1250, under on 0.3750
+  off: "\n\n<think>\n\n</think>\n\nThe mission you are referring to is **Apollo 11**, the fifth crewed mission in NASA's Apollo program and the first manned landing on the Mo"
+  on:  "\n\n<think>\n\n</think>\n\nThe mission you are referring to is **Apollo 11**, the fifth crewed mission of NASA's Apollo program and the first spaceflight that carried"
+prompt 4: identical 17/17, no divergence
+  off: '\n\n<think>\n\n</think>\n\nIl fait beau aujourd’hui, allons nous promener.'
+  on:  '\n\n<think>\n\n</think>\n\nIl fait beau aujourd’hui, allons nous promener.'
+prompt 5: identical 9/160, first divergence at token 8: off 421 on 25, logprob gap under off 0.3750, under on 0.6250
+  off: "\n\n<think>\nHere's a thinking process that leads to the solution:\n\n1.  **Analyze the Request:**\n    *   **Function:** $f(x) = x^3 \\cdot \\sin(x)$.\n    *   **Goal:*"
+  on:  "\n\n<think>\nHere's a thinking process:\n\n1.  **Understand the User's Request:**\n   - The user wants the derivative of the function $f(x) = x^3 \\sin(x)$.\n   - They "
+prompt 6: identical 88/113, first divergence at token 86: off 2407 on 49807, logprob gap under off 0.0000, under on 0.1250
+  off: '\n\n<think>\n\n</think>\n\nTwo young lovers from feuding families in Verona, Romeo Montague and Juliet Capulet, secretly marry after meeting at a ball, hoping to end '
+  on:  '\n\n<think>\n\n</think>\n\nTwo young lovers from feuding families in Verona, Romeo Montague and Juliet Capulet, secretly marry after meeting at a ball, hoping to end '
+prompt 7: identical 51/160, first divergence at token 49: off 271 on 353, logprob gap under off 0.5000, under on 0.2500
+  off: "\n\n<think>\nHere's a thinking process:\n\n1.  **Understand User Request:** The user wants three tips for writing fast GPU kernels. This is a common but important qu"
+  on:  "\n\n<think>\nHere's a thinking process:\n\n1.  **Understand User Request:** The user wants three tips for writing fast GPU kernels. This is a common but important qu"
+total identical tokens 487/1090 (44.7%)
+TPOT ms   batch:       1       2       4       8
+  kernel off         5.63    6.32    7.03    9.26
+  kernel on          2.92    3.88    4.84    7.06
+  speedup           1.93    1.63    1.45    1.31

@@ -1,0 +1,8 @@
+base M=1 median TPOT 3.676 ms (MK_CFG= MK_CHUNKS=)
+base M=8 median TPOT 7.147 ms (MK_CFG= MK_CHUNKS=)
+cta M=1 median TPOT FAILED ms (MK_CFG=cta_red=1 MK_CHUNKS=out=1)
+cta M=8 median TPOT FAILED ms (MK_CFG=cta_red=1 MK_CHUNKS=out=1)
+base2 M=1 median TPOT 3.686 ms (MK_CFG= MK_CHUNKS=)
+base2 M=8 median TPOT 7.158 ms (MK_CFG= MK_CHUNKS=)
+cta2 M=1 median TPOT FAILED ms (MK_CFG=cta_red=1 MK_CHUNKS=out=1)
+cta2 M=8 median TPOT FAILED ms (MK_CFG=cta_red=1 MK_CHUNKS=out=1)

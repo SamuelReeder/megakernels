@@ -1,0 +1,13 @@
+M=1 ctx=512: embed (start -> first arrival) 4.8 us; step total 3686.3 us (CUDA events around this single launch, launch latency included: 4053.6 us)
+stage    n  span us  busy us barrier us sum span us
+inp     30     17.1     11.1       2.59       516.4
+gdn     30      3.2      2.2       2.32       114.3
+out     30      6.6      2.8       3.36       214.5
+router  40      4.0      0.8       2.13       176.4
+e1      40     17.0     13.9       2.12       687.9
+e2      40     10.6      4.0       2.68       417.1
+qkv     10     10.2      6.7       2.92       102.3
+attn    10     31.9      2.0       2.22       325.8
+o       10     26.8     14.9       2.78       274.6
+lm       1    309.7    274.3       2.12       309.7
+sum of spans + barriers 3773.9 us

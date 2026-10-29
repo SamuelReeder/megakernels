@@ -23,6 +23,7 @@ for m in 1 2 4 8; do
 done
 for m in 1 8; do
   python tests/test_determinism.py "$F8" "$m" 32 > "$O/determinism_m$m.txt" 2>&1
+  python tests/test_chaos.py "$F8" "$m" 16 > "$O/chaos_m$m.txt" 2>&1
 done
 python tests/eval_text.py "$F8" "$M/Qwen3.6-35B-A3B" > "$O/eval_text.txt" 2>&1
 for m in 1 2 4 8; do

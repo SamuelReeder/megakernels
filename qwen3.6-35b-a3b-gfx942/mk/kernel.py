@@ -27,10 +27,13 @@ The barrier epoch lives on the device (word EPOCH_WORD of the flag buffer), so a
 launch has no per-step host argument and can be captured in a graph.
 
 Every compile-time setting is a Cfg field or a debug global, and the kernel name holds a
-hash of all of them: FlyDSL's disk cache keys on the name, not on the fields.
+hash of all of them. FlyDSL's disk cache does not key on the name; it keys on
+compile_key, which the launcher holds.
 """
 
 import functools
+import hashlib
+import pathlib
 import zlib
 from dataclasses import asdict, dataclass
 
@@ -122,7 +125,7 @@ class Cfg:
     lm_head: bool = True  # False: write the normed hidden states instead of logits
     c_inp: int = 1
     c_ba: int = 8
-    c_out: int = 2
+    c_out: int = 1  # cta_red needs one chunk (2 with the global hand-off)
     c_qkv: int = 1
     c_o: int = 16  # one head per K chunk: the prologue merges one head (prologue_attn)
     c_router: int = 1
@@ -132,6 +135,13 @@ class Cfg:
     debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
     fence: bool = False  # L2 write-back / invalidate at every grid barrier (dev.grid_*)
     chaos: bool = False  # random delays before arrivals and counter atomics (dev.CHAOS)
+    # in_proj fp8, qkv, out_proj, router: CTA-local split-K, LDS reduction
+    # (gemv.Gemv.cta; needs their K chunks = 1). False: the global last-arriver
+    # hand-off (before 2026-10-29; docs/DESIGN.md, "Fixed stage cost")
+    cta_red: bool = True
+    # norm / scaled prologues only in CTAs that stream units of the GEMV (Gemv.busy):
+    # in_proj b / a, out_proj, router
+    skip_idle: bool = True
 
     def chunks(self):
         return {k[2:]: v for k, v in asdict(self).items() if k.startswith("c_")}
@@ -148,16 +158,17 @@ class Cfg:
     def specs(self):
         M, cus, ch = self.M, self.cus, self.chunks()
 
-        def g(name, n, k, kind="fp8"):
-            return Gemv(name, n, k, M, cus, WAVES, ch[name], kind).check()
+        def g(name, n, k, kind="fp8", cta=False):
+            return Gemv(name, n, k, M, cus, WAVES, ch[name], kind,
+                        cta=cta and self.cta_red).check()
 
         return dict(
-            inp=g("inp", QKVZ_N, H),
+            inp=g("inp", QKVZ_N, H, cta=True),
             ba=g("ba", 2 * NVH, H, "bf16"),
-            out=g("out", H, VAL_DIM),
-            qkv=g("qkv", QKV_N, H),
+            out=g("out", H, VAL_DIM, cta=True),
+            qkv=g("qkv", QKV_N, H, cta=True),
             o=g("o", H, NQ * HD),
-            router=g("router", MO.LGN, H, "bf16"),
+            router=g("router", MO.LGN, H, "bf16", cta=True),
             e1=MO.MoeGemv("e1", 2 * FI, H, M, cus, "gu", WAVES, ch["e1"]).check(),
             e2=MO.MoeGemv("e2", H, FI, M, cus, "down", WAVES, ch["e2"]).check(),
             lm=g("lm", VOCAB, H, "bf16"),
@@ -181,10 +192,24 @@ PROFILE = {
 
 
 def kernel_name(cfg: Cfg) -> str:
-    """Every compile-time setting goes into the name (FlyDSL's disk cache keys on it):
-    the Cfg fields and the debug globals (PROFILE and PROBE addresses are baked in)."""
+    """Every compile-time setting goes into the name: the Cfg fields and the debug
+    globals (PROFILE and PROBE addresses are baked in). FlyDSL's disk cache does not key
+    on the name; it keys on compile_key."""
     key = repr((cfg, PROFILE, D.PROBE))
     return f"qwen36moe_decode_m{cfg.M}_{zlib.crc32(key.encode()):08x}"
+
+
+def compile_key(cfg, *extra) -> str:
+    """Key of FlyDSL's disk cache for one build. FlyDSL 0.4.0 keys on the launcher's
+    source and scalar closure values only: not on helpers called as D.*, cfg fields
+    read as cfg.*, or the kernel name (megakernels common/DESIGN.md, "Compile cache
+    test"). This key covers every .py file of this package and repr((cfg, *extra));
+    the launcher holds it."""
+    d = pathlib.Path(__file__).resolve().parent
+    h = hashlib.sha256(repr((cfg, *extra)).encode())
+    for p in sorted(d.rglob("*.py")):
+        h.update(str(p.relative_to(d)).encode() + b"\0" + p.read_bytes())
+    return h.hexdigest()
 
 
 def build(cfg: Cfg):
@@ -198,6 +223,7 @@ def build(cfg: Cfg):
     XQB = max(s.XR * (s.XROWS if isinstance(s, MO.MoeGemv) else M) for s in SP.values())
     XBB = SP["ba"].XR * M  # in_proj's bf16 x (b / a), beside the fp8 x
     XSF = 32 * max(s.XSR for s in SP.values())
+    PRF = max([s.lds_floats() for s in SP.values() if isinstance(s, Gemv)] + [4])
     ATT_W = X.QW + HD  # floats per wave (q bf16, then k_new v_new bf16 pairs)
     NTASK_G = M * NVH * 8
     NTASK_A = M * NKV * cfg.ncmax
@@ -207,6 +233,7 @@ def build(cfg: Cfg):
         xq: fx.Array[fx.Int32, (XQB + 3) // 4, 16]
         xb: fx.Array[fx.Int32, (XBB + 3) // 4, 16]
         xs: fx.Array[fx.Float32, XSF, 16]
+        pr: fx.Array[fx.Float32, PRF, 16]  # cta GEMVs: the wave partials
 
     @fx.struct
     class MixLds:
@@ -229,7 +256,7 @@ def build(cfg: Cfg):
         rmask: fx.Array[fx.Int32, M * 8, 16]  # routing: row m's 256-bit expert set
 
     lds = (
-        max(XQB + XBB + 4 * XSF, 4 * WAVES * ATT_W)
+        max(XQB + XBB + 4 * XSF + 4 * PRF, 4 * WAVES * ATT_W)
         + 4 * (16 + M * MO.TOPK + M * MO.NSLOT + NP + 3 + NE + M * NP + 4 + M * 8)
     )
     assert lds <= LDS_MAX, f"STOP: I1 (LDS {lds} B > {LDS_MAX} B per CTA)"
@@ -238,6 +265,8 @@ def build(cfg: Cfg):
         v = D.ld(r, 2 * i, 2)
         return (fx.Int64(D.uniform(v[1])) << 32) | fx.Int64(fx.Uint32(D.uniform(v[0])))
 
+    # the kernel name is not in FlyDSL's disk-cache key; `key` is (see compile_key)
+    key = compile_key(cfg, PROFILE, D.PROBE)
     name = kernel_name(cfg)
 
     @flyc.kernel(name=name, known_block_size=[NT, 1, 1])
@@ -263,6 +292,7 @@ def build(cfg: Cfg):
         st_lds = alloc.allocate(StageLds)
         gl_, xl_ = st_lds.g.peek(), st_lds.x.peek()
         xq, xb, xs = gl_.xq.ptr, gl_.xb.ptr, gl_.xs.ptr
+        c["pl"] = gl_.pr.ptr
         wl = xl_.aw.ptr + wave * ATT_W
         rg = D.rsrc(glob)
         rt = D.rsrc(tab)
@@ -371,6 +401,7 @@ def build(cfg: Cfg):
 
     @flyc.jit
     def launch(tab: Int64, glob: Int64, nlayers: Int32, stream: fx.Stream = _STREAM):
+        key  # noqa: B018  a str closure value: FlyDSL puts it in the disk-cache key
         kdec(tab, glob, nlayers).launch(grid=(CUS,), block=(NT,), stream=stream)
 
     return launch
@@ -402,7 +433,11 @@ def _gdn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, c
     # in_proj: fp8 [qkv | z] and bf16 [b | a] on the same normed input
     w, buf = barrier_then(inp, T(T_MIX_T), T(T_MIX_S), e0)
     S.prologue_norm(c, inp, xq, xs, red, hf0, q0, T(T_IN_LN), EPS)
-    S.prologue_norm_bf16(c, ba, xb, red, hf0, q0, T(T_IN_LN), EPS)
+    if const_expr(cfg.skip_idle):
+        _if_busy(ba, c["bid"],
+                 lambda: S.prologue_norm_bf16(c, ba, xb, red, hf0, q0, T(T_IN_LN), EPS))
+    else:
+        S.prologue_norm_bf16(c, ba, xb, red, hf0, q0, T(T_IN_LN), EPS)
     inp.run(
         c,
         w,
@@ -440,7 +475,10 @@ def _gdn_layer_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, c
         )
     # out_proj (+ residual)
     w, buf = barrier_then(out, T(T_OUT_T), T(T_OUT_S), e0 + 2)
-    S.prologue_scaled(c, out, xq, xs, y2, hssq, EPS, 128)
+    if const_expr(cfg.skip_idle):
+        _if_busy(out, c["bid"], lambda: S.prologue_scaled(c, out, xq, xs, y2, hssq, EPS, 128))
+    else:
+        S.prologue_scaled(c, out, xq, xs, y2, hssq, EPS, 128)
     out.run(c, w, buf, part, cnt("out"), S.EpiRes(c, M, hb0, hb1, q1, hf1))
 
 
@@ -491,7 +529,11 @@ def _moe_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, cnt,
     rtr, e1, e2 = SP["router"], SP["e1"], SP["e2"]
     # S4: router logits (+ the shared-expert gate) on bf16(norm(h1))
     w, buf = barrier_then(rtr, T(T_RT), T(T_RT), e0 + 3)
-    S.prologue_norm_bf16(c, rtr, xq, red, hf1, q1, T(T_POST_LN), EPS)
+    if const_expr(cfg.skip_idle):
+        _if_busy(rtr, c["bid"],
+                 lambda: S.prologue_norm_bf16(c, rtr, xq, red, hf1, q1, T(T_POST_LN), EPS))
+    else:
+        S.prologue_norm_bf16(c, rtr, xq, red, hf1, q1, T(T_POST_LN), EPS)
     rtr.run(
         c,
         w,
@@ -514,6 +556,13 @@ def _moe_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, cnt,
     MO.prologue_act_moe(c, e2, xq, xs, G[G_ACT], R, pos0)
     w2 = e2.setup(c, xq, xs, T(T_E2_T), T(T_E2_S))
     e2.run(c, w2, R, part, cnt("e2"), S.EpiRes(c, M, hb1, hb0, q0, hf0), pos0)
+
+
+@D.traced
+def _if_busy(spec, bid, fn):
+    """fn() (a prologue) only in CTAs that stream units of GEMV `spec`."""
+    if spec.busy(bid):
+        fn()
 
 
 def hf_ptrs(hb0, M):

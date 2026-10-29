@@ -1,0 +1,28 @@
+M=1 ctx=512: embed (start -> first arrival) 3.8 us; step total 3154.3 us (CUDA events around this single launch, launch latency included: 3813.3 us)
+stage    n  span us  busy us barrier us sum span us
+inp     30     14.4      9.6       2.12       443.3
+gdn     30      2.8      2.1       2.20       101.1
+out     30      5.8      2.6       2.71       191.4
+router  40      3.6      0.8       1.88       158.3
+e1      40     16.2     13.2       1.68       644.9
+e2      40      8.7      3.4       1.60       347.7
+qkv     10      9.3      5.8       2.08        92.3
+attn    10     29.6      1.8       1.80       298.5
+o       10     21.4     12.5       2.02       215.1
+lm       1    224.5    211.7       2.74       224.5
+sum of spans + barriers 3218.9 us
+e1 timeline (us from its barrier's last release):
+  first release  med   -0.2 max   -0.2
+  prologue       med    3.3 max    4.2
+  loads issued   med    3.6 max    4.6
+  rstd done      med    4.0 max    5.1
+  quantized      med    4.5 max    5.6
+  stream start   med    4.6 max    6.0
+  stream end     med   12.0 max   14.2
+  hand-off end   med   13.4 max   16.4
+  next arrival   med   13.3 max   16.2
+  next release   med   17.7 max   17.8
+e1 stream          per wave: med 7.2 max 9.0 us
+e1 hand-off        per wave: med 1.6 max 5.1 us
+e1 drain + atomics per wave: med 1.1 max 4.5 us
+e1 reductions      per wave: med 0.1 max 1.8 us

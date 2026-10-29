@@ -3,7 +3,9 @@
 Status: milestones 1 to 7 done. The full suite passes on a second day and on a second node,
 an MI325X (`bench/results/m5/`). The kernel decodes at 3.42 / 3.99 / 4.97 / 6.37 ms per token
 at M = 1 / 2 / 4 / 8 (512-token context, MI300X), which is 1.49x to 1.17x the fastest stock
-engine on the same GPU ("Optimization log"). The design
+engine on the same GPU ("Optimization log"). On 2026-10-29 the CTA-local split-K reduction
+cut 15 % (M = 1) to 7 % (M = 8) more against the previous code in the same hour on the
+same node ("Fixed stage cost"). The design
 reuses the Qwen3.8-27B kernel (`../qwen3.8-27b-gfx942/`) for every stage that the two
 models share, and adds a mixture-of-experts (MoE) block in place of the dense MLP.
 
@@ -108,6 +110,12 @@ tables.
 
 Final stage: norm(h0) -> bf16 x, bf16 LM head GEMV 248320 x 2048, fp32 logits. With
 `lm_head = False` the stage writes the normed hidden states (Qwen3.8 `final_norm_stage`).
+
+Since 2026-10-29 the fp8 in_proj GEMV, qkv, out_proj and the router reduce their split-K
+partials inside the CTA (`Gemv.cta`, `Cfg.cta_red`): the epilogue column of the table runs
+in one wave of the CTA that streamed the group, after an LDS reduction, not in a global
+last arriver. in_proj b / a, o_proj, the two MoE GEMVs and the LM head keep the global
+last arriver. See "Fixed stage cost".
 
 Small GEMVs (fewer units than the 2432 waves: the router, 272 units, and in_proj b / a,
 64 units) give wave gw < U unit gw instead of the Qwen3.8 spread
@@ -261,9 +269,12 @@ stays below 64 KB (S5 x 32 KB, S6 x 16 KB, in_proj 32 KB). Weight bytes double.
 | S2 attention: 8 waves x (q bf16 8 heads x 256 = 4 KB, k_new / v_new 1 KB) | 40 KB |
 | S2 GDN: 8 waves x 1 KB | 8 KB |
 | Routing tables (persistent across S5, S6: pick, w, eid, posof [256], slot [M][65]) + `red` | 3.5 KB |
+| CTA-local GEMV partials (2026-10-29): 8 waves x 2 pieces x 32 lanes x 16 B | 8 KB |
 
-The stage regions form a union (as in Qwen3.8); the maximum is 53.9 KB. The builder
-computes the total and stops with `STOP: I1` above 64 KB.
+The stage regions form a union (as in Qwen3.8); the plan estimate was 53.9 KB. The builder
+computes the total and stops with `STOP: I1` above 64 KB. With the CTA-local partials
+and the out_proj x of the full K (4 KB per row) the builder formula gives 52.4 KB at
+M = 8 (44.2 KB before; computed by hand from `kernel.build`, not printed by the kernel).
 
 Required change from Qwen3.8: the attention task keeps q in LDS as bf16, not fp32.
 With 8 Q heads per KV head the fp32 layout needs 8 x (8 KB + 1 KB) = 72 KB. q is
@@ -390,13 +401,262 @@ M = 8 the MoE stages take 54 us per layer: the expert gate_up stream is bandwidt
 (about 20 us), the rest is routing (4.6 us), the norm prologue and hand-offs. The kernel
 spills about 50 VGPRs in the attention task (`scripts/isa_stats`); not removed.
 
+## Fixed stage cost (2026-10-29)
+
+Branch `users/sareeder/fixed-stage-cost`. Goal: cut the per-stage cost that does not
+stream weights (grid barrier, partial-sum hand-off, prologues). All runs: one MI300X of
+banff-cyxtera-s70-4 (jobs 68206661 and 68207152), `FLYDSL_RUNTIME_ENABLE_CACHE=0`. Logs:
+`bench/results/fsc/`.
+
+Node conditions changed during the day. The same main code (13b25e7) gave 3.419 / 4.019 /
+5.000 / 6.365 ms at M = 1 / 2 / 4 / 8 at 06:35-06:45 UTC (`fsc/base/`), and 3.682 /
+4.290 / 5.429 / 7.163 ms at 08:27-08:48 UTC (`fsc/final/`), with 5 other jobs on 6 of
+the node's GPUs. Thus every comparison below runs both variants in one allocation, within
+the same half hour, and repeats each variant twice in interleaved order (`scripts/ab_bench.sh`).
+
+### Method
+
+`bench/profile_decode.py` stamps each CTA's barrier arrival and release; `PSTEPS=3`
+profiles three greedy steps. `tools/stage_breakdown.py` splits each stage interval
+(median release of barrier b to median release of barrier b + 1) into:
+
+- work: median arrival - median release (a typical CTA: prologue, stream, hand-off);
+- skew: last arrival - median arrival (the late CTAs: the last-arriver chains, imbalance);
+- barrier: median release of the next barrier - last arrival (the protocol, including
+  the store drain of the last CTA).
+
+It then splits the step: GEMV weight bytes at a fixed stream rate (4.45 TB/s, the LM
+head's rate before the change), the rest of the GEMV work (prologue and hand-off of the
+median CTA), GEMV skew, mixer tasks (GDN, attention), MoE stages at M = 8 (their bytes
+depend on U, not logged), and barriers. The stamps make the profiled step about 19 %
+longer than the TPOT (4.37 ms against 3.68 ms): compare parts, not absolute times.
+`PROBE=<stage>` adds per-wave stamps (prologue, stream, hand-off) for one stage.
+
+### Breakdown before (main 13b25e7)
+
+Profiled step, 3 steps pooled (`fsc/final/breakdown.txt`, "before"):
+
+| Part | M = 1 | M = 8 |
+|---|---|---|
+| Weight stream (GEMV bytes at 4.45 TB/s) | 784 us (19.0 %) | 529 us (7.8 %) |
+| GEMV prologue + hand-off (median CTA) | 1031 us (24.9 %) | 1069 us (15.7 %) |
+| GEMV late CTAs (skew) | 1131 us (27.3 %) | 912 us (13.4 %) |
+| Mixer tasks (GDN, attention) | 476 us (11.5 %) | 680 us (10.0 %) |
+| MoE stages (bytes not split) | in the GEMV rows | 2724 us (40.1 %) |
+| Barrier after the last arrival | 713 us (17.2 %) | 880 us (13.0 %) |
+
+At M = 1 about 70 % of the step is fixed cost: prologue and hand-off, late CTAs and
+barriers. The quieter-hour single-step profile (`fsc/base/breakdown.txt`) gives the same
+shape: stream 20.5 %, GEMV prologue + hand-off 26.4 %, skew 25.2 %, barrier 19.8 %.
+
+Per-stage probes at M = 1 (`bench/results/m4/probe_base_*_m1.txt`, same code in these
+stages): in_proj: prologue 2.6 us, stream 5.9 us, hand-off 4.0 us, of which 3.4 us is the
+drain of the partial stores and the counter atomics; out_proj: stream 1.3 us, hand-off
+5.5 us (drain and atomics 3.9 us). The global partial hand-off is thus the largest fixed
+part of a GEMV stage; the barrier (2 to 3 us after the last arrival) is next.
+
+Fit of the GEMV stage interval (work + skew + barrier) against weight bytes, as in
+`../qwen3.8-27b-gfx942/docs/DESIGN-TP2.md` section 10 (inp, qkv, out, o, router, and at
+M = 1 the two MoE GEMVs with U = 8; medians over layers):
+
+| Run | M = 1 | M = 8 (dense GEMVs) |
+|---|---|---|
+| before, quieter hour, 1 step | 11.1 us + bytes / 3.56 TB/s | 14.3 us + bytes / 2.45 TB/s |
+| before, 3 steps | 15.2 us + bytes / 3.85 TB/s | 19.6 us + bytes / 2.36 TB/s |
+| after, 3 steps | 11.0 us + bytes / 3.13 TB/s | 19.1 us + bytes / 5.14 TB/s |
+| Qwen3.8 TP1 (DESIGN-TP2 section 10) | 6.5 us + bytes / 3.66 TB/s | 11.9 us + bytes / 3.41 TB/s |
+
+The residuals are large (9 to 16 us; the MoE and o_proj stages sit far from the line), so
+use the intercept only as a scale. The work-only fit (median CTA) moves from 3.2 us to
+1.5 us (M = 1) and from 8.3 us to 4.1 us (M = 8) per GEMV stage.
+
+### Candidates (in order; median TPOT of 3 repeats, two interleaved runs each)
+
+| Candidate | M = 1 | M = 8 | Kept | Logs |
+|---|---|---|---|---|
+| Grid barrier with device-scope arrival counters (8 / 16 / 32 counters, every CTA polls them; one hop less) | 4.067 / 3.834 / 3.676 ms against 3.680 / 3.690 | 7.427 / 7.206 / 7.112 against 7.147 / 7.158 | no: atomics to one address serialize (38 arrivals per counter: +0.39 ms per step) | `fsc/ab1`, base `fsc/ab1b`, `fsc/ab2` |
+| Two P-unit blocks of weights loaded at the barrier (deeper prefetch) | 3.817 / 3.814 against 3.680 / 3.690 (+3.5 %) | 7.267 against 7.147 / 7.158 (+1.6 %) | no (as in Qwen3.8) | `fsc/ab1`, `fsc/ab1b` |
+| CTA-local split-K with an LDS reduction for in_proj fp8, qkv, out_proj, router (out_proj K chunks 1) | 3.145 / 3.126 against 3.687 / 3.674 (-14.8 %) | 6.904 / 6.912 against 7.117 / 7.123 (-3.0 %) | yes | `fsc/ab3` |
+| Prologues only in CTAs that stream the GEMV, in_proj b / a prologue moved after the fp8 stream | 3.136 / 3.149 against 3.115 / 3.128 (+0.7 %) | 6.805 / 6.753 against 6.930 / 6.921 (-2.1 %) | replaced by the next row | `fsc/ab4` |
+| Prologues only in CTAs that stream the GEMV (b / a, out_proj, router), same position | 3.096 / 3.114 against 3.143 / 3.146 (-1.2 %) | 6.666 / 6.687 against 6.921 / 6.959 (-3.5 %) | yes | `fsc/ab5` |
+| Flat grid barrier: dense flag array, every CTA polls all flags (76 lanes x 16 B; one hop less) | 3.405 / 3.371 against 3.158 / 3.135 (+7.6 %) | 6.765 / 6.711 against 6.624 / 6.637 (+1.6 %) | no: the polling traffic slows the late CTAs | `fsc/ab6` |
+| S6 one-level counters (one atomic round trip less) | 3.084 / 3.162 against 3.103 / 3.100 (+0.7 %) | 6.757 / 6.754 against 6.667 / 6.595 (+1.9 %) | no | `fsc/ab7` |
+| S5 / S6: the wave's first expert piece issued before the norm / act prologue | 3.158 / 3.153 against 3.103 / 3.100 (+1.8 %) | 6.602 / 6.588 against 6.667 / 6.595 (-0.5 %) | no | `fsc/ab7` |
+
+Stop rule: the flat barrier and the S6 one-level counters, two candidates in a row, gained
+less than 1 % at M = 1 and at M = 8. The MoE early piece ran in the same batch. Not
+measured because of the stop rule: the GDN tasks' SSM state loads issued during the
+barrier wait (the state does not depend on in_proj; see "Open questions").
+
+Each kept change passed `tests/test_decode.py` (4 layers, M = 1 and 8) and
+`tests/test_chaos.py` at M = 8 (`fsc/ab4/chaos_cs_m8.txt`) before the A/B run.
+
+### What changed
+
+1. `Gemv.cta` (`Cfg.cta_red`, default on). CTA b streams the whole groups [b G / cus,
+   (b + 1) G / cus) with all K (K chunks 1). Its 8 waves split the CTA's units evenly in
+   unit order (`wave_lo`); a wave stores each piece partial to LDS (`store_part`), and
+   after one CTA barrier wave (group index % 8) sums the group's wave partials in wave
+   order and runs the unchanged epilogue (`cta_reduce`). No global partials, no counter
+   atomics, no partial loads: the hand-off chain (store drain, atomic, partial loads:
+   three device round trips) becomes an LDS barrier. The split depends only on G and the
+   CTA count, so the bits do not depend on M or on other rows (P1, P2). Cost: CTAs with
+   ceil(G / cus) groups stream up to 19 % more than the mean (in_proj: 3 against 2.53
+   groups), out_proj (128 groups) and the router (17 groups) leave the other CTAs idle,
+   and each CTA quantizes the full K of x (out_proj: 4096 instead of 2048).
+   Used for in_proj fp8, qkv, out_proj, router. Not used for: in_proj b / a (a full-K
+   bf16 x next to the fp8 x does not fit in LDS at M = 8), o_proj (its prologue merges
+   one head per K chunk, `c_o = 16`), the MoE GEMVs (piece order must not depend on U,
+   P2, and per-CTA partials need up to 28 KB at M = 8), the LM head (52 groups per CTA,
+   32 KB of partials at M = 8; its hand-off is small against 225 us of stream).
+2. `Gemv.busy` + `_if_busy` (`Cfg.skip_idle`, default on): CTAs that stream no unit of
+   in_proj b / a (296 of 304), out_proj (176) or the router (287) skip the prologue. This
+   removes their h loads and quantization from the memory system while other CTAs
+   stream; an idle wave's prefetch loads tile 0 (an L2 hit).
+3. Kept: the two-level flag barrier. Both one-hop variants were slower.
+
+Decision (conservative): the before configuration stays reachable through
+`MK_CFG=cta_red=0,skip_idle=0 MK_CHUNKS=out=2` for A/B runs; the defaults are the new
+path. Rejected: deleting the global path for the four GEMVs (the other five GEMVs need it
+anyway, and the flag costs one branch in the builder).
+
+### After
+
+TPOT, `bench/bench_decode.py`, median of 3, 512-token context, same allocation and hour
+(`fsc/final/bench_{before,after}_m*.txt`; before = main 13b25e7, after = this branch):
+
+| M | Before | After | Change |
+|---|---|---|---|
+| 1 | 3.682 ms | 3.127 ms | -15.1 % |
+| 2 | 4.290 ms | 3.759 ms | -12.4 % |
+| 4 | 5.429 ms | 5.003 ms | -7.8 % |
+| 8 | 7.163 ms | 6.663 ms | -7.0 % |
+
+Gates of the branch head (`fsc/final/gates/`, job 68207152, `scripts/fsc_gates.sh`): every
+gate prints PASS. `tests/test_decode.py` at M = 1, 2, 4, 8 (40 layers, 32 steps, no
+non-finite logits); `tests/test_determinism.py` at M = 1 and 8 (3 runs bitwise equal,
+row 0 bitwise equal alone, in M = 2, 4, 8 and with padding rows); `tests/test_chaos.py`
+at M = 1 and 8 (16 steps, chaos against no chaos bitwise equal); `tests/eval_text.py`:
+perplexity kernel 1.589, FP8 reference 1.585, BF16 1.584 (limit 1.02 x 1.585), KL(bf16 ||
+kernel) 0.0008 to 0.0058 per passage (main on 2026-10-28: 0.0009 to 0.0051), batch
+invariant. The bits differ from main: the CTA-local reduction adds the wave partials in
+another grouping than the global segments.
+
+Breakdown after (`fsc/final/breakdown.txt`, "after"; same split as above):
+
+| Part | M = 1 before -> after | M = 8 before -> after |
+|---|---|---|
+| Weight stream | 784 -> 784 us | 529 -> 529 us |
+| GEMV prologue + hand-off | 1031 -> 697 us | 1069 -> 609 us |
+| GEMV late CTAs | 1131 -> 1048 us | 912 -> 1207 us |
+| Mixer tasks | 476 -> 413 us | 680 -> 674 us |
+| MoE stages | (in the GEMV rows) | 2724 -> 2708 us |
+| Barrier after the last arrival | 713 -> 556 us | 880 -> 603 us |
+
+Stage intervals at M = 1 (us, before -> after): in_proj 23.5 -> 18.7, out_proj 17.1 ->
+8.1, router 8.7 -> 5.5, qkv 14.4 -> 11.8; unchanged within noise: GDN, MoE, o_proj. The
+barrier part drops because the CTA-local GEMVs end with fewer pending device stores to
+drain at the arrival. At M = 8 the late-CTA part grows (out_proj and the router stream on
+128 and 17 CTAs) but less than the hand-off part shrinks. In the "after" M = 1 profile
+the LM head took 273 us against 228 us (unchanged code; counted in the GEMV prologue +
+hand-off row): one profiled run, not reproduced in the TPOT.
+
+Where the time goes now, M = 1: the MoE stages (S5 19 us, S6 12 us per layer: routing
+3.3 us, norm prologue, the expert stream and the global hand-off; `fsc/ab6/probe_cs_*`),
+the attention layers (attention tasks 33 us and o_proj 30 us: 20 tasks of 22 us each),
+and 241 barriers of about 2.3 us.
+
+### Mechanism for common/
+
+Model-independent parts and their interfaces:
+
+1. CTA-local split-K (`gemv.Gemv`, field `cta`). Interface: `Gemv(..., C=1, cta=True)`;
+   `setup()` reads `c["pl"]`, an LDS float array of `lds_floats()` (waves x NPWC x 16 MT
+   lanes x 4); the epilogue interface is unchanged (`epilogue(group, [acc4][, pre])`, an
+   optional `pre(group)`); `busy(bid)` tells whether a CTA streams any unit. Conditions:
+   the CTA's x holds the full K (K x esize x M bytes of LDS), the wave partials fit
+   (512 B per wave and piece slot at M = 8), and the epilogue may run in any wave. It pays
+   off when the hand-off (three device round trips) is larger than the imbalance of
+   ceil(G / cus) groups per CTA: small and medium GEMVs, and all GEMVs at small M.
+2. Idle-CTA prologue skip (`Gemv.busy`, `_if_busy` in `kernel.py`): any GEMV with fewer
+   groups or units than CTAs.
+3. Tools: `tools/stage_breakdown.py` (needs the model's stage names and a bytes table),
+   `bench/profile_decode.py PSTEPS`, `tests/test_chaos.py` (chaos against no chaos,
+   bitwise; needs only `Engine` and `Cfg.chaos`), `scripts/ab_bench.sh` (variants as
+   `MK_CFG` / `MK_CHUNKS`; `runner.py` parses int `Cfg` fields too).
+4. Do not adopt: one-hop barriers with arrival counters or a dense polled flag array,
+   deeper weight prefetch at the barrier (slower here and in Qwen3.8).
+
+What each other kernel needs:
+
+- Qwen3.8 TP1 (`../qwen3.8-27b-gfx942/`, MXFP4, H = 5120, FFN = 17408): its `Gemv` is the
+  ancestor of this one; port `cta`, `wave_lo`, `store_part`, `cta_reduce`, `lds_floats`,
+  the `pr` LDS array and `c["pl"]`. The K chunks live in a module dict (`CHUNKS`); move
+  them to `Cfg` first (P4). LDS limits the candidates: full-K fp8 x is 5 KB per row for
+  in_proj, qkv and gate_up (40 KB at M = 8), 6 KB for out / o_proj, 17 KB for down (fits
+  only at M <= 2). Measure gate_up and down per M; at M = 8 keep the global hand-off where
+  x does not fit.
+- Qwen3.8 TP2 (`users/sareeder/qwen38-tp2`): as TP1, with half N for column GEMVs and half
+  K for row GEMVs (more GEMVs fit). The DESIGN-TP2 go/no-go formula assumes the TP1
+  intercept of 6.5 us per GEMV stage; re-fit it after the port. The all-reduce input of a
+  row-parallel GEMV then comes from the CTA's reducer wave instead of a last arriver.
+- Gemma 4 (`../gemma4-26b-a4b-gfx942/`, H = 2816): qkv (K = 2816) and the router fit;
+  o_s / o_f need the full K of the attention output per CTA (8 KB per row for the full
+  layers at M = 8 is 64 KB: does not fit) and its `c_o = 4`; the expert GEMVs (`c_e1 =
+  11`, `c_e2 = 2`) have the same P2 constraint as here. Check the LDS budget per M.
+
+Open questions from this work:
+
+- GDN SSM state loads during the barrier wait (2 MB per row per layer, independent of
+  in_proj): not measured (stop rule).
+- CTA-local reduction for the MoE GEMVs at M <= 2, where the partials fit in LDS. With
+  one wave per piece and the chunk-order sum it gives the same bits as the global path,
+  so it may depend on M without breaking P2.
+- Attention layers at M = 1: 20 tasks of 22 us; more, shorter tasks.
+
+### Integration (2026-10-29, job 68207371, `scripts/fsc_finish.sh`)
+
+Logs: `bench/results/fsc/finish/`. Decisions and evidence:
+
+- FlyDSL disk-cache key: `compile_key(cfg, PROFILE, D.PROBE)` in `mk/kernel.py`, held by
+  the launcher (same helper as `users/sareeder/flydsl-cache-key` 9134175; vLLM had it
+  hand-added in 88e48072d, now it comes from the export). Commit `aeccd33`. The logits do
+  not change: sha256 of the logits equal at M = 1 and 8 for `9b89aae` and `aeccd33`
+  (`hash_old/` against `gates/`; test_decode adad66a84e492a79 / 8fbc57e5edd4794f,
+  test_determinism adf32b9faf777eac / e1f72a99a572e884). To show this, `test_decode.py`
+  and `test_determinism.py` now print the sha256 of the kernel logits.
+- Gates of `aeccd33` (`gates/`, `scripts/fsc_gates.sh OUT_DIR`): every gate PASS. Later
+  commits change no kernel code.
+- vLLM: out_proj packs with 1 K chunk now. The vLLM runtime needs no change: it packs
+  with `default_chunks()` (the `c_*` defaults of `Cfg`) and asserts
+  `cfg.chunks() == self.chunks`. One comment in `Cfg` was rewrapped to 88 columns for
+  vLLM's ruff (E501). Export: vLLM `bdf23a462`. ruff 0.14.0 check and format clean; CPU
+  tests (qwen3_5, the #61311 conformance kit and library tests, dsv41): 140 passed
+  (`unit_tests_cpu.txt`; they need `VLLM_TARGET_DEVICE=cpu`, else the cleanup fixture
+  calls `torch.accelerator` on a CPU torch).
+- The vLLM source overlay (`~/mk/vllm36-src` on `PYTHONPATH`) needs the image's compiled
+  `vllm/*.so`; an `rsync --delete` of the worktree removes them and engine start fails
+  (`torch.ops._C` lacks `get_cuda_view_from_cpu_tensor`). Copied back from the image
+  build; the first vLLM run of the job failed for this reason, the rerun is in `vllm/`.
+- Neighbour load: `rocm-smi` is not on the compute node, and `amd-smi` in the job's
+  cgroup shows only the job's GPU. sysfs `gpu_busy_percent` shows all 8 GPUs; the script
+  samples it 5 times before and after each measurement. Another user's job kept one
+  other GPU at 100 % at times in all three attempts. The README uses attempt 1 (lowest
+  mean load, 3.7 %).
+- Stock vLLM (same image and script as 2026-10-27) was 4 % (AITER) to 10 % (plain)
+  slower at batch 1 in all three attempts; the cause is not known. The README speedups
+  use the same-session vLLM numbers and also give them against the 2026-10-27 numbers.
+  Rejected: mixing today's kernel with the 2026-10-27 vLLM numbers in the table.
+- `tools/plot_results.py` takes the vLLM runs of a session as a third argument.
+
 ## Invariants
 
 - I1: every CTA is resident (grid = CU count; LDS <= 64 KB and VGPRs <= 256 per lane,
   one CTA per CU). The builder asserts the LDS size; the compile log reports VGPRs and
   spills.
 - I2: a stage reads only data published before the preceding barrier, or by a last
-  arriver whose counter it observed.
+  arriver whose counter it observed, or (CTA-local GEMVs) by a wave of its own CTA
+  before a CTA barrier (LDS).
 - I3: the kernel is as close to the exact reference as the emulating reference is, on
   all 40 layers (P3).
 - I4: identical inputs give identical bits; a row does not depend on the other rows

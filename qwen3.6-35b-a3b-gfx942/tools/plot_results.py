@@ -1,9 +1,11 @@
 """Render docs/throughput.png from raw results: per-user and total decode speed.
 
-Usage: python tools/plot_results.py PATTERN [OUT.png]
+Usage: python tools/plot_results.py PATTERN [OUT.png] [VLLM_DIR]
 PATTERN is the path of the bench/bench_decode.py outputs with {b} for the batch size,
 e.g. bench/results/m4/bench_v5_m{b}.txt. The stock baselines come from
-bench/results/stock/ (same GPU model; see docs/DESIGN.md, "Stock baselines").
+bench/results/stock/ (same GPU model; see docs/DESIGN.md, "Stock baselines"). VLLM_DIR:
+the vLLM runs from another session instead, in VLLM_DIR/vllm_{aiter,plain}/
+(scripts/fsc_finish.sh).
 Per-user speed = 1000 / TPOT; total speed = batch x per-user speed.
 """
 
@@ -33,9 +35,9 @@ def megakernel(pattern):
     return out
 
 
-def vllm(name):
+def vllm(path):
     """batch -> median TPOT of `vllm bench serve` (batch 1: median of 3 runs)."""
-    j = lambda n: json.load(open(os.path.join(STOCK, name, f"{n}.json")))["median_tpot_ms"]  # noqa: E731
+    j = lambda n: json.load(open(os.path.join(path, f"{n}.json")))["median_tpot_ms"]  # noqa: E731
     out = {b: j(f"c{b}") for b in BATCHES}
     out[1] = statistics.median([j("c1"), j("c1_rep2"), j("c1_rep3")])
     return out
@@ -71,10 +73,14 @@ def style(ax):
 def main():
     pattern = sys.argv[1]
     out = sys.argv[2] if len(sys.argv) > 2 else os.path.join(ROOT, "docs", "throughput.png")
+    if len(sys.argv) > 3:
+        va, vp = (os.path.join(sys.argv[3], f"vllm_{v}") for v in ("aiter", "plain"))
+    else:
+        va, vp = (os.path.join(STOCK, f"vllm{v}_Qwen3.6-35B-A3B-FP8") for v in ("_aiter", ""))
     series = [  # (engine, label, line style, batch -> TPOT ms)
         ("megakernel", "megakernel FP8", "-", megakernel(pattern)),
-        ("vLLM", "vLLM FP8 + AITER", "-", vllm("vllm_aiter_Qwen3.6-35B-A3B-FP8")),
-        ("vLLM", "vLLM FP8", (0, (5, 3)), vllm("vllm_Qwen3.6-35B-A3B-FP8")),
+        ("vLLM", "vLLM FP8 + AITER", "-", vllm(va)),
+        ("vLLM", "vLLM FP8", (0, (5, 3)), vllm(vp)),
         ("SGLang", "SGLang FP8", "-", sglang("sglang_Qwen3.6-35B-A3B-FP8")),
     ]
     fig, axes = plt.subplots(1, 2, figsize=(13, 4.6), dpi=160, gridspec_kw=dict(wspace=0.25))
@@ -99,7 +105,8 @@ def main():
     fig.text(0.01, -0.08, "Qwen3.6-35B-A3B FP8 checkpoint, one MI300X (gfx942), TP1, 512-token "
              "prompt, 256 output tokens. Megakernel: bench/bench_decode.py, median of 3 runs.\n"
              "vLLM 0.32.1rc1 nightly: `vllm bench serve` median TPOT. SGLang 0.5.10: "
-             "`bench_one_batch`. Labels: speedup over vLLM FP8 + AITER.", color=MUTED,
+             "`bench_one_batch` (bench/results/stock/). Labels: speedup over vLLM FP8 + AITER.",
+             color=MUTED,
              fontsize=8.2)
     fig.savefig(out, facecolor=SURFACE, bbox_inches="tight")
     print("wrote", out)

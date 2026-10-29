@@ -1,0 +1,64 @@
+load+pack+build 12s
+Traceback (most recent call last):
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/bench_decode.py", line 67, in <module>
+    main()
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/bench/bench_decode.py", line 38, in main
+    logits = eng.step(prompt[t])
+             ^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/mk/runner.py", line 192, in step
+    self.launch(
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/jit_function.py", line 1558, in __call__
+    return self._compile_or_execute(args, kwargs, execute=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/jit_function.py", line 1699, in _compile_or_execute
+    traced = self._trace_and_compile(ctx, sig, bound, bound_self, execute=execute)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/jit_function.py", line 1521, in _trace_and_compile
+    self.func(**named_args)
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/mk/kernel.py", line 386, in launch
+    kdec(tab, glob, nlayers).launch(grid=(CUS,), block=(NT,), stream=stream)
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/kernel_function.py", line 361, in launch
+    kernel_name, kernel_args, gpu_func_op, smem_bytes = self._kernel_function._emit_kernel(
+                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/kernel_function.py", line 610, in _emit_kernel
+    self._func(**dsl_args)
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/mk/kernel.py", line 332, in kdec
+    for i in range(0, nlayers):
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/ast_rewriter.py", line 1107, in scf_for_dispatch
+    body_result = body_fn(iv, result_names, *inner_args)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/mk/kernel.py", line 354, in __for_body_14
+    if i % 4 == 3:
+^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/ast_rewriter.py", line 722, in scf_if_dispatch
+    ReplaceIfWithDispatch._call_branch(then_fn, result_names, result_values)
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/ast_rewriter.py", line 666, in _call_branch
+    return fn(result_names, *state_values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/mk/kernel.py", line 355, in __then_70
+    _attn_layer(env, NTASK_A)
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/mk/kernel.py", line 400, in _attn_layer
+    _attn_layer_t(**env, ntask=ntask)
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/mk/kernel.py", line 468, in _attn_layer_t
+    qkv.run(
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/mk/gemv.py", line 396, in run
+    self.cta_reduce(w, epilogue)
+  File "/home/AMD/sareeder/mk/fixed-stage-cost-src/mk/gemv.py", line 436, in cta_reduce
+    if (gi < g1) & (w["wave"] == li % W):
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/ast_rewriter.py", line 736, in scf_if_dispatch
+    exemplar, state_raw, result_types = _unpack_states(result_values)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/ast_rewriter.py", line 136, in _unpack_states
+    return exemplar, extract_to_ir_values(exemplar), get_ir_types(exemplar)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/protocol.py", line 107, in extract_to_ir_values
+    return list(chain.from_iterable(extract_to_ir_values(x) for x in obj))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/protocol.py", line 107, in <genexpr>
+    return list(chain.from_iterable(extract_to_ir_values(x) for x in obj))
+                                    ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/flydsl/compiler/protocol.py", line 108, in extract_to_ir_values
+    raise TypeError(f"Cannot extract IR values from {obj}")
+TypeError: Cannot extract IR values from <function _attn_layer_t.<locals>.<lambda> at 0x74643b2642c0>
