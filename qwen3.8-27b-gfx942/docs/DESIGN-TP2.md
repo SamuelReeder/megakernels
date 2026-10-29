@@ -684,10 +684,49 @@ Run-to-run repeatability inside vLLM at TP2 (open, not a kernel defect as far as
 - standalone, the same TP2 kernel is bitwise deterministic (section 9) and its ranks are
   equal in vLLM (above).
 vLLM's own TP2 path is thus not repeatable, and the fp8 activations of the kernel turn a
-small input difference into a different token sooner. A check that the GDN states before
-the first kernel launch differ between runs (checksums in the same hook) did not run: the
-node's container scratch (/var/tmp) was full (`scratch/logs/m6d/driver_m6d3.log`). It is
-planned for the second node (milestone 5).
+small input difference into a different token sooner.
+
+GDN-state check (2026-10-29, banff-cyxtera-s70-4, job 68206678, `scratch/logs/m6s/`).
+Hook `scratch/m6/statecheck/` (sitecustomize): at every eager call of the Qwen3.5 forward
+(prefill and mixed steps; FULL-graph decode replays do not call Python) it logs the token
+count and the bit sums of input_ids, positions and the output hidden states, and per cache
+layer (48 GDN: conv and SSM state; 16 attention: KV) the bit sum of the whole cache tensor
+before and after the call. With the kernel on it also logs every eager kernel launch.
+Two runs of `bench/vllm_e2e.py` with the kernel off, two with it on (plan `m6s.sh`; the
+second kernel-on run is `m6s2.sh`, because the node's /var/tmp was full at the first try).
+Compare: `scratch/m6/stateinputs.py`.
+
+| | kernel off (`off_r1` / `off_r2`) | kernel on (`on_r1` / `on_r2`) |
+|---|---|---|
+| prompts token-identical (128 tokens) | 7 of 8 | 7 of 8 |
+| forward calls | 93 / 96 | 92 / 90 |
+| distinct real inputs (ids not 0) that give more than one hidden sum | 0 of 23 | 0 of 20 |
+| caches before the first real prefill (call 14) | all 64 layers equal | all 64 layers equal |
+| first call with a different input | 32: 51 tokens / 17 tokens | 32: 34 tokens / 51 tokens |
+| eager kernel launches (inputs) | none | 17, equal lists |
+
+Findings:
+1. The first difference between two runs is the composition of a prefill call. The
+   measured part of `vllm_e2e.py` submits the 8 prompts in one `generate` call. In one run
+   the first prefill takes 2 prompts (34 tokens), in the other 3 prompts (51 tokens), and
+   later calls differ in the same way. This is vLLM's scheduler: which requests join a step
+   depends on when they reach the engine core. Neither the kernel nor the hook decides it.
+2. A call with the same input gives the same output bits in both runs, in both modes (23
+   and 20 distinct inputs, each with one hidden sum, also when the cache sums before the
+   call differ). The cache sums do differ between runs after vLLM's dummy runs (input ids
+   0: profile, warm-up, graph capture), which write into padding slots. Those writes do not
+   change the output of any real call, so they are not the cause.
+3. With the same caches before the first real prefill (all 64 layers equal) and
+   deterministic calls (finding 2), the only differing input is the composition of the
+   calls (finding 1). [INFERENCE] vLLM's prefill is not batch-invariant: a prompt's state
+   after prefill depends on the other prompts of its call. The kernel reads that state at its
+   first launch, so its tokens differ. The whole-tensor sums cannot show which slot
+   differs; a per-slot sum would prove this directly.
+4. The kernel is not the cause: its eager launches see equal inputs in both runs, it is
+   bitwise deterministic and batch-invariant standalone (section 9), and its ranks are
+   equal in vLLM (above). No kernel change, so the gates were not re-run.
+Not measured: whether the prefill composition also varies at TP1, where kernel-on runs
+were 8 of 8 identical.
 
 ## 12. Rejected alternatives
 
@@ -858,3 +897,7 @@ Decided 2026-10-29 (milestone 5, second node):
   vLLM image in the home); milestone 6 covers it on banff.
 - Speed gate on a different GPU model (MI325X): the run fails only when TP2 is more than
   3 % slower than on banff-cyxtera-s70-4 (run 1 of section 11, milestone 5 table).
+- GDN-state check (section 11, milestone 6): the run-to-run differences inside vLLM at TP2
+  start at the scheduler's prefill composition, which is vLLM's path. Written up with the
+  evidence; no kernel change and no gate re-run. Rejected: change `bench/vllm_e2e.py` to
+  force one prefill composition (it would hide the behaviour, not explain it).
