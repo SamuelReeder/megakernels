@@ -1,0 +1,16 @@
+variant rt_geom=0: cfg Cfg(M=8, cus=304, maxlen=4096, block=208, maxblocks=20, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=(), fence=False, chaos=False, rt_geom=0) compiled as Cfg(M=8, cus=304, maxlen=4096, block=208, maxblocks=20, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=(), fence=False, chaos=False, rt_geom=0); prompt 53s
+variant rt_geom=1: cfg Cfg(M=8, cus=304, maxlen=4096, block=208, maxblocks=20, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=(), fence=False, chaos=False, rt_geom=1) compiled as Cfg(M=8, cus=304, maxlen=0, block=0, maxblocks=0, kv_s0=0, kv_s1=0, kv_s2=0, kv_sv=0, kv_xpack=False, conv_s0=0, ssm_s0=0, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=(), fence=False, chaos=False, rt_geom=1); prompt 54s
+variant rt_geom=2: cfg Cfg(M=8, cus=304, maxlen=4096, block=208, maxblocks=20, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=(), fence=False, chaos=False, rt_geom=2) compiled as Cfg(M=8, cus=304, maxlen=0, block=208, maxblocks=0, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=(), fence=False, chaos=False, rt_geom=2); prompt 53s
+load+pack+build+prompts 165s
+round 0 rt_geom=0: TPOT 10.639 ms, fixed-token TPOT 10.617 ms, kernel median 10.651 ms
+round 0 rt_geom=1: TPOT 10.763 ms, fixed-token TPOT 10.731 ms, kernel median 10.764 ms
+round 0 rt_geom=2: TPOT 10.659 ms, fixed-token TPOT 10.641 ms, kernel median 10.669 ms
+round 1 rt_geom=1: TPOT 10.758 ms, fixed-token TPOT 10.729 ms, kernel median 10.762 ms
+round 1 rt_geom=2: TPOT 10.668 ms, fixed-token TPOT 10.645 ms, kernel median 10.681 ms
+round 1 rt_geom=0: TPOT 10.649 ms, fixed-token TPOT 10.624 ms, kernel median 10.657 ms
+round 2 rt_geom=2: TPOT 10.669 ms, fixed-token TPOT 10.659 ms, kernel median 10.702 ms
+round 2 rt_geom=0: TPOT 10.648 ms, fixed-token TPOT 10.630 ms, kernel median 10.664 ms
+round 2 rt_geom=1: TPOT 10.763 ms, fixed-token TPOT 10.749 ms, kernel median 10.779 ms
+SUMMARY M=8 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=0: TPOT median 10.648 ms [10.639, 10.649] (+0.00% vs rt_geom=0), fixed 10.624, kernel 10.657; prompt logits equal True, greedy tokens equal True
+SUMMARY M=8 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=1: TPOT median 10.763 ms [10.758, 10.763] (+1.08% vs rt_geom=0), fixed 10.731, kernel 10.764; prompt logits equal True, greedy tokens equal True
+SUMMARY M=8 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=2: TPOT median 10.668 ms [10.659, 10.669] (+0.19% vs rt_geom=0), fixed 10.645, kernel 10.681; prompt logits equal True, greedy tokens equal True

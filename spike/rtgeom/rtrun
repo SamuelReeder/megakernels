@@ -47,7 +47,7 @@ home=/home/AMD/sareeder
 [ "${AUS:-0}" = 1 ] && home=$W/home
 rc=0
 cmd="srun --jobid=$job --overlap -n1 --time=${RT_TIME:-60} \
-  --container-image=$image --container-name=rtg-$img \
+  --container-image=$image --container-name=rtg-$img --container-writable \
   --container-mounts=/cluster:/cluster,$home:/home/AMD/sareeder,$W:/work \
   bash -lc '$pre; cd /work/mk/qwen3.8-27b-gfx942 && echo node \$(hostname) job $job rev \$(cat /work/mk/REVISION) >&2; $*'"
 if [ -n "${RT_TMUX:-}" ]; then  # detached: tmux session RT_TMUX on the login node, log ~/rtg_RT_TMUX.log

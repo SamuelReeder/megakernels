@@ -1,0 +1,132 @@
+{
+ "M": 1,
+ "ctx": 3500,
+ "steps": 64,
+ "rounds": 3,
+ "maxlen": 4096,
+ "block": 208,
+ "xpack": false,
+ "node": "quanta-ccs-aus-j02-45.adc.amd.com",
+ "gpu": "AMD Instinct MI325X",
+ "date": "2026-10-29 14:54:09",
+ "runs": {
+  "0": [
+   {
+    "tpot_ms": 7.278604030609131,
+    "tpot_fixed_ms": 7.264265537261963,
+    "kernel_ms_median": 7.318170070648193
+   },
+   {
+    "tpot_ms": 7.2839741706848145,
+    "tpot_fixed_ms": 7.2723612785339355,
+    "kernel_ms_median": 7.324099063873291
+   },
+   {
+    "tpot_ms": 7.289865016937256,
+    "tpot_fixed_ms": 7.276062965393066,
+    "kernel_ms_median": 7.32662296295166
+   }
+  ],
+  "1": [
+   {
+    "tpot_ms": 7.295744895935059,
+    "tpot_fixed_ms": 7.2835774421691895,
+    "kernel_ms_median": 7.329346179962158
+   },
+   {
+    "tpot_ms": 7.298201560974121,
+    "tpot_fixed_ms": 7.281912803649902,
+    "kernel_ms_median": 7.333592891693115
+   },
+   {
+    "tpot_ms": 7.306397914886475,
+    "tpot_fixed_ms": 7.293505668640137,
+    "kernel_ms_median": 7.343688011169434
+   }
+  ],
+  "2": [
+   {
+    "tpot_ms": 7.28563117980957,
+    "tpot_fixed_ms": 7.274384498596191,
+    "kernel_ms_median": 7.325380802154541
+   },
+   {
+    "tpot_ms": 7.28863000869751,
+    "tpot_fixed_ms": 7.279953956604004,
+    "kernel_ms_median": 7.328586101531982
+   },
+   {
+    "tpot_ms": 7.291223526000977,
+    "tpot_fixed_ms": 7.279688835144043,
+    "kernel_ms_median": 7.3360371589660645
+   }
+  ]
+ },
+ "summary": {
+  "0": {
+   "tpot_ms": {
+    "median": 7.2839741706848145,
+    "min": 7.278604030609131,
+    "max": 7.289865016937256
+   },
+   "tpot_fixed_ms": {
+    "median": 7.2723612785339355,
+    "min": 7.264265537261963,
+    "max": 7.276062965393066
+   },
+   "kernel_ms_median": {
+    "median": 7.324099063873291,
+    "min": 7.318170070648193,
+    "max": 7.32662296295166
+   }
+  },
+  "1": {
+   "tpot_ms": {
+    "median": 7.298201560974121,
+    "min": 7.295744895935059,
+    "max": 7.306397914886475
+   },
+   "tpot_fixed_ms": {
+    "median": 7.2835774421691895,
+    "min": 7.281912803649902,
+    "max": 7.293505668640137
+   },
+   "kernel_ms_median": {
+    "median": 7.333592891693115,
+    "min": 7.329346179962158,
+    "max": 7.343688011169434
+   }
+  },
+  "2": {
+   "tpot_ms": {
+    "median": 7.28863000869751,
+    "min": 7.28563117980957,
+    "max": 7.291223526000977
+   },
+   "tpot_fixed_ms": {
+    "median": 7.279688835144043,
+    "min": 7.274384498596191,
+    "max": 7.279953956604004
+   },
+   "kernel_ms_median": {
+    "median": 7.328586101531982,
+    "min": 7.325380802154541,
+    "max": 7.3360371589660645
+   }
+  }
+ },
+ "checks": {
+  "0": {
+   "prompt_logits_equal": true,
+   "tokens_equal": true
+  },
+  "1": {
+   "prompt_logits_equal": true,
+   "tokens_equal": true
+  },
+  "2": {
+   "prompt_logits_equal": true,
+   "tokens_equal": true
+  }
+ }
+}

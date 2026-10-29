@@ -1,0 +1,48 @@
+node quanta-ccs-aus-j02-45.adc.amd.com job 68210914 rev 19e217f3ceeee6ba370cfb4bb578dd24359ee6c1 dirty: 1
+gfx942
+test_decode_rt1_m1.log: kernel~emulate: worst cos 0.999387 top1 0.812 kernel~exact:   worst cos 0.999443 top1 0.938 emulate~exact:  worst cos 0.999460 top1 0.875 PASS 
+test_decode_rt1_xpack784_m1.log: kernel~emulate: worst cos 0.999387 top1 0.812 kernel~exact:   worst cos 0.999443 top1 0.938 emulate~exact:  worst cos 0.999460 top1 0.875 PASS 
+test_decode_rt1_m8.log: kernel~emulate: worst cos 0.995686 top1 0.945 kernel~exact:   worst cos 0.987787 top1 0.930 emulate~exact:  worst cos 0.986359 top1 0.906 PASS 
+test_decode_rt1_xpack784_m8.log: kernel~emulate: worst cos 0.995686 top1 0.945 kernel~exact:   worst cos 0.987787 top1 0.930 emulate~exact:  worst cos 0.986359 top1 0.906 PASS 
+determinism rt1 M=1: M=1 steps=64: 3 runs bitwise equal: True
+determinism rt1 M=8: M=8 steps=64: 3 runs bitwise equal: True
+== profile M=8 rt_geom=0
+embed (start -> first arrival) 1.1 us; step total 10036.5 us
+stage    n  span us  busy us barrier us sum span us
+inp     48     27.0     21.0       4.32      1288.8
+gdn     48     15.0     12.7       3.76       725.4
+out     48     16.3     10.9       1.80       781.9
+gu      64     32.8     30.6       2.16      2117.5
+down    64     21.3     18.2       4.55      1385.4
+qkv     16     23.3     18.9       4.02       371.3
+attn    16     73.7     29.2       3.31      1181.1
+o       16     15.1     10.0      19.99       241.8
+lm       1    694.6    572.7       3.62       694.6
+sum of spans + barriers 10124.8 us
+== profile M=8 rt_geom=1
+embed (start -> first arrival) 1.0 us; step total 10048.4 us
+stage    n  span us  busy us barrier us sum span us
+inp     48     27.1     21.1       4.15      1283.5
+gdn     48     15.1     13.0       3.65       725.3
+out     48     14.9     10.7       1.88       715.8
+gu      64     33.0     30.8       2.15      2121.1
+down    64     21.4     18.1       4.66      1372.7
+qkv     16     23.9     19.0       4.06       381.6
+attn    16     79.0     30.9       3.34      1259.5
+o       16     13.9      9.6      20.42       222.1
+lm       1    693.5    571.3       3.64       693.5
+sum of spans + barriers 10142.1 us
+== profile M=8 rt_geom=2
+embed (start -> first arrival) 4.5 us; step total 10054.4 us
+stage    n  span us  busy us barrier us sum span us
+inp     48     26.6     21.1       4.10      1284.3
+gdn     48     15.0     12.9       4.70       724.1
+out     48     15.2     11.0       1.80       730.7
+gu      64     33.2     30.7       2.25      2136.0
+down    64     21.7     18.3       4.64      1409.9
+qkv     16     22.9     19.0       3.86       370.7
+attn    16     76.6     29.3       3.83      1220.6
+o       16     14.2      9.9      19.44       226.6
+lm       1    696.1    574.5       5.27       696.1
+sum of spans + barriers 10144.0 us
+RTRUN-DONE rc=0

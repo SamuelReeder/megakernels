@@ -1,0 +1,38 @@
+node quanta-ccs-aus-j02-45.adc.amd.com job 68210914 rev 19e217f3ceeee6ba370cfb4bb578dd24359ee6c1 dirty: 1
+spec16384b exit 0
+Qwen3.8 gfx942 decode: KV block 784, 21 block-table columns, 1 attention and 3 GDN cache groups, widths [1, 2, 4, 8], cfg Cfg(M=8, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=0)
+Qwen3.8 gfx942 decode: KV block 784, 21 block-table columns, 1 attention and 3 GDN cache groups, widths [1, 2, 4, 8], cfg Cfg(M=8, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=0)
+on batch 1: TPOT 6.73 ms (148.5 tok/s/user)
+on batch 2: TPOT 7.19 ms (139.2 tok/s/user)
+on batch 4: TPOT 7.85 ms (127.3 tok/s/user)
+on batch 8: TPOT 9.10 ms (109.8 tok/s/user)
+rtco16384b exit 0
+SPIKE rtgeom: width 1 launches qwen38_vllm_m1_c069a35f.co (sha256 b4f31055ccd80027, exported with Cfg(M=1, cus=304, maxlen=4096, block=784, maxblocks=6, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=1)) for Cfg(M=1, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpac
+SPIKE rtgeom: width 2 launches qwen38_vllm_m2_c069a35f.co (sha256 e421b8eb69a842f9, exported with Cfg(M=2, cus=304, maxlen=4096, block=784, maxblocks=6, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=1)) for Cfg(M=2, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpac
+SPIKE rtgeom: width 4 launches qwen38_vllm_m4_c069a35f.co (sha256 102795956bcf0666, exported with Cfg(M=4, cus=304, maxlen=4096, block=784, maxblocks=6, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=1)) for Cfg(M=4, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpac
+SPIKE rtgeom: width 8 launches qwen38_vllm_m8_c069a35f.co (sha256 7ed37ca7d327c408, exported with Cfg(M=8, cus=304, maxlen=4096, block=784, maxblocks=6, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=1)) for Cfg(M=8, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpac
+Qwen3.8 gfx942 decode: KV block 784, 21 block-table columns, 1 attention and 3 GDN cache groups, widths [1, 2, 4, 8], cfg Cfg(M=8, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=1)
+SPIKE rtgeom: first code-object launch at width 8, capturing False
+SPIKE rtgeom: first code-object launch at width 4, capturing False
+SPIKE rtgeom: first code-object launch at width 2, capturing False
+SPIKE rtgeom: first code-object launch at width 1, capturing False
+SPIKE rtgeom: first code-object launch at width 8, capturing True
+SPIKE rtgeom: first code-object launch at width 4, capturing True
+SPIKE rtgeom: width 1 launches qwen38_vllm_m1_c069a35f.co (sha256 b4f31055ccd80027, exported with Cfg(M=1, cus=304, maxlen=4096, block=784, maxblocks=6, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=1)) for Cfg(M=1, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpac
+SPIKE rtgeom: width 2 launches qwen38_vllm_m2_c069a35f.co (sha256 e421b8eb69a842f9, exported with Cfg(M=2, cus=304, maxlen=4096, block=784, maxblocks=6, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=1)) for Cfg(M=2, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpac
+SPIKE rtgeom: width 4 launches qwen38_vllm_m4_c069a35f.co (sha256 102795956bcf0666, exported with Cfg(M=4, cus=304, maxlen=4096, block=784, maxblocks=6, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=1)) for Cfg(M=4, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpac
+SPIKE rtgeom: width 8 launches qwen38_vllm_m8_c069a35f.co (sha256 7ed37ca7d327c408, exported with Cfg(M=8, cus=304, maxlen=4096, block=784, maxblocks=6, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=1)) for Cfg(M=8, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpac
+Qwen3.8 gfx942 decode: KV block 784, 21 block-table columns, 1 attention and 3 GDN cache groups, widths [1, 2, 4, 8], cfg Cfg(M=8, cus=304, maxlen=16384, block=784, maxblocks=21, kv_s0=1605632, kv_s1=200704, kv_s2=8, kv_sv=802816, kv_xpack=True, conv_s0=3211264, ssm_s0=3211264, lm_head=False, rt_geom=1)
+SPIKE rtgeom: first code-object launch at width 8, capturing False
+SPIKE rtgeom: first code-object launch at width 2, capturing False
+SPIKE rtgeom: first code-object launch at width 1, capturing False
+SPIKE rtgeom: first code-object launch at width 4, capturing False
+SPIKE rtgeom: first code-object launch at width 8, capturing True
+SPIKE rtgeom: first code-object launch at width 4, capturing True
+SPIKE rtgeom: first code-object launch at width 2, capturing True
+SPIKE rtgeom: first code-object launch at width 1, capturing True
+on batch 1: TPOT 6.79 ms (147.2 tok/s/user)
+on batch 2: TPOT 7.19 ms (139.2 tok/s/user)
+on batch 4: TPOT 7.95 ms (125.9 tok/s/user)
+on batch 8: TPOT 9.23 ms (108.4 tok/s/user)
+RTRUN-DONE rc=0

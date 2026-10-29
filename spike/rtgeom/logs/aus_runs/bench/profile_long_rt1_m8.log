@@ -1,0 +1,15 @@
+tp 1 rank 0 ar fp32 cfg Cfg(M=8, cus=304, maxlen=3584, block=208, maxblocks=18, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=(), fence=False, chaos=False, rt_geom=1)
+first step done
+3500 steps done
+embed (start -> first arrival) 1.0 us; step total 10048.4 us
+stage    n  span us  busy us barrier us sum span us
+inp     48     27.1     21.1       4.15      1283.5
+gdn     48     15.1     13.0       3.65       725.3
+out     48     14.9     10.7       1.88       715.8
+gu      64     33.0     30.8       2.15      2121.1
+down    64     21.4     18.1       4.66      1372.7
+qkv     16     23.9     19.0       4.06       381.6
+attn    16     79.0     30.9       3.34      1259.5
+o       16     13.9      9.6      20.42       222.1
+lm       1    693.5    571.3       3.64       693.5
+sum of spans + barriers 10142.1 us

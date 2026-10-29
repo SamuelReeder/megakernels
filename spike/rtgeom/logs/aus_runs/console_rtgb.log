@@ -1,0 +1,26 @@
+node quanta-ccs-aus-j02-45.adc.amd.com job 68210914 rev 19e217f3ceeee6ba370cfb4bb578dd24359ee6c1 dirty: 0
+SUMMARY M=1 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=0: TPOT median 6.798 ms [6.778, 6.802] (+0.00% vs rt_geom=0), fixed 6.784, kernel 6.837; prompt logits equal True, greedy tokens equal True
+SUMMARY M=1 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=1: TPOT median 6.742 ms [6.735, 6.760] (-0.83% vs rt_geom=0), fixed 6.734, kernel 6.784; prompt logits equal True, greedy tokens equal True
+SUMMARY M=1 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=2: TPOT median 6.747 ms [6.739, 6.754] (-0.76% vs rt_geom=0), fixed 6.735, kernel 6.786; prompt logits equal True, greedy tokens equal True
+SUMMARY M=2 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=0: TPOT median 7.279 ms [7.265, 7.288] (+0.00% vs rt_geom=0), fixed 7.267, kernel 7.316; prompt logits equal True, greedy tokens equal True
+SUMMARY M=2 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=1: TPOT median 7.235 ms [7.227, 7.254] (-0.61% vs rt_geom=0), fixed 7.219, kernel 7.270; prompt logits equal True, greedy tokens equal True
+SUMMARY M=2 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=2: TPOT median 7.220 ms [7.217, 7.228] (-0.81% vs rt_geom=0), fixed 7.203, kernel 7.261; prompt logits equal True, greedy tokens equal True
+SUMMARY M=4 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=0: TPOT median 7.908 ms [7.891, 7.913] (+0.00% vs rt_geom=0), fixed 7.893, kernel 7.941; prompt logits equal True, greedy tokens equal True
+SUMMARY M=4 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=1: TPOT median 7.932 ms [7.924, 7.953] (+0.31% vs rt_geom=0), fixed 7.917, kernel 7.970; prompt logits equal True, greedy tokens equal True
+SUMMARY M=4 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=2: TPOT median 7.932 ms [7.922, 7.936] (+0.31% vs rt_geom=0), fixed 7.911, kernel 7.962; prompt logits equal True, greedy tokens equal True
+SUMMARY M=8 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=0: TPOT median 9.045 ms [9.035, 9.059] (+0.00% vs rt_geom=0), fixed 9.033, kernel 9.077; prompt logits equal True, greedy tokens equal True
+SUMMARY M=8 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=1: TPOT median 9.147 ms [9.144, 9.173] (+1.13% vs rt_geom=0), fixed 9.126, kernel 9.179; prompt logits equal True, greedy tokens equal True
+SUMMARY M=8 ctx=512 maxlen=640 block=208 xpack=0 rt_geom=2: TPOT median 9.102 ms [9.092, 9.106] (+0.63% vs rt_geom=0), fixed 9.078, kernel 9.133; prompt logits equal True, greedy tokens equal True
+SUMMARY M=1 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=0: TPOT median 7.284 ms [7.279, 7.290] (+0.00% vs rt_geom=0), fixed 7.272, kernel 7.324; prompt logits equal True, greedy tokens equal True
+SUMMARY M=1 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=1: TPOT median 7.298 ms [7.296, 7.306] (+0.20% vs rt_geom=0), fixed 7.284, kernel 7.334; prompt logits equal True, greedy tokens equal True
+SUMMARY M=1 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=2: TPOT median 7.289 ms [7.286, 7.291] (+0.06% vs rt_geom=0), fixed 7.280, kernel 7.329; prompt logits equal True, greedy tokens equal True
+SUMMARY M=2 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=0: TPOT median 7.821 ms [7.815, 7.823] (+0.00% vs rt_geom=0), fixed 7.807, kernel 7.855; prompt logits equal True, greedy tokens equal True
+SUMMARY M=2 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=1: TPOT median 7.784 ms [7.782, 7.786] (-0.47% vs rt_geom=0), fixed 7.767, kernel 7.811; prompt logits equal True, greedy tokens equal True
+SUMMARY M=2 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=2: TPOT median 7.790 ms [7.790, 7.791] (-0.39% vs rt_geom=0), fixed 7.778, kernel 7.824; prompt logits equal True, greedy tokens equal True
+SUMMARY M=4 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=0: TPOT median 8.760 ms [8.759, 8.763] (+0.00% vs rt_geom=0), fixed 8.733, kernel 8.796; prompt logits equal True, greedy tokens equal True
+SUMMARY M=4 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=1: TPOT median 8.766 ms [8.761, 8.767] (+0.07% vs rt_geom=0), fixed 8.753, kernel 8.784; prompt logits equal True, greedy tokens equal True
+SUMMARY M=4 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=2: TPOT median 8.783 ms [8.780, 8.790] (+0.26% vs rt_geom=0), fixed 8.759, kernel 8.833; prompt logits equal True, greedy tokens equal True
+SUMMARY M=8 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=0: TPOT median 10.648 ms [10.639, 10.649] (+0.00% vs rt_geom=0), fixed 10.624, kernel 10.657; prompt logits equal True, greedy tokens equal True
+SUMMARY M=8 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=1: TPOT median 10.763 ms [10.758, 10.763] (+1.08% vs rt_geom=0), fixed 10.731, kernel 10.764; prompt logits equal True, greedy tokens equal True
+SUMMARY M=8 ctx=3500 maxlen=4096 block=208 xpack=0 rt_geom=2: TPOT median 10.668 ms [10.659, 10.669] (+0.19% vs rt_geom=0), fixed 10.645, kernel 10.681; prompt logits equal True, greedy tokens equal True
+RTRUN-DONE rc=0
