@@ -1,7 +1,9 @@
 # Qwen3.8-27B decode megakernel, tensor parallel 2 (TP2) on gfx942: design
 
-Status: milestone 2 (design, no kernel code), 2026-10-27. Milestone 1 (spike) result: GO.
-Source of every number: the log path next to it. `scratch/` is the disposable spike.
+Status: milestones 1 to 6 done, 2026-10-29: the kernel runs at TP2 in the standalone engine and
+in vLLM, and milestone 5 (reproducibility) passes on a second day and a second node (MI325X).
+Source of every number: the log path next to it, under `bench/results/tp2/` (logs, the spike
+code and the run scripts; the logs keep the `scratch/` paths the runs had).
 
 ## 1. Fixed point
 
@@ -28,8 +30,8 @@ TP1 does not change: `Cfg.tp = 1` gives today's kernel and passes today's tests.
 
 ## 3. Milestone 1 result (spike)
 
-Code `scratch/ar_spike/`, summary `scratch/logs/SUMMARY.md`, node banff-cyxtera-s70-4, GPUs
-on one XGMI link (`scratch/logs/20261027a/env.log`).
+Code `bench/results/tp2/ar_spike/`, summary `bench/results/tp2/logs/SUMMARY.md`, node banff-cyxtera-s70-4, GPUs
+on one XGMI link (`bench/results/tp2/logs/20261027a/env.log`).
 
 Spike kernel: 304 CTAs x 512 threads per GPU, 128 all-reduces per launch. One round: each
 16-column group's owner CTA pushes its partial as (value, tag) pairs to both ranks' regions
@@ -44,14 +46,14 @@ checked launches were bit-exact and rank-equal.
 | 4 | 3.55 / 3.96 | 1.84 / 2.31 |
 | 8 | 7.07 / 7.72 (a), 7.02 / 7.83 (b) | 3.57 / 4.44 |
 
-Logs: `scratch/logs/20261027a/predict_r0.txt`, `scratch/logs/20261027b/predict_r0.txt`.
+Logs: `bench/results/tp2/logs/20261027a/predict_r0.txt`, `bench/results/tp2/logs/20261027b/predict_r0.txt`.
 The cost grows with the bytes: about 46 GB/s in both formats, the rate of one XGMI link.
 fp32 pairs move 8 bytes a value, bf16-pair words 4 bytes a value.
 
 For comparison (one all-reduce in a CUDA graph of 128, median us, fp32 / bf16): RCCL 9.75 /
 10.88 (M = 1), 16.14 / 15.52 (M = 8); vLLM custom all-reduce 4.14 / 4.00 and 7.47 / 5.59;
-vLLM with AITER 5.64 / 3.34 and 9.10 / 5.86 (`scratch/logs/20261027a/coll_*_r0.json`,
-`scratch/logs/20261027b/coll_vllm-noaiter_r0.json`).
+vLLM with AITER 5.64 / 3.34 and 9.10 / 5.86 (`bench/results/tp2/logs/20261027a/coll_*_r0.json`,
+`bench/results/tp2/logs/20261027b/coll_vllm-noaiter_r0.json`).
 
 Prediction (milestone 1 formula, W the weight-stream time, F the fixed cost):
 
@@ -184,7 +186,7 @@ half p. The same argument covers the embedding region between steps: A's embed e
 step s + 1 needs A to finish step s, which needs B's last push of step s, issued after B read
 its step s embed region. A stale pair cannot match: a tag repeats only after 2^32 barriers.
 Spike evidence: 128-round launches, back to back, bit-exact on both ranks
-(`scratch/logs/20261027a/spike_r*.log`).
+(`bench/results/tp2/logs/20261027a/spike_r*.log`).
 
 The epochs of the two ranks must agree: both flag buffers start at zero, and both ranks run
 the same sequence of launches with the same layer count. A rank whose launch fails leaves its
@@ -267,12 +269,14 @@ Gates from milestone 4 on (approved 2026-10-27, after milestone 3):
   step; determinism (3 runs); batch invariance.
 - Report only: the test_decode criterion (c1) and the TP1 bound (c2). With F = 55 the bound
   does not bind at M = 8.
-- fp32 is at +9.6 % KL against the 10 % limit: re-checked in milestone 5 on a second node.
+- fp32 is at +9.6 % KL against the 10 % limit: re-checked in milestone 5 on a second node
+  (MI325X, job 68206615): TP2 0.04279, TP1 0.03904, +9.6 % again
+  (`bench/results/tp2/logs/m5_node2/summary.txt`, `tp2_eval.r0.log`, `tp1_eval.r0.log`).
 - The 1-layer check stays: TP2 against an emulating reference with TP2's sum order
   (`reference.step(..., ar_tp=2)`: each row-parallel GEMV as the ranks' K-slice fp32
   partials, added in rank order). Expected agreement about 1e-7, as TP1 against its own
   order. test_decode emulates TP2's order by default (MK_EMU_SPLIT=1).
-- 1-layer check result (2026-10-28, job 68193288, `scratch/logs/l1a/`, M = 8, seeds 0..2):
+- 1-layer check result (2026-10-28, job 68193288, `bench/results/tp2/logs/l1a/`, M = 8, seeds 0..2):
   relative error of the residual per row, TP2 fp32 against the reference in TP2's order:
   median 7.6e-8, 4.4e-8, 6.8e-8, max 2.3e-7, 1.2e-7 and 3.6e-4; TP1 against its own order:
   median 7.3e-8, 6.5e-8, 9.6e-8, max 1.8e-7, 1.6e-7 and 7.3e-4. The seed-2 maximum is one row
@@ -286,9 +290,9 @@ bound above and its `eval_text` KL against BF16 is within 10 % of TP1's; otherwi
 
 Code: commit `19e5983` and the embedding fix of the next commit (`fx.Float32(v)` in the embedding put; without it
 `Mailbox.put` converted the value to an integer and every activation was 0). Container
-hipdnn_20261024_gfx942. Logs: `scratch/logs/m3a/` (seeds 0..2, determinism, eval_text) and
-`scratch/logs/m3b/` (seeds 3..7); summaries `scratch/logs/bound_m3.txt`,
-`scratch/logs/m3a/steps_summary.txt`.
+hipdnn_20261024_gfx942. Logs: `bench/results/tp2/logs/m3a/` (seeds 0..2, determinism, eval_text) and
+`bench/results/tp2/logs/m3b/` (seeds 3..7); summaries `bench/results/tp2/logs/bound_m3.txt`,
+`bench/results/tp2/logs/m3a/steps_summary.txt`.
 
 The TP1-to-TP1 spread (TP1, seeds 0, 1, 2): 1 - worst cos(kernel, exact) is 0.000557,
 0.000532, 0.000546 at M = 1 (ratio 1.05) and 0.012213, 0.002636, 0.145837 at M = 8 (ratio
@@ -313,8 +317,8 @@ Runs: M = 1 and 2 at seeds 0 and 3..7, M = 1 and 8 at seeds 1 and 2, M = 4 and 8
   against TP1 0.875); its median per-step error is 33 % above TP1's.
 - Decision: `ar_dtype = "fp32"` is the default. bf16 passes the KL condition but not the
   bound.
-- Local 1-layer check (`scratch/m3/dbg.py`, `scratch/logs/dbg2/`, TP1:
-  `scratch/logs/dbg1/dbg_tp1_l1.r0.log`): relative error of the residual against the emulating
+- Local 1-layer check (`bench/results/tp2/m3/dbg.py`, `bench/results/tp2/logs/dbg2/`, TP1:
+  `bench/results/tp2/logs/dbg1/dbg_tp1_l1.r0.log`): relative error of the residual against the emulating
   reference is 3.2e-5 for TP2 fp32 and 6.5e-8 for TP1, above the planned 1e-5. The planned
   bound assumed no fp8 rounding flips; one flipped e4m3 input element in gate_up or down
   gives this size. The 64-layer statistics above show no systematic error.
@@ -324,7 +328,7 @@ Runs: M = 1 and 2 at seeds 0 and 3..7, M = 1 and 8 at seeds 1 and 2, M = 4 and 8
 The go/no-go formula keeps TP1's fixed cost. Evidence and limits:
 
 Fit of the TP1 GEMV stage span against bytes (6 GEMV kinds, median over layers;
-`scratch/logs/stage_fit.txt`, from `bench/results/timeline/timeline_m{1,8}.json`):
+`bench/results/tp2/logs/stage_fit.txt`, from `bench/results/timeline/timeline_m{1,8}.json`):
 - M = 1: span = 6.52 us + bytes / 3.66 TB/s, max residual 1.27 us.
 - M = 8: span = 11.93 us + bytes / 3.41 TB/s, max residual 3.74 us.
 
@@ -379,8 +383,8 @@ more than twice the spike's, in both formats). The 15 % gate (T8) holds: TP2 fp3
 faster than TP1 at M = 1. No optimization was tried after the STOP. Resolved 2026-10-28: the
 measured end-to-end result replaces the prediction that the limit protected (section 13).
 
-Speed, same node, TP1 on one GPU alone (`scratch/logs/m4_bench_summary.txt`; raw
-`scratch/logs/m4a/`, `m4b/`). `bench/bench_decode.py`, ctx 512, 64 steps, median of 3 runs.
+Speed, same node, TP1 on one GPU alone (`bench/results/tp2/logs/m4_bench_summary.txt`; raw
+`bench/results/tp2/logs/m4a/`, `m4b/`). `bench/bench_decode.py`, ctx 512, 64 steps, median of 3 runs.
 TPOT includes the greedy token: TP2 takes it from the ranks' vocab slices with one RCCL
 all-gather of (max, index) per step (`mk/tp.py next_token`). "Fixed" holds the tokens
 fixed: launches only.
@@ -409,8 +413,8 @@ The `ar_local` runs vary by up to 0.35 ms between repeats (bf16 M = 1: 5.458, 5.
 5.736 ms), so the bf16 M = 1 value is uncertain to about +-1.5 us; fp32 repeats agree within
 0.04 ms.
 
-Per-stage profile (one stamped step per variant, rank 0; `scratch/logs/m4c/stages_summary.txt`,
-timelines `scratch/logs/m4c/tl_*.json*` and `m4b/tl_tp1_m1.json`, not in git):
+Per-stage profile (one stamped step per variant, rank 0; `bench/results/tp2/logs/m4c/stages_summary.txt`,
+timelines `bench/results/tp2/logs/m4c/tl_*.json*` and `m4b/tl_tp1_m1.json`, not in git):
 - Fixed cost per GEMV stage, M = 1, against the section 10 fit (a + bytes / 2 / B): inp
   14.11 us (fit 12.64), qkv 12.81 (11.85), gu 19.78 (19.46), and without the all-reduce
   (`ar_local`) out 8.98 (8.80), o 9.21 (8.80), down 14.91 (12.99). All within 1.9 us of the
@@ -430,8 +434,8 @@ fp32 although it moves half the bytes, so the cost at M = 1 is latency, not band
 
 Stock vLLM TP2, nightly image `vllm-rocm-nightly-00b6c4c5` (vLLM 0.32.1rc1.dev505,
 `VLLM_ROCM_USE_AITER=1`, CUDA graphs, `vllm bench serve` 512 in / 256 out), median TPOT ms
-(`scratch/logs/m4c/vllm_aiter_tp2_Qwen3.8-27B-Quark-AWQ-MXFP4/`,
-`scratch/logs/m4d/vllm_aiter_tp2_Qwen3.8-27B/`):
+(`bench/results/tp2/logs/m4c/vllm_aiter_tp2_Qwen3.8-27B-Quark-AWQ-MXFP4/`,
+`bench/results/tp2/logs/m4d/vllm_aiter_tp2_Qwen3.8-27B/`):
 
 | Checkpoint | batch 1 (3 runs) | 2 | 4 | 8 |
 |---|---|---:|---:|---:|
@@ -445,8 +449,8 @@ TP2 kernel (fp32) against stock vLLM TP2 BF16: 9.81 / 5.852 = 1.68x at batch 1, 
 
 Bugs found during milestone 4 (fixed, both in the harness or the timing-only build):
 - `bench/profile_decode.py` allocated its stamp buffers before `TP.init` selected the rank's
-  GPU; rank 1's kernel stored to GPU 0 memory and its first step hung (`scratch/logs/pdiag/`
-  and `scratch/logs/m4b/`).
+  GPU; rank 1's kernel stored to GPU 0 memory and its first step hung (`bench/results/tp2/logs/pdiag/`
+  and `bench/results/tp2/logs/m4b/`).
 - `ar_local` builds still ran the embedding exchange; without the layer all-reduces the
   ranks drift apart and the one embedding region was overwritten before it was read (hang
   in `m4a`). The timing-only build now skips the exchange.
@@ -457,10 +461,10 @@ Method: debug probes `dev.ARPROBE` (off by default, compile-time). Per CTA and b
 arrive (thread 0), drained (after the CTA's `s_waitcnt vmcnt(0)` and `s_barrier`: every
 store of every wave acknowledged, peer stores included), released. Per wave: push, poll
 start, poll end of its last all-reduce epilogue in each stage (lane 0). Driver
-`scratch/m3/arsplit.py`: 512 warm-up steps, then 5 stamped steps per variant, both ranks,
+`bench/results/tp2/m3/arsplit.py`: 512 warm-up steps, then 5 stamped steps per variant, both ranks,
 fp32 and bf16, with the all-reduce and with `ar_local`, M = 1 and 8. Analysis
-`scratch/m3/arsplit_an.py` and `scratch/m3/arsplit_parts.py`; output
-`scratch/logs/ars/split.txt` and `parts.txt` (raw stamps `*.pt` stay in
+`bench/results/tp2/m3/arsplit_an.py` and `bench/results/tp2/m3/arsplit_parts.py`; output
+`bench/results/tp2/logs/ars/split.txt` and `parts.txt` (raw stamps `*.pt` stay in
 `/cluster/logs/qwen38-tp2/ars/`).
 
 - Clocks: each GPU's 100 MHz counter has its own origin. The offset comes from the
@@ -499,7 +503,7 @@ poll start) 0.44 to 0.52 us fp32, 0.72 to 0.76 us bf16. At M = 8 fp32 the push i
 About 250 of the 320 groups' epilogues are the last one of their wave, so some waves run two
 or more epilogues in a stage.
 
-The split (`scratch/logs/ars/parts.txt`). push / poll = xfer + the own push / poll share of
+The split (`bench/results/tp2/logs/ars/parts.txt`). push / poll = xfer + the own push / poll share of
 the gemv growth; slower GPU = wait + the peer-late share of the gemv growth; drain and
 barrier = the growth of those segments. The gemv growth is split by the per-epilogue ratio
 of peer-late wait to own push / poll.
@@ -531,9 +535,9 @@ Findings:
    fp32, in every layer (median 21.9 against 17.2 us), and even its first push comes 2.2 us
    later. Out and o are equal in both formats. The cause inside down is not found yet.
    Excluded: the GEMV loop code (the MFMA loop blocks are instruction-for-instruction
-   equal in the fp32, bf16 and `ar_local` ISA, `scratch/logs/isa/`), VGPR spills (1 in every
+   equal in the fp32, bf16 and `ar_local` ISA, `bench/results/tp2/logs/isa/`), VGPR spills (1 in every
    build), the per-wave stream time of the last down layer (7.3 us median in both,
-   `scratch/logs/pdown/`). The AR builds have more SGPR spills than `ar_local` (fp32 608,
+   `bench/results/tp2/logs/pdown/`). The AR builds have more SGPR spills than `ar_local` (fp32 608,
    bf16 733, against 373 and 350; spilled to VGPR lanes). With the probes the down
    difference is about 5 us per layer; unstamped, bf16 costs 0.6 us more than fp32 per
    all-reduce at M = 1.
@@ -545,7 +549,7 @@ stream, before the barrier arrival. This removes the in-stream wait and keeps th
 count and the protocol (the same tags, regions and sum order). The prologue merge of
 section 5 also removes it, but it adds peer reads to every CTA's next prologue.
 
-Hard gates after the probe change (probes off; `scratch/logs/gates/`, 2026-10-28, job
+Hard gates after the probe change (probes off; `bench/results/tp2/logs/gates/`, 2026-10-28, job
 68195787), TP2 fp32 against TP1 on the same node and seed 0: median per-step 1 - cos to
 exact 0.000341 against 0.000342 (ratio 1.00; per M 0.97, 1.06, 1.20, 1.02 at M = 1, 2, 4, 8);
 `eval_text` KL 0.04279 against 0.03904 (+9.6 %); ranks bitwise-equal every step;
@@ -558,7 +562,7 @@ M = 1 as in milestone 3.
 
 `Qwen/Qwen3.8-27B-FP8` restored to `~/mk/models/Qwen3.8-27B-FP8` (29 GB, `hf download`,
 after a test write; `~/mk/models/dl_Qwen3.8-27B-FP8.log`). All runs on one node in one
-allocation (`scratch/logs/fp8/`).
+allocation (`bench/results/tp2/logs/fp8/`).
 
 Timing methods:
 - Kernel: `bench/bench_decode.py`, a 512-token prompt fed through the kernel, then 64 greedy
@@ -588,11 +592,11 @@ batch 2 (one measurement each; the latency difference method is sensitive to the
 time of the 1-token run). The kernel numbers repeat the milestone 4 values within 0.05 ms
 (TP2 fp32 5.896 against 5.852 at M = 1).
 
-FP8 repeated 3 times (2026-10-28, banff-cyxtera-s70-4, job 68197384, `scratch/logs/fp8x3/`,
+FP8 repeated 3 times (2026-10-28, banff-cyxtera-s70-4, job 68197384, `bench/results/tp2/logs/fp8x3/`,
 three independent `vllm_latency_bench.sh` runs; each value is already the median of 10
 iterations), engine-level TPOT in ms, median (range):
 
-| Batch | vLLM TP2 FP8, 3 runs | TP2 kernel, same allocation (`scratch/logs/opt1/`, before round 1) | ratio |
+| Batch | vLLM TP2 FP8, 3 runs | TP2 kernel, same allocation (`bench/results/tp2/logs/opt1/`, before round 1) | ratio |
 |---:|---:|---:|---:|
 | 1 | 9.822 (9.721 to 9.858) | 5.766 | 1.70x |
 | 2 | 10.716 (10.578 to 11.055) | 6.340 | 1.69x |
@@ -607,9 +611,9 @@ The final table with the optimized kernel is in section 11, optimization log.
 
 ### Milestone 5: reproducibility
 
-Each run repeats `scratch/m3/plans/final.sh` (gates and speed, TP1 on GPU 0 of the same
-node) from a frozen copy of the final source, started by `scratch/m3/m5_watch.sh` when the
-held job starts. `scratch/m3/final_summary.py` gives the table.
+Each run repeats `bench/results/tp2/m3/plans/final.sh` (gates and speed, TP1 on GPU 0 of the same
+node) from a frozen copy of the final source, started by `bench/results/tp2/m3/m5_watch.sh` when the
+held job starts. `bench/results/tp2/m3/final_summary.py` gives the table.
 
 | Run | Node, date, job | G1 ratio | G2 KL | G3-G5 | Logits hash (M = 1, 8) | TP2 faster than TP1, M = 1 / 2 / 4 / 8 | TP2 ms, M = 1 / 2 / 4 / 8 |
 |---|---|---:|---:|---|---|---|---|
@@ -617,7 +621,7 @@ held job starts. `scratch/m3/final_summary.py` gives the table.
 | 2 | banff-cyxtera-s70-4, 2026-10-29, 68198806 (`m5_day2/`) | 1.07 | +9.6 % | PASS | dc59fa9e, eca6810e | 28.3 / 27.7 / 25.1 / 24.1 % | 5.613 / 5.993 / 6.742 / 7.909 |
 | 3 | quanta-ccs-aus-j02-45 (MI325X, AUSTIN), 2026-10-29, 68206615 (`m5_node2/`) | 1.07 | +9.6 % | PASS | dc59fa9e, eca6810e | 23.5 / 24.2 / 21.4 / 19.2 % | 5.212 / 5.524 / 6.248 / 7.317 |
 
-Milestone 5 passes. The second node (run 3, MI325X, `scratch/m5/austin.sh`, checkpoints
+Milestone 5 passes. The second node (run 3, MI325X, `bench/results/tp2/m5/austin.sh`, checkpoints
 downloaded from HF there) computes the same bits as banff: the same logits hashes and the
 same gate values to six digits. The md5 of the safetensors size listing in its log differs
 from banff's; the cause is not known (the job's container `/tmp` is gone). The equal logits
@@ -645,11 +649,11 @@ cache checks; weights packed from vLLM's local shards, checked on CPU against
 `mk/pack.py` for both ranks), and an opt-in check that both ranks plan the same step
 (`VLLM_SPECIALIZED_DECODE_CHECK_PATHS=1`). Ruff 0.14 clean on every changed file.
 Conformance kit and Qwen spec tests on the node, in the nightly image with the branch
-overlaid: 71 passed (`scratch/logs/m6b/m6_kit.r0.log`), including the kit at TP2.
+overlaid: 71 passed (`bench/results/tp2/logs/m6b/m6_kit.r0.log`), including the kit at TP2.
 
-Kernel on against kernel off, `bench/vllm_e2e.py` (8 prompts, greedy, 128 tokens; TPOT =
+Kernel on against kernel off, `bench/vllm_e2e.py` (8 prompts, greedy, 128 tokens compared; TPOT =
 (time of 256 tokens - time of 1 token) / 255, median of 3; both runs MRv2, MXFP4
-checkpoint; `scratch/logs/m6a/`, `m6b/`, `m6c/`, `m6d/`):
+checkpoint; `bench/results/tp2/logs/m6a/`, `m6b/`, `m6c/`, `m6d/`):
 
 | Batch | TPOT kernel on (3 runs) | kernel off (3 runs) | speedup | TP1 kernel on, same overlay method (2 runs) |
 |---:|---:|---:|---:|---:|
@@ -664,14 +668,14 @@ checkpoint; `scratch/logs/m6a/`, `m6b/`, `m6c/`, `m6d/`):
 Greedy outputs. Kernel on against kernel off: 0 of 8 prompts token-identical; the first
 differing token is at positions 3, 1, 48, 2, 23, 28, 1, 16. The TP1 kernel inside vLLM
 gives the same picture against its kernel-off run (0 of 8; positions 25, 16, 24, 1, 9, 33,
-1, 20; `scratch/logs/tp1_e2e_ref/`): the kernel's fp8 activations are not vLLM's bf16
+1, 20; `bench/results/tp2/logs/tp1_e2e_ref/`): the kernel's fp8 activations are not vLLM's bf16
 emulation, and section 9 (not token identity) is the accuracy oracle. The largest logprob
 difference over the common prefixes is 0.38 at TP2 and 0.43 at TP1.
 
-Rank equality inside vLLM (T2), `scratch/m6/rankcheck/` (a sitecustomize hook that
+Rank equality inside vLLM (T2), `bench/results/tp2/m6/rankcheck/` (a sitecustomize hook that
 all-gathers the kernel's output after every launch, CUDA-graph replays included): 4233
 launches, 0 with any differing bit between the ranks, and both ranks end at epoch
-1358793 = 4233 x 321 (`scratch/logs/m6d/rankcheck_r*.txt`). The path check ran in
+1358793 = 4233 x 321 (`bench/results/tp2/logs/m6d/rankcheck_r*.txt`). The path check ran in
 `m6a/on_check` with no failure.
 
 Run-to-run repeatability inside vLLM at TP2 (open, not a kernel defect as far as measured):
@@ -686,15 +690,15 @@ Run-to-run repeatability inside vLLM at TP2 (open, not a kernel defect as far as
 vLLM's own TP2 path is thus not repeatable, and the fp8 activations of the kernel turn a
 small input difference into a different token sooner.
 
-GDN-state check (2026-10-29, banff-cyxtera-s70-4, job 68206678, `scratch/logs/m6s/`).
-Hook `scratch/m6/statecheck/` (sitecustomize): at every eager call of the Qwen3.5 forward
+GDN-state check (2026-10-29, banff-cyxtera-s70-4, job 68206678, `bench/results/tp2/logs/m6s/`).
+Hook `bench/results/tp2/m6/statecheck/` (sitecustomize): at every eager call of the Qwen3.5 forward
 (prefill and mixed steps; FULL-graph decode replays do not call Python) it logs the token
 count and the bit sums of input_ids, positions and the output hidden states, and per cache
 layer (48 GDN: conv and SSM state; 16 attention: KV) the bit sum of the whole cache tensor
 before and after the call. With the kernel on it also logs every eager kernel launch.
 Two runs of `bench/vllm_e2e.py` with the kernel off, two with it on (plan `m6s.sh`; the
 second kernel-on run is `m6s2.sh`, because the node's /var/tmp was full at the first try).
-Compare: `scratch/m6/stateinputs.py`.
+Compare: `bench/results/tp2/m6/stateinputs.py`.
 
 | | kernel off (`off_r1` / `off_r2`) | kernel on (`on_r1` / `on_r2`) |
 |---|---|---|
@@ -787,7 +791,7 @@ gate is reverted and logged.
   last push of every down stage, same GEMV code, same stream time) is still open; it is not
   investigated, because bf16 cannot become the default. Rejected: investigate it now.
 
-Optimization round 1 (2026-10-28, banff-cyxtera-s70-4, job 68197384, `scratch/logs/opt1/`;
+Optimization round 1 (2026-10-28, banff-cyxtera-s70-4, job 68197384, `bench/results/tp2/logs/opt1/`;
 `bench/bench_decode.py` ctx 512, 64 steps, median of 3 fixed-token TPOT, ms):
 
 - Deferred poll, kept. The GEMV's last arriver pushes every counter group it completes
@@ -807,11 +811,11 @@ Optimization round 1 (2026-10-28, banff-cyxtera-s70-4, job 68197384, `scratch/lo
   5.766 -> 5.698 (M = 1), 8.562 -> 8.539 (M = 8). Logits bitwise equal in both TP1 and TP2
   (hashes 2a0a1919674a3562, 49c5e7cb71e4be94 for TP1). Separate TP1 commit 5e151e9 on
   `master` of `repos/qwen38-gfx942-mk`. TP1 suite on master + 5e151e9
-  (`scratch/logs/tp1fix/`): test_decode M = 1, 2, 4, 8 PASS with the same values to six
+  (`bench/results/tp2/logs/tp1fix/`): test_decode M = 1, 2, 4, 8 PASS with the same values to six
   digits as before; determinism M = 1, 8 PASS; eval_text per-passage lines identical
   (ppl 1.661, KL 0.03904).
 
-Optimization round 2 (2026-10-28, same node and allocation, `scratch/logs/opt2/`; base =
+Optimization round 2 (2026-10-28, same node and allocation, `bench/results/tp2/logs/opt2/`; base =
 round 1 result: 5.599 / 6.094 / 7.026 / 8.141 ms at M = 1 / 2 / 4 / 8):
 
 - SGPR spill gap, rejected. Candidate: the peer bases pass through opaque moves, so the
@@ -829,21 +833,21 @@ round 1 result: 5.599 / 6.094 / 7.026 / 8.141 ms at M = 1 / 2 / 4 / 8):
   (M = 1, -0.2 %), 8.141 -> 7.895 (M = 8, -3.0 %). Logits bitwise equal (same hashes as
   round 1 at M = 1 and 8, ranks equal). Now the only fp32 path.
 
-Optimization round 3 (2026-10-28, same node and allocation, `scratch/logs/opt3/`; 16-byte
+Optimization round 3 (2026-10-28, same node and allocation, `bench/results/tp2/logs/opt3/`; 16-byte
 pushes in the base; each variant 2 interleaved runs of 3 reps, median of 6):
 
 - K chunks, rejected. TPOT ms (base / lm = 4 / lm = 4 + out = 1 + o = 1): M = 1 5.575 /
   5.527 (-0.8 %) / 5.518 (-1.0 %); M = 2 5.979 / 5.942 / 5.950; M = 4 6.712 / 6.650 / 6.697;
   M = 8 7.883 / 7.849 (-0.4 %) / 7.979 (+1.2 %). lm = 4 gains less than 1 % at M = 1 and
   M = 8; the other variant is slower at M = 8. TP2 keeps TP1's chunk table.
-- Timing split of the round 3 base (`scratch/logs/opt3/parts.txt`, `split.txt`): the added
+- Timing split of the round 3 base (`bench/results/tp2/logs/opt3/parts.txt`, `split.txt`): the added
   cost per all-reduce is 2.78 us at M = 1 (was 3.77 us before rounds 1-3, same method) and
   7.17 us at M = 8. Push/poll is still the largest part (85 % at M = 1, 89 % at M = 8);
   the wait for the slower GPU is 23 % / 15 %; drain and barrier are below zero. Per
   epilogue at M = 1: push -> poll end 2.4 us, of which 0.4-0.6 us is the peer arriving
   later (in 39-44 % of the groups). So the prologue merge is tried next (rule above).
-- Prologue merge, rejected after a spike (`scratch/ar_spike/arkernel.py` mode `ar_merged`,
-  `scratch/logs/merge/`, same node and allocation). Each round: the put only, the grid
+- Prologue merge, rejected after a spike (`bench/results/tp2/ar_spike/arkernel.py` mode `ar_merged`,
+  `bench/results/tp2/logs/merge/`, same node and allocation). Each round: the put only, the grid
   barrier, then every CTA polls all M x 5120 pairs of both ranks (what a merged norm
   prologue must read). Round time per all-reduce, median of 200 launches of 128 rounds:
   M = 1: barrier only 2.03 us, in-epilogue all-reduce 3.47 us, merged 5.00 us; M = 8: 2.23,
@@ -856,7 +860,7 @@ Optimization stops here: every listed candidate is measured. Kept: deferred poll
 `grid_wait`, 16-byte pushes. Rejected: opaque peer bases (SGPR), K chunks, prologue merge.
 
 Final kernel (after rounds 1-3), run 1: banff-cyxtera-s70-4, 2026-10-28, job 68197384
-(`scratch/logs/final/`, `summary.txt`; TP1 on GPU 0 of the same node):
+(`bench/results/tp2/logs/final/`, `summary.txt`; TP1 on GPU 0 of the same node):
 
 | Gate (section 9) | Result |
 |---|---|
@@ -887,12 +891,12 @@ Decided 2026-10-29 (milestone 5, second node):
   as soon as one job starts). `rocke` holds only gfx950 nodes, so it cannot give a gfx942
   second node.
 - AUSTIN run. The node has its own `/cluster` and no home, so the frozen copy
-  (`/cluster/logs/qwen38-tp2/src-m5`) is not visible there. `scratch/m5/austin.sh` (from
+  (`/cluster/logs/qwen38-tp2/src-m5`) is not visible there. `bench/results/tp2/m5/austin.sh` (from
   the 35B `suite_austin.sh`) clones megakernels `users/sareeder/qwen38-tp2` at 57d6a48
   (the same md5 for `mk/*.py`, `tests/*.py`, `bench/bench_decode.py` as `src-m5`, the
   NaN check included), builds the venv and downloads both checkpoints into the
   container's `/tmp`, puts our MXFP4 `config.json` over the downloaded one, runs
-  `scratch/m3/plans/final.sh` with local one/two helpers, and returns the logs as a base64
+  `bench/results/tp2/m3/plans/final.sh` with local one/two helpers, and returns the logs as a base64
   tar in the job log. The vLLM rank check of `m5.sh` is not run there (it needs the
   vLLM image in the home); milestone 6 covers it on banff.
 - Speed gate on a different GPU model (MI325X): the run fails only when TP2 is more than

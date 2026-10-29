@@ -3,7 +3,7 @@
 All numbers from one MI300X node (banff-cyxtera-s70-4, 2026-10-28), engine level (no
 HTTP server): the kernels from bench/bench_decode.py (median of 3 runs of 64 steps), vLLM
 from bench/stock/vllm_latency_bench.sh (FP8: median of 3 runs; BF16: 1 run).
-Logs: scratch/logs/final/ (kernels), scratch/logs/fp8x3/ and scratch/logs/fp8/ (vLLM).
+Logs: bench/results/tp2/logs/final/ (kernels), bench/results/tp2/logs/fp8x3/ and bench/results/tp2/logs/fp8/ (vLLM).
 Per-user decode speed = 1000 / TPOT. docs/DESIGN-TP2.md section 11 has the tables.
 """
 
@@ -18,7 +18,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-LOGS = os.path.join(ROOT, "scratch", "logs")
+LOGS = os.path.join(ROOT, "bench", "results", "tp2", "logs")
 SURFACE, INK, INK2, MUTED, GRID = "#fcfcfb", "#0b0b0b", "#52514e", "#898781", "#e1e0d9"
 BATCHES = (1, 2, 4, 8)
 

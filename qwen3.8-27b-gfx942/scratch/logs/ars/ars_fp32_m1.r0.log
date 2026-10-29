@@ -1,4 +1,0 @@
-# banff-cyxtera-s70-4.adc.amd.com 2026-10-28T03:51:04Z rank 0 env MK_TP=2 MK_AR=fp32 MK_SEED=
-# python scratch/m3/arsplit.py /home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4 1 512 5 /cluster/logs/qwen38-tp2/ars/ar_fp32_m1
-tp 2 rank 0 ar fp32 cfg Cfg(M=1, cus=304, maxlen=640, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=1603584, ssm_s0=1603584, lm_head=True, tp=2, ar_dtype='fp32', ar_local=False, chunks=())
-saved 5 stamped steps; step us (host) [41794, 24236, 28742, 35342, 34298]

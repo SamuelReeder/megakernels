@@ -65,16 +65,20 @@ decode. Each rank sums the two partials in rank order, so both GPUs hold the sam
 One node (banff-cyxtera-s70-4), 2026-10-28, context 512. Engine-level time per token on both
 sides: `bench/bench_decode.py` for the kernels, `bench/stock/vllm_latency_bench.sh` (`vllm bench
 latency`, nightly vLLM 0.32.1rc1, median of 3 runs) for vLLM, whose time includes its
-scheduler and sampler. TP2 passes the same gates as TP1 against the exact reference
-(median per-step error 1.07× TP1's, eval_text KL +9.6 %), is bitwise deterministic, and its
-ranks are bitwise equal at every step. Design, every decision with its measurement, and the
-logs: [`docs/DESIGN-TP2.md`](docs/DESIGN-TP2.md); raw logs and the disposable spike code
-are under `scratch/`.
+scheduler and sampler. TP2 passes the hard gates of
+[`docs/DESIGN-TP2.md`](docs/DESIGN-TP2.md) section 9 against the exact reference (median
+per-step error 1.07× TP1's, eval_text KL +9.6 %, bitwise deterministic, batch-invariant, ranks
+bitwise equal at every step). The old test_decode criterion is report only there: it prints
+FAIL at batch 1, seeds 0 and 2. Design, every decision with its measurement, and the logs:
+[`docs/DESIGN-TP2.md`](docs/DESIGN-TP2.md); raw logs, the spike code and the run scripts are
+under `bench/results/tp2/`.
 
-Reproducibility: second day on the same node (2026-10-29): same bits (same logits hashes and
-gate values) and the same speed within 0.4 %. Second node (MI325X, quanta-ccs-aus-j02-45, job
-68206615): same bits, every gate passes, TP2 5.21 / 5.52 / 6.25 / 7.32 ms at batch 1 / 2 / 4 / 8
-(19-24 % faster than TP1 there).
+Reproducibility (milestone 5, passed): second day on the same node (2026-10-29): same bits
+(same logits hashes and gate values) and the same speed within 0.4 %. Second node (MI325X,
+quanta-ccs-aus-j02-45, job 68206615, 2026-10-29, source at commit 57d6a48, logs added in
+b7cb2e7): same logits hashes, the same gate values including eval_text KL, every gate passes,
+TP2 5.21 / 5.52 / 6.25 / 7.32 ms at batch 1 / 2 / 4 / 8 (19-24 % faster than TP1 there);
+`bench/results/tp2/logs/m5_node2/summary.txt`. The vLLM rank check did not run there.
 
 ![TP2 decode speed against TP1 and stock vLLM TP2](docs/throughput_tp2.png)
 
@@ -126,7 +130,7 @@ mk/sync.py, peer.py  copies of vLLM's DSv4.1 mailbox and PeerBuffer (no aiter in
 tests/             kernel vs reference, real-text perplexity, determinism, reference vs HF
 bench/             decode benchmark, per-stage profiler, reproducibility script, stock baselines
 tools/             plots: throughput charts, per-CU timeline
-scratch/           TP2 work: all-reduce spike, run plans, analysis scripts, raw logs
+bench/results/tp2/ TP2 work: all-reduce spike, run plans, analysis scripts, raw logs
 ```
 
 ## Tests and benchmarks
