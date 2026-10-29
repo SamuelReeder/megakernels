@@ -1,0 +1,12 @@
+# Cfg.rt_geom compile-only check (gfx942, COMPILE_ONLY, no GPU), FlyDSL 0.4.0, 2026-10-29. vLLM TRITON_ATTN geometry, TP1: block_s 16, block_f 32, kv_s (65536, 512, 4096, 256), kv_f (65536, 1024, 2048, 512), lm_head=False, cus 304, default chunks. Columns: CO tag name elf_sha16 isa isa_sha16 (kernel symbol -> KERNEL, comments dropped) sgpr vgpr sgpr_spill vgpr_spill lds. main = megakernels 2dd8dc3 (no rt_geom); rt2 = branch users/sareeder/rt2.
+main CO m1_L4096_b16_x0_rt0_lm0 gemma4_decode_m1_bc9323b9 d4c505ba9ecd3f4d isa 9c54d0ac09c3a1ba sgpr 104 vgpr 256 sgpr_spill 732 vgpr_spill 21 lds 50320
+main CO m8_L4096_b16_x0_rt0_lm0 gemma4_decode_m8_a5bd71c2 d33c5dee727582dd isa 250365000ccbdba5 sgpr 106 vgpr 256 sgpr_spill 901 vgpr_spill 52 lds 61584
+rt2 CO m1_L4096_b16_x0_rt0_lm0 gemma4_decode_m1_ddbcee56 2ea1c742d3236154 isa 9c54d0ac09c3a1ba sgpr 104 vgpr 256 sgpr_spill 732 vgpr_spill 21 lds 50320
+rt2 CO m8_L4096_b16_x0_rt0_lm0 gemma4_decode_m8_aacaf06f a1c7105b3a0e4366 isa 250365000ccbdba5 sgpr 106 vgpr 256 sgpr_spill 901 vgpr_spill 52 lds 61584
+rt2 CO m1_L4096_b16_x0_rt2_lm0 gemma4_decode_m1_6bcab096 9f2720122173599f isa 89c8b918252a9704 sgpr 104 vgpr 256 sgpr_spill 757 vgpr_spill 21 lds 50320
+rt2 CO m1_L8192_b16_x0_rt2_lm0 gemma4_decode_m1_6bcab096 9f2720122173599f isa 89c8b918252a9704 sgpr 104 vgpr 256 sgpr_spill 757 vgpr_spill 21 lds 50320
+rt2 CO m8_L4096_b16_x0_rt2_lm0 gemma4_decode_m8_f7f7d7eb 7335f6cf814b7d35 isa 0822880fe1b0b0f2 sgpr 106 vgpr 256 sgpr_spill 958 vgpr_spill 52 lds 61584
+rt2 CO m8_L8192_b16_x0_rt2_lm0 gemma4_decode_m8_f7f7d7eb 7335f6cf814b7d35 isa 0822880fe1b0b0f2 sgpr 106 vgpr 256 sgpr_spill 958 vgpr_spill 52 lds 61584
+# 1. rt_geom=0 ISA == main ISA at M=1 and M=8 (ELF differs: the kernel name hashes the compile key, which now holds rt_geom).
+# 2. rt_geom=2: one name and one ELF for maxlen 4096 and 8192 at M=1 and M=8.
+# 3. rt2 vs rt0 spills: M=1 sgpr 757 vs 732 (+25), vgpr 21 vs 21; M=8 sgpr 958 vs 901 (+57), vgpr 52 vs 52.
