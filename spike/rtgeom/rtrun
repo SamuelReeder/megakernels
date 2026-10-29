@@ -6,13 +6,19 @@
 # (/work = /tmp/rtgeom_<job>), and copies /work/out back to spike/rtgeom/out/.
 # Usage: spike/rtgeom/rtrun hipdnn|vllm '<command>'
 #   hipdnn: hipdnn_latest_gfx942.sqsh + ~/mk/venv (as mkrun); vllm: the vLLM nightly image.
+# AUS=1 (an AUSTIN node, job name rtgeomaus; run aus_setup.sh first): the containers see
+# /tmp/rtgeom_<job>/home as the home (its mk/ holds the venv, vllm-src and the
+# checkpoint), and the vLLM image is /tmp/rtgeom_<job>/vllm.sqsh. Named containers are
+# reused across calls.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../.." && pwd)
 img=$1
 shift
 VLLM=${VLLM:-/home/sareeder/ROCm-workspace/worktrees/vllm/qwen38-rtgeom-spike}
-job=${RT_JOB:-$(ssh -o BatchMode=yes alola "squeue -h -u \$USER -n rtgeom -t R -o %i | head -1")}
+name=rtgeom
+[ "${AUS:-0}" = 1 ] && name=rtgeomaus
+job=${RT_JOB:-$(ssh -o BatchMode=yes alola "squeue -h -u \$USER -n $name -t R -o %i | head -1")}
 [ -n "$job" ] || { echo "no rtgeom allocation" >&2; exit 2; }
 W=/tmp/rtgeom_$job
 rev="$(git -C "$root" rev-parse HEAD) dirty: $(git -C "$root" status --porcelain qwen3.8-27b-gfx942 common spike/rtgeom | grep -v ' spike/rtgeom/out' | wc -l)"
@@ -24,14 +30,18 @@ if [ "$img" = vllm ]; then
   git -C "$VLLM" diff --name-only 0b5a1a0ae~1 -- vllm | tar -C "$VLLM" -cf - -T - | ssh -o BatchMode=yes alola \
     "srun --jobid=$job --overlap -n1 --time=3 bash -c 'rm -rf $W/vllm-overlay && mkdir -p $W/vllm-overlay && tar -xf - -C $W/vllm-overlay && echo \"$vrev\" > $W/vllm-overlay/REVISION'"
   image=/home/AMD/sareeder/mk/images/vllm-rocm-nightly-00b6c4c5.sqsh
+  [ "${AUS:-0}" = 1 ] && image=$W/vllm.sqsh
   pre="export FLYDSL_RUNTIME_ENABLE_CACHE=0 PIP_CACHE_DIR=/tmp/pipcache PYTHONDONTWRITEBYTECODE=1"
 else
   image=/cluster/images/hipdnn/hipdnn_latest_gfx942.sqsh
   pre="export PIP_CACHE_DIR=/tmp/pipcache FLYDSL_RUNTIME_ENABLE_CACHE=0 PYTHONPYCACHEPREFIX=/tmp/pycache; . \$HOME/mk/venv/bin/activate"
 fi
+home=/home/AMD/sareeder
+[ "${AUS:-0}" = 1 ] && home=$W/home
 rc=0
 ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=${RT_TIME:-60} \
-  --container-image=$image --container-mounts=/cluster:/cluster,/home/AMD/sareeder:/home/AMD/sareeder,$W:/work \
+  --container-image=$image --container-name=rtg-$img \
+  --container-mounts=/cluster:/cluster,$home:/home/AMD/sareeder,$W:/work \
   bash -lc '$pre; cd /work/mk/qwen3.8-27b-gfx942 && echo node \$(hostname) job $job rev \$(cat /work/mk/REVISION) >&2; $*' 2>&1" || rc=$?
 mkdir -p "$here/out"
 ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=3 bash -c 'tar -C $W -cf - out'" \
