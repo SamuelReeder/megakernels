@@ -51,6 +51,35 @@ Classes:
 - divergent: the same name has incompatible behavior, layout, numerics or `Cfg` fields.
   A merge changes the bits or the ISA of at least one model.
 
+### M0 re-inventory (`main` at `cceba50`, 2026-10-29)
+
+P1-P3 are merged. On `main`, q8 is the TP2 code: the q8 / t2 columns of the tables below
+collapse into one copy (q8 = t2), except `kernel.py`, where the merge adds the compile
+key. Same method (`git show`, `ast` source hash per top-level name), run against
+`13b25e7` (g, q6) and the pre-merge TP2 head (q8). Every definition not listed here has
+the label and the class of the tables below. Lines g / q6 / q8 on `main`: `dev.py` 409 /
+398 / 375, `gemv.py` 440 / 534 / 421, `kernel.py` 507 / 570 / 607, `moe.py` 728 / 515 / -,
+`runner.py` 231 / 203 / 204, `scripts/mkrun` 24 / 21 / 16.
+
+| Name | g | q6 | q8 | Change since the first inventory | Class | Owner |
+|---|---|---|---|---|---|---|
+| `dev.grid_barrier` | A | . | A | q6 deletes it (no caller). g and q8 have no caller either. | superset (unused) | M4: not moved, dropped |
+| `dev.grid_wait` | A | B | C | q6 only changes the docstring (fixed-stage-cost). g = q6 code; q8 has no `fence`. | superset (q6 / g with `fence`) | M4 |
+| `gemv.Gemv` | A | B | C | q6 adds the fixed-stage-cost `cta` mode (`cta=False` default): a CTA holds whole K groups (`C = 1`), waves reduce through LDS (`cta_reduce`, `cta_groups`, `NPWC`, `lds_floats`), no global split-K hand-off. `small` becomes `not cta and U < NW`. | superset (`cta` off = g code path) | M5: `mkcore.Gemv` = q6 (with `cta`) + q8 `mx` + t2 deferred protocol (D8) |
+| `kernel.compile_key` | A | A | A | Hotfix in all three (D5). Same text. Extras: g, q6 `PROFILE, D.PROBE`; q8 `PROFILE, D.PROBE, D.ARPROBE`. | identical | M2 (`mkcore.key`) |
+| `kernel.kernel_name` | A | B | . | g, q6: docstring now says the cache keys on `compile_key`. q8 builds the name inline in `build` (`qwen38_decode_m{M}_{crc32(repr(cfg))}`), no function. | model-specific prefix, same format | M2 (`mkcore.key.kernel_name`) |
+| `kernel.Cfg` | A | B | C | g adds `e1_cta`, `e2_rows` (MoE batch); q6 adds `cta_red`, `c_out` (fixed-stage-cost); q8 adds `tp`, `ar_dtype`, chunks (TP2). | model-specific | stays; M2 adds `fence` / `chaos` to q8, `chaos` to g |
+| `moe.MoeGemv`, `routing`, `run_stage_cta`, `reduce_row`, `_lds_wait` | A | B / . | . | g MoE batch: CTA mode of the gate-up GEMV (`Cfg.e1_cta`), row-split combine (`e2_rows`). | model-specific (MoE) | phase 2 |
+| `runner.Engine`, `kernel.build` | A | B | C | per-model features above | model-specific | stays |
+| `scripts/mkrun` | A | B | C | q6 adds `MK_SRC` (sync folder per branch). | divergent | M3 (D12) |
+| q6 `scripts/ab_bench.sh`, `fsc_*.sh` | | | | new, fixed-stage-cost measurement scripts | single model | stays |
+
+No shared definition is without a class and an owner. The fixed-stage-cost barrier work
+changes no barrier code (only the `grid_wait` docstring and the dead `grid_barrier`); its
+speed comes from the `Gemv.cta` mode and the kernel schedule. The `vendor/buffer_ops.py`
+copies, `stages.py`, `pack.py`, `mixer.py`, `fp4.py`, `setup_env.sh`, `isa_stats` did not
+change. Script: `common/results/m0/inventory.py`; output: `common/results/m0/inventory.txt`.
+
 ### Files
 
 | File | Lines g / q6 / q8 / t2 | Class | Differences |
