@@ -1,0 +1,6 @@
+M=1 steps=32: 3 runs bitwise equal: False
+row 0 alone vs inside M=2: bitwise equal False (steps that differ: 32)
+row 0 alone vs inside M=4: bitwise equal False (steps that differ: 32)
+row 0 alone vs inside M=8: bitwise equal False (steps that differ: 32)
+row 0 alone vs inside M=8 with rows 4..7 padding: bitwise equal False
+FAIL

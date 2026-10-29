@@ -486,6 +486,12 @@ The implementation stops with `STOP: <violated invariant>` and evidence when:
   bits unchanged on a healthy GPU. The fault is in that GPU or node, not in the kernels.
   Slurm drained the node ("Kill task failed"). Evidence:
   `bench/results/m5/ctr-cx63-mi300x-12_68192231/README.md`.
+- 2026-10-28: second-node job 68196707 ran on ctr-cx63-mi300x-12 (13:29-13:48), because
+  its exclude list no longer named that node. Every gate failed there, with NaN logits at
+  M = 2, 4 and 8 (`bench/results/m5/ctr-cx63-mi300x-12_68196707/`), the same source that
+  passes on banff and on the MI325X. This is a second day of evidence for the GPU fault.
+  The results do not count for milestone 5, and `scripts/finish_m5.sh` now refuses that
+  node. The MI325X run (job 68197689) is the second node.
 - The distribution of U on real text at M = 8. Log U per layer in `tests/eval_text.py`.
 - Reading weights in place (row-major [N][K], no copy) with a permuted K order in the
   A operand. Saves about 34 GB in vLLM. Needs a stream bandwidth microbenchmark against
