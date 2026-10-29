@@ -1,0 +1,8 @@
+{"run": "S2 lm_head=True", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "88292b7377a71a1a", "finite": "True", "new_cache_files": 1}
+{"run": "S2 lm_head=False, same cache", "cache_on": true, "lm_head": "0", "chunks": "", "rc": "timeout", "hash": null, "finite": null, "new_cache_files": 0, "tail": ""}
+{"run": "S2 lm_head=False, cache off", "cache_on": false, "lm_head": "0", "chunks": "", "rc": 0, "hash": "49e205655f16e5dc", "finite": "True", "new_cache_files": 0}
+VERDICT S2 lm_head (Cfg field read as cfg.lm_head): STALE: the cached run failed, the uncached run passed (base 88292b7377a71a1a, changed+cache None, changed no cache 49e205655f16e5dc)
+{"run": "S3 default chunks", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "88292b7377a71a1a", "finite": "True", "new_cache_files": 1}
+{"run": "S3 MK_CHUNKS=lm=8, same cache", "cache_on": true, "lm_head": "1", "chunks": "lm=8", "rc": 0, "hash": "6003cb5daf85deb1", "finite": "True", "new_cache_files": 0}
+{"run": "S3 MK_CHUNKS=lm=8, cache off", "cache_on": false, "lm_head": "1", "chunks": "lm=8", "rc": 0, "hash": "98e0150e11a66632", "finite": "True", "new_cache_files": 0}
+VERDICT S3 GEMV K chunks (Cfg.c_lm): STALE: the cached run gives a wrong result (base 88292b7377a71a1a, changed+cache 6003cb5daf85deb1, changed no cache 98e0150e11a66632)

@@ -255,13 +255,17 @@ Facts from the flydsl 0.4.0 wheel (`flydsl/compiler/jit_function.py`):
   closure values of type int, float, bool, str, None, tuple, Enum (`_CLOSURE_SCALARS`,
   line 151; line 490).
 - Helpers reached as module attributes (`D.ld`, `S.epi_raw`) are not followed. A
-  `mkcore` file is in another directory, so it is never followed.
-- The `@flyc.kernel(name=...)` argument is not in that key: no kernel body references
-  `name` (checked in all three `mk/kernel.py`). [INFERENCE: the comments in
-  `kernel_name` say "FlyDSL's disk cache keys on the name"; the source reading says it
-  does not. M1 tests it.]
-- The cache is on by default (`flydsl/utils/env.py` line 296, `~/.flydsl/cache`). Every
-  `mkrun` sets `FLYDSL_RUNTIME_ENABLE_CACHE=0`; the vLLM trees set nothing.
+  `mkcore` file is in another directory, so it is never followed. Measured: see "Compile
+  cache test" (cases A, O).
+- Values read from a non-scalar closure object (`cfg.lm_head`, `cfg.fence`, `SP[...]`,
+  `GEO`) are not in the key. Measured: case C.
+- The `@flyc.kernel(name=...)` argument is not in the key: no kernel body references
+  `name` (checked in all three `mk/kernel.py`). Measured: case N. The comments in each
+  `kernel_name` ("FlyDSL's disk cache keys on the name") are wrong.
+- The cache is on by default (`flydsl/utils/env.py` line 296). The default directory is
+  `$HOME/.flydsl/cache`, the same shared-home directory for the venv and for the vLLM
+  nightly image. Every `mkrun` sets `FLYDSL_RUNTIME_ENABLE_CACHE=0`; the vLLM trees set
+  nothing.
 
 Design:
 
@@ -272,14 +276,16 @@ Design:
    global the model passes in (t2 `ARPROBE`).
 3. `mkcore.key.kernel_name(prefix, cfg, key)` = `f"{prefix}_m{cfg.M}_{crc32(key):08x}"`
    (the current format).
-4. `build` binds `key` (a `str`) in the closure of the `@flyc.jit` launcher, so FlyDSL
-   0.4.0 puts it into the cache key. M1 decides the exact statement that keeps the
-   reference through FlyDSL's AST rewrite, and proves it with the cache test.
+4. `build` binds `key` (a `str`) in the closure of the `@flyc.jit` launcher with the
+   statement `key` as the first line of the launcher body, so FlyDSL 0.4.0 puts it into
+   the cache key. Measured: case X (a helper edit plus a new key string compiles a new
+   binary with the correct result).
 
 Rejected: rely on `FLYDSL_EXTRA_SOURCE_DIRS` / `jit_function.EXTRA_SOURCE_DIRS` alone. It
 hashes source files only, not `Cfg`; it is a process-wide setting with an `lru_cache`.
-Rejected: keep the current name-only hash. It does not cover sources in other modules,
-and M1 may show it covers nothing.
+Rejected: a cache directory per source hash alone. It covers source edits, not `Cfg`
+fields read through `cfg.*` (case C, S2). Rejected: keep the current name-only hash. The
+name is not in the key (case N).
 
 ### How a model finds `mkcore` (D3)
 
@@ -382,6 +388,84 @@ model and oracle. Oracle 1 runs on the login host.
 The gate tests are not refactored in phase 1: the oracle does not change in the same
 change as the code it checks.
 
+## Compile cache test (2026-10-29)
+
+Run on banff-cyxtera-s70-4, job 68206732 (one MI300X), sources at `1c46059`. Scripts and
+logs: `common/results/cache/` (`cache_min.py`, `cache_model.py`, `run_node.sh`, `logs/`).
+FlyDSL 0.4.0 in both environments: the hipdnn image with `~/mk/venv`
+(`logs/env_venv.txt`) and the vLLM nightly image `vllm-rocm-nightly-00b6c4c5.sqsh`
+(`logs/env_vllm.txt`). Neither sets a `FLYDSL_*` variable; both default to the cache on
+in `/home/AMD/sareeder/.flydsl/cache`.
+
+Minimal kernel (`cache_min.py`; `logs/cache_min_venv.txt`, `logs/cache_min_vllm.txt`).
+Each case: base build with the cache on in a fresh directory, then the changed build
+with the cache on in the same directory, then the changed build with the cache off.
+
+| Case | Change | Cache on | Cache off | Result |
+|---|---|---|---|---|
+| A | helper in another file, same directory, called as `H.f` (as `D.silu`) | 11111 | 11112 | **stale binary** |
+| O | helper in another directory, called as `O.f` (as a future `mkcore`) | 11111 | 11121 | **stale binary** |
+| D | helper in another file, imported by name | 11211 | 11211 | new binary |
+| K | int closure constant of the kernel | 12111 | 12111 | new binary |
+| C | field of a frozen dataclass in the closure (as `cfg.lm_head`) | 11111 | 21111 | **stale binary** |
+| N | `@flyc.kernel(name=...)` only | 11111 | 11111 | no new cache entry: the name is not in the key |
+| X | case A plus a new `str` constant referenced in the launcher (D5 key) | 11112 | 11112 | new binary (venv run only) |
+
+Qwen3.6 kernel, M = 1, 4 layers, 4 fixed-token steps, sha256 of the outputs
+(`cache_model.py`; `logs/cache_model_qwen36_m1_s1.txt`, `logs/cache_model_qwen36_m1_s2s3.txt`):
+
+| Scenario | Base (cache on) | Changed, same cache | Changed, cache off | Result |
+|---|---|---|---|---|
+| S1: `mk/dev.py` `silu` x (1 + 2^-10) | `88292b7377a71a1a` | `88292b7377a71a1a` | `d9fc0ac21e9623a0` | **old binary used; the edit has no effect** |
+| S2: `lm_head` True -> False | `88292b7377a71a1a` | no result: the step did not finish in 600 s (1800 s in the first attempt), process killed | `49e205655f16e5dc` | **old binary used; the kernel hangs** |
+| S3: `MK_CHUNKS=lm=8` (`Cfg.c_lm`, the packed LM head follows) | `88292b7377a71a1a` | `6003cb5daf85deb1` (finite) | `98e0150e11a66632` | **old binary used; wrong logits, no error** |
+
+Conditions for a stale binary. All must hold:
+
+1. The cache is on (`FLYDSL_RUNTIME_ENABLE_CACHE` unset or 1) and the cache directory
+   already has an entry from an earlier process. The default directory
+   `$HOME/.flydsl/cache` is on the shared home: every node, the venv and the vLLM image
+   use the same one. It holds 45 `launch_*` entries from 2026-10-22 (origin unknown).
+2. The text of the `@flyc.jit` launcher and the `@flyc.kernel` function is the same,
+   with the same scalar closure values (`M`, `CUS` and the other ints), the same
+   directly named same-directory helpers, the same argument types, and the same FlyDSL.
+3. The change is only in code or values the key does not see: a helper called as a module
+   attribute (`D.*`, `S.*`, `X.*`, `MO.*`, `A.*`: almost every device function of all
+   three kernels), a `Cfg` field read through `cfg.*`, `SP[...]` or `GEO` (in all three
+   models: `lm_head`, `fence`, the GEMV chunks, the KV block size and strides,
+   `maxblocks`, `kv_xpack`, `conv_s0`, `ssm_s0`), or the kernel name.
+
+Exposure (no model code or vLLM branch was changed):
+
+- Standalone: every `scripts/mkrun`, `isa_stats` and `suite_austin.sh`, Gemma's
+  `repro_sbatch.sh`, and the TP2 `scratch/m3/task.sh` set `FLYDSL_RUNTIME_ENABLE_CACHE=0`.
+  `tests/run_suite.sh` (all three), Qwen3.8 `bench/repro.sh`, and direct `python
+  tests/...` runs from the READMEs do not, so they can use a stale binary.
+- vLLM branches: the runtime builds through `KK.build(cfg)` with the cache on. A re-export
+  that changes only helper modules (`dev`, `gemv`, `stages`, `mixer`, `moe`, `attention`)
+  keeps the old binary after a restart. A restart with another KV geometry (block size,
+  attention backend layout, `max_model_len`) can load a binary built for the old geometry.
+  [INFERENCE for the geometry fields: the same mechanism as case C and S2 / S3; not run in
+  vLLM.] Our own vLLM measurement scripts (`~/mk/m6run.sh`, `~/mk/g4m6run.sh`) set
+  `FLYDSL_RUNTIME_ENABLE_CACHE=0`, so the published vLLM numbers are not affected.
+
+Mitigation:
+
+1. Now, without code changes: run with `FLYDSL_RUNTIME_ENABLE_CACHE=0` (each process
+   compiles once per `Cfg`), or point `FLYDSL_RUNTIME_CACHE_DIR` at an empty directory
+   for each deployment, and delete `$HOME/.flydsl/cache` after each re-export.
+2. Fix (D5, migration M2): `build` puts a `str` key in the launcher closure that holds
+   `repr(cfg)`, the debug globals and the source hashes of the model package and
+   `mkcore`. Case X shows that a `str` closure value gives a new binary. A cache
+   directory per source hash alone is not enough: it misses `Cfg` fields (case C, S2, S3).
+
+buffer_ops (D13.5): aiter's `aiter/ops/flydsl/kernels/buffer_ops.py` in the vLLM nightly
+image is not the vendored FlyDSL `8bcefbc` copy (`logs/buffer_ops.diff`, 417 changed lines).
+Apart from docstrings, the three functions the kernels call differ:
+`create_buffer_resource_from_addr`, `buffer_load`, `buffer_store`. aiter adds a
+compatibility layer for the cache-policy operand (enum attribute or i32). Whether the
+exported kernels give the same ISA is open; oracle 5 answers it at M3.
+
 ## Decisions
 
 - D1. Package `common/mkcore/` (FlyDSL gfx942 only), scripts in `common/scripts/`. Evidence:
@@ -407,9 +491,10 @@ change as the code it checks.
   their ISA changes (tier B, D9). Rejected: the select in every GEMV (adds runtime work to
   Qwen3.8 and changes its ISA).
 - D9. Acceptance tiers per model and step. Tier A (default): ISA hash equal. Tier B: ISA
-  differs, logits hashes equal, hard gates pass, `bench/bench_decode.py` median of 3 within
-  the day's run-to-run spread against a same-day baseline on the same node; log it in this
-  file. Anything else is a numerics change and is not part of this refactor.
+  differs, logits hashes equal, every hard gate passes, and `bench/bench_decode.py` TPOT
+  (median of 3, same node and day as a re-measured baseline) is within 1 % at M = 1, 2,
+  4, 8; log it in this file. Anything else is a numerics change and is not part of this
+  refactor. (Approved by Main, 2026-10-29.)
 - D10. Keep `sync.py`, `peer.py`, `tp.py`, `TRACE`, `ARPROBE` in Qwen3.8 until a second
   model uses TP. Evidence: one user; the vLLM file is the source of truth and the export
   checks the copy against it.
@@ -419,6 +504,19 @@ change as the code it checks.
   Qwen3.6. Usage: `common/scripts/mkrun <model-dir> [-j JOB] 'cmd'`; job name from
   `$MK_JOB` or `-j`. The per-model `mkrun`, `setup_env.sh`, `isa_stats` are deleted (no
   wrappers).
+- D13. Decisions by Main on the open questions (2026-10-29):
+  1. The cache test runs now, before any migration (results in "Compile cache test").
+  2. Tier B is accepted under D9 (logits hash, all gates, TPOT within 1 %, median of 3).
+     D8 stays as written.
+  3. No shorter checks: every milestone runs the full gates of every model.
+  4. `rstd_from_ssq` copies stay separate (D11). This refactor changes no bits.
+  5. M0 compares the vendored `buffer_ops.py` with aiter's copy in the nightly vLLM image
+     and records the diff (done early, see "Compile cache test").
+  6. The Qwen3.8 TP2 vLLM kernels keep importing the mailbox from DSv4.1
+     (`deepseek_v41/amd/mono/common/sync.py`, the source of truth). `export_vllm.py`
+     already fails when the copy in `mk/sync.py` differs.
+  Migration milestones M0+ start only after the Gemma MoE, fixed-stage-cost and TP2
+  branches merge; Main starts them.
 
 ## Rejected alternatives
 
@@ -504,25 +602,10 @@ Re-inventory after M9. Candidates, each with the R-share rule:
 
 ## Open questions
 
-1. Does the FlyDSL 0.4.0 disk cache ignore the kernel name and the helpers in other
-   modules? The source reading says yes. The vLLM trees run with the cache on and set no
-   `FLYDSL_RUNTIME_*` variable, so a vLLM rebuild after a kernel edit can load a stale
-   binary today. Settle with the M1 cache test; until then, set
-   `FLYDSL_RUNTIME_ENABLE_CACHE=0` or clear `~/.flydsl/cache` after each vLLM re-export.
-2. Accept tier B (D9) for Qwen3.6 and Gemma at M5, or keep the select in all GEMVs and
-   accept tier B for Qwen3.8 instead? Proposed: D8 as written.
-3. May a milestone that is tier A for every model and leaves the CPU goldens unchanged run
-   only the logits hash and determinism instead of the full suites (about 1.5 h per model
-   per milestone)? Proposed: no, until two milestones show that tier A always gave a PASS.
-4. Unify `rstd_from_ssq` on one reduction later? It changes the bits of Qwen3.8 (DPP) or
-   of Qwen3.6 and Gemma (`xor_sum`); a model owner decides, with that model's gates.
-5. Is the vendored `buffer_ops.py` (FlyDSL `8bcefbc`) equal to aiter's
-   `aiter.ops.flydsl.kernels.buffer_ops` that the exports use? Nobody has compared them.
-   Oracle 5 (exported ISA equals standalone ISA) answers it at M3.
-6. The Qwen3.8 TP2 vLLM kernels import `Mailbox` from
-   `vllm/models/deepseek_v41/amd/mono/common/sync.py`. That path changed three times
-   between 2026-10-16 and 2026-10-20 (vLLM `2b4eaee84`, `0d7f3e718`, `d6678803a`). Keep
-   that import, or copy the mailbox into `kernels/` as Kimi K3 does?
+1. Answered by the compile cache test: the FlyDSL 0.4.0 disk cache can serve a stale
+   binary (see "Compile cache test"). Open: who sets `FLYDSL_RUNTIME_ENABLE_CACHE=0` or a
+   per-deployment cache directory for the vLLM branches before M2 lands?
+2. to 6.: decided, see D13.
 
 ## Disposable
 

@@ -1,0 +1,8 @@
+2026-10-29T02:52:01-04:00
+banff-cyxtera-s70-4.adc.amd.com
+job 68206732 mode vllm
+gfx942
+torch 2.13.0+rocm10.0.0 flydsl 0.4.0 /usr/local/lib/python3.12/dist-packages/flydsl/__init__.py
+FLYDSL env {}
+enable_cache default True cache_dir /home/AMD/sareeder/.flydsl/cache
+1c4605978cb7fa0161add25360d2fa7451557100 dirty files: 1
