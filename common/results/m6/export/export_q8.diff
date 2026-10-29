@@ -1,0 +1,26 @@
+diff -ru /tmp/export_check_994714/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py /tmp/export_check_994714/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py
+--- /tmp/export_check_994714/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 12:28:49.418216441 -0400
++++ /tmp/export_check_994714/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py	2026-10-29 12:28:49.603218467 -0400
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: Apache-2.0
+ # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
+ # ruff: noqa: E501
+-# megakernels 2dd8dc357a7f1c33d96d3f62acb3302792883525, common/mkcore SRC_HASH 17d642500f78c66d
++# megakernels c4630c80a0f46ac9a6dc789f75f1a37969e6b2d1, common/mkcore SRC_HASH 1e68a632f3838fdf
+ """Shared FlyDSL gfx942 megakernel infrastructure of the megakernels models
+ (common/DESIGN.md). Imports no model module.
+ 
+diff -ru /tmp/export_check_994714/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/gemv.py /tmp/export_check_994714/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/gemv.py
+--- /tmp/export_check_994714/q8-base/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/gemv.py	2026-10-29 12:28:49.421216474 -0400
++++ /tmp/export_check_994714/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/gemv.py	2026-10-29 12:28:49.607218511 -0400
+@@ -43,8 +43,8 @@
+ 
+ from . import dev as D
+ from . import fp4
++from .pack import PAD_TILES
+ 
+-PAD_TILES = 16  # spare tiles after a packed matrix (>= 3 P - 1)
+ H4 = fp4.device_helpers()
+ 
+ 
+Only in /tmp/export_check_994714/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore: pack.py

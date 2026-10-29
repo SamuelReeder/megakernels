@@ -1,0 +1,38 @@
+[flydsl.compile] FLYDSL_DUMP_IR=1 dir=/tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280
+[flydsl.compile] dump 00_origin -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/00_origin.mlir
+[flydsl.compile] dump 01_fly_rewrite_func_signature -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/01_fly_rewrite_func_signature.mlir
+[flydsl.compile] dump 02_fly_canonicalize -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/02_fly_canonicalize.mlir
+[flydsl.compile] dump 03_fly_rocdl_expand_ops -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/03_fly_rocdl_expand_ops.mlir
+[flydsl.compile] dump 04_fly_layout_lowering -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/04_fly_layout_lowering.mlir
+[flydsl.compile] dump 05_fly_int_swizzle_simplify -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/05_fly_int_swizzle_simplify.mlir
+[flydsl.compile] dump 06_canonicalize -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/06_canonicalize.mlir
+[flydsl.compile] dump 07_fly_convert_atom_call_to_ssa_form -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/07_fly_convert_atom_call_to_ssa_form.mlir
+[flydsl.compile] dump 08_fly_promote_regmem_to_vectorssa -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/08_fly_promote_regmem_to_vectorssa.mlir
+[flydsl.compile] dump 09_convert_fly_to_rocdl -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/09_convert_fly_to_rocdl.mlir
+[flydsl.compile] dump 10_canonicalize -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/10_canonicalize.mlir
+[flydsl.compile] dump 11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl.mlir
+[flydsl.compile] dump 12_rocdl_attach_target -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/12_rocdl_attach_target.mlir
+[flydsl.compile] dump 13_convert_scf_to_cf -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/13_convert_scf_to_cf.mlir
+[flydsl.compile] dump 14_convert_cf_to_llvm -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/14_convert_cf_to_llvm.mlir
+[flydsl.compile] dump 15_gpu_to_llvm -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/15_gpu_to_llvm.mlir
+[flydsl.compile] dump 16_convert_vector_to_llvm -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/16_convert_vector_to_llvm.mlir
+[flydsl.compile] dump 17_convert_arith_to_llvm -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/17_convert_arith_to_llvm.mlir
+[flydsl.compile] dump 18_convert_func_to_llvm -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/18_convert_func_to_llvm.mlir
+[flydsl.compile] dump 19_reconcile_unrealized_casts -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/19_reconcile_unrealized_casts.mlir
+[flydsl.compile] dump 20_gpu_module_to_binary -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/20_gpu_module_to_binary.mlir
+[flydsl.compile] dump 21_llvm_ir -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/21_llvm_ir.ll
+[flydsl.compile] dump 22_final_isa -> /tmp/isa_dump_345492_1_8_on/qwen38_decode_m8_d500c280/22_final_isa.s
+HASH tp2 ar bf16 rank 1 M=8 lm=on steps=1 layers=4 logits d4e234d475a0c55f rank-slice 161bc4ca993897d7 finite True
+[rank1]:[W1029 15:47:04.462672811 TCPStore.cpp:125] [c10d] recvValue failed on SocketImpl(fd=5, addr=[localhost]:43516, remote=[localhost]:29541): Failed to recv, got 0 bytes. Connection was likely closed. Did the remote server shutdown or crash?
+Exception raised from recvBytes at /__w/pytorch/pytorch/torch/csrc/distributed/c10d/Utils.hpp:790 (most recent call first):
+frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x9d (0x7637ac5a37fd in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #1: c10::DistError::DistError(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x72 (0x7637ac5a47d2 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #2: c10::DistNetworkError::DistNetworkError(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x72 (0x7637ac5a4c92 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #3: <unknown function> + 0x68fee2d (0x76379b939e2d in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #4: c10d::TCPStore::check(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) + 0x383 (0x76379b933623 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #5: c10d::ProcessGroupNCCL::HeartbeatMonitor::runLoop() + 0x43d (0x763777857b3d in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_hip.so)
+frame #6: <unknown function> + 0xecdb4 (0x7636ff0ecdb4 in /lib/x86_64-linux-gnu/libstdc++.so.6)
+frame #7: <unknown function> + 0x9cb84 (0x7637ad49cb84 in /lib/x86_64-linux-gnu/libc.so.6)
+frame #8: <unknown function> + 0x129ecc (0x7637ad529ecc in /lib/x86_64-linux-gnu/libc.so.6)
+
+[rank1]:[W1029 15:47:04.467669789 ProcessGroupNCCL.cpp:1893] [PG ID 0 PG GUID 0 Rank 1] TCPStore check for dump key "exception_dump" failed (store unavailable, not absent key). Cannot detect remote dump signals. A rank exiting outside NCCL without broadcasting is a separate case. Error: Failed to recv, got 0 bytes. Connection was likely closed. Did the remote server shutdown or crash?
