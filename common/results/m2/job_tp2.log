@@ -1,0 +1,13 @@
+GATE q8tp2 logits_hash_run1_fp32 PASS
+GATE q8tp2 logits_hash_run1_bf16 PASS
+GATE q8tp2 isa_dump PASS
+GATE q8tp2 test_decode_fp32_m1 FAIL rc=1
+GATE q8tp2 determinism_fp32_m1 PASS
+GATE q8tp2 test_decode_fp32_m8 PASS
+GATE q8tp2 determinism_fp32_m8 PASS
+GATE q8tp2 test_decode_bf16_m1 PASS
+GATE q8tp2 determinism_bf16_m1 PASS
+GATE q8tp2 test_decode_bf16_m8 PASS
+GATE q8tp2 determinism_bf16_m8 PASS
+GATE q8tp2 eval_text_fp32 PASS
+job 68207993 done 2026-10-29T07:43:12-04:00

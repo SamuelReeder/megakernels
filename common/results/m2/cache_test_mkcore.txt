@@ -1,0 +1,5 @@
+{"run": "B base", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "6b7fb50f3ec5102a", "finite": "True", "new_cache_files": 1}
+{"run": "B comment in common/mkcore/key.py, same cache", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "6b7fb50f3ec5102a", "finite": "True", "new_cache_files": 1}
+{"run": "B comment in common/mkcore/key.py, cache off", "cache_on": false, "lm_head": "1", "chunks": "", "rc": 0, "hash": "6b7fb50f3ec5102a", "finite": "True", "new_cache_files": 0}
+VERDICT B comment edit common/mkcore/key.py: PASS (base 6b7fb50f3ec5102a new 1; changed+cache 6b7fb50f3ec5102a new 1; changed, cache off 6b7fb50f3ec5102a)
+PASS

@@ -636,6 +636,35 @@ new entry and the cache-off result. (b) a comment line in `mk/dev.py` gives a ne
 `str` key in the launcher closure: same sources and `Cfg` twice hit the cache (no new
 entry); a `silu` edit gives a new entry with the cache-off result.
 
+### M2: `mkcore` package and the compile key (2026-10-29, sources `572802f`)
+
+Change: `common/mkcore/__init__.py` (`SRC_HASH`), `common/mkcore/key.py`
+(`COMMON_FIELDS`, `check_cfg`, `source_hash`, `compile_key(cfg, pkg_dir, *extra)`,
+`kernel_name(prefix, cfg, key)`); each model's `mk/__init__.py` puts `<repo>/common` first
+on `sys.path` and asserts where `mkcore` comes from (D3); the per-model `compile_key` /
+`kernel_name` copies are gone, `build` calls `K.check_cfg`, `K.compile_key`,
+`K.kernel_name`; Qwen3.8 gets `Cfg.fence` and `Cfg.chaos`, Gemma `Cfg.chaos` (all default
+`False`; no barrier code reads the new fields before M4). The kernel names change (the
+crc is of the key now); the kernel code does not. Each `export_vllm.py` copies
+`common/mkcore/*.py` to `kernels/mkcore/` and rewrites `from mkcore import` to
+`from .mkcore import` (two lines plus a loop each; M3 moves them into `export_lib.py`).
+Not run in this milestone: an export into a vLLM tree (oracle 5 starts at M3).
+
+Evidence: jobs on banff-cyxtera-s70-4, cache off: Qwen3.8 68207989 (with the cache tests),
+Qwen3.6 68207990, Gemma 68207991, Qwen3.8 TP2 68207993; logs `common/results/m2/`.
+
+- I-bits: every logits hash of the M1 table equals the baseline (Qwen3.8 TP1, TP2 fp32 and
+  bf16 gathered and per rank, Qwen3.6 and Gemma with `lm_head` on and off, M = 1, 2, 4, 8).
+- I-isa, tier A for every model: `isa_renorm.txt` equals M1's for all 18 builds; the raw
+  dumps differ only in the kernel symbol (22 lines, `.L<name>.*` labels).
+- I-gates: the same gates as M1 pass; the TP2 c1 line fails at M = 1 with the same
+  0.000897 as the baseline (report only, see M1).
+- I-key (`cache_test.txt`, `cache_test_mkcore.txt`): (a), (b), (c) of M1 pass again, and a
+  comment line in `common/mkcore/key.py` gives a new cache entry with equal bits: an
+  `mkcore` edit reaches the key.
+- I-host: `common/tests/goldens.py` 298 lines equal (login node).
+- I-dep: `common/mkcore` imports only the standard library and itself.
+
 ## Decisions
 
 - D1. Package `common/mkcore/` (FlyDSL gfx942 only), scripts in `common/scripts/`. Evidence:
