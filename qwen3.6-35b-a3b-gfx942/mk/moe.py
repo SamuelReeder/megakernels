@@ -43,7 +43,6 @@ from .gemv import fp8_compute, fp8_load
 LGN = 272  # router GEMV rows: 256 experts, the shared gate, 15 zero rows
 NSLOT = TOPK + 1  # 8 routed slots + the shared expert
 NEG = -3.0e38
-NSUB = 4  # S6 sub-counters per group (two-level counting, MoeGemv._cg)
 
 
 def i2f(i):
@@ -216,6 +215,7 @@ class MoeGemv:
     mode: str  # "gu" | "down"
     waves: int = 8
     C: int = 1  # K chunks per expert
+    nsub: int = 4  # down: sub-counters per group (two-level counting when > 1, _cg)
 
     kind = "fp8"
     esize = 1
@@ -323,11 +323,17 @@ class MoeGemv:
         ub = self._ubase(R, pi)
         return [fp8_load(w["rt"], w["rs"], ub + s, w["lane"]) for s in range(self.KSp)]
 
+    def first_piece(self, w, R):
+        """This wave's first piece (run(..., buf=)): issue it before a prologue so the
+        weight fetch overlaps the prologue (needs the routing tables in LDS)."""
+        T_ = R.n() * self.ppe
+        return self._load_piece(w, R, fx.min(w["gw"] * T_ // self.NW, T_ - 1))
+
     @D.traced
-    def run(self, c, w, R, part, cnt, fin, pos0=None):
+    def run(self, c, w, R, part, cnt, fin, pos0=None, buf=None):
         """Stream this wave's pieces, then count them; the last arriver of a counter
         group calls fin(cg, tots[, ...]) (see mode). pos0: the CTA's first position
-        (down mode: LDS x slot = pos - pos0)."""
+        (down mode: LDS x slot = pos - pos0). buf: first_piece(), or None."""
         D.PROBE["on"] = D.PROBE.get("stage") == self.name
         D.probe(c, 0)
         npos = R.n()
@@ -338,7 +344,8 @@ class MoeGemv:
         rp = D.rsrc(part)
         G, KSp = self.G, self.KSp
         rslot = R.slot
-        buf = self._load_piece(w, R, fx.min(p0, T_ - 1))
+        if const_expr(buf is None):
+            buf = self._load_piece(w, R, fx.min(p0, T_ - 1))
         for pi in range(p0, p1):
             nxt = self._load_piece(w, R, fx.min(pi + 1, T_ - 1))
             pos = pi // self.ppe
@@ -382,33 +389,35 @@ class MoeGemv:
             if const_expr(self.mode == "gu"):
                 total = fx.Int32(self.C)
             else:
-                sub = pi // self.ppe % NSUB
-                total = self.C * ((npos - sub + NSUB - 1) // NSUB)
+                sub = pi // self.ppe % self.nsub
+                total = self.C * ((npos - sub + self.nsub - 1) // self.nsub)
             if (pi < p1) & ((olds[k] + 1) == total):
                 if w["lane"] == 0:
                     D.st(fx.Int32(0), D.rsrc(cnt), cg, D.CM_DEV)
                 if const_expr(self.mode == "gu"):
                     self._reduce_gu(w, R, rp, pi // self.ppe, pi % G, fin)
+                elif const_expr(self.nsub == 1):
+                    self._reduce_down(w, R, rp, pi % G, fin)
                 else:
-                    # level 2: the last of the min(npos, NSUB) sub-counters reduces
+                    # level 2: the last of the min(npos, nsub) sub-counters reduces
                     gg = pi % G
                     old2 = fx.Int32(0)
                     if w["lane"] == 0:
-                        old2 = D.atomic_add_dev(cnt + (NSUB * G + gg) * 4, 1)
-                    if (D.uniform(old2) + 1) == fx.min(npos, NSUB):
+                        old2 = D.atomic_add_dev(cnt + (self.nsub * G + gg) * 4, 1)
+                    if (D.uniform(old2) + 1) == fx.min(npos, self.nsub):
                         if w["lane"] == 0:
-                            D.st(fx.Int32(0), D.rsrc(cnt), NSUB * G + gg, D.CM_DEV)
+                            D.st(fx.Int32(0), D.rsrc(cnt), self.nsub * G + gg, D.CM_DEV)
                         self._reduce_down(w, R, rp, gg, fin)
         D.probe(c, 2)
 
     def _cg(self, pi):
-        """Counter of piece pi. gu: (position, group), C arrivals. down: (pos % NSUB,
-        group), C arrivals per position of the sub-set; the sub-counters' last arrivers
-        meet at counter NSUB G + group (spreads the atomics of one group over NSUB
-        addresses: measured contention at M = 8)."""
+        """Counter of piece pi. gu: (position, group), C arrivals. down: (pos % nsub,
+        group), C arrivals per position of the sub-set; with nsub > 1 the sub-counters'
+        last arrivers meet at counter nsub G + group (spreads the atomics of one group
+        over nsub addresses: measured contention at M = 8; one round trip more)."""
         if self.mode == "gu":
             return (pi // self.ppe) * self.G + pi % self.G
-        return (pi // self.ppe % NSUB) * self.G + pi % self.G
+        return (pi // self.ppe % self.nsub) * self.G + pi % self.G
 
     def _p2(self, g, j, ch, col, m):
         return (((g * NSLOT + j) * self.C + ch) * 16 + col) * 16 + m

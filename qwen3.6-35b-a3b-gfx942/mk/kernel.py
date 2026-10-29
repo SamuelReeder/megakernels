@@ -132,9 +132,11 @@ class Cfg:
     debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
     fence: bool = False  # L2 write-back / invalidate at every grid barrier (dev.grid_*)
     chaos: bool = False  # random delays before arrivals and counter atomics (dev.CHAOS)
-    # grid barrier: False = per-CTA flag lines + 8 leader CTAs (two device hops); True =
-    # dense flag array polled by every CTA (one hop; dev.grid_wait)
-    bar_flat: bool = False
+    # S6 counters: sub-counters per group (1: one level, one atomic round trip less;
+    # 4: spreads the atomics of a group, less contention at M = 8)
+    e2_nsub: int = 4
+    # S5 / S6: issue the wave's first expert piece before the norm / act prologue
+    moe_early: bool = False
     # in_proj fp8, qkv, out_proj, router: CTA-local split-K, LDS reduction (gemv.Gemv.cta;
     # needs their K chunks = 1)
     cta_red: bool = False
@@ -169,7 +171,8 @@ class Cfg:
             o=g("o", H, NQ * HD),
             router=g("router", MO.LGN, H, "bf16", cta=True),
             e1=MO.MoeGemv("e1", 2 * FI, H, M, cus, "gu", WAVES, ch["e1"]).check(),
-            e2=MO.MoeGemv("e2", H, FI, M, cus, "down", WAVES, ch["e2"]).check(),
+            e2=MO.MoeGemv("e2", H, FI, M, cus, "down", WAVES, ch["e2"],
+                          nsub=self.e2_nsub).check(),
             lm=g("lm", VOCAB, H, "bf16"),
         )
 
@@ -205,7 +208,6 @@ def build(cfg: Cfg):
     D.CHAOS["on"] = cfg.chaos
     S.NT = NT
     NP = MO.npos_max(M)
-    assert CUS % 4 == 0, "flat barrier: 4 flags per polling lane"
     XQB = max(s.XR * (s.XROWS if isinstance(s, MO.MoeGemv) else M) for s in SP.values())
     XBB = SP["ba"].XR * M  # in_proj's bf16 x (b / a), beside the fp8 x
     XSF = 32 * max(s.XSR for s in SP.values())
@@ -320,9 +322,9 @@ def build(cfg: Cfg):
             if const_expr(PROFILE["addr"] is not None):
                 slot = ((e - epoch - 1) * CUS + bid) * 2
                 stamp(slot)
-            D.grid_arrive(rf, e, tid, bid, cfg.fence, cfg.bar_flat)
+            D.grid_arrive(rf, e, tid, bid, cfg.fence)
             buf = spec.first_loads(w) if spec is not None else None
-            D.grid_wait(rf, e, tid, bid, CUS, cfg.fence, cfg.bar_flat)
+            D.grid_wait(rf, e, tid, bid, CUS, cfg.fence)
             if const_expr(PROFILE["addr"] is not None):
                 stamp(slot + 1)
             return w, buf
@@ -530,15 +532,21 @@ def _moe_t(c, SP, T, G, e0, xq, xb, xs, red, wl, hb0, hb1, q0, q1, part, cnt,
     MO.routing(c, M, G[G_LOGIT], G[G_ROWV], R)
     if const_expr(cfg.debug_route):
         MO.route_hash(c, M, R, G[G_SPARE], li, c["cus"], NL)
-    S.prologue_norm(c, e1, xq, xs, red, hf1, q1, T(T_POST_LN), EPS)
     w1 = e1.setup(c, xq, xs, T(T_E1_T), T(T_E1_S))
-    e1.run(c, w1, R, part, cnt("e1"), MO.EpiAct(c, M, R, G[G_ACT], FI))
+    b1 = None
+    if const_expr(cfg.moe_early):
+        b1 = e1.first_piece(w1, R)
+    S.prologue_norm(c, e1, xq, xs, red, hf1, q1, T(T_POST_LN), EPS)
+    e1.run(c, w1, R, part, cnt("e1"), MO.EpiAct(c, M, R, G[G_ACT], FI), buf=b1)
     # S6: the experts' down projection, the weighted slot sum and the residual
     barrier_then(None, None, None, e0 + 5)
     pos0 = e2.cta_pos0(c["bid"], R.n())
-    MO.prologue_act_moe(c, e2, xq, xs, G[G_ACT], R, pos0)
     w2 = e2.setup(c, xq, xs, T(T_E2_T), T(T_E2_S))
-    e2.run(c, w2, R, part, cnt("e2"), S.EpiRes(c, M, hb1, hb0, q0, hf0), pos0)
+    b2 = None
+    if const_expr(cfg.moe_early):
+        b2 = e2.first_piece(w2, R)
+    MO.prologue_act_moe(c, e2, xq, xs, G[G_ACT], R, pos0)
+    e2.run(c, w2, R, part, cnt("e2"), S.EpiRes(c, M, hb1, hb0, q0, hf0), pos0, buf=b2)
 
 
 @D.traced

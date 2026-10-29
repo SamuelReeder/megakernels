@@ -286,62 +286,44 @@ def poll_ge(r, slot, val):
         v = ld(r, slot, cm=CM_DEV)
 
 
-@traced
-def poll_ge4(r, slot, val):
-    """poll_ge for the 4 words slot .. slot + 3 (one 16-byte load per poll)."""
-    v = ld(r, slot, 4, cm=CM_DEV)
-    while fx.min(fx.min(v[0] - val, v[1] - val), fx.min(v[2] - val, v[3] - val)) < 0:
-        rocdl.s_sleep(1)
-        v = ld(r, slot, 4, cm=CM_DEV)
-
-
 def _asm(text):
     llvm.InlineAsmOp(None, [], text, "", has_side_effects=True)
 
 
 @traced
-def grid_arrive(rf, epoch, tid, bid, fence=False, flat=False):
+def grid_arrive(rf, epoch, tid, bid, fence=False):
     """Barrier arrival: drain this CTA's memory ops (its stores become visible), then
-    store epoch to the CTA's flag: its own line (two-level), or word bid of the dense
-    flag array (flat). Issue prefetch loads after this, not before: s_waitcnt vmcnt(0)
-    also waits for loads (measured: prefetching before the arrival is slower). fence:
-    also write back this XCD's dirty L2 lines first (agent-scope release, buffer_wbl2
-    sc1)."""
+    store epoch to the CTA's flag line. Issue prefetch loads after this, not before:
+    s_waitcnt vmcnt(0) also waits for loads (measured: prefetching before the arrival
+    is slower). fence: also write back this XCD's dirty L2 lines first (agent-scope
+    release, buffer_wbl2 sc1)."""
     if const_expr(CHAOS["on"]):
         chaos_sleep(bid)
     if const_expr(fence):
         _asm("buffer_wbl2 sc1")
     rocdl.s_waitcnt(vmcnt=0)
     gpu.barrier()
-    slot = bid * LINE
-    if const_expr(flat):
-        slot = bid
     if tid == 0:
-        st(epoch, rf, slot, CM_DEV)
+        st(epoch, rf, bid * LINE, CM_DEV)
 
 
 @traced
-def grid_wait(rf, epoch, tid, bid, cus, fence=False, flat=False):
-    """Barrier completion. Two-level: leader x < 8 waits for the CTAs b % 8 == x (its
-    XCD under round-robin dispatch) and stores epoch to line cus + x; every CTA waits
-    for the 8 leader lines (two device round trips after the last arrival). flat: lane
-    l < cus / 4 of every CTA polls flags 4 l .. 4 l + 3 of the dense array (one round
-    trip; cus / 32 lines per poll). Epochs only grow (wrap-around compare). fence: then
-    invalidate this XCD's non-local L2 lines and the CU's L1 (agent-scope acquire,
-    buffer_inv sc1)."""
-    if const_expr(flat):
-        if tid < cus // 4:
-            poll_ge4(rf, tid * 4, epoch)
-    else:
-        if bid < 8:
-            nx = (cus - bid + 7) // 8
-            if tid < nx:
-                poll_ge(rf, (bid + 8 * tid) * LINE, epoch)
-            gpu.barrier()
-            if tid == 0:
-                st(epoch, rf, (cus + bid) * LINE, CM_DEV)
-        if tid < 8:
-            poll_ge(rf, (cus + tid) * LINE, epoch)
+def grid_wait(rf, epoch, tid, bid, cus, fence=False):
+    """Barrier completion. Leader x < 8 waits for the CTAs b % 8 == x (its XCD under
+    round-robin dispatch) and stores epoch to line cus + x; every CTA waits for the
+    8 leader lines. Epochs only grow. fence: then invalidate this XCD's non-local L2
+    lines and the CU's L1 (agent-scope acquire, buffer_inv sc1). (One-hop variants,
+    device-scope arrival counters and a dense flag array polled by every CTA, were
+    slower: docs/DESIGN.md, "Fixed stage cost".)"""
+    if bid < 8:
+        nx = (cus - bid + 7) // 8
+        if tid < nx:
+            poll_ge(rf, (bid + 8 * tid) * LINE, epoch)
+        gpu.barrier()
+        if tid == 0:
+            st(epoch, rf, (cus + bid) * LINE, CM_DEV)
+    if tid < 8:
+        poll_ge(rf, (cus + tid) * LINE, epoch)
     gpu.barrier()
     if const_expr(fence):
         _asm("buffer_inv sc1")
