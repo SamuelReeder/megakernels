@@ -1,0 +1,135 @@
+{
+ "hip_lib": [
+  "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libamdhip64.so"
+ ],
+ "torch": "2.14.1+rocm7.2",
+ "hip": "7.2.53211",
+ "dev": "AMD Instinct MI300X",
+ "host": "banff-cyxtera-s70-4.adc.amd.com",
+ "Ms": {
+  "1": {
+   "compile_s": 27.4,
+   "post_load_processors": 0,
+   "link_libs": "[]",
+   "objects": [
+    {
+     "binary": "kernels",
+     "target": "#rocdl.target<chip = \"gfx942\">",
+     "format": 3,
+     "nbytes": 237312,
+     "magic": "7f454c460201014004000000000000000300e00001000000"
+    }
+   ],
+   "launch_func": [
+    "gpu.launch_func <%arg3 : !llvm.ptr> @kernels::@qwen38_decode_m1_8612ae82 blocks in (%0, %1, %1) threads in (%2, %1, %1) : i64 args(%arg0 : i64, %arg1 : i64, %arg2 : i32)"
+   ],
+   "host_calls": [],
+   "kernel_refs": [
+    [
+     "kernels",
+     "qwen38_decode_m1_8612ae82"
+    ]
+   ],
+   "symbol_guess": "qwen38_decode_m1_8612ae82",
+   "co": "/home/AMD/sareeder/mk/spikeA/run2/qwen38_decode_m1.co",
+   "co_bytes": 237312,
+   "hash_flydsl": [
+    "4db972e0ec306d4f",
+    true
+   ],
+   "hash_hip": [
+    "4db972e0ec306d4f",
+    true
+   ],
+   "hash_graph": [
+    "4db972e0ec306d4f",
+    true
+   ],
+   "host_us_flydsl": {
+    "median": 75.04,
+    "p10": 70.61,
+    "p90": 99.85
+   },
+   "host_us_hip": {
+    "median": 4.24,
+    "p10": 3.9,
+    "p90": 5.92
+   },
+   "host_us_flydsl_compiled": {
+    "median": 4.64,
+    "p10": 3.81,
+    "p90": 6.33
+   },
+   "module_load_ms": 2.03,
+   "host_us_graph_replay": {
+    "median": 8.35,
+    "p10": 6.3,
+    "p90": 12.37
+   },
+   "dev_ms_flydsl": 8.1928,
+   "dev_ms_hip": 8.198
+  },
+  "8": {
+   "compile_s": 29.7,
+   "post_load_processors": 0,
+   "link_libs": "[]",
+   "objects": [
+    {
+     "binary": "kernels",
+     "target": "#rocdl.target<chip = \"gfx942\">",
+     "format": 3,
+     "nbytes": 279424,
+     "magic": "7f454c460201014004000000000000000300e00001000000"
+    }
+   ],
+   "launch_func": [
+    "gpu.launch_func <%arg3 : !llvm.ptr> @kernels::@qwen38_decode_m8_c6efe94d blocks in (%0, %1, %1) threads in (%2, %1, %1) : i64 args(%arg0 : i64, %arg1 : i64, %arg2 : i32)"
+   ],
+   "host_calls": [],
+   "kernel_refs": [
+    [
+     "kernels",
+     "qwen38_decode_m8_c6efe94d"
+    ]
+   ],
+   "symbol_guess": "qwen38_decode_m8_c6efe94d",
+   "co": "/home/AMD/sareeder/mk/spikeA/run2/qwen38_decode_m8.co",
+   "co_bytes": 279424,
+   "hash_flydsl": [
+    "cf305425fce9de61",
+    true
+   ],
+   "hash_hip": [
+    "cf305425fce9de61",
+    true
+   ],
+   "hash_graph": [
+    "cf305425fce9de61",
+    true
+   ],
+   "host_us_flydsl": {
+    "median": 70.82,
+    "p10": 69.49,
+    "p90": 75.56
+   },
+   "host_us_hip": {
+    "median": 4.03,
+    "p10": 3.79,
+    "p90": 4.37
+   },
+   "host_us_flydsl_compiled": {
+    "median": 3.92,
+    "p10": 3.64,
+    "p90": 4.19
+   },
+   "module_load_ms": 2.01,
+   "host_us_graph_replay": {
+    "median": 7.19,
+    "p10": 5.95,
+    "p90": 9.32
+   },
+   "dev_ms_flydsl": 11.9035,
+   "dev_ms_hip": 11.8809
+  }
+ }
+}

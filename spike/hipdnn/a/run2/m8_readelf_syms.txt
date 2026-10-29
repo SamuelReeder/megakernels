@@ -1,0 +1,17 @@
+
+Symbol table '.dynsym' contains 3 entries:
+   Num:    Value          Size Type    Bind   Vis       Ndx Name
+     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT   UND 
+     1: 0000000000001600 275140 FUNC   GLOBAL PROTECTED   7 qwen38_decode_m8_c6efe94d
+     2: 0000000000000540    64 OBJECT  GLOBAL DEFAULT     6 qwen38_decode_m8_c6efe94d.kd
+
+Symbol table '.symtab' contains 8 entries:
+   Num:    Value          Size Type    Bind   Vis       Ndx Name
+     0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT   UND 
+     1: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT   ABS amdgpu.max_num_vgpr
+     2: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT   ABS amdgpu.max_num_agpr
+     3: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT   ABS amdgpu.max_num_sgpr
+     4: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT   ABS amdgpu.max_num_named_barrier
+     5: 0000000000045d00     0 NOTYPE  LOCAL  HIDDEN      8 _DYNAMIC
+     6: 0000000000001600 275140 FUNC   GLOBAL PROTECTED   7 qwen38_decode_m8_c6efe94d
+     7: 0000000000000540    64 OBJECT  GLOBAL DEFAULT     6 qwen38_decode_m8_c6efe94d.kd

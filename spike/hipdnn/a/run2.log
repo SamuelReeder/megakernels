@@ -1,0 +1,11 @@
+M=1 extracted /home/AMD/sareeder/mk/spikeA/run2/qwen38_decode_m1.co 237312 B symbol qwen38_decode_m1_8612ae82 objects [('#rocdl.target<chip = "gfx942">', 3, '7f454c4602010140')]
+HASH M=1 flydsl ('4db972e0ec306d4f', True)
+HASH M=1 hipModule ('4db972e0ec306d4f', True)
+HASH M=1 hipModule-graph ('4db972e0ec306d4f', True)
+TIME M=1 host_us flydsl {'median': 75.04, 'p10': 70.61, 'p90': 99.85} flydsl-compiled {'median': 4.64, 'p10': 3.81, 'p90': 6.33} hip {'median': 4.24, 'p10': 3.9, 'p90': 5.92} graph {'median': 8.35, 'p10': 6.3, 'p90': 12.37} dev_ms flydsl 8.1928 hip 8.198 module_load_ms 2.03
+M=8 extracted /home/AMD/sareeder/mk/spikeA/run2/qwen38_decode_m8.co 279424 B symbol qwen38_decode_m8_c6efe94d objects [('#rocdl.target<chip = "gfx942">', 3, '7f454c4602010140')]
+HASH M=8 flydsl ('cf305425fce9de61', True)
+HASH M=8 hipModule ('cf305425fce9de61', True)
+HASH M=8 hipModule-graph ('cf305425fce9de61', True)
+TIME M=8 host_us flydsl {'median': 70.82, 'p10': 69.49, 'p90': 75.56} flydsl-compiled {'median': 3.92, 'p10': 3.64, 'p90': 4.19} hip {'median': 4.03, 'p10': 3.79, 'p90': 4.37} graph {'median': 7.19, 'p10': 5.95, 'p90': 9.32} dev_ms flydsl 11.9035 hip 11.8809 module_load_ms 2.01
+{"1": {"host_calls": [], "co_bytes": 237312, "hash_flydsl": ["4db972e0ec306d4f", true], "hash_hip": ["4db972e0ec306d4f", true], "hash_graph": ["4db972e0ec306d4f", true], "host_us_flydsl": {"median": 75.04, "p10": 70.61, "p90": 99.85}, "host_us_hip": {"median": 4.24, "p10": 3.9, "p90": 5.92}, "host_us_flydsl_compiled": {"median": 4.64, "p10": 3.81, "p90": 6.33}, "host_us_graph_replay": {"median": 8.35, "p10": 6.3, "p90": 12.37}, "dev_ms_flydsl": 8.1928, "dev_ms_hip": 8.198}, "8": {"host_calls": [], "co_bytes": 279424, "hash_flydsl": ["cf305425fce9de61", true], "hash_hip": ["cf305425fce9de61", true], "hash_graph": ["cf305425fce9de61", true], "host_us_flydsl": {"median": 70.82, "p10": 69.49, "p90": 75.56}, "host_us_hip": {"median": 4.03, "p10": 3.79, "p90": 4.37}, "host_us_flydsl_compiled": {"median": 3.92, "p10": 3.64, "p90": 4.19}, "host_us_graph_replay": {"median": 7.19, "p10": 5.95, "p90": 9.32}, "dev_ms_flydsl": 11.9035, "dev_ms_hip": 11.8809}}
