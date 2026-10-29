@@ -1,0 +1,14 @@
+{"run": "S1 base", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "27756f3bcab523d1", "finite": "True", "new_cache_files": 1}
+{"run": "S1 edited silu, same cache", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "27756f3bcab523d1", "finite": "True", "new_cache_files": 0}
+{"run": "S1 edited silu, cache off", "cache_on": false, "lm_head": "1", "chunks": "", "rc": 0, "hash": "d7d8323c360ae4b2", "finite": "True", "new_cache_files": 0}
+VERDICT S1 dev.py helper edit: STALE: the cache served the old binary (base 27756f3bcab523d1, changed+cache 27756f3bcab523d1, changed no cache d7d8323c360ae4b2)
+{"run": "S2 block 208", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "27756f3bcab523d1", "finite": "True", "new_cache_files": 1}
+{"run": "S2 block 64, same cache", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "27756f3bcab523d1", "finite": "True", "new_cache_files": 1}
+{"run": "S2 block 64, cache off", "cache_on": false, "lm_head": "1", "chunks": "", "rc": 0, "hash": "27756f3bcab523d1", "finite": "True", "new_cache_files": 0}
+VERDICT S2 cfg.block: key changes (new binary compiled, correct result) (base 27756f3bcab523d1, changed+cache 27756f3bcab523d1, changed no cache 27756f3bcab523d1)
+{"run": "S3 CHUNKS lm=8", "cache_on": true, "lm_head": "1", "chunks": "", "rc": 0, "hash": "27756f3bcab523d1", "finite": "True", "new_cache_files": 1}
+{"run": "S3 CHUNKS lm=4, same cache", "cache_on": true, "lm_head": "1", "chunks": "", "rc": "timeout", "hash": null, "finite": null, "new_cache_files": 0, "tail": ""}
+{"run": "S3 CHUNKS lm=4, cache off", "cache_on": false, "lm_head": "1", "chunks": "", "rc": 0, "hash": "787f83f1ed73c03a", "finite": "True", "new_cache_files": 0}
+VERDICT S3 GEMV chunks: STALE: the cached run failed, the uncached run passed (base 27756f3bcab523d1, changed+cache None, changed no cache 787f83f1ed73c03a)
+{"run": "H full model M=1", "cache_on": false, "lm_head": "1", "chunks": "", "rc": 0, "hash": "4db972e0ec306d4f", "finite": "True", "new_cache_files": 0}
+{"run": "H full model M=8", "cache_on": false, "lm_head": "1", "chunks": "", "rc": 0, "hash": "cf305425fce9de61", "finite": "True", "new_cache_files": 0}

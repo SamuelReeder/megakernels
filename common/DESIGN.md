@@ -466,6 +466,44 @@ Apart from docstrings, the three functions the kernels call differ:
 compatibility layer for the cache-policy operand (enum attribute or i32). Whether the
 exported kernels give the same ISA is open; oracle 5 answers it at M3.
 
+### Hotfix: compile key ahead of M2 (M2-prefix, 2026-10-29)
+
+Main pulled D5 forward. Each model gets the same few lines in `mk/kernel.py` (copies until
+`mkcore` exists; M2 moves them into `mkcore/key.py`):
+
+- `compile_key(cfg, *extra)`: sha256 over `repr((cfg, *extra))` and every `.py` file of
+  the kernel package (`pathlib.Path(__file__).parent.rglob("*.py")`, sorted relative
+  paths, each path and its bytes).
+- `build`: `key = compile_key(cfg)` (Qwen3.6 and Gemma pass `PROFILE, D.PROBE`, as their
+  `kernel_name` does); the first line of the `@flyc.jit` launcher is `key  # noqa: B018`.
+- The kernel code and the kernel name do not change.
+
+Where:
+
+| Tree | Branch | Commit | Owner |
+|---|---|---|---|
+| megakernels `qwen3.8-27b-gfx942/` | `users/sareeder/flydsl-cache-key` (from `main` `13b25e7`) | `57b6c6e`, docstring rewrap `9134175` | this task |
+| vLLM `qwen3_5/.../kernels/kernel.py` (Qwen3.8) | `users/sareeder/qwen38-gfx942-specialized-decode` | `cfc4c8c5b` (re-export of `9134175`) | this task |
+| vLLM `qwen3_5_moe/.../kernels/kernel.py` (Qwen3.6) | `users/sareeder/qwen36-gfx942-specialized-decode` | `88e48072d` (hand edit) | this task |
+| megakernels `qwen3.6-35b-a3b-gfx942/`, `gemma4-26b-a4b-gfx942/` | their open branches | - | FixedStageCost, GemmaMoeBatch |
+
+Evidence, Qwen3.8 TP1 (banff-cyxtera-s70-4, job 68206986; `cache_model_q38.py`;
+`logs/hotfix/q38_branch.txt`, `logs/hotfix/q38_main.txt`). 4 layers, M = 1, 4 steps, cache
+on; the reference value is the changed build with the cache off:
+
+| Scenario | `main` (no key), changed + same cache | Hotfix, changed + same cache | Changed, cache off |
+|---|---|---|---|
+| S0 second identical build | - | `27756f3b`, no new entry: the cache still hits | - |
+| S1 `dev.silu` x (1 + 2^-10) | `27756f3b`: **stale** | `d7d8323c`, new entry | `d7d8323c` |
+| S2 KV block 208 -> 64 | new entry (the block reaches a scalar closure value) | new entry | same hash `27756f3b` (the block size does not change the math) |
+| S3 `gemv.CHUNKS` lm 8 -> 4 | no result in 1500 s: **stale, hangs** | `787f83f1`, new entry | `787f83f1` |
+
+Logits before and after (64 layers, 8 fixed-token steps, cache off): M = 1 `4db972e0ec306d4f`
+and M = 8 `cf305425fce9de61` on both `main` and the hotfix. Gates on the hotfix
+(`logs/hotfix/gate_*.txt`, cache off as `mkrun` runs them): `test_decode` M = 1 and 8
+(64 layers, 16 steps) PASS, no non-finite logits; `test_determinism` M = 1 and 8 (64 steps)
+PASS. The gates ran on `57b6c6e`; `9134175` changes only the docstring.
+
 ## Decisions
 
 - D1. Package `common/mkcore/` (FlyDSL gfx942 only), scripts in `common/scripts/`. Evidence:
@@ -575,7 +613,7 @@ banff-cyxtera-s70-4 (record node and job) and commit the logs.
 |---|---|---|---|
 | M0 | Re-run the inventory on merged `main`; update the tables in this file; classify every new difference (expect the fixed-stage-cost barrier change). | Any code change. | Updated tables committed; no shared definition without a class and an owner milestone. |
 | M1 | Oracles and baselines, no kernel change: `tests/logits_hash.py` per model; `common/scripts/isa_dump`, `gates.sh`; CPU goldens; the FlyDSL cache test (fresh cache dir, cache on: (a) two `Cfg` that differ in one non-scalar-derived field, (b) a comment edit in `dev.py`, (c) a `str` key in the launcher closure). | Moving code. | Baseline hashes (2 runs equal) and ISA hashes per model under `common/results/m1/`; cache-test log that answers (a)-(c); D5 statement fixed. |
-| M2 | `common/mkcore/__init__.py` (`SRC_HASH`), `key.py`; each model's `mk/__init__.py` path insert; each `kernel_name` / `build` uses `compile_key`; Qwen3.8 and Gemma get the missing `fence` / `chaos` fields. | Moving helpers. | Tier A for every model (only the symbol name changes); logits hashes equal; cache test passes (I-key); full gates. |
+| M2 | `common/mkcore/__init__.py` (`SRC_HASH`), `key.py`; each model's `mk/__init__.py` path insert; the per-model `compile_key` copies of the hotfix (see "Hotfix: compile key ahead of M2") move into `mkcore/key.py` and also hash `mkcore`; Qwen3.8 and Gemma get the missing `fence` / `chaos` fields. | Moving helpers. | Tier A for every model (only the symbol name changes); logits hashes equal; cache test passes (I-key); full gates. |
 | M3 | Move `vendor/buffer_ops.py`; `common/scripts/{mkrun, setup_env.sh, isa_stats, suite_austin.sh}`; delete the per-model copies; fix Gemma's `../qwen3.6...` and Qwen3.8 references; `export_lib.py` and the three `export_vllm.py`. | `dev.py`. | Tier A; hashes equal; full gates via the new `mkrun`; export into scratch vLLM trees diff only in import lines; oracle 5. |
 | M4 | `mkcore/dev.py` (D7); `configure(cfg)`; Qwen `mixer.bf16r` / `mixer.pack_bf2` and t2 `bf16_pair` move in; Gemma `pack_bf2` becomes `pack_bf2_rne`; t2 `TRACE` and TP probes move into Qwen3.8 modules; Qwen3.8 `sync.py` imports from `mkcore` (its vLLM check starts at `POLL_MAX`, so the import lines may change); grid constants and `PROFILE` move from `kernel.py`. | `gemv.py`. | Tier A for all; hashes equal; full gates; oracle 5. |
 | M5 | `mkcore/gemv.py` (D8) and `mkcore/fp4.py` (`unpack_ref` moves to Qwen3.8 `reference.py`); kinds `fp8_b128`, `fp8_row`, `mx`, `bf16`. | `pack.py`. | Tier A for Qwen3.8 TP1 / TP2; tier B logged for Qwen3.6 and Gemma (D8); hashes equal; geometry goldens equal; full gates; bench median of 3 for tier B. |

@@ -52,15 +52,15 @@ def entries(cache):
     return sum(n.endswith(".pkl") for _, _, ns in os.walk(cache) for n in ns)
 
 
-def run(tag, src, fp8, work, cache, on, lm="1", chunks=""):
+def run(tag, src, fp8, work, cache, on, lm="1", chunks="", child_src=CHILD, env_extra=None):
     env = dict(os.environ, CM_SRC=src, CM_FP8=fp8, CM_LM=lm, MK_CHUNKS=chunks,
                FLYDSL_RUNTIME_ENABLE_CACHE="1" if on else "0",
-               FLYDSL_RUNTIME_CACHE_DIR=cache)
+               FLYDSL_RUNTIME_CACHE_DIR=cache, **(env_extra or {}))
     env.pop("PYTHONPYCACHEPREFIX", None)
     shutil.rmtree(os.path.join(src, "mk", "__pycache__"), ignore_errors=True)
     child = os.path.join(work, "child.py")
     with open(child, "w") as f:
-        f.write(CHILD)
+        f.write(child_src)
     n0 = entries(cache)
     try:
         p = subprocess.run([sys.executable, "-B", child], env=env, capture_output=True,
