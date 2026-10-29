@@ -614,6 +614,41 @@ Open questions from this work:
   so it may depend on M without breaking P2.
 - Attention layers at M = 1: 20 tasks of 22 us; more, shorter tasks.
 
+### Integration (2026-10-29, job 68207371, `scripts/fsc_finish.sh`)
+
+Logs: `bench/results/fsc/finish/`. Decisions and evidence:
+
+- FlyDSL disk-cache key: `compile_key(cfg, PROFILE, D.PROBE)` in `mk/kernel.py`, held by
+  the launcher (same helper as `users/sareeder/flydsl-cache-key` 9134175; vLLM had it
+  hand-added in 88e48072d, now it comes from the export). Commit `aeccd33`. The logits do
+  not change: sha256 of the logits equal at M = 1 and 8 for `9b89aae` and `aeccd33`
+  (`hash_old/` against `gates/`; test_decode adad66a84e492a79 / 8fbc57e5edd4794f,
+  test_determinism adf32b9faf777eac / e1f72a99a572e884). To show this, `test_decode.py`
+  and `test_determinism.py` now print the sha256 of the kernel logits.
+- Gates of `aeccd33` (`gates/`, `scripts/fsc_gates.sh OUT_DIR`): every gate PASS. Later
+  commits change no kernel code.
+- vLLM: out_proj packs with 1 K chunk now. The vLLM runtime needs no change: it packs
+  with `default_chunks()` (the `c_*` defaults of `Cfg`) and asserts
+  `cfg.chunks() == self.chunks`. One comment in `Cfg` was rewrapped to 88 columns for
+  vLLM's ruff (E501). Export: vLLM `bdf23a462`. ruff 0.14.0 check and format clean; CPU
+  tests (qwen3_5, the #61311 conformance kit and library tests, dsv41): 140 passed
+  (`unit_tests_cpu.txt`; they need `VLLM_TARGET_DEVICE=cpu`, else the cleanup fixture
+  calls `torch.accelerator` on a CPU torch).
+- The vLLM source overlay (`~/mk/vllm36-src` on `PYTHONPATH`) needs the image's compiled
+  `vllm/*.so`; an `rsync --delete` of the worktree removes them and engine start fails
+  (`torch.ops._C` lacks `get_cuda_view_from_cpu_tensor`). Copied back from the image
+  build; the first vLLM run of the job failed for this reason, the rerun is in `vllm/`.
+- Neighbour load: `rocm-smi` is not on the compute node, and `amd-smi` in the job's
+  cgroup shows only the job's GPU. sysfs `gpu_busy_percent` shows all 8 GPUs; the script
+  samples it 5 times before and after each measurement. Another user's job kept one
+  other GPU at 100 % at times in all three attempts. The README uses attempt 1 (lowest
+  mean load, 3.7 %).
+- Stock vLLM (same image and script as 2026-10-27) was 4 % (AITER) to 10 % (plain)
+  slower at batch 1 in all three attempts; the cause is not known. The README speedups
+  use the same-session vLLM numbers and also give them against the 2026-10-27 numbers.
+  Rejected: mixing today's kernel with the 2026-10-27 vLLM numbers in the table.
+- `tools/plot_results.py` takes the vLLM runs of a session as a third argument.
+
 ## Invariants
 
 - I1: every CTA is resident (grid = CU count; LDS <= 64 KB and VGPRs <= 256 per lane,

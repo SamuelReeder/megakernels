@@ -1,0 +1,28 @@
+job 68207371 node banff-cyxtera-s70-4 own GPU 0000:0c:00.0 head aeccd33
+off TRITON_ATTN batch 1: TPOT 5.63 ms (177.7 tok/s/user), kernel steps per 256-token generate 0
+off TRITON_ATTN batch 2: TPOT 6.32 ms (158.1 tok/s/user), kernel steps per 256-token generate 0
+off TRITON_ATTN batch 4: TPOT 7.03 ms (142.3 tok/s/user), kernel steps per 256-token generate 0
+off TRITON_ATTN batch 8: TPOT 9.26 ms (108.0 tok/s/user), kernel steps per 256-token generate 0
+on TRITON_ATTN batch 1: TPOT 2.92 ms (342.2 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.88 ms (257.7 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.84 ms (206.5 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 7.06 ms (141.6 tok/s/user), kernel steps per 256-token generate 255
+total identical tokens 487/1090 (44.7%)
+TPOT ms   batch:       1       2       4       8
+  kernel off         5.63    6.32    7.03    9.26
+  kernel on          2.92    3.88    4.84    7.06
+  speedup           1.93    1.63    1.45    1.31
+off ROCM_ATTN batch 1: TPOT 6.33 ms (158.1 tok/s/user), kernel steps per 256-token generate 0
+off ROCM_ATTN batch 2: TPOT 7.14 ms (140.1 tok/s/user), kernel steps per 256-token generate 0
+off ROCM_ATTN batch 4: TPOT 8.05 ms (124.2 tok/s/user), kernel steps per 256-token generate 0
+off ROCM_ATTN batch 8: TPOT 10.22 ms (97.8 tok/s/user), kernel steps per 256-token generate 0
+on ROCM_ATTN batch 1: TPOT 3.15 ms (317.2 tok/s/user), kernel steps per 256-token generate 255
+on ROCM_ATTN batch 2: TPOT 3.83 ms (261.4 tok/s/user), kernel steps per 256-token generate 255
+on ROCM_ATTN batch 4: TPOT 5.17 ms (193.4 tok/s/user), kernel steps per 256-token generate 255
+on ROCM_ATTN batch 8: TPOT 6.99 ms (143.0 tok/s/user), kernel steps per 256-token generate 255
+total identical tokens 527/1090 (48.3%)
+TPOT ms   batch:       1       2       4       8
+  kernel off         6.33    7.14    8.05   10.22
+  kernel on          3.15    3.83    5.17    6.99
+  speedup           2.01    1.87    1.56    1.46
+finished 2026-10-29T06:59:20-04:00

@@ -2,8 +2,9 @@
 # Hard gates of the branch head (run from the branch's sync folder by scripts/mkrun):
 # kernel vs reference at M = 1, 2, 4, 8, determinism and batch invariance, real-text
 # KL against BF16, and the timing-perturbation run (Cfg.chaos) bitwise against no chaos.
+# Usage: scripts/fsc_gates.sh [OUT_DIR]  (default bench/results/fsc/final/gates)
 set -u
-O=bench/results/fsc/final/gates
+O=${1:-bench/results/fsc/final/gates}
 F=$HOME/mk/models/Qwen3.6-35B-A3B-FP8
 BF=$HOME/mk/models/Qwen3.6-35B-A3B
 mkdir -p "$O"
