@@ -1,0 +1,80 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68206666
+batch 1: generate 21.732 s
+batch 4: generate 21.849 s
+batch 8: generate 23.438 s
+/tmp/g4mb-roc/trace_kernel_trace.csv
+=== batch 1: 56 decode steps; step wall time (LM head end to end) median 328472.2 us; kernel time 7014.8 us per step
+  us/step  us/call calls/step  kernel
+    841.8    14.03       60.0  fused_moe_kernel
+    557.2     9.29       60.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x16x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0
+    522.2    18.01       29.0  triton_red_fused_4
+    516.1    17.20       30.0  Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_SAV_UserArgs_MT16x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0
+    470.7    15.69       30.0  kernel_unified_attention
+    464.8    16.03       29.0  triton_red_fused__scaled_mm__to_copy_abs_add_amax_clamp_div_mul_reciprocal_rms_norm_t_unsqueeze_3
+    416.0    13.87       30.0  triton_red_fused__scaled_mm__to_copy_abs_add_amax_clamp_div_moe_forward_mul_reciprocal_rms_norm_t_un
+    387.3     6.46       60.0  void vllm::dynamic_per_token_scaled_fp8_quant_kernel_strided<c10::BFloat16, c10::Float8_e4m3fnuz>(c1
+    378.9    15.16       25.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT32x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_
+    307.0   306.97        1.0  void wvSplitK_hf_sml_<__hip_bfloat16, 64, 2, 16, 8, 2, 1>(int, int, int, int, int, int, __hip_bfloat
+    306.9    10.23       30.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_
+    236.1     7.87       30.0  triton_red_fused__scaled_mm__to_copy_abs_amax_clamp_div_gelu_mul_reciprocal_slice_t_unsqueeze_2
+    208.4     6.95       30.0  _ZN4vllm18act_and_mul_kernelIN3c108BFloat16E15__hip_bfloat162TnPFT_RKS4_fEXadL_ZNS_16gelu_tanh_kerne
+    205.9     6.86       30.0  reduce_segments
+    193.3     6.44       30.0  _gemma4_routing_kernel
+    162.0     4.63       35.0  __amd_rocclr_copyBuffer
+    156.8     5.23       30.0  void vllm::moe::moe_sum_vec_kernel<c10::BFloat16, int, 8, false>(c10::BFloat16*, c10::BFloat16 const
+    152.1     5.07       30.0  triton_red_fused__scaled_mm__to_copy_abs_amax_clamp_div_mul_reciprocal_t_unsqueeze_view_0
+    146.3     4.57       32.0  void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1u
+    144.1     4.80       30.0  reshape_and_cache_kernel_flash
+     92.4    18.48        5.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT64x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_
+     23.0    22.96        1.0  triton_red_fused_1
+fused_moe_kernel per call, median: w13 (gate_up) 19.73 us, w2 (down) 8.98 us
+=== batch 4: 56 decode steps; step wall time (LM head end to end) median 318781.5 us; kernel time 8000.4 us per step
+  us/step  us/call calls/step  kernel
+   1523.4    25.39       60.0  fused_moe_kernel
+    626.5    10.44       60.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x16x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0
+    609.3    21.01       29.0  triton_red_fused_4
+    543.9    18.13       30.0  Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_SAV_UserArgs_MT16x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0
+    494.6    17.05       29.0  triton_red_fused__scaled_mm__to_copy_abs_add_amax_clamp_div_mul_reciprocal_rms_norm_t_unsqueeze_3
+    462.2    15.41       30.0  triton_red_fused__scaled_mm__to_copy_abs_add_amax_clamp_div_moe_forward_mul_reciprocal_rms_norm_t_un
+    452.4    15.08       30.0  kernel_unified_attention
+    425.0     7.08       60.0  void vllm::dynamic_per_token_scaled_fp8_quant_kernel_strided<c10::BFloat16, c10::Float8_e4m3fnuz>(c1
+    355.4    14.22       25.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT32x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_
+    340.6    11.35       30.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_
+    323.9   329.75        1.0  void wvSplitK_hf_sml_<__hip_bfloat16, 64, 4, 16, 8, 1, 4>(int, int, int, int, int, int, __hip_bfloat
+    240.6     8.02       30.0  triton_red_fused__scaled_mm__to_copy_abs_amax_clamp_div_gelu_mul_reciprocal_slice_t_unsqueeze_2
+    205.0     6.83       30.0  _gemma4_routing_kernel
+    192.3     6.41       30.0  _ZN4vllm18act_and_mul_kernelIN3c108BFloat16E15__hip_bfloat162TnPFT_RKS4_fEXadL_ZNS_16gelu_tanh_kerne
+    188.9     6.30       30.0  reduce_segments
+    159.6     4.56       35.0  __amd_rocclr_copyBuffer
+    154.9     5.16       30.0  void vllm::moe::moe_sum_vec_kernel<c10::BFloat16, int, 8, false>(c10::BFloat16*, c10::BFloat16 const
+    154.2     5.14       30.0  triton_red_fused__scaled_mm__to_copy_abs_amax_clamp_div_mul_reciprocal_t_unsqueeze_view_0
+    147.9     4.62       32.0  void at::native::vectorized_elementwise_kernel<4, at::native::FillFunctor<int>, std::array<char*, 1u
+    144.8     4.83       30.0  reshape_and_cache_kernel_flash
+    103.5    20.69        5.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT64x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_
+     24.1    24.13        1.0  triton_red_fused_1
+fused_moe_kernel per call, median: w13 (gate_up) 32.67 us, w2 (down) 18.16 us
+=== batch 8: 56 decode steps; step wall time (LM head end to end) median 345481.9 us; kernel time 9156.4 us per step
+  us/step  us/call calls/step  kernel
+   2002.5    33.37       60.0  fused_moe_kernel
+    689.0    11.48       60.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x16x1024_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0
+    632.8    21.82       29.0  triton_red_fused_4
+    590.4    19.68       30.0  kernel_unified_attention
+    551.7    18.39       30.0  Cijk_Alik_Bljk_BSS_BH_Bias_HA_S_SAV_UserArgs_MT16x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB0
+    493.5    17.02       29.0  triton_red_fused__scaled_mm__to_copy_abs_add_amax_clamp_div_mul_reciprocal_rms_norm_t_unsqueeze_3
+    464.3     7.74       60.0  void vllm::dynamic_per_token_scaled_fp8_quant_kernel_strided<c10::BFloat16, c10::Float8_e4m3fnuz>(c1
+    444.0    14.80       30.0  triton_red_fused__scaled_mm__to_copy_abs_add_amax_clamp_div_moe_forward_mul_reciprocal_rms_norm_t_un
+    384.2    15.37       25.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT32x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_
+    374.0   373.97        1.0  Cijk_Alik_Bljk_BBS_BH_Bias_HA_S_SAV_UserArgs_MT128x16x128_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_AGNTAB
+    339.4    11.31       30.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT16x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_
+    256.9     8.56       30.0  _gemma4_routing_kernel
+    250.6     8.35       30.0  void vllm::moe::moe_align_block_size_kernel<int>(int const*, int*, int*, int*, int*, int, int, int, 
+    239.3     7.98       30.0  triton_red_fused__scaled_mm__to_copy_abs_amax_clamp_div_gelu_mul_reciprocal_slice_t_unsqueeze_2
+    201.7     6.72       30.0  reduce_segments
+    185.4     6.18       30.0  _ZN4vllm18act_and_mul_kernelIN3c108BFloat16E15__hip_bfloat162TnPFT_RKS4_fEXadL_ZNS_16gelu_tanh_kerne
+    180.1     6.00       30.0  void vllm::moe::moe_sum_vec_kernel<c10::BFloat16, int, 8, false>(c10::BFloat16*, c10::BFloat16 const
+    159.4     4.55       35.0  __amd_rocclr_copyBuffer
+    152.2     5.07       30.0  triton_red_fused__scaled_mm__to_copy_abs_amax_clamp_div_mul_reciprocal_t_unsqueeze_view_0
+    145.6     4.85       30.0  reshape_and_cache_kernel_flash
+    140.8     4.69       30.0  void vllm::moe::count_and_sort_expert_tokens_kernel<int>(int const*, int*, int*, int*, unsigned long
+    108.6    21.72        5.0  Cijk_Alik_Bljk_F8NBS_BH_Bias_HA_S_SABV_SAV_UserArgs_MT64x16x512_MI16x16x1_SN_LDSB1_AFC1_AG0_AGGSUA0_
+fused_moe_kernel per call, median: w13 (gate_up) 41.98 us, w2 (down) 24.10 us

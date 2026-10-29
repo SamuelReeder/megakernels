@@ -404,6 +404,97 @@ A second MARKHAM MI300X run (job 68198889, excluding
 banff-cyxtera-s70-4) was cancelled: the only other node, banff-cyxtera-s83-2, was fully
 allocated and Slurm estimated a start in January 2027; the MI325X run covers the second node.
 
+## Milestone 8: expert stages at batch 4 and 8
+
+Branch `users/sareeder/gemma-moe-batch`, node banff-cyxtera-s70-4 (job 68206666),
+2026-10-29. Logs in `bench/results/m8/`. Goal: the expert stages at M >= 4, where the
+kernel was slower than vLLM (0.95x at batch 4, 0.92x at batch 8).
+
+### Analysis (main 13b25e7, before any change)
+
+TPOT (`bench_decode.py`, real text, median of 3): 3.579 / 4.166 / 5.249 / 6.721 ms at
+M = 1 / 2 / 4 / 8 (`base_bench_m124.txt`, `base_bench_m8.txt`), within 0.8 % of milestone 7.
+
+Distinct experts per layer (new: `profile_decode.py` stores npos per layer; 8 steps x 30
+layers, `base_profile_m4_m8.txt`): M = 4: 10 to 30, median 23; M = 8: 21 to 46, median 33.
+The README's "about 52" was not a measurement: the rows of the benchmark are windows of one
+text and share experts.
+
+Per stage, median over 30 layers x 8 steps (span: first release to last arrival; busy: the
+mean CTA's time; bandwidth: weight bytes of the stage, for e1 / e2 the experts actually
+read):
+
+| Stage | M = 4 span | MB | TB/s (span / busy) | M = 8 span | MB | TB/s (span / busy) |
+|---|---|---|---|---|---|---|
+| qkv | 12.8 us | 23.8 | 1.88 / 2.62 | 15.1 us | 23.8 | 1.59 / 2.14 |
+| o_proj | 12.1 us | 11.9 | 1.00 / 1.65 | 13.1 us | 11.9 | 0.92 / 1.38 |
+| router | 7.7 us | 0.7 | | 11.5 us | 0.7 | |
+| e1 (gate_up) | 47.7 us | 106.3 | 2.23 / 2.72 | 73.7 us | 147.2 | 1.97 / 2.47 |
+| e2 (down) | 45.5 us | 58.0 | 1.25 / 2.57 | 68.0 us | 80.3 | 1.18 / 2.41 |
+| LM head | 306 us | 1476 | 4.83 / 5.16 | 360 us | 1476 | 4.10 / 4.17 |
+
+Probes of the last layer at M = 8 (`base_probes_m8.txt`):
+
+- e1: routing and the input copy 8 us; the stream 43.6 us per wave (3.4 TB/s while it
+  runs); then the hand-off 15.3 us median, 28.4 us worst: the partial stores drain, the
+  counters (8.9 us), and the reductions (up to 16.6 us: a slow wave is the last arriver of
+  up to 22 (position, group) counters and reduces them one after another).
+- e2: the stream 25.5 us per wave (3.1 TB/s); the hand-off up to 40 us (reductions up to
+  35 us). The last arriver of a column group runs three dependent round trips (the level-2
+  counter, 22 partial loads, the store drain before the done count); one wave can hold six
+  groups. Then the combine CTAs poll, rebuild h and publish the next layer's input.
+
+Conclusion: the weight streams run at 3.1 to 3.4 TB/s, but the expert stages take about
+twice the stream time. The difference is latency: last-arriver chains that grow with the
+number of pieces per wave (M = 1: 5 to 12 us per stage; M = 8: 25 to 45 us), not bandwidth.
+
+vLLM, kernel off, CUDA graphs, rocprofv3 kernel trace (`bench/vllm_moe_profile.py`,
+`vllm_kernels_rocprof.txt`), `fused_moe_kernel` per call at batch 1 / 4 / 8: w13 (gate_up)
+19.7 / 32.7 / 42.0 us, w2 (down) 9.0 / 18.2 / 24.1 us. Under the profiler every kernel runs
+slower than in the real step: the kernel times sum to 9.16 ms per step at batch 8 against a
+TPOT of 6.22 ms (factor 1.47; 1.59 at batch 4). Scaled by that factor, vLLM's two MoE GEMMs
+take 45 us per layer at batch 8 (32 us at batch 4), and its whole routed-MoE path (fused
+norm and quantization, routing, align, sort, the two GEMMs, activation, sum) about 78 us,
+against 142 us for the kernel's e1 + e2 (which also hold the routing, the dense MLP and the
+combine). Rejected: the torch profiler (the same inflation, 1.44x, in graph and eager mode;
+`vllm_kernels_eager.txt`).
+
+Measurement: the node's speed drifted during the day while other jobs ran on its other
+GPUs: the same kernel gave 6.72 ms at 06:42 and 7.73 ms at 07:05
+(`drift_main_vs_tree_m8.txt`). Changes are therefore compared with `bench/ab_speed.py`: one
+engine per configuration in one process, the same prompt, rounds of 64 steps interleaved
+(median of 5 rounds). The final table re-measures the baseline in the same job.
+
+### Optimization log
+
+Every change keeps the arithmetic: `tests/ab_bitwise.py` gives the same bits as the old path
+(real-text prompts, `AB_TEXT=1`, where the change is on the wide path).
+
+| Change | Interleaved TPOT | Bitwise | Result |
+|---|---|---|---|
+| `route_prefetch`: routing loads per_expert_scale beside the logits, the picks read it from lanes (no global load after the top-8) | M = 8: -1.0 % | equal | kept (`ab_speed_batch_depth_prefetch_m8.txt`) |
+| `moe_batch`: the last-arriver tails batched (atomics overlapped, reductions in pairs, one drain per wave) | M = 8: +1.2 % | equal | rejected |
+| `d_e1 = d_e2 = 3`: three pieces in flight per wave | M = 8: +1.4 % | equal | rejected: the kernel already uses 256 VGPRs with 55 spilled (`isa_registers_m8.txt`) |
+| `e2_rows`: down partials row-major, one arrival per CTA, the combine CTA of row m reduces its row (`moe.reduce_row`, the same sums and DPP butterfly as the last arriver) | M = 8: -10.8 %, M = 1: -3.8 % | equal at M = 1, 8 | kept (`ab_e2_rows.txt`) |
+| `e1_cta`: gate_up CTA mode (below) | M = 8: -16.6 %, M = 4: -14.1 %, M = 2: -4.2 %, M = 1: +5.1 % | equal at M = 2, 4, 8 | kept for M >= 2 (`ab_e1_cta.txt`) |
+
+`e1_cta` (`MoeGemv.run_cta`): when npos x 88 >= 5 x 304 (a run-time test on the routing,
+the same in every CTA), CTA b owns the column groups (position, 16 rows) b NGR / 304 ..
+with all 11 K chunks, and its 8 waves split them in (group, chunk) order. A wave folds a
+group's chunks in chunk order, exactly as the last arriver summed the stored partials, and
+runs the GeGLU epilogue: no partials, no counters, no last arriver. A group split between
+two waves: the first folds its chunks first and leaves the prefix in LDS with a flag (the
+stage epoch); the second folds the rest onto it last. A wave inside one group waits for
+its predecessor's prefix and passes its own on. With >= 6 pieces per wave no two
+neighbours are both inside one group, so waits never chain. Below the threshold the
+last-arriver path runs; both paths give the same bits, so a row's bits do not depend on
+which path the other rows' experts select (P2). CTA imbalance: a CTA owns floor or ceil of
+NGR / 304 groups (at npos 36: 10 or 11, 5 %).
+
+Decision 11 (milestone 8): `e1_cta` defaults to on for M >= 2 and off for M = 1. Evidence:
+the table above (M = 1 never reaches the threshold, npos <= 11, and the second code path
+costs 5 %). Rejected: on for all M.
+
 ## Decisions
 
 Milestone 1 (signed off 2026-10-27):

@@ -24,11 +24,14 @@ sliding layers and one for the full layers (Cfg); per layer the KV tensor, the b
 table of its KV cache group and the slot mapping. A row with slot[m] < 0 (padding)
 reads and writes no KV; a row with rowv[m] == 0 selects no routed expert.
 
-Every compile-time setting is a Cfg field or a debug global, and the kernel name holds a
-hash of all of them: FlyDSL's disk cache keys on the name, not on the fields.
+Every compile-time setting is a Cfg field or a debug global. The kernel name holds a hash
+of all of them; FlyDSL's disk cache keys on compile_key (the package sources and the Cfg),
+which the launcher holds.
 """
 
 import functools
+import hashlib
+import pathlib
 import zlib
 from dataclasses import asdict, dataclass
 
@@ -100,18 +103,22 @@ class Cfg:
     # (stages.combine_row), which the qkv prologue copies (layers > 0); else every CTA
     # rebuilds all rows of h in the qkv prologue
     combine_rows: bool = True
-    # expert stages (moe.MoeGemv): pieces in flight per wave (gate_up, down), and the
-    # batched last-arriver tail (atomics and reductions overlapped, one drain per wave)
-    d_e1: int = 2
-    d_e2: int = 2
-    moe_batch: bool = False
     route_prefetch: bool = True  # routing loads per_expert_scale beside the logits
     # down stage: row-major partials, every CTA counts itself once, and the combine CTAs
     # reduce their rows (moe.reduce_row) instead of a last arriver per column group
     # (needs combine_rows)
     e2_rows: bool = True
+    # gate_up stage: CTAs own whole column groups and fold the K chunks in the waves
+    # (moe.MoeGemv.run_cta) when npos G >= 5 cus; else the last-arriver path. None: on
+    # for M >= 2 (at M = 1, npos <= 11 never reaches the threshold and the second code
+    # path costs 5 %: docs/DESIGN.md "Milestone 8")
+    e1_cta: bool | None = None
     debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
     fence: bool = False  # L2 write-back / invalidate at every grid barrier (dev.grid_*)
+
+    def __post_init__(self):
+        if self.e1_cta is None:
+            object.__setattr__(self, "e1_cta", self.M >= 2)
 
     def chunks(self):
         return {k[2:]: v for k, v in asdict(self).items() if k.startswith("c_")}
@@ -134,10 +141,9 @@ class Cfg:
             o_s=g("o_s", H, O_S, ch["o"]),
             o_f=g("o_f", H, O_F, ch["o"]),
             router=g("router", MO.LGN, H, ch["router"], "bf16"),
-            e1=MO.MoeGemv("e1", 2 * EFF, H, M, cus, "gu", WAVES, ch["e1"], self.d_e1,
-                          self.moe_batch).check(),
-            e2=MO.MoeGemv("e2", H, EFFP, M, cus, "down", WAVES, ch["e2"], self.d_e2,
-                          self.moe_batch, self.e2_rows).check(),
+            e1=MO.MoeGemv("e1", 2 * EFF, H, M, cus, "gu", WAVES, ch["e1"]).check(),
+            e2=MO.MoeGemv("e2", H, EFFP, M, cus, "down", WAVES, ch["e2"],
+                          self.e2_rows).check(),
             lm=g("lm", VOCAB, H, ch["lm"], "bf16"),
         )
 
@@ -154,9 +160,22 @@ PROFILE = {
 }
 
 
+def compile_key(cfg, *extra) -> str:
+    """Key of FlyDSL's disk cache for one build. FlyDSL 0.4.0 keys on the launcher's
+    source and scalar closure values only: not on helpers called as D.*, cfg fields
+    read as cfg.*, or the kernel name (megakernels common/DESIGN.md, "Compile cache
+    test"). This key covers every .py file of this package and repr((cfg, *extra));
+    the launcher holds it."""
+    d = pathlib.Path(__file__).resolve().parent
+    h = hashlib.sha256(repr((cfg, *extra)).encode())
+    for p in sorted(d.rglob("*.py")):
+        h.update(str(p.relative_to(d)).encode() + b"\0" + p.read_bytes())
+    return h.hexdigest()
+
+
 def kernel_name(cfg: Cfg) -> str:
-    """Every compile-time setting goes into the name (FlyDSL's disk cache keys on it):
-    the Cfg fields and the debug globals (PROFILE and PROBE addresses are baked in)."""
+    """Every compile-time setting goes into the name: the Cfg fields and the debug globals
+    (PROFILE and PROBE addresses are baked in). FlyDSL's disk cache keys on compile_key."""
     key = repr((cfg, PROFILE, D.PROBE))
     return f"gemma4_decode_m{cfg.M}_{zlib.crc32(key.encode()):08x}"
 
@@ -168,8 +187,14 @@ def lds_bytes(cfg: Cfg):
     XSF = 32 * max(s.XSR for s in SP.values())
     AW = max(cfg.geo(f).WLF for f in (False, True))
     NP = MO.npos_max(M)
-    fixed = 4 * (S.RED_FLOATS + M * MO.TOPK + M * MO.NSLOT + NP + 3 + NE + M * NP + 4 + M * 8)
+    fixed = 4 * (S.RED_FLOATS + M * MO.TOPK + M * MO.NSLOT + NP + 3 + NE + M * NP + 4 + M * 8
+                 + pref_floats(cfg) + WAVES)
     return XQB, XSF, AW, NP, max(XQB + 4 * XSF, 4 * WAVES * AW) + fixed
+
+
+def pref_floats(cfg: Cfg):
+    """LDS of the gate_up CTA mode (MoeGemv.run_cta): one prefix per wave (64 lanes x 4)."""
+    return WAVES * 64 * 4 if cfg.e1_cta else 4
 
 
 def build(cfg: Cfg):
@@ -207,11 +232,15 @@ def build(cfg: Cfg):
         slot: fx.Array[fx.Int32, M * NP, 16]
         npos: fx.Array[fx.Int32, 4, 16]
         rmask: fx.Array[fx.Int32, M * 8, 16]  # routing: row m's expert set (bits)
+        pref: fx.Array[fx.Float32, pref_floats(cfg), 16]  # e1_cta: split-group prefixes
+        pflag: fx.Array[fx.Int32, WAVES, 16]  # e1_cta: the stage epoch of each prefix
 
     def tab64(r, i):
         v = D.ld(r, 2 * i, 2)
         return (fx.Int64(D.uniform(v[1])) << 32) | fx.Int64(fx.Uint32(D.uniform(v[0])))
 
+    # the kernel name is not in FlyDSL's disk-cache key; `key` is (see compile_key)
+    key = compile_key(cfg, PROFILE, D.PROBE)
     name = kernel_name(cfg)
 
     @flyc.kernel(name=name, known_block_size=[NT, 1, 1])
@@ -237,6 +266,9 @@ def build(cfg: Cfg):
         # every CTA reads the epoch before its first arrival; CTA 0 advances it after
         # the last barrier, which no CTA passes before all have read it
         epoch = D.uniform(D.ld(rf, (CUS + EPOCH_WORD_LINE) * D.LINE, cm=D.CM_DEV))
+        # e1_cta flags hold stage epochs of this launch (all > epoch) once written
+        if tid < WAVES:
+            fx.ptr_store(epoch, sm.pflag.ptr + tid)
         cnt = lambda k: G[G_CNT] + fx.Int64(CNT_REGION[k] * CNT_STRIDE * 4)  # noqa: E731
         part = G[G_PART]
 
@@ -296,7 +328,7 @@ def build(cfg: Cfg):
                 _attn_layer(env, GEO[True], "f")
             else:
                 _attn_layer(env, GEO[False], "s")
-            _moe(env, R, nlayers)
+            _moe(env, R, nlayers, sm.pref.ptr, sm.pflag.ptr)
         c.clear()
         c.update(c0)
         e_end = epoch + 1 + nlayers * STAGES_PER_LAYER
@@ -322,6 +354,7 @@ def build(cfg: Cfg):
 
     @flyc.jit
     def launch(tab: Int64, glob: Int64, nlayers: Int32, stream: fx.Stream = _STREAM):
+        key  # noqa: B018  a str closure value: FlyDSL puts it in the disk-cache key
         kdec(tab, glob, nlayers).launch(grid=(CUS,), block=(NT,), stream=stream)
 
     return launch
@@ -335,8 +368,8 @@ def _attn_layer(env, geo, kind):
     _attn_layer_t(**env, geo=geo, kind=kind)
 
 
-def _moe(env, R, nlayers):
-    _moe_t(**env, R=R, nlayers=nlayers)
+def _moe(env, R, nlayers, pref, pflag):
+    _moe_t(**env, R=R, nlayers=nlayers, pref=pref, pflag=pflag)
 
 
 @D.traced
@@ -388,7 +421,7 @@ def _qkv_rebuild(c, M, qkv, xq, xs, red, G, T, Tp):
 
 @D.traced
 def _moe_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw, cfg, li,
-           R, nlayers):
+           R, nlayers, pref, pflag):
     rtr, e1, e2 = SP["router"], SP["e1"], SP["e2"]
     M = rtr.M
     # debug_route: every layer's router logits stay ([NL][M][LGN]); else one buffer
@@ -424,7 +457,17 @@ def _moe_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw
     else:
         S.prologue_gu(c, e1, xq, xs, red, G[G_H1], G[G_RSTD1], T(T_PF2_LN), T(T_PF_LN))
     w1 = e1.setup(c, xq, xs, T(T_E1_T), T(T_E1_S))
-    e1.run(c, w1, R, part, cnt("e1"), MO.EpiAct(c, M, R, G[G_ACT], EFFP))
+    fin1 = MO.EpiAct(c, M, R, G[G_ACT], EFFP)
+    if const_expr(cfg.e1_cta):
+        # CTA mode when every wave gets >= 6 pieces (npos G >= 5 cus: MoeGemv.run_cta);
+        # else the last-arriver path. Both give the same bits.
+        npv = R.n()
+        if npv * e1.G >= 5 * cfg.cus:
+            MO.run_stage_cta(e1, c, w1, R, fin1, pref, pflag, e0 + 4)
+        else:
+            MO.run_stage(e1, c, w1, R, part, cnt("e1"), fin1)
+    else:
+        e1.run(c, w1, R, part, cnt("e1"), fin1)
     # down: weighted expert sum e and dense sum d, raw, with their sums of squares
     barrier_then(None, None, None, e0 + 5)
     pos0 = e2.cta_pos0(c["bid"], R.n())
@@ -450,8 +493,7 @@ def _moe_t(c, SP, T, Tp, Tn, G, e0, xq, xs, red, wl, part, cnt, barrier_then, gw
     elif const_expr(cfg.combine_rows):
         more = li + 1 < nlayers  # the last layer's h is rebuilt by the final stage
         e2.run(c, w2, R, part, cnt("e2"),
-               S.EpiDE(c, M, G[G_E], G[G_SSQE], G[G_D], G[G_SSQD], cnt("done"), more,
-                       e2.batch),
+               S.EpiDE(c, M, G[G_E], G[G_SSQE], G[G_D], G[G_SSQD], cnt("done"), more),
                pos0)
         m = c["bid"] - (cfg.cus - M)
         if more & (m >= 0):

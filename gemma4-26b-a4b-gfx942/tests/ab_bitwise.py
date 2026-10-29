@@ -2,6 +2,8 @@
 that only moves work): decode the same random tokens with Cfg flags A and B (MK_CFG
 syntax, e.g. "router_publish=0") and compare the logits of every step bitwise.
 Usage: python tests/ab_bitwise.py FP8_DIR M STEPS "FLAGS_A" "FLAGS_B"
+Env: AB_TEXT=1 feeds windows of real text (tests/texts.text_prompts) instead of random ids:
+more distinct experts per layer (the expert stages' wide paths, e.g. Cfg.e1_cta).
 """
 import os
 import sys
@@ -30,8 +32,12 @@ def main():
     path, M, steps, fa, fb = sys.argv[1], int(sys.argv[2]), int(sys.argv[3]), sys.argv[4], sys.argv[5]
     print(f"node {os.uname().nodename}")
     PK = Packed(R.Weights(path, "fp8"), default_chunks())
-    g = torch.Generator("cuda").manual_seed(3)
-    toks = torch.randint(0, 262144, (steps, M), device="cuda", generator=g)
+    if os.environ.get("AB_TEXT") == "1":  # real text: more distinct experts than random ids
+        from tests.texts import text_prompts
+        toks = text_prompts(path, M, steps)
+    else:
+        g = torch.Generator("cuda").manual_seed(3)
+        toks = torch.randint(0, 262144, (steps, M), device="cuda", generator=g)
     a, b = run(PK, M, toks, fa), run(PK, M, toks, fb)
     same = torch.equal(a, b)
     nd = int((a != b).any(-1).any(-1).sum())

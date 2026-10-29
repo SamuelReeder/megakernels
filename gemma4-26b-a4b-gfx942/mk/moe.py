@@ -85,6 +85,28 @@ class Route:
         return D.uniform(fx.ptr_load(self.eid + p))
 
 
+@D.traced
+def _lds_wait(ptr, val):
+    """Spin until the LDS word at ptr equals val (written by another wave of the CTA).
+    The inline-asm sleep is a compiler barrier: the load is not hoisted."""
+    v = fx.ptr_load(ptr)
+    while v != val:
+        D._asm("s_sleep 1")
+        v = fx.ptr_load(ptr)
+    D._asm("s_nop 0")  # (compiler barrier: later LDS loads stay after the wait)
+
+
+def run_stage(sp, *args):
+    """sp.run(*args): callable inside a run-time branch (FlyDSL carries the base object of
+    a method call written in a branch through control flow; a module function is not)."""
+    return sp.run(*args)
+
+
+def run_stage_cta(sp, *args):
+    """sp.run_cta(*args), as run_stage."""
+    return sp.run_cta(*args)
+
+
 def slot_of(slot_ptr, NP, m, p):
     """Row m's slot for position p, or -1 (a plain function: FlyDSL carries the base
     object of a method call through control flow, and Route is not an IR value)."""
@@ -243,8 +265,6 @@ class MoeGemv:
     mode: str  # "gu" | "down"
     waves: int = 8
     C: int = 1  # K chunks per expert
-    depth: int = 2  # pieces in flight per wave (the current one and depth - 1 prefetched)
-    batch: bool = False  # batched last-arriver tail (MoeGemv._tail_gu / _tail_down)
     # down only: row-major partials, one arrival per CTA, rows reduced by reduce_row (no
     # per-group last arriver)
     rows: bool = False
@@ -371,14 +391,9 @@ class MoeGemv:
         rp = D.rsrc(part)
         G, KSp = self.G, self.KSp
         rslot = R.slot
-        # depth - 1 pieces in flight ahead of the current one; with batch, loads past the
-        # wave's range repeat its last piece (no other wave's weights are read for nothing)
-        DP = self.depth
-        lim = fx.max(p1 - 1, p0) if self.batch else T_ - 1
-        bufs = [self._load_piece(w, R, fx.min(p0 + d, lim)) for d in range(DP - 1)]
+        buf = self._load_piece(w, R, fx.min(p0, T_ - 1))
         for pi in range(p0, p1):
-            bufs = bufs + [self._load_piece(w, R, fx.min(pi + (DP - 1), lim))]
-            buf = bufs[0]
+            nxt = self._load_piece(w, R, fx.min(pi + 1, T_ - 1))
             pos = pi // self.ppe
             pl = pi % self.ppe
             ch = pl // G
@@ -417,7 +432,7 @@ class MoeGemv:
                         j = slot_of(rslot, self.NP, m, pos)
                         if j >= 0:
                             D.st(acc[r], rp, self._p2(g, j, ch, w["col"], m), D.CM_DEV)
-            bufs = bufs[1:]
+            buf = nxt
         D.probe(c, 1)
         rocdl.s_waitcnt(vmcnt=0)
         if const_expr(self.rows):
@@ -426,23 +441,89 @@ class MoeGemv:
             gpu.barrier()
             if c["tid"] == 0:
                 D.atomic_add_dev(cnt, 1)
-        elif const_expr(self.batch):
-            # every atomic goes out before the first result is used (round trips overlap)
-            raw = []
-            for k in range_constexpr(self.PMAX):
-                pi = p0 + k
-                old = fx.Int32(0)
-                if (w["lane"] == 0) & (pi < p1):
-                    old = D.atomic_add_dev(cnt + self._cg(pi) * 4, 1)
-                raw.append(old)
-            olds = [D.uniform(o) for o in raw]
-            D.probe(c, 3)
-            if const_expr(self.mode == "gu"):
-                self._tail_gu(w, R, rp, cnt, fin, olds, p0, p1)
-            else:
-                self._tail_down(w, R, rp, cnt, fin, olds, p0, p1, npos)
         else:
             self._tail_serial(w, R, rp, cnt, fin, p0, p1, npos, c)
+        D.probe(c, 2)
+
+    def _cta_q(self, t, a, ha, tb, ntail, nfull):
+        """CTA mode: the CTA-local piece of the wave's step t (order: tail, then the
+        whole groups, then the head)."""
+        return (t < ntail).select(
+            tb + t, (t < ntail + nfull).select(ha + (t - ntail), a + (t - ntail - nfull)))
+
+    def _cta_load(self, w, R, g0, q):
+        gid = g0 + q // self.C
+        ub = (R.eid_of(gid // self.G) * self.upe
+              + ((q % self.C) * self.G + gid % self.G) * self.KSp)
+        return [fp8_load(w["rt"], w["rs"], ub + s, w["lane"]) for s in range(self.KSp)]
+
+    @D.traced
+    def run_cta(self, c, w, R, fin, pref, pflag, ep):
+        """gu, CTA mode (Cfg.e1_cta; docs/DESIGN.md "Milestone 8"). CTA b owns the column
+        groups (pos, g) b NGR / cus .. (b + 1) NGR / cus - 1 (NGR = npos G) with all C
+        chunks, in (group, chunk) order; wave wv streams the pieces wv n / 8 .. of the
+        CTA's n. A wave folds the chunks of a group in chunk order, as _reduce_gu sums
+        them (the same bits), and runs the epilogue: no partials, no counters, no last
+        arriver. A group split between waves wv and wv + 1: wave wv folds its chunks
+        0..j first and leaves the prefix in LDS (pref[wv], then pflag[wv] = ep); wave
+        wv + 1 folds the rest onto it last. A wave inside one group (no group end, a
+        "middle" wave) waits for its predecessor's prefix first, folds its pieces and
+        leaves the new prefix for its successor. Needs >= 6 pieces per wave: then no two
+        consecutive waves are middle waves, so a middle wave waits only for a prefix its
+        predecessor stores first (no chain). The caller checks npos G >= 5 cus."""
+        D.PROBE["on"] = D.PROBE.get("stage") == self.name
+        D.probe(c, 0)
+        npos = R.n()
+        C, G, KSp = self.C, self.G, self.KSp
+        NGR = npos * G
+        bid, wv, lane = c["bid"], c["wave"], w["lane"]
+        g0 = bid * NGR // self.cus
+        n = ((bid + 1) * NGR // self.cus - g0) * C
+        a = wv * n // self.waves
+        b = (wv + 1) * n // self.waves
+        mid = (a + C - 1) // C * C > b  # no group end in [a, b): all of it is head
+        ha = fx.min((a + C - 1) // C * C, b)
+        tb = fx.max(b // C * C, ha)
+        ntail = b - tb
+        nfull = tb - ha
+        L = b - a
+        hs = ntail + nfull  # the head's first step (== L: no head)
+        pub = mid.select(L - 1, ntail - 1)  # the step after which the prefix is stored
+        qs = (a, ha, tb, ntail, nfull)
+        buf = self._cta_load(w, R, g0, self._cta_q(fx.min(fx.Int32(0), L - 1), *qs))
+        r = fx.Vector.filled(4, 0.0, fx.Float32)
+        for t in range(0, L):
+            nxt = self._cta_load(w, R, g0, self._cta_q(fx.min(t + 1, L - 1), *qs))
+            q = self._cta_q(t, *qs)
+            gid = g0 + q // C
+            ch = q % C
+            pos = gid // G
+            g = gid % G
+            # dense positions read the pre_feedforward_layernorm rows M..2M-1
+            dense = pos >= npos - NDS
+            arow = dense.select(w["arow"] + self.M * self.XR, w["arow"])
+            xof = dense.select(fx.Int32(self.M * self.XSR), fx.Int32(0))
+            acc = fx.Vector.filled(4, 0.0, fx.Float32)
+            for s in range_constexpr(KSp):
+                xo = ch * KSp + s
+                acc = acc + fp8_compute(w, arow + xo * 128, xof + xo, self.XSR, buf[s])
+            if t == hs:
+                # the head continues the previous wave's tail group: its prefix
+                _lds_wait(pflag + (wv - 1), ep)
+                r = fx.Vector(fx.ptr_load(pref + ((wv - 1) * 64 + lane) * 4,
+                                          result_type=fx.Vector.make_type(4, fx.Float32)))
+            first = ch == 0
+            r = fx.Vector.from_elements(
+                [first.select(acc[i], r[i] + acc[i]) for i in range(4)], fx.Float32)
+            if t == pub:
+                fx.ptr_store(r, pref + (wv * 64 + lane) * 4)
+                D._asm("s_waitcnt lgkmcnt(0)")  # the prefix lands before its flag
+                if lane == 0:
+                    fx.ptr_store(ep, pflag + wv)
+            if ch == C - 1:
+                fin(pos, g, r)
+            buf = nxt
+        D.probe(c, 1)
         D.probe(c, 2)
 
     @D.traced
@@ -480,75 +561,6 @@ class MoeGemv:
                         if w["lane"] == 0:
                             D.st(fx.Int32(0), D.rsrc(cnt), NSUB * G + gg, D.CM_DEV)
                         self._reduce_down(w, R, rp, gg, fin)
-
-    @D.traced
-    def _tail_gu(self, w, R, rp, cnt, fin, olds, p0, p1):
-        """Batched gu tail: the counters of the pieces this wave completed are reset,
-        then their reductions run two at a time (the partial loads of both go out
-        together). The sums and the epilogue are those of _reduce_gu."""
-        lasts = []
-        for k in range_constexpr(self.PMAX):
-            pi = p0 + k
-            lk = (pi < p1) & ((olds[k] + 1) == self.C)
-            if lk & (w["lane"] == 0):
-                D.st(fx.Int32(0), D.rsrc(cnt), self._cg(pi), D.CM_DEV)
-            lasts.append(lk)
-        for k0 in range_constexpr(0, self.PMAX, 2):
-            if const_expr(k0 + 1 < self.PMAX):
-                if lasts[k0] | lasts[k0 + 1]:
-                    self._reduce_gu2(w, R, rp, p0 + k0, lasts[k0], lasts[k0 + 1], fin)
-            else:
-                if lasts[k0]:
-                    pi = p0 + k0
-                    self._reduce_gu(w, R, rp, pi // self.ppe, pi % self.G, fin)
-
-    @D.traced
-    def _reduce_gu2(self, w, R, rp, pa, la, lb, fin):
-        """_reduce_gu of pieces pa (if la) and pa + 1 (if lb), loads issued together
-        (a piece that is not reduced reads the other one's partials, stores nothing)."""
-        pb = lb.select(pa + 1, pa)
-        ps, lv = [pa, pb], [la, lb]
-        vs = [
-            [
-                D.ld(rp, (((ps[i] // self.ppe * self.ppe + ch * self.G + ps[i] % self.G)
-                           * 64) + w["lane"]) * 4, 4, T.f32, D.CM_DEV)
-                for ch in range(self.C)
-            ]
-            for i in range(2)
-        ]
-        for i in range_constexpr(2):
-            tot = vs[i][0]
-            for ch in range_constexpr(1, self.C):
-                tot = tot + vs[i][ch]
-            fin(ps[i] // self.ppe, ps[i] % self.G, tot, lv[i])
-
-    @D.traced
-    def _tail_down(self, w, R, rp, cnt, fin, olds, p0, p1, npos):
-        """Batched down tail: the level-2 atomics of all sub-counters this wave
-        completed go out together; the reductions (_reduce_down) store without waiting;
-        one drain and one count of the reduced groups at the end (fin.count_n)."""
-        G = self.G
-        raw = []
-        for k in range_constexpr(self.PMAX):
-            pi = p0 + k
-            sub = pi // self.ppe % NSUB
-            total = self.C * ((npos - sub + NSUB - 1) // NSUB)
-            o2 = fx.Int32(-2)
-            if (w["lane"] == 0) & (pi < p1) & ((olds[k] + 1) == total):
-                D.st(fx.Int32(0), D.rsrc(cnt), self._cg(pi), D.CM_DEV)
-                o2 = D.atomic_add_dev(cnt + (NSUB * G + pi % G) * 4, 1)
-            raw.append(o2)
-        nsub = fx.min(npos, NSUB)
-        nred = fx.Int32(0)
-        for k in range_constexpr(self.PMAX):
-            gg = (p0 + k) % G
-            lk = (D.uniform(raw[k]) + 1) == nsub
-            if lk:
-                if w["lane"] == 0:
-                    D.st(fx.Int32(0), D.rsrc(cnt), NSUB * G + gg, D.CM_DEV)
-                self._reduce_down(w, R, rp, gg, fin)
-            nred = nred + lk.select(fx.Int32(1), fx.Int32(0))
-        fin.count_n(nred)
 
     def _cg(self, pi):
         """Counter of piece pi. gu: (position, group), C arrivals. down: (pos % NSUB,
@@ -666,23 +678,19 @@ class EpiAct:
     def __init__(self, c, M, R, act, fi):
         self.c, self.M, self.R, self.act, self.fi = c, M, R, act, fi
 
-    def __call__(self, pos, g, tot, live=None):
-        _epi_act(self.c, self.M, self.R, self.act, self.fi, pos, g, tot, live)
+    def __call__(self, pos, g, tot):
+        _epi_act(self.c, self.M, self.R, self.act, self.fi, pos, g, tot)
 
 
 @D.traced
-def _epi_act(c, M, R, act, fi, pos, g, tot, live=None):
-    """live (wave-uniform, optional): False stores nothing (MoeGemv._reduce_gu2)."""
+def _epi_act(c, M, R, act, fi, pos, g, tot):
     col, lane = c["col"], c["lane"]
     ra = D.rsrc(act)
     rslot = R.slot
     for r in range_constexpr(4):
         m = 4 * c["gl"] + r
         up = D.gather_f(tot[r], lane + 8)
-        ok = (m < M) & (col < 8)
-        if const_expr(live is not None):
-            ok = ok & live
-        if ok:
+        if (m < M) & (col < 8):
             j = slot_of(rslot, R.NP, m, pos)
             if j >= 0:
                 D.st(D.gelu_tanh(tot[r]) * up, ra, (m * NSLOT + j) * fi + g * 8 + col,
