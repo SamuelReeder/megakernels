@@ -21,6 +21,12 @@ name=rtgeom
 job=${RT_JOB:-$(ssh -o BatchMode=yes alola "squeue -h -u \$USER -n $name -t R -o %i | head -1")}
 [ -n "$job" ] || { echo "no rtgeom allocation" >&2; exit 2; }
 W=/tmp/rtgeom_$job
+if [ "$img" = fetch ]; then  # copy /work/out back only
+  mkdir -p "$here/out"
+  ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=5 bash -c 'tar -C $W -czf - out'" \
+    | tar -C "$here" -xzf -
+  exit
+fi
 rev="$(git -C "$root" rev-parse HEAD) dirty: $(git -C "$root" status --porcelain qwen3.8-27b-gfx942 common spike/rtgeom | { grep -v ' spike/rtgeom/out' || true; } | wc -l)"
 tar -C "$root" --exclude __pycache__ --exclude spike/rtgeom/out --exclude '*.co' --exclude spike/rtgeom/logs \
   --exclude qwen3.8-27b-gfx942/bench/results --exclude common/results \
@@ -40,11 +46,18 @@ fi
 home=/home/AMD/sareeder
 [ "${AUS:-0}" = 1 ] && home=$W/home
 rc=0
-ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=${RT_TIME:-60} \
+cmd="srun --jobid=$job --overlap -n1 --time=${RT_TIME:-60} \
   --container-image=$image --container-name=rtg-$img \
   --container-mounts=/cluster:/cluster,$home:/home/AMD/sareeder,$W:/work \
-  bash -lc '$pre; cd /work/mk/qwen3.8-27b-gfx942 && echo node \$(hostname) job $job rev \$(cat /work/mk/REVISION) >&2; $*' 2>&1" || rc=$?
+  bash -lc '$pre; cd /work/mk/qwen3.8-27b-gfx942 && echo node \$(hostname) job $job rev \$(cat /work/mk/REVISION) >&2; $*'"
+if [ -n "${RT_TMUX:-}" ]; then  # detached: tmux session RT_TMUX on the login node, log ~/rtg_RT_TMUX.log
+  printf '%s\n' "$cmd > ~/rtg_$RT_TMUX.log 2>&1; echo RTRUN-DONE rc=\$? >> ~/rtg_$RT_TMUX.log" \
+    | ssh -o BatchMode=yes alola "cat > ~/rtg_$RT_TMUX.sh && tmux new-session -d -s $RT_TMUX 'bash ~/rtg_$RT_TMUX.sh'"
+  echo "started tmux $RT_TMUX on the login node; log ~/rtg_$RT_TMUX.log; then: rtrun fetch"
+  exit
+fi
+ssh -o BatchMode=yes alola "$cmd 2>&1" || rc=$?
 mkdir -p "$here/out"
-ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=3 bash -c 'tar -C $W -cf - out'" \
-  | tar -C "$here" -xf - 2>/dev/null || true
+ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=5 bash -c 'tar -C $W -czf - out'" \
+  | tar -C "$here" -xzf - 2>/dev/null || true
 exit $rc
