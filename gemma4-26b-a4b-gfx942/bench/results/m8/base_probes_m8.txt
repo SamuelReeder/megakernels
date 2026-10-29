@@ -1,0 +1,61 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68206666
+attn    30     28.8     11.1       1.96       945.9     0.0      0.00      0.00
+o       30     15.6      9.3       1.78       503.3    11.9      0.79      1.29
+router  30     17.9      2.8       2.68       527.9     0.7      0.04      0.26
+e1      30     71.1     57.5       3.97      2153.3   147.2      2.03      2.51
+e2      30     74.7     34.9       7.89      2236.0    80.3      1.08      2.33
+lm       1    361.6    356.6      15.84       361.6  1476.4      4.08      4.14
+sum of spans + barriers 7931.4 us
+e1 timeline (us from its barrier's last release):
+  first release  med   -0.2 max   -0.2
+  prologue       med    6.0 max    9.0
+  loads issued   med -1156716232785.0 max -1156716232785.0
+  rstd done      med -1156716232785.0 max -1156716232785.0
+  quantized      med    7.9 max   11.2
+  stream start   med    8.2 max   11.4
+  stream end     med   51.9 max   55.7
+  hand-off end   med   66.3 max   83.2
+  next arrival   med   65.9 max   74.4
+  next release   med   84.5 max   84.7
+e1 stream          per wave: med 43.6 max 47.8 us
+e1 hand-off        per wave: med 15.3 max 28.4 us
+e1 drain + atomics per wave: med 8.9 max 14.4 us
+e1 reductions      per wave: med 5.6 max 16.6 us
+attn    30     27.3     11.3       1.85       896.5     0.0      0.00      0.00
+o       30     16.0      9.8       1.69       504.4    11.9      0.78      1.26
+router  30     16.3      2.7       2.72       492.4     0.7      0.04      0.27
+e1      30     71.2     56.7       4.01      2137.8   147.2      2.07      2.57
+e2      30     76.2     36.7       7.31      2282.4    80.3      1.06      2.24
+lm       1    374.4    366.9      21.27       374.4  1476.4      3.94      4.02
+sum of spans + barriers 7878.2 us
+e2 timeline (us from its barrier's last release):
+  first release  med   -0.2 max   -0.2
+  prologue       med    0.1 max    0.2
+  loads issued   med -1156794968735.0 max -1156794968735.0
+  rstd done      med -1156794968735.0 max -1156794968735.0
+  quantized      med    3.0 max    6.2
+  stream start   med    3.4 max    7.0
+  stream end     med   29.1 max   35.6
+  hand-off end   med   37.0 max   75.6
+  next arrival   med   37.8 max   56.4
+  next release   med   77.3 max   77.7
+e2 stream          per wave: med 25.5 max 32.5 us
+e2 hand-off        per wave: med 7.9 max 40.0 us
+e2 drain + atomics per wave: med 5.8 max 9.5 us
+e2 reductions      per wave: med 2.0 max 35.4 us
+M=8 ctx=512: embed (start -> first arrival) 2.2 us; step total 7777.6 us (CUDA events around this single launch, launch latency included: 8582.6 us); medians over 1 step(s)
+stage    n  span us  busy us barrier us sum span us      MB TB/s span TB/s busy
+qkv     30     16.4     12.2       1.84       532.2    23.8      1.47      1.94
+attn    30     26.5     11.1       1.91       881.9     0.0      0.00      0.00
+o       30     16.7      9.5       1.72       521.0    11.9      0.74      1.27
+router  30     17.4      2.9       2.93       520.5     0.7      0.04      0.25
+e1      30     71.3     58.4       3.63      2137.2   147.2      2.07      2.52
+e2      30     75.5     35.4       7.88      2260.3    80.3      1.06      2.29
+lm       1    363.1    356.8      18.62       363.1  1476.4      4.07      4.14
+sum of spans + barriers 7823.1 us
+route start              med   0.07 max   0.16 us
+route loads + 1st max    med   0.79 max   0.88 us
+route top-8              med   1.63 max   2.03 us
+route barrier 1          med   6.09 max   7.28 us
+route list + barrier 2   med   7.53 max   9.04 us
+route slots + barrier 3  med   8.37 max   9.76 us

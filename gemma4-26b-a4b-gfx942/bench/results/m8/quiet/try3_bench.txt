@@ -1,0 +1,21 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68207195
+load+pack+build 17s
+rep 0: TPOT 3.743 ms (267.1 tok/s/user, 267.1 tok/s total), kernel median 3.960 ms
+rep 1: TPOT 3.739 ms (267.5 tok/s/user, 267.5 tok/s total), kernel median 3.961 ms
+rep 2: TPOT 3.748 ms (266.8 tok/s/user, 266.8 tok/s total), kernel median 3.959 ms
+{"M": 1, "ctx": 512, "steps": 256, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-29 08:56:15", "cfg": "Cfg(M=1, cus=304, maxlen=832, block_s=16, maxblocks_s=52, kv_s=(65536, 512, 4096, 256), block_f=32, maxblocks_f=26, kv_f=(65536, 1024, 2048, 512), lm_head=True, c_qkv=1, c_o=4, c_router=1, c_e1=11, c_e2=2, c_lm=1, router_publish=True, combine_rows=True, e2_rows=True, e1_cta=False, debug_route=False, fence=False)", "runs": [{"tpot_ms": 3.7433295249938965, "kernel_ms_median": 3.9596660137176514, "kernel_ms_min": 3.9324839115142822}, {"tpot_ms": 3.7386181354522705, "kernel_ms_median": 3.960547924041748, "kernel_ms_min": 3.933526039123535}, {"tpot_ms": 3.748021364212036, "kernel_ms_median": 3.9585840702056885, "kernel_ms_min": 3.9352099895477295}]}
+load+pack+build 17s
+rep 0: TPOT 4.251 ms (235.2 tok/s/user, 470.5 tok/s total), kernel median 4.518 ms
+rep 1: TPOT 4.272 ms (234.1 tok/s/user, 468.1 tok/s total), kernel median 4.554 ms
+rep 2: TPOT 4.227 ms (236.6 tok/s/user, 473.2 tok/s total), kernel median 4.480 ms
+{"M": 2, "ctx": 512, "steps": 256, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-29 08:57:23", "cfg": "Cfg(M=2, cus=304, maxlen=832, block_s=16, maxblocks_s=52, kv_s=(65536, 512, 4096, 256), block_f=32, maxblocks_f=26, kv_f=(65536, 1024, 2048, 512), lm_head=True, c_qkv=1, c_o=4, c_router=1, c_e1=11, c_e2=2, c_lm=1, router_publish=True, combine_rows=True, e2_rows=True, e1_cta=True, debug_route=False, fence=False)", "runs": [{"tpot_ms": 4.250887870788574, "kernel_ms_median": 4.517950057983398, "kernel_ms_min": 4.466753005981445}, {"tpot_ms": 4.272337913513184, "kernel_ms_median": 4.554433822631836, "kernel_ms_min": 4.505401134490967}, {"tpot_ms": 4.226512908935547, "kernel_ms_median": 4.480423927307129, "kernel_ms_min": 4.427903175354004}]}
+load+pack+build 16s
+rep 0: TPOT 4.609 ms (217.0 tok/s/user, 867.8 tok/s total), kernel median 4.788 ms
+rep 1: TPOT 4.622 ms (216.4 tok/s/user, 865.4 tok/s total), kernel median 4.779 ms
+rep 2: TPOT 4.598 ms (217.5 tok/s/user, 869.9 tok/s total), kernel median 4.801 ms
+{"M": 4, "ctx": 512, "steps": 256, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-29 08:58:31", "cfg": "Cfg(M=4, cus=304, maxlen=832, block_s=16, maxblocks_s=52, kv_s=(65536, 512, 4096, 256), block_f=32, maxblocks_f=26, kv_f=(65536, 1024, 2048, 512), lm_head=True, c_qkv=1, c_o=4, c_router=1, c_e1=11, c_e2=2, c_lm=1, router_publish=True, combine_rows=True, e2_rows=True, e1_cta=True, debug_route=False, fence=False)", "runs": [{"tpot_ms": 4.609270095825195, "kernel_ms_median": 4.787971019744873, "kernel_ms_min": 4.709310054779053}, {"tpot_ms": 4.622131824493408, "kernel_ms_median": 4.778669834136963, "kernel_ms_min": 4.734969139099121}, {"tpot_ms": 4.5980939865112305, "kernel_ms_median": 4.8014421463012695, "kernel_ms_min": 4.717368125915527}]}
+load+pack+build 16s
+rep 0: TPOT 5.862 ms (170.6 tok/s/user, 1364.7 tok/s total), kernel median 5.719 ms
+rep 1: TPOT 5.884 ms (169.9 tok/s/user, 1359.6 tok/s total), kernel median 5.744 ms
+rep 2: TPOT 5.895 ms (169.6 tok/s/user, 1357.1 tok/s total), kernel median 5.738 ms
+{"M": 8, "ctx": 512, "steps": 256, "node": "banff-cyxtera-s70-4.adc.amd.com", "gpu": "AMD Instinct MI300X", "date": "2026-10-29 08:59:52", "cfg": "Cfg(M=8, cus=304, maxlen=832, block_s=16, maxblocks_s=52, kv_s=(65536, 512, 4096, 256), block_f=32, maxblocks_f=26, kv_f=(65536, 1024, 2048, 512), lm_head=True, c_qkv=1, c_o=4, c_router=1, c_e1=11, c_e2=2, c_lm=1, router_publish=True, combine_rows=True, e2_rows=True, e1_cta=True, debug_route=False, fence=False)", "runs": [{"tpot_ms": 5.862279415130615, "kernel_ms_median": 5.718992233276367, "kernel_ms_min": 5.615033149719238}, {"tpot_ms": 5.884288311004639, "kernel_ms_median": 5.744490146636963, "kernel_ms_min": 5.593502998352051}, {"tpot_ms": 5.894846439361572, "kernel_ms_median": 5.737595081329346, "kernel_ms_min": 5.639890193939209}]}

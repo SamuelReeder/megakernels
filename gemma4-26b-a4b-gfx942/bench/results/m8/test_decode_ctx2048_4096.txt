@@ -1,0 +1,21 @@
+== test_decode M=1 ctx=2048
+node banff-cyxtera-s70-4.adc.amd.com job 68207195
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where a layer's tables differ from route_logits of the kernel's logits: 0
+steps with non-finite logits (kernel or reference): 0
+PASS
+== test_decode M=8 ctx=2048
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where a layer's tables differ from route_logits of the kernel's logits: 0
+steps with non-finite logits (kernel or reference): 0
+PASS
+== test_decode M=1 ctx=4096
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where a layer's tables differ from route_logits of the kernel's logits: 0
+steps with non-finite logits (kernel or reference): 0
+PASS
+== test_decode M=8 ctx=4096
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where a layer's tables differ from route_logits of the kernel's logits: 0
+steps with non-finite logits (kernel or reference): 0
+PASS

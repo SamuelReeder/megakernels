@@ -1,0 +1,43 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68206666
+== 
+19_reconcile_unrealized_casts.mlir
+20_gpu_module_to_binary.mlir
+21_llvm_ir.ll
+22_final_isa.s
+/tmp/g4mb-ir/gemma4_decode_m8_40baabb6/22_final_isa.s
+      1 		.amdhsa_accum_offset 256
+      1 		.amdhsa_private_segment_fixed_size 152
+      1 		.amdhsa_user_sgpr_count 2
+      1     .private_segment_fixed_size: 152
+      1     .sgpr_count:     106
+      1     .sgpr_spill_count: 1417
+      1     .vgpr_count:     256
+      1     .vgpr_spill_count: 55
+== moe_batch=1
+19_reconcile_unrealized_casts.mlir
+20_gpu_module_to_binary.mlir
+21_llvm_ir.ll
+22_final_isa.s
+/tmp/g4mb-ir/gemma4_decode_m8_ee1190f0/22_final_isa.s
+      1 		.amdhsa_accum_offset 256
+      1 		.amdhsa_private_segment_fixed_size 156
+      1 		.amdhsa_user_sgpr_count 2
+      1     .private_segment_fixed_size: 156
+      1     .sgpr_count:     106
+      1     .sgpr_spill_count: 1804
+      1     .vgpr_count:     256
+      1     .vgpr_spill_count: 53
+== d_e1=3,d_e2=3
+19_reconcile_unrealized_casts.mlir
+20_gpu_module_to_binary.mlir
+21_llvm_ir.ll
+22_final_isa.s
+/tmp/g4mb-ir/gemma4_decode_m8_e24bb044/22_final_isa.s
+      1 		.amdhsa_accum_offset 256
+      1 		.amdhsa_private_segment_fixed_size 152
+      1 		.amdhsa_user_sgpr_count 2
+      1     .private_segment_fixed_size: 152
+      1     .sgpr_count:     106
+      1     .sgpr_spill_count: 1417
+      1     .vgpr_count:     256
+      1     .vgpr_spill_count: 55

@@ -84,9 +84,10 @@ class Engine:
         if fence is None:  # MK_FENCE=1: L2 fences at every grid barrier (debug)
             fence = os.environ.get("MK_FENCE", "0") == "1"
         flags = {}
+        ftype = {f.name: f.type for f in dataclasses.fields(KK.Cfg)}
         for kv in filter(None, os.environ.get("MK_CFG", "").split(",")):
             k, v = kv.split("=")
-            flags[k] = bool(int(v))
+            flags[k] = int(v) if ftype[k] in (int, "int") else bool(int(v))
         self.cfg = KK.Cfg(
             M, cus, maxlen, block_s, self.cs.nb, self.cs.strides, block_f, self.cf.nb,
             self.cf.strides, lm_head, debug_route=debug_route, fence=fence,

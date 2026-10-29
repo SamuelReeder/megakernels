@@ -1,0 +1,11 @@
+68207152 sareeder mkfsc2 gres/gpu:gfx942-mi300x:1
+68207195 sareeder g4moeb2 gres/gpu:gfx942-mi300x:1
+2026-10-29T04:54:11-04:00
+card17 mean 0.0 max 0
+card1 mean 0.0 max 0
+card25 mean 0.0 max 0
+card33 mean 0.0 max 0
+card41 mean 0.0 max 0
+card49 mean 0.0 max 0
+card57 mean 0.0 max 0
+card9 mean 0.1 max 1

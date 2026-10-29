@@ -1,0 +1,15 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68206666
+M=4 steps=32: bitwise equal True (steps that differ: 0)
+PASS
+M=2 steps=32: bitwise equal True (steps that differ: 0)
+PASS
+M=8 steps=32: bitwise equal True (steps that differ: 0)
+PASS
+(defaults)                                                   TPOT median 5.359 ms  ratio 1.0000  rounds 5.293 5.334 5.359 5.421 5.520
+e1_cta=1                                                     TPOT median 4.604 ms  ratio 0.8592  rounds 4.543 4.567 4.604 4.646 4.700
+(defaults)                                                   TPOT median 7.014 ms  ratio 1.0000  rounds 6.996 6.974 7.014 7.089 7.177
+e1_cta=1                                                     TPOT median 5.849 ms  ratio 0.8338  rounds 5.826 5.808 5.849 5.913 5.989
+(defaults)                                                   TPOT median 4.492 ms  ratio 1.0000  rounds 4.477 4.492 4.488 4.511 4.574
+e1_cta=1                                                     TPOT median 4.304 ms  ratio 0.9581  rounds 4.304 4.291 4.321 4.318 4.283
+(defaults)                                                   TPOT median 3.766 ms  ratio 1.0000  rounds 3.731 3.741 3.766 3.777 3.809
+e1_cta=1                                                     TPOT median 3.960 ms  ratio 1.0514  rounds 3.938 3.937 3.960 3.964 3.991
