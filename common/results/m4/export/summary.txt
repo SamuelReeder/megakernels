@@ -1,0 +1,9 @@
+EXPORT q8 diff-lines 81 files dev.py gemv.py kernel.py mixer.py __init__.py dev.py stages.py tpdev.py 
+ISA5 q8 export 8948b45554c46053
+ISA5 q8 standalone 7a34625c72591084
+EXPORT q6 diff-lines 41 files dev.py gemv.py kernel.py mixer.py __init__.py dev.py moe.py stages.py 
+ISA5 q6 export fed6565fdfb55810
+ISA5 q6 standalone 8f9ca5691d1e1b07
+EXPORT g diff-lines 50 files attention.py dev.py gemv.py kernel.py __init__.py dev.py moe.py stages.py 
+ISA5 g export 548c50a2e7cd9baf
+ISA5 g standalone c911f702945b840a

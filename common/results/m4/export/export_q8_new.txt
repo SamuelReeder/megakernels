@@ -1,0 +1,27 @@
+Found 6 errors (6 fixed, 0 remaining).
+5 files reformatted, 5 files left unchanged
+D403 [*] First word of the docstring should be capitalized: `gelu` -> `Gelu`
+   --> vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/dev.py:276:5
+    |
+275 | def gelu_tanh(x):
+276 |     """gelu with the tanh approximation (HF gelu_pytorch_tanh)."""
+    |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+277 |     x = fx.Float32(x)
+278 |     u = x * (fx.Float32(1.0) + fx.Float32(0.044715) * x * x) * 0.7978845608028654
+    |
+help: Capitalize `gelu` to `Gelu`
+
+Found 1 error.
+[*] 1 fixable with the `--fix` option.
+exported dims, tpdev, fp4, gemv, stages, mixer, kernel and mkcore to /tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels
+Traceback (most recent call last):
+  File "/home/AMD/sareeder/mk/cm/m4/qwen3.8-27b-gfx942/scripts/export_vllm.py", line 59, in <module>
+    main()
+  File "/home/AMD/sareeder/mk/cm/m4/qwen3.8-27b-gfx942/scripts/export_vllm.py", line 55, in main
+    E.ruff(root, files, "check")
+  File "/home/AMD/sareeder/mk/cm/m4/common/scripts/export_lib.py", line 88, in ruff
+    subprocess.run([exe, args[0], *cfg, *args[1:], *files], check=True, cwd=root)
+  File "/usr/lib/python3.12/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/tmp/export_check_2932674/ruff/bin/ruff', 'check', '--config', '/tmp/export_check_2932674/q8-new/pyproject.toml', '/tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/dims.py', '/tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/tpdev.py', '/tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/fp4.py', '/tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/gemv.py', '/tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/stages.py', '/tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mixer.py', '/tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/kernel.py', '/tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/__init__.py', '/tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/dev.py', '/tmp/export_check_2932674/q8-new/vllm/models/qwen3_5/amd/specialized_decode/kernels/mkcore/key.py']' returned non-zero exit status 1.
+rc 1

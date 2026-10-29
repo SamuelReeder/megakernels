@@ -1,0 +1,14 @@
+ D vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/dev.py
+ M vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/gemv.py
+ M vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/kernel.py
+ M vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mixer.py
+ M vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/moe.py
+ M vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/stages.py
+?? vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mkcore/
+ .../amd/specialized_decode/kernels/dev.py          | 404 ---------------------
+ .../amd/specialized_decode/kernels/gemv.py         |   2 +-
+ .../amd/specialized_decode/kernels/kernel.py       |  62 +---
+ .../amd/specialized_decode/kernels/mixer.py        |  14 +-
+ .../amd/specialized_decode/kernels/moe.py          |   2 +-
+ .../amd/specialized_decode/kernels/stages.py       |   2 +-
+ 6 files changed, 24 insertions(+), 462 deletions(-)

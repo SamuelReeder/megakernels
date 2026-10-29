@@ -263,7 +263,7 @@ def tanh(x):
 
 
 def gelu_tanh(x):
-    """gelu with the tanh approximation (HF gelu_pytorch_tanh)."""
+    """Gelu with the tanh approximation (HF gelu_pytorch_tanh)."""
     x = fx.Float32(x)
     u = x * (fx.Float32(1.0) + fx.Float32(0.044715) * x * x) * 0.7978845608028654
     return fx.Float32(0.5) * x * (fx.Float32(1.0) + tanh(u))
