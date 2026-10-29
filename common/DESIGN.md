@@ -884,6 +884,49 @@ Evidence (`common/results/m7/`, banff-cyxtera-s70-4, job 68210225 (two GPUs), ba
   / `v_exp` sequence, which is open question 7 (Gemma M = 1 `lm_head`-on build-to-build
   variants).
 
+### M8: vLLM re-export and `bench/vllm_e2e.py` (2026-10-29, megakernels `ba24a78`)
+
+Exports (M7 sources `ba24a78`, ruff 0.14, `All checks passed`), pushed to
+SamuelReeder/vllm: `qwen38-gfx942-tp2` `fd8a77a5f` (M6 `732f28674` below it),
+`qwen36-gfx942-specialized-decode` `70f57a0ae`, `gemma4-moe-batch` `7f586cd2a`. The
+runtime files of each branch's own model import `kernels.mkcore`. The only
+`kernels.{fp4,gemv,pack}` imports left are in other models' stale copies on those
+branches (`qwen3_5/` on the Qwen3.6 and Gemma branches, `qwen3_5_moe/` on Gemma).
+`qwen38-gfx942-specialized-decode` is not re-exported (D15).
+
+Runs (`common/scripts/vrun`, kernel on, greedy, job 68210225 on banff-cyxtera-s70-4, two
+GPUs; base = `/tmp/vbase/*`, the pre-refactor branch heads; new = the exports above).
+JSONs are in `<model>/bench/results/cm8/`. Filtered log: `common/results/m8/vllm_e2e.log`
+(per run: the node's jobs, load average, and revisions); the full log is
+`vllm_e2e_full.log.gz`. The plan was 3 alternating rounds per model. The job expired
+during round 2, so 10 of 24 runs finished:
+
+| TPOT ms, B = 1 / 2 / 4 / 8 (median of runs) | base (n) | new (n) |
+|---|---|---|
+| Qwen3.6 (`TRITON_ATTN`) | 3.01 / 3.77 / 4.68 / 6.20 (1) | 2.85 / 3.80 / 4.95 / 6.68 (2) |
+| Gemma | 3.55 / 3.84 / 4.33 / 5.51 (1) | 3.68 / 4.27 / 4.72 / 5.93 (1) |
+| Qwen3.8 TP1 | 7.67 / 8.23 / 8.99 / 10.47 (1) | 8.29 / 8.61 / 10.34 / 12.38 (1) |
+| Qwen3.8 TP2 | 5.59 / 6.06 / 6.86 / 8.17 (1) | 5.89 / 6.39 / 7.24 / 8.75 (2) |
+
+Node load: the second job on the node was 68209506 (`sdpabwd`, 1 GPU). The 1-minute
+load average ranged from 2.6 to 13.4 while runs were measured, and was 33.8 when the
+Qwen3.6 base round-2 run hung. The 1 % TPOT limit is **not evaluated**: there is one
+base run per model, and the shared node moved TPOT by as much as 15 % between runs at
+M6 (the M6 Qwen3.8 TP1 base at B = 8 was 12.38 ms, and this base was 10.47 ms). The new
+kernel ISA equals the M6 export (oracle 5), so the kernel adds no TPOT difference; a
+quiet-node re-measure is open.
+
+Outputs: Gemma new and base are 10 of 10 identical. Qwen3.6: new r2 and base equal the
+M6 runs (8 of 8); new r1 differs on 1 prompt. Qwen3.8 TP1: new equals the M6 base and M6
+runs 8 of 8; this base run differs from them on 1 prompt (first logprob difference at
+position 1, same tokens). Qwen3.8 TP2: 7 and 6 of 8, within vLLM's TP2 spread (M6 log).
+
+Failures, all on the shared node: Gemma new r1 (engine core exited during warmup; hung
+until cancelled, rc 143), Qwen3.8 TP1 new r2 (`hipErrorLaunchFailure`, rc 134), and
+Qwen3.6 **base** r2 (engine core exited; hung until the job expired). They hit both trees,
+and the same kind of fault hit the M7 gates (SIGBUS, HIP 719). Each retried new
+configuration passed.
+
 ## Decisions
 
 - D1. Package `common/mkcore/` (FlyDSL gfx942 only), scripts in `common/scripts/`. Evidence:
