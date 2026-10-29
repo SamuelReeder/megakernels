@@ -1,0 +1,4 @@
+ M vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/kernel.py
+?? vllm/models/qwen3_5_moe/amd/specialized_decode/kernels/mkcore/
+ .../amd/specialized_decode/kernels/kernel.py       | 37 +++++-----------------
+ 1 file changed, 8 insertions(+), 29 deletions(-)

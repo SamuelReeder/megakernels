@@ -27,12 +27,13 @@ for m in ${*:-q8 q6 g}; do
   k=vllm/models/$pkg/amd/specialized_decode/kernels
   git clone -q --depth 1 -b "users/sareeder/$br" "$VLLM" "$W/$m-base" || { echo "EXPORT $m clone-failed"; continue; }
   git -C "$W/$m-base" log --oneline -1 > "$O/vllm_$m.txt"
-  if [ ! -x "$W/ruff/bin/ruff" ]; then
+  if [ ! -d "$W/ruff" ]; then
     v=$(grep -A2 'ruff-pre-commit' "$W/$m-base/.pre-commit-config.yaml" | grep -m1 -oE 'v[0-9.]+' | tr -d v)
-    python -m pip install -q --prefix "$W/ruff" "ruff==$v" > "$O/ruff_install.txt" 2>&1
+    python -m pip install -q --target "$W/ruff" "ruff==$v" > "$O/ruff_install.txt" 2>&1
     echo "ruff $v" >> "$O/ruff_install.txt"
   fi
-  export RUFF=$W/ruff/bin/ruff
+  RUFF=$(find "$W/ruff" -type f -name ruff -path '*/bin/*' | head -1)
+  export RUFF
   cp -a "$W/$m-base" "$W/$m-new"
   (cd "$BASE/$dir" && python -B scripts/export_vllm.py "$W/$m-base"; echo "rc $?") > "$O/export_${m}_base.txt" 2>&1
   (cd "$NEW/$dir" && python -B scripts/export_vllm.py "$W/$m-new"; echo "rc $?") > "$O/export_${m}_new.txt" 2>&1

@@ -665,6 +665,58 @@ Qwen3.6 68207990, Gemma 68207991, Qwen3.8 TP2 68207993; logs `common/results/m2/
 - I-host: `common/tests/goldens.py` 298 lines equal (login node).
 - I-dep: `common/mkcore` imports only the standard library and itself.
 
+### M3: vendor, scripts, export library (2026-10-29, sources `ac654ae`)
+
+Change: `mk/vendor/buffer_ops.py` (three identical copies) moves to
+`common/mkcore/vendor/`; the models import `from mkcore.vendor import buffer_ops`.
+`common/scripts/` gets `mkrun` (D12: tar of `<model>/` and `common/` to node `/tmp`,
+`REVISION`, `bench/results/` copied back, `MK_NTASKS` for TP2, default job name `mkdev`),
+`setup_env.sh`, `isa_stats WEIGHTS [M]`, `suite_austin.sh` (`MODEL=<dir>` picks the
+checkpoints), `export_lib.py` (copy, import rewrite, `kernels/mkcore/` with the commit and
+`SRC_HASH` in its `__init__.py`, ruff), `export_check.sh` + `common/tests/export_isa.py`
+(oracle 5). The per-model `mkrun`, `setup_env.sh`, `isa_stats`, `suite_austin.sh` are
+deleted; READMEs, run scripts and Gemma's `repro_sbatch.sh` (its tarball now holds
+`common/`) point to `common/`. The three `export_vllm.py` keep their model rules and call
+`export_lib`. `mkcore/key.py` lines fit 88 columns (vLLM's E501): `main`'s Qwen3.8
+export fails vLLM's full ruff check on `key.py` (`export/export_q8_base.txt`), so M2's
+export of Qwen3.8 was broken; M3 fixes it. Exported `mkcore` files carry
+`# ruff: noqa: E501` (the commit line of `__init__.py` is longer).
+
+Evidence (`common/results/m3/`): gates through the new `mkrun` on held allocations
+68208331 (Qwen3.8), 68208332 (Qwen3.6), 68208333 (Gemma), 68208334 (TP2, 2 GPUs), all on
+banff-cyxtera-s70-4, compared with M1 (`BASE` = M1 hashes and `isa_renorm.txt`). Export
+check: job 68208676 (vLLM nightly image, ruff 0.14.0, vLLM branches
+`qwen38-gfx942-tp2` `6220b73`, `qwen36-gfx942-specialized-decode` `bdf23a4`,
+`gemma4-moe-batch` `6d0ec44`), `export/`.
+
+- I-bits: every logits hash equals M1 (`hashes.txt=base PASS` for all four parts).
+- I-isa: Qwen3.8 TP1, TP2 fp32 / bf16, Qwen3.6: equal to M1. Gemma: 3 of 4 builds equal;
+  M = 1 `lm_head` on gave `66ba47f17aecb0ca` against M1's `c911f702945b840a`. That build is
+  not deterministic on unchanged code: 6 builds of `main` gave `c911f702…` 4 times and
+  `66ba47f1…` twice; 6 builds of the M4 tree gave `c911f702…` 3 times, `66ba47f1…` once
+  and a third variant `e4373321da5d6e39` twice (not seen on `main` in 6 builds;
+  [INFERENCE] the same nondeterminism). `PYTHONHASHSEED=0` does not fix it: two seeded
+  `main` builds differ (`common/results/m4/isaprobe/`, run in M4's Gemma job). The
+  variants differ in the order of a few instructions around one division (98 diff lines)
+  and give the same logits hash. For Gemma M = 1 `lm_head` on, tier A here means "a
+  variant seen in repeated builds"; the other 17 builds of the ISA oracle are stable.
+- I-gates: all hard gates PASS (same set as M1; TP2 `test_decode` gated on ranks equal).
+- Oracle 5: the exports of `main` and of M3 differ only in `kernels/mkcore/` (the new
+  `__init__.py` header lines and the shortened `key.py` lines): no import line of a model
+  module changes, because `export_lib.rewrite` maps `mkcore.vendor` to AITER's
+  `buffer_ops` as before. All three M3 exports pass vLLM's ruff (`rc 0`). The exported
+  kernels import and build in the vLLM image (`isa5_*_export.txt`), but their ISA differs
+  from the standalone build: Qwen3.8 `8948b45554c46053` against `7a34625c72591084`, Qwen3.6
+  `fed6565fdfb55810` against `8f9ca5691d1e1b07`, Gemma `9108777564fa330a` /
+  `548c50a2e7cd9baf` (nondeterministic) against `c911f702…`. The standalone kernel built in
+  the same image gives the venv's ISA (`isa5_*_standalone`), so the difference is AITER's
+  `buffer_ops` (D13.5: its `buffer_load` / `buffer_store` differ from the vendored copy),
+  not the image. This answers the open part of D13.5: the vLLM kernels are not
+  ISA-identical to the standalone ones, before and after the refactor. From M3 on, oracle
+  5 compares the exported ISA with the previous milestone's exported ISA.
+- First attempts (not evidence): job 68208339 exported nothing (an `exec` bug in
+  `copy_mkcore`), job 68208381 had no ruff binary (wrong `pip --prefix` path); both fixed.
+
 ## Decisions
 
 - D1. Package `common/mkcore/` (FlyDSL gfx942 only), scripts in `common/scripts/`. Evidence:

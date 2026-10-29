@@ -1,0 +1,4 @@
+ M vllm/models/gemma4/amd/specialized_decode/kernels/kernel.py
+?? vllm/models/gemma4/amd/specialized_decode/kernels/mkcore/
+ .../amd/specialized_decode/kernels/kernel.py       | 37 ++++++----------------
+ 1 file changed, 9 insertions(+), 28 deletions(-)
