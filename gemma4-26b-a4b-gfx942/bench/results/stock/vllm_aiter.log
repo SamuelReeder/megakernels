@@ -1,0 +1,131 @@
+srun: job 68197822 queued and waiting for resources
+srun: job 68197822 has been allocated resources
+===== gemma-4-26B-A4B-it-FP8-dynamic 2026-10-28T03:19:07-04:00
+date: 2026-10-28T03:19:07-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.26;rocm 10.0.0;rocm-bootstrap 0.3.0;rocm_mq 0.1.0 /home/AMD/sareeder/worktrees/rocmlibs-merge-queue-rfc/.github/merge-queue;rocm-sdk-core 10.0.0;rocm-sdk-devel 10.0.0;rocm-sdk-device-gfx1100 10.0.0;rocm-sdk-device-gfx1101 10.0.0;rocm-sdk-device-gfx1150 10.0.0;rocm-sdk-device-gfx1151 10.0.0;rocm-sdk-device-gfx1200 10.0.0;rocm-sdk-device-gfx1201 10.0.0;rocm-sdk-device-gfx90a 10.0.0;rocm-sdk-device-gfx942 10.0.0;rocm-sdk-device-gfx950 10.0.0;rocm-sdk-libraries 10.0.0;triton 3.8.0+git669b31ac
+vllm 0.32.1rc1.dev505+g00b6c4c56
+torch 2.13.0+rocm10.0.0 hip 7.15.26333
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_ENABLE_IPC_MODE_LEGACY=1
+HSA_NO_SCRATCH_RECLAIM=1
+VLLM_ROCM_USE_AITER=1
+serve args: 
+SERVER FAILED (/home/AMD/sareeder/mk/models/gemma-4-26B-A4B-it-FP8-dynamic)
+    args.dispatch_function(args)
+  File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/cli/serve.py", line 156, in cmd
+    uvloop.run(run_server(args))
+  File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 96, in run
+    return __asyncio.run(
+           ^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 195, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/asyncio/runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "uvloop/loop.pyx", line 1515, in uvloop.loop.Loop.run_until_complete
+  File "/usr/local/lib/python3.12/dist-packages/uvloop/__init__.py", line 48, in wrapper
+    return await main
+           ^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 176, in run_server
+    await run_server_worker(listen_address, sock, args, **uvicorn_kwargs)
+  File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 190, in run_server_worker
+    async with build_async_engine_client(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 60, in build_async_engine_client
+    async with build_async_engine_client_from_engine_args(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/contextlib.py", line 210, in __aenter__
+    return await anext(self.gen)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/entrypoints/launchers/api_server/entry.py", line 94, in build_async_engine_client_from_engine_args
+    async_llm = AsyncLLM.from_vllm_config(
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/async_llm.py", line 264, in from_vllm_config
+    return cls(
+           ^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/async_llm.py", line 193, in __init__
+    self.engine_core = EngineCoreClient.make_async_mp_client(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 175, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 170, in make_async_mp_client
+    return AsyncMPClient(
+           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/tracing/otel.py", line 175, in sync_wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 1163, in __init__
+    super().__init__(
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/core_client.py", line 699, in __init__
+    with launch_core_engines(
+         ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.12/contextlib.py", line 144, in __exit__
+    next(self.gen)
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/utils.py", line 1393, in launch_core_engines
+    wait_for_engine_startup(
+  File "/usr/local/lib/python3.12/dist-packages/vllm/v1/engine/utils.py", line 1473, in wait_for_engine_startup
+    raise RuntimeError(
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+===== gemma-4-26B-A4B-it 2026-10-28T03:20:05-04:00
+date: 2026-10-28T03:20:05-04:00
+node: banff-cyxtera-s70-4.adc.amd.com
+arch: gfx942
+gpu AMD Instinct MI300X gfx942:sramecc+:xnack- 192 GiB count 1
+rocm sdk: amd-aiter 0.1.26;rocm 10.0.0;rocm-bootstrap 0.3.0;rocm_mq 0.1.0 /home/AMD/sareeder/worktrees/rocmlibs-merge-queue-rfc/.github/merge-queue;rocm-sdk-core 10.0.0;rocm-sdk-devel 10.0.0;rocm-sdk-device-gfx1100 10.0.0;rocm-sdk-device-gfx1101 10.0.0;rocm-sdk-device-gfx1150 10.0.0;rocm-sdk-device-gfx1151 10.0.0;rocm-sdk-device-gfx1200 10.0.0;rocm-sdk-device-gfx1201 10.0.0;rocm-sdk-device-gfx90a 10.0.0;rocm-sdk-device-gfx942 10.0.0;rocm-sdk-device-gfx950 10.0.0;rocm-sdk-libraries 10.0.0;triton 3.8.0+git669b31ac
+vllm 0.32.1rc1.dev505+g00b6c4c56
+torch 2.13.0+rocm10.0.0 hip 7.15.26333
+aiter ?
+AITER_ROCM_ARCH=gfx942;gfx950
+HIP_CLANG_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin
+HIP_DEVICE_LIB_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_core/lib/llvm/amdgcn/bitcode
+HIP_FORCE_DEV_KERNARG=1
+HIP_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel
+HIP_VISIBLE_DEVICES=0
+HSA_ENABLE_IPC_MODE_LEGACY=1
+HSA_NO_SCRATCH_RECLAIM=1
+VLLM_ROCM_USE_AITER=1
+serve args: 
+server ready 2026-10-28T03:23:42-04:00
+[warmup] Output token throughput (tok/s):         643.31    
+[warmup] Median TTFT (ms):                        1205.91   
+[warmup] Median TPOT (ms):                        7.76      
+[warmup] Median ITL (ms):                         7.69      
+[c1] Output token throughput (tok/s):         198.52    
+[c1] Median TTFT (ms):                        38.53     
+[c1] Median TPOT (ms):                        4.89      
+[c1] Median ITL (ms):                         4.90      
+[c2] Output token throughput (tok/s):         351.65    
+[c2] Median TTFT (ms):                        67.17     
+[c2] Median TPOT (ms):                        5.45      
+[c2] Median ITL (ms):                         5.46      
+[c4] Output token throughput (tok/s):         564.87    
+[c4] Median TTFT (ms):                        82.50     
+[c4] Median TPOT (ms):                        6.77      
+[c4] Median ITL (ms):                         6.76      
+[c8] Output token throughput (tok/s):         954.25    
+[c8] Median TTFT (ms):                        130.99    
+[c8] Median TPOT (ms):                        7.93      
+[c8] Median ITL (ms):                         7.84      
+[c1_rep2] Output token throughput (tok/s):         198.51    
+[c1_rep2] Median TTFT (ms):                        39.63     
+[c1_rep2] Median TPOT (ms):                        4.90      
+[c1_rep2] Median ITL (ms):                         4.91      
+[c1_rep3] Output token throughput (tok/s):         198.31    
+[c1_rep3] Median TTFT (ms):                        40.77     
+[c1_rep3] Median TPOT (ms):                        4.89      
+[c1_rep3] Median ITL (ms):                         4.91      
+done /home/AMD/sareeder/mk/models/gemma-4-26B-A4B-it 2026-10-28T03:27:06-04:00

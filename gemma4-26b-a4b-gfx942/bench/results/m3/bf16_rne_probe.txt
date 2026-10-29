@@ -1,0 +1,23 @@
+# f32 -> bf16 on gfx942 (banff-cyxtera-s70-4, job 68197433, 2026-10-28): a 64-lane FlyDSL kernel converts
+# exact ties (even/odd), +-1 ulp around them and 48 random values with .to(fx.BFloat16) and with dev.bf16_rne;
+# both are compared with torch's round to nearest even. Then tests/test_attention.py case 'full M8' with three
+# rsqrt variants in the q/k norm (amdgcn.rsq, 1/sqrt, math.rsqrt): same worst error 9.12e-04 for all three.
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+.to(BFloat16) == torch RNE: True mismatches 0
+dev.bf16_rne  == torch RNE: True mismatches 0
+1.00390625 torch 3f80 to() 3f80 rne 3f80
+1.01171875 torch 3f82 to() 3f82 rne 3f82
+1.00390637 torch 3f81 to() 3f81 rne 3f81
+1.00390613 torch 3f80 to() 3f80 rne 3f80
+1.50390625 torch 3fc0 to() 3fc0 rne 3fc0
+1.51171875 torch 3fc2 to() 3fc2 rne 3fc2
+1.50390637 torch 3fc1 to() 3fc1 rne 3fc1
+1.50390613 torch 3fc0 to() 3fc0 rne 3fc0
+-2.0078125 torch c000 to() c000 rne c000
+-2.0234375 torch c002 to() c002 rne c002
+-2.00781274 torch c001 to() c001 rne c001
+-2.00781226 torch c000 to() c000 rne c000
+3.0078125 torch 4040 to() 4040 rne 4040
+3.0234375 torch 4042 to() 4042 rne 4042
+3.00781274 torch 4041 to() 4041 rne 4041
+3.00781226 torch 4040 to() 4040 rne 4040

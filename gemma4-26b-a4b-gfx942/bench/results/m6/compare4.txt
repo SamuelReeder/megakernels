@@ -1,0 +1,38 @@
+kernel off: out/off4.json (default), kernel on: out/on4.json (default)
+kernel steps during the 8-prompt generate: on 1235, off 0
+prompt tokens: [30, 31, 30, 34, 31, 30, 25, 22, 2438, 2442]
+prompt 0: identical 50/160, first divergence at token 50: off 9258 on 563, logprob gap under off 0.1250, under on 0.1250
+  off: 'The sentence *"The quick brown fox jumps over the lazy dog"* is famous because it is a **pangram**.\n\nA pangram is a sentence that uses **every letter of the alp'
+  on:  'The sentence *"The quick brown fox jumps over the lazy dog"* is famous because it is a **pangram**.\n\nA pangram is a sentence that uses **every letter of the alp'
+prompt 1: identical 16/160, first divergence at token 11: off 496 on 506, logprob gap under off 0.0000, under on 0.8750
+  off: 'Here are two ways to implement this. The first is a **space-efficient iterative approach** (recommended for performance), and the second is a **recursive approa'
+  on:  'Here are two ways to implement this. The first is the **iterative approach**, which is the most efficient for standard use, and the second is the **recursive ap'
+prompt 2: identical 21/21, no divergence
+  off: 'Mercury\nVenus\nEarth\nMars\nJupiter\nSaturn\nUranus\nNeptune'
+  on:  'Mercury\nVenus\nEarth\nMars\nJupiter\nSaturn\nUranus\nNeptune'
+prompt 3: identical 112/160, first divergence at token 111: off 506 on 7757, logprob gap under off 1.2500, under on 1.1250
+  off: 'The mission that first landed humans on the Moon was **Apollo 11**, a landmark achievement of the United States space program and a defining moment in human his'
+  on:  'The mission that first landed humans on the Moon was **Apollo 11**, a landmark achievement of the United States space program and a defining moment in human his'
+prompt 4: identical 120/160, first divergence at token 118: off 568 on 107, logprob gap under off 1.0000, under on 1.2500
+  off: 'There are a few ways to translate this depending on the level of formality:\n\n**1. Natural/Standard (Most common):**\n> "Il fait beau aujourd\'hui, allons nous pro'
+  on:  'There are a few ways to translate this depending on the level of formality:\n\n**1. Natural/Standard (Most common):**\n> "Il fait beau aujourd\'hui, allons nous pro'
+prompt 5: identical 131/160, first divergence at token 130: off 3141 on 4688, logprob gap under off 0.0000, under on 0.1250
+  off: 'To find the derivative of $x^3 \\sin(x)$, we must use the **Product Rule**.\n\n### 1. Identify the Rule\nThe Product Rule states that if you have a function $f(x) ='
+  on:  'To find the derivative of $x^3 \\sin(x)$, we must use the **Product Rule**.\n\n### 1. Identify the Rule\nThe Product Rule states that if you have a function $f(x) ='
+prompt 6: identical 35/87, first divergence at token 34: off 563 on 9025, logprob gap under off 1.1250, under on 0.2500
+  off: 'In Verona, two teenagers from feuding noble families, the Montagues and the Capulets, fall deeply in love and marry in secret. Their attempt to be together is t'
+  on:  'In Verona, two teenagers from feuding noble families, the Montagues and the Capulets, fall deeply in love and marry in secret. Their attempt to be together lead'
+prompt 7: identical 25/160, first divergence at token 24: off 141562 on 15992, logprob gap under off 0.3750, under on 0.3750
+  off: 'Writing high-performance GPU kernels requires a shift in mindset from CPU programming. On a CPU, you optimize for latency (minimizing the time for one task); on'
+  on:  'Writing high-performance GPU kernels requires a shift in mindset from CPU programming. On a CPU, you optimize for latency (making one thread go fast); on a GPU,'
+prompt 8: identical 12/123, first divergence at token 12: off 236764 on 13957, logprob gap under off 0.5000, under on 0.2500
+  off: 'The provided text consists of a repetitive sequence of five distinct passages, organized into four identical sets. These passages include an excerpt from Dicken'
+  on:  "The provided text consists of a repetitive sequence of five distinct passages organized into four numbered sets. These passages include an excerpt from Dickens'"
+prompt 9: identical 52/52, no divergence
+  off: 'Passages 0.1, 1.1, 2.1, and 3.1 talk about hash tables.\n\nThe first sentence of these passages is: "A hash table stores key-value pairs in an array of buckets."'
+  on:  'Passages 0.1, 1.1, 2.1, and 3.1 talk about hash tables.\n\nThe first sentence of these passages is: "A hash table stores key-value pairs in an array of buckets."'
+total identical tokens 574/1243 (46.2%)
+TPOT ms   batch:       1       2       4       8
+  kernel off         4.43    4.85    5.02    6.22
+  kernel on          3.59    4.23    5.01    6.16
+  speedup           1.23    1.15    1.00    1.01

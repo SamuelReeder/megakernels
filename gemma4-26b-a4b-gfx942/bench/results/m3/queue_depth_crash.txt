@@ -1,0 +1,16 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+args 2048 0 rc 139
+/usr/bin/bash: line 1: 2015114 Segmentation fault      python -u -X faulthandler tests/_crash.py $G4/gemma-4-26B-A4B-it-FP8-dynamic $a > /tmp/c.log 2>&1
+banff-cyxtera-s70-4.adc.amd.com steps 2048 sync every 0
+Fatal Python error: Segmentation fault
+  File "/tmp/g4src-1793173033708008447/mk/runner.py", line 64 in set_slots
+  File "/tmp/g4src-1793173033708008447/mk/runner.py", line 211 in step
+args 2048 256 rc 0
+banff-cyxtera-s70-4.adc.amd.com steps 2048 sync every 256
+done
+args 4096 0 rc 139
+/usr/bin/bash: line 1: 2016620 Segmentation fault      python -u -X faulthandler tests/_crash.py $G4/gemma-4-26B-A4B-it-FP8-dynamic $a > /tmp/c.log 2>&1
+banff-cyxtera-s70-4.adc.amd.com steps 4096 sync every 0
+Fatal Python error: Segmentation fault
+  File "/tmp/g4src-1793173033708008447/mk/runner.py", line 63 in set_slots
+  File "/tmp/g4src-1793173033708008447/mk/runner.py", line 210 in step

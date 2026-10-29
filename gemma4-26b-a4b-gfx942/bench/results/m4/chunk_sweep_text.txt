@@ -1,0 +1,14 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+MK_CHUNKS=e2=1 M=4 AssertionError 
+MK_CHUNKS=e2=1 M=8 AssertionError 
+MK_CHUNKS=e1=8 M=4 RuntimeError: shape '[-1, 88, 8, 2, 2, 64, 16]' is invalid for input of size 519405568 
+MK_CHUNKS=e1=8 M=8 RuntimeError: shape '[-1, 88, 8, 2, 2, 64, 16]' is invalid for input of size 519405568 
+MK_CHUNKS=e1=16 M=4 RuntimeError: shape '[-1, 88, 16, 1, 2, 64, 16]' is invalid for input of size 519405568 
+MK_CHUNKS=e1=16 M=8 RuntimeError: shape '[-1, 88, 16, 1, 2, 64, 16]' is invalid for input of size 519405568 
+MK_CHUNKS=e1=4 M=4 RuntimeError: shape '[-1, 88, 4, 5, 2, 64, 16]' is invalid for input of size 519405568 
+MK_CHUNKS=e1=4 M=8 RuntimeError: shape '[-1, 88, 4, 5, 2, 64, 16]' is invalid for input of size 519405568 
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+MK_CHUNKS=e1=2 M=4 AssertionError 
+MK_CHUNKS=e1=2 M=8 AssertionError 
+MK_CHUNKS=e1=1 M=4 AssertionError 
+MK_CHUNKS=e1=1 M=8 AssertionError 

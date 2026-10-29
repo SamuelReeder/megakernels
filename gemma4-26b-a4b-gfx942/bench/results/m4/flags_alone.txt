@@ -1,0 +1,9 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+M=1 attn_merge_o=0,router_publish=0,combine_last=0 rep 0: TPOT 3.643 ms (274.5 tok/s/user, 274.5 tok/s total), kernel median 3.885 ms rep 1: TPOT 3.644 ms (274.4 tok/s/user, 274.4 tok/s total), kernel median 3.859 ms 
+M=1 attn_merge_o=1,router_publish=0,combine_last=0 rep 0: TPOT 3.889 ms (257.2 tok/s/user, 257.2 tok/s total), kernel median 4.131 ms rep 1: TPOT 3.890 ms (257.0 tok/s/user, 257.0 tok/s total), kernel median 4.124 ms 
+M=1 attn_merge_o=0,router_publish=1,combine_last=0 rep 0: TPOT 3.625 ms (275.8 tok/s/user, 275.8 tok/s total), kernel median 3.867 ms rep 1: TPOT 3.622 ms (276.1 tok/s/user, 276.1 tok/s total), kernel median 3.857 ms 
+M=1 attn_merge_o=0,router_publish=0,combine_last=1 rep 0: TPOT 3.579 ms (279.4 tok/s/user, 279.4 tok/s total), kernel median 3.818 ms rep 1: TPOT 3.579 ms (279.4 tok/s/user, 279.4 tok/s total), kernel median 3.814 ms 
+M=8 attn_merge_o=0,router_publish=0,combine_last=0 rep 0: TPOT 6.486 ms (154.2 tok/s/user, 1233.4 tok/s total), kernel median 6.697 ms rep 1: TPOT 6.528 ms (153.2 tok/s/user, 1225.5 tok/s total), kernel median 6.753 ms 
+M=8 attn_merge_o=1,router_publish=0,combine_last=0 rep 0: TPOT 6.762 ms (147.9 tok/s/user, 1183.1 tok/s total), kernel median 6.985 ms rep 1: TPOT 6.818 ms (146.7 tok/s/user, 1173.3 tok/s total), kernel median 7.046 ms 
+M=8 attn_merge_o=0,router_publish=1,combine_last=0 rep 0: TPOT 6.117 ms (163.5 tok/s/user, 1307.8 tok/s total), kernel median 6.380 ms rep 1: TPOT 6.178 ms (161.9 tok/s/user, 1295.0 tok/s total), kernel median 6.407 ms 
+M=8 attn_merge_o=0,router_publish=0,combine_last=1 rep 0: TPOT 6.449 ms (155.1 tok/s/user, 1240.6 tok/s total), kernel median 6.684 ms rep 1: TPOT 6.489 ms (154.1 tok/s/user, 1232.9 tok/s total), kernel median 6.723 ms 

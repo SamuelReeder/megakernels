@@ -1,0 +1,21 @@
+node banff-cyxtera-s70-4.adc.amd.com job 68197433
+== A=router_publish=0 B=router_publish=1
+router_publish=1: Cfg(M=4, cus=304, maxlen=160, block_s=16, maxblocks_s=10, kv_s=(65536, 512, 4096, 256), block_f=32, maxblocks_f=5, kv_f=(65536, 1024, 2048, 512), lm_head=True, c_qkv=1, c_o=4, c_router=1, c_e1=11, c_e2=2, c_lm=1, router_publish=True, combine_last=True, debug_route=False, fence=False)
+M=4 steps=96: bitwise equal True (steps that differ: 0)
+PASS
+== A=combine_last=0 B=combine_last=1
+combine_last=1: Cfg(M=4, cus=304, maxlen=160, block_s=16, maxblocks_s=10, kv_s=(65536, 512, 4096, 256), block_f=32, maxblocks_f=5, kv_f=(65536, 1024, 2048, 512), lm_head=True, c_qkv=1, c_o=4, c_router=1, c_e1=11, c_e2=2, c_lm=1, router_publish=True, combine_last=True, debug_route=False, fence=False)
+M=4 steps=96: bitwise equal True (steps that differ: 0)
+PASS
+== A=router_publish=0,combine_last=0 B=
+(defaults): Cfg(M=4, cus=304, maxlen=160, block_s=16, maxblocks_s=10, kv_s=(65536, 512, 4096, 256), block_f=32, maxblocks_f=5, kv_f=(65536, 1024, 2048, 512), lm_head=True, c_qkv=1, c_o=4, c_router=1, c_e1=11, c_e2=2, c_lm=1, router_publish=True, combine_last=True, debug_route=False, fence=False)
+M=4 steps=96: bitwise equal True (steps that differ: 0)
+PASS
+M=1 MK_CFG=router_publish=0,combine_last=0 rep 0: TPOT 3.646 ms (274.2 tok/s/user, 274.2 tok/s total), kernel median 3.892 ms rep 1: TPOT 3.646 ms (274.3 tok/s/user, 274.3 tok/s total), kernel median 3.879 ms 
+M=1 MK_CFG= rep 0: TPOT 3.561 ms (280.9 tok/s/user, 280.9 tok/s total), kernel median 3.810 ms rep 1: TPOT 3.556 ms (281.2 tok/s/user, 281.2 tok/s total), kernel median 3.792 ms 
+M=2 MK_CFG=router_publish=0,combine_last=0 rep 0: TPOT 4.241 ms (235.8 tok/s/user, 471.6 tok/s total), kernel median 4.509 ms rep 1: TPOT 4.245 ms (235.6 tok/s/user, 471.1 tok/s total), kernel median 4.498 ms 
+M=2 MK_CFG= rep 0: TPOT 4.110 ms (243.3 tok/s/user, 486.6 tok/s total), kernel median 4.373 ms rep 1: TPOT 4.115 ms (243.0 tok/s/user, 486.0 tok/s total), kernel median 4.380 ms 
+M=4 MK_CFG=router_publish=0,combine_last=0 rep 0: TPOT 5.030 ms (198.8 tok/s/user, 795.3 tok/s total), kernel median 5.267 ms rep 1: TPOT 5.057 ms (197.8 tok/s/user, 791.0 tok/s total), kernel median 5.303 ms 
+M=4 MK_CFG= rep 0: TPOT 4.880 ms (204.9 tok/s/user, 819.7 tok/s total), kernel median 5.153 ms rep 1: TPOT 4.891 ms (204.4 tok/s/user, 817.8 tok/s total), kernel median 5.154 ms 
+M=8 MK_CFG=router_publish=0,combine_last=0 rep 0: TPOT 6.461 ms (154.8 tok/s/user, 1238.3 tok/s total), kernel median 6.684 ms rep 1: TPOT 6.515 ms (153.5 tok/s/user, 1227.9 tok/s total), kernel median 6.707 ms 
+M=8 MK_CFG= rep 0: TPOT 6.431 ms (155.5 tok/s/user, 1244.1 tok/s total), kernel median 6.707 ms rep 1: TPOT 6.450 ms (155.0 tok/s/user, 1240.3 tok/s total), kernel median 6.710 ms 

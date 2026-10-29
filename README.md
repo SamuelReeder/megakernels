@@ -9,12 +9,15 @@ kernel, a Python runtime, tests and benchmarks.
 | Qwen3.5-0.8B (Gated DeltaNet + attention hybrid) | RTX 5080 (sm_120) | **955 tok/s** int8, **555 tok/s** bf16; 2.1× / 1.6× llama.cpp Q8_0 / BF16, 1.33× vLLM bf16; **1205 tok/s** int8 with MTP speculative decoding | [`qwen3.5-0.8b/`](qwen3.5-0.8b/) |
 | Qwen3.8-27B (Gated DeltaNet + attention hybrid), MXFP4 | MI300X (gfx942), FlyDSL | **132 tok/s** at batch 1; **2.06×** vLLM FP8 + AITER on the same GPU, 1.68-2.07× at batch 1-8 | [`qwen3.8-27b-gfx942/`](qwen3.8-27b-gfx942/) |
 | Qwen3.6-35B-A3B (Gated DeltaNet + attention hybrid, 256-expert top-8 MoE), FP8 | MI300X (gfx942), FlyDSL | **292 tok/s** at batch 1; **1.49×** vLLM FP8 + AITER on the same GPU, 1.17-1.49× at batch 1-8; inside vLLM 1.2-2.1× vLLM's own path | [`qwen3.6-35b-a3b-gfx942/`](qwen3.6-35b-a3b-gfx942/) |
+| Gemma 4 26B-A4B (sliding-window + full attention, 128-expert top-8 MoE beside a dense MLP), FP8 | MI300X (gfx942), FlyDSL | **279 tok/s** at batch 1; **1.24×** vLLM FP8 on the same GPU and prompts, 1.16× at batch 2, slower at batch 4-8 (0.95×, 0.92×); inside vLLM 1.23× / 1.15× at batch 1 / 2 | [`gemma4-26b-a4b-gfx942/`](gemma4-26b-a4b-gfx942/) |
 
 ![Decode throughput vs llama.cpp](qwen3.5-0.8b/docs/throughput.png)
 
 ![Qwen3.8-27B decode speed vs stock engines on one MI300X](qwen3.8-27b-gfx942/docs/throughput.png)
 
 ![Qwen3.6-35B-A3B decode speed vs stock engines on one MI300X](qwen3.6-35b-a3b-gfx942/docs/throughput.png)
+
+![Gemma 4 26B-A4B decode speed vs vLLM and SGLang on one MI300X](gemma4-26b-a4b-gfx942/docs/throughput.png)
 
 ## Why a megakernel
 
@@ -38,6 +41,8 @@ optimization log, and [`qwen3.8-27b-gfx942/README.md`](qwen3.8-27b-gfx942/README
 common/                 code shared across models (bandwidth roofline microbenchmark)
 qwen3.5-0.8b/           one self-contained project per model (CUDA, RTX 5080)
 qwen3.8-27b-gfx942/     Qwen3.8-27B on MI300X (FlyDSL, ROCm)
+qwen3.6-35b-a3b-gfx942/ Qwen3.6-35B-A3B on MI300X (FlyDSL, ROCm)
+gemma4-26b-a4b-gfx942/  Gemma 4 26B-A4B on MI300X (FlyDSL, ROCm)
   csrc/                   the kernel and PyTorch binding
   <package>/              Python runtime: weights, engine, chat CLI, OpenAI-compatible server
   bench/  tools/          benchmarks, per-SM timeline profiler, perplexity, plots
@@ -59,8 +64,8 @@ cd qwen3.5-0.8b && pytest tests/
 ```
 
 Requirements: an RTX 50-series GPU (sm_120a), CUDA 12.8+ with `nvcc`, PyTorch 2.8+. The
-Qwen3.8-27B and Qwen3.6-35B-A3B kernels need an MI300X-class GPU and FlyDSL; see their
-READMEs.
+Qwen3.8-27B, Qwen3.6-35B-A3B and Gemma 4 26B-A4B kernels need an MI300X-class GPU and
+FlyDSL; see their READMEs.
 
 ## Adding a model
 
