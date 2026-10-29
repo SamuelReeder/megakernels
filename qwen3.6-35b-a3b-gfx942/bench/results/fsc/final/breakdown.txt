@@ -1,0 +1,64 @@
+== final/tl_before_m1.json (3 steps): M=1, step median 4366.6 us (first barrier arrival -> last arrival at the end)
+stage     n    work    skew  barrier  interval   sum us
+inp      30   14.13    4.27     5.05     23.45    705.3
+gdn      30    2.52    0.50     3.42      6.44    225.5
+out      30    8.33    6.59     2.17     17.08    515.7
+router   40    1.47    3.99     3.27      8.73    370.7
+e1       40   14.57    2.33     2.19     19.09    738.6
+e2       40    1.82    7.71     2.18     11.71    505.9
+qkv      10    8.63    3.67     2.10     14.39    142.3
+attn     10    0.40   35.31     2.25     37.96    377.3
+o        10   14.03   14.90     2.24     31.16    317.3
+lm        1  228.45   16.71     0.00    245.16    236.8
+step parts: work 1907 us (46.1 %), skew 1515 us (36.6 %), barrier 713 us (17.2 %)
+fit work     =  3.17 us + bytes / 2.23 TB/s over inp, qkv, out, o, router, e1, e2 (max |residual| 7.08 us); 200 stages: bytes part 1111 us, fixed part 634 us
+fit interval = 15.23 us + bytes / 3.85 TB/s over inp, qkv, out, o, router, e1, e2 (max |residual| 15.44 us); 200 stages: bytes part 643 us, fixed part 3046 us
+step split (GEMV bytes at 4.45 TB/s): stream 784 us (19.0 %), gemv_fixed 1031 us (24.9 %), gemv_skew 1131 us (27.3 %), mixer 476 us (11.5 %), barrier 713 us (17.2 %)
+== final/tl_before_m8.json (3 steps): M=8, step median 6983.9 us (first barrier arrival -> last arrival at the end)
+stage     n    work    skew  barrier  interval   sum us
+inp      30   16.59    7.72     7.35     31.67    966.2
+gdn      30    8.62    2.11     3.18     13.91    426.7
+out      30   10.75    8.81     2.15     21.71    658.3
+router   40    4.31    4.41     3.85     12.57    532.0
+e1       40   31.24    7.11     2.55     40.90   1730.4
+e2       40   17.19    9.54     3.38     30.10   1248.2
+qkv      10   14.65    4.48     1.70     20.83    217.7
+attn     10   31.88    1.87     2.85     36.60    379.4
+o        10   18.70   16.55     2.11     37.35    391.8
+lm        1  230.98   13.68     0.00    244.66    244.5
+step parts: work 4231 us (62.3 %), skew 1684 us (24.8 %), barrier 880 us (13.0 %)
+fit work     =  8.25 us + bytes / 2.63 TB/s over inp, qkv, out, o, router (max |residual| 7.24 us); 120 stages: bytes part 509 us, fixed part 990 us
+fit interval = 19.63 us + bytes / 2.36 TB/s over inp, qkv, out, o, router (max |residual| 13.99 us); 120 stages: bytes part 565 us, fixed part 2356 us
+step split (GEMV bytes at 4.45 TB/s): stream 529 us (7.8 %), gemv_fixed 1069 us (15.7 %), gemv_skew 912 us (13.4 %), mixer 680 us (10.0 %), moe_unknown 2724 us (40.1 %), barrier 880 us (13.0 %)
+== final/tl_after_m1.json (3 steps): M=1, step median 3686.3 us (first barrier arrival -> last arrival at the end)
+stage     n    work    skew  barrier  interval   sum us
+inp      30   11.48    4.96     2.23     18.67    551.3
+gdn      30    2.55    0.46     2.80      5.82    190.7
+out      30    1.01    5.39     1.74      8.14    255.5
+router   40    0.64    3.06     1.77      5.47    237.0
+e1       40   14.45    2.25     2.41     19.11    747.9
+e2       40    1.82    8.21     2.40     12.43    493.9
+qkv      10    6.27    3.56     2.00     11.83    116.6
+attn     10    0.14   30.49     2.45     33.08    329.9
+o        10   14.45   12.03     3.04     29.52    294.3
+lm        1  273.18   36.44     0.00    309.62    281.5
+step parts: work 1562 us (44.6 %), skew 1381 us (39.5 %), barrier 556 us (15.9 %)
+fit work     =  1.54 us + bytes / 2.31 TB/s over inp, qkv, out, o, router, e1, e2 (max |residual| 9.26 us); 200 stages: bytes part 1071 us, fixed part 308 us
+fit interval = 11.00 us + bytes / 3.13 TB/s over inp, qkv, out, o, router, e1, e2 (max |residual| 16.18 us); 200 stages: bytes part 790 us, fixed part 2200 us
+step split (GEMV bytes at 4.45 TB/s): stream 784 us (22.4 %), gemv_fixed 697 us (19.9 %), gemv_skew 1048 us (30.0 %), mixer 413 us (11.8 %), barrier 556 us (15.9 %)
+== final/tl_after_m8.json (3 steps): M=8, step median 6427.2 us (first barrier arrival -> last arrival at the end)
+stage     n    work    skew  barrier  interval   sum us
+inp      30   14.58    7.39     2.11     24.08    746.5
+gdn      30    8.89    2.30     2.69     13.88    423.4
+out      30    1.64   13.21     1.61     16.46    527.9
+router   40    1.16    9.66     1.56     12.38    503.1
+e1       40   31.22    7.79     2.39     41.39   1720.0
+e2       40   16.99    9.18     3.27     29.44   1245.6
+qkv      10   13.56    1.91     1.89     17.36    178.1
+attn     10   29.66    3.04     2.35     35.04    360.5
+o        10   19.53   14.99     2.28     36.80    383.0
+lm        1  231.05   10.64     0.00    241.69    242.1
+step parts: work 3737 us (59.0 %), skew 1990 us (31.4 %), barrier 603 us (9.5 %)
+fit work     =  4.14 us + bytes / 2.10 TB/s over inp, qkv, out, o, router (max |residual| 11.38 us); 120 stages: bytes part 637 us, fixed part 497 us
+fit interval = 19.05 us + bytes / 5.14 TB/s over inp, qkv, out, o, router (max |residual| 16.14 us); 120 stages: bytes part 260 us, fixed part 2286 us
+step split (GEMV bytes at 4.45 TB/s): stream 529 us (8.4 %), gemv_fixed 609 us (9.6 %), gemv_skew 1207 us (19.1 %), mixer 674 us (10.6 %), moe_unknown 2708 us (42.8 %), barrier 603 us (9.5 %)

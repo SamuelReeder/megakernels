@@ -70,10 +70,12 @@ either; the GPU is faulty, not the kernels (`bench/results/m5/ctr-cx63-mi300x-12
   packed in the order the waves stream it. `v_mfma_f32_16x16x32_fp8_fp8` multiplies it
   with the fp8 activations the stage prologue wrote to LDS (power-of-two scale per row
   and 128 K).
-- **Split-K with a last arriver.** Each wave stores its partial sums; a device-scope
-  counter finds the last wave of an output group, which sums the partials in a fixed
-  order and runs the epilogue (residual, SiLU-mul, the causal conv of the DeltaNet
-  inputs).
+- **Split-K with a last arriver, or inside the CTA.** in_proj, qkv, out_proj and the
+  router give each CTA whole 16-row output groups; its waves sum their partials in LDS
+  in a fixed order and one wave runs the epilogue (no global partials, no atomics). The
+  other GEMVs store each wave's partial sums; a device-scope counter finds the last wave
+  of an output group, which sums the partials in a fixed order and runs the epilogue
+  (residual, SiLU-mul, the causal conv of the DeltaNet inputs).
 - **Mixers** run as wave tasks: the gated delta rule on a 16 x 128 fp32 slice of the
   state per wave; attention as (row, KV head, 64 positions) chunks whose partial softmax
   records the o_proj prologue merges.
@@ -90,7 +92,10 @@ for the slowest CU. At batch 1 the 240 layer stages take 3.16 ms (median stage s
 from 2.8 us for the DeltaNet tasks to 20 us for o_proj, plus 2 to 4.5 us per barrier)
 and the LM head 0.23 ms (`bench/results/timeline/profile_m1.txt`): the fixed cost per
 stage (prologue, partial hand-off, barrier) dominates, not the weight stream. Whole
-step: [`docs/timeline_m1.png`](docs/timeline_m1.png).
+step: [`docs/timeline_m1.png`](docs/timeline_m1.png). The CTA-local reduction (2026-10-29)
+cut this fixed cost: 3.68 -> 3.13 ms at batch 1 and 7.16 -> 6.66 ms at batch 8 against
+the previous code in the same hour on the same node (`bench/results/fsc/final/`;
+docs/DESIGN.md, "Fixed stage cost"). The timeline images show the previous code.
 
 ## vLLM integration
 

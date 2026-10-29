@@ -13,6 +13,7 @@ layers and steps, the "sum" column and the step parts per step (mean).
 Usage: python tools/stage_breakdown.py TIMELINE.json [TIMELINE_s0.json ...]
 """
 import json
+import os
 import statistics as st
 import sys
 
@@ -79,6 +80,27 @@ def breakdown(paths):
               f"(max |residual| {max(map(abs, res)):.2f} us); {nst} stages: bytes part "
               f"{stream:.0f} us, fixed part {nst * a:.0f} us")
         out[col] = (a, 1 / slope)
+    # step split: GEMV weight bytes (LM head included) at the LM head's stream rate (a
+    # stage that is all stream; STREAM_TBS=<TB/s> fixes it, to compare runs), the rest of
+    # the GEMV work (prologue, hand-off), late CTAs, mixer tasks, barriers
+    per = lambda k, i: sum(r[i] for r in rows[k]) / len(paths)  # noqa: E731
+    bw = BYTES["lm"] / 1e6 / st.median(r[0] for r in rows["lm"])  # MB / us = TB/s
+    bw = float(os.environ.get("STREAM_TBS", bw))
+    cat = dict(stream=0.0, gemv_fixed=0.0, gemv_skew=0.0, mixer=0.0, moe_unknown=0.0,
+               barrier=tot["barrier"])
+    for k in rows:
+        if k in fit:
+            s = len(rows[k]) / len(paths) * fit[k] / 1e6 / bw
+            cat["stream"] += s
+            cat["gemv_fixed"] += per(k, 0) - s
+            cat["gemv_skew"] += per(k, 1)
+        elif k in ("gdn", "attn"):
+            cat["mixer"] += per(k, 0) + per(k, 1)
+        else:
+            cat["moe_unknown"] += per(k, 0) + per(k, 1)
+    T = sum(cat.values())
+    print(f"step split (GEMV bytes at {bw:.2f} TB/s): " + ", ".join(
+        f"{k} {v:.0f} us ({100 * v / T:.1f} %)" for k, v in cat.items() if v))
     return rows, tot, out
 
 

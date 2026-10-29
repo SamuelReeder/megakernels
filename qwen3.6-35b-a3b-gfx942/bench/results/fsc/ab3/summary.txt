@@ -1,0 +1,8 @@
+bench_base2_m1 3.674
+bench_base2_m8 7.123
+bench_base_m1 3.687
+bench_base_m8 7.117
+bench_cta2_m1 3.126
+bench_cta2_m8 6.912
+bench_cta_m1 3.145
+bench_cta_m8 6.904
