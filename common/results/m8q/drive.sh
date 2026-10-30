@@ -19,9 +19,9 @@ run() {  # run TAG VDIR VREV CMD
   { load "$tag"; VLLM_REV=$vr MK_TIME=40 $NRUN vllm "$T" "$vd" "mkdir -p /work/out/m8q && $*"; echo "rc $?"; } > "$O/$tag.log" 2>&1
   grep -hE "^LOAD|load average|^GPU\[|^[0-9]+ |TPOT|^rc|Error|error:" "$O/$tag.log" | grep -v "^\s*$" | cut -c1-200
 }
-Q6='cd qwen3.6-35b-a3b-gfx942 && MK_ATTN=TRITON_ATTN python bench/vllm_e2e.py run $M/Qwen3.6-35B-A3B-FP8 on'
-G='cd gemma4-26b-a4b-gfx942 && python bench/vllm_e2e.py run $M/gemma-4-26B-A4B-it-FP8-dynamic on'
-Q8='cd qwen3.8-27b-gfx942 && python bench/vllm_e2e.py $M/Qwen3.8-27B-Quark-AWQ-MXFP4 on'
+Q6='cd qwen3.6-35b-a3b-gfx942 && MK_ATTN=TRITON_ATTN python bench/vllm_e2e.py run \$M/Qwen3.6-35B-A3B-FP8 on'
+G='cd gemma4-26b-a4b-gfx942 && python bench/vllm_e2e.py run \$M/gemma-4-26B-A4B-it-FP8-dynamic on'
+Q8='cd qwen3.8-27b-gfx942 && python bench/vllm_e2e.py \$M/Qwen3.8-27B-Quark-AWQ-MXFP4 on'
 for r in 1 2 3; do
   if [ $((r % 2)) = 1 ]; then order="base new"; else order="new base"; fi
   for k in $order; do
