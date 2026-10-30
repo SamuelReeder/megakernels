@@ -1,0 +1,8 @@
+# git -C vllm diff --stat 9fc7bc243 0332fdc96 (qwen38-gfx942-tp2 vs qwen38-gfx942-specialized-decode heads); empty = identical trees
+rc 0
+# git log --oneline -3 0332fdc96
+0332fdc96 [ROCm][Perf] specialized decode: compile key on Cfg.compiled() (megakernels cb685fc)
+e053aba09 Merge users/sareeder/qwen38-gfx942-tp2 (aa9c7ae58) into the TP1 branch
+aa9c7ae58 [ROCm][Perf] specialized decode: run-time max_model_len (megakernels rt2, Cfg.rt_geom 2 at TP1): one kernel build serves every max_model_len
+# merge-base --is-ancestor cfc4c8c5b 0332fdc96 (fast-forward for the fork)
+rc 0

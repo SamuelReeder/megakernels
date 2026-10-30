@@ -1030,9 +1030,12 @@ Docs only, no code change. Files: `README.md` (layout, dependency rule),
   C)` is the case without leading dims (goldens: the same bytes). Rejected: `(t, C,
   nrest=None)` (reorders every Qwen3.6 / Gemma call) and two functions with one name.
 - D15. Qwen3.8's vLLM target is `qwen38-gfx942-tp2` (as for oracle 5 since M3); it runs
-  TP 1 too. `qwen38-gfx942-specialized-decode` keeps its pre-TP2, pre-`mkcore` kernel copy
-  (it imports its own `kernels/gemv.py`, `fp4.py`, which stay): re-exporting `main` there
-  would need the TP2 runtime commits. Not re-exported.
+  TP 1 too. Until 2026-10-30 `qwen38-gfx942-specialized-decode` kept its pre-TP2,
+  pre-`mkcore` kernel copy. Closed by the hipDNN route's step 1a: that branch merges
+  `qwen38-gfx942-tp2` (`e053aba09`, a fast-forward for the fork; the one conflict, its
+  per-model `compile_key` in `kernels/kernel.py`, takes the TP2 branch's `mkcore` key) and
+  then gets the same export (`0332fdc96`); its `vllm/` tree equals the TP2 branch's
+  (`common/results/compiled/`).
 
 ## Rejected alternatives
 
