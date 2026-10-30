@@ -1,0 +1,4 @@
+M=1 steps=64: 3 runs bitwise equal: True
+logits sha256 dc59fa9ecba1e506
+tp 2 ar fp32: ranks bitwise equal every step: True
+PASS
