@@ -13,7 +13,10 @@ width:
      (`kernel.launch`), then with the code object, then FlyDSL again, each from zeroed
      pages; sha256 of every step's output bytes (the normed hidden states: the vLLM
      objects have no LM head).
-  3. The ELF that the runtime's FlyDSL launcher compiled has the manifest sha256.
+  3. The runtime Cfg compiled again as export_co.py compiles it (a fresh process,
+     canonical serialization) gives the manifest sha256. Reported, not required: whether
+     the runtime launcher's own JIT ELF has the same bytes and kernel name (FlyDSL
+     0.4.0's in-process serialization varies for some kernels; NOTES.md).
 PASS: 1 and 3 hold and the three output hashes are equal, on every rank.
 
 Usage (vLLM image, checkout first on PYTHONPATH: common/scripts/vrun):
@@ -150,8 +153,16 @@ def _h1_rank(model, co_dir: str, Ms: list, steps: int) -> dict:
         row["file_sha_ok"] = hashlib.sha256(elf).hexdigest() == e["sha256"]
         st = Staging(dec, sfc, w, steps)
         row["fly"] = st.run(lambda g: dec.launch(w, g))
-        relf, _, _ = X.elf_of(dec.launches[w])
-        row["runtime_elf_sha_ok"] = hashlib.sha256(relf).hexdigest() == e["sha256"]
+        # this process's runtime Cfg, compiled again as export_co.py does (fresh process,
+        # canonical serialization), gives the manifest bytes
+        tmp = pathlib.Path(os.environ.get("TMPDIR", "/tmp")) / f"h1_rebuild_{os.getpid()}_{w}.co"
+        relf, _ = X.compile_fresh(kmod, cfg, nl, dep["arch"], str(tmp))
+        tmp.unlink()
+        row["rebuild_sha_ok"] = hashlib.sha256(relf).hexdigest() == e["sha256"]
+        # informational: the launcher's own JIT ELF (FlyDSL 0.4.0 serialization varies)
+        jelf, jsym, _ = X.elf_of(dec.launches[w])
+        row["runtime_jit_same_bytes"] = jelf == elf
+        row["runtime_jit_same_symbol"] = jsym == e["symbol"]
         mod, fn = ctypes.c_void_p(), ctypes.c_void_p()
         _ck(hip.hipModuleLoadData(ctypes.byref(mod), elf), "hipModuleLoadData")
         _ck(hip.hipModuleGetFunction(ctypes.byref(fn), mod, e["symbol"].encode()),
@@ -172,7 +183,7 @@ def _h1_rank(model, co_dir: str, Ms: list, steps: int) -> dict:
         hashes = {row["fly"][0], row["co"][0], row["fly2"][0]}
         finite = row["fly"][1] and row["co"][1] and row["fly2"][1]
         ok = (len(hashes) == 1 and finite and not row["fields"] and row["file_sha_ok"]
-              and row["runtime_elf_sha_ok"])
+              and row["rebuild_sha_ok"])
         row["status"] = "PASS" if ok else "FAIL"
     return dict(rank=rank, dep=dep, rows=rows, nlayers=nl)
 
@@ -231,7 +242,9 @@ def main():
                           f"maxlen={maxlen} tp={d['tp']} rank={row['rank']} M={row['M']} "
                           f"src={row['src'][:16]} file={row.get('file')} "
                           f"fields_differ={row.get('fields')} file_sha_ok={row.get('file_sha_ok')} "
-                          f"runtime_elf_sha_ok={row.get('runtime_elf_sha_ok')} "
+                          f"rebuild_sha_ok={row.get('rebuild_sha_ok')} "
+                          f"runtime_jit_same_bytes={row.get('runtime_jit_same_bytes')} "
+                          f"runtime_jit_same_symbol={row.get('runtime_jit_same_symbol')} "
                           f"flydsl={row.get('fly')} co={row.get('co')} flydsl_again={row.get('fly2')}",
                           flush=True)
     unchecked = sorted(e["file"] for e in man if e["model"] == a.model and e["file"] not in seen)

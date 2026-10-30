@@ -43,6 +43,7 @@ MANIFEST_KEYS = ("model", "src", "arch", "cus", "kv", "block", "M", "tp", "rt", 
 # the launch ABI of every megakernel: tab (i64), glob (i64), nlayers (i32), by value
 KERNARGS = [(0, 8), (8, 8), (16, 4)]
 NT_AMDGPU_METADATA = 32
+SELF = pathlib.Path(__file__).resolve()  # absolute: workers and --compile processes
 
 
 def parse_deploy(spec: str) -> dict:
@@ -136,15 +137,68 @@ def elf_of(launcher) -> tuple[bytes, str, int]:
     return bytes(objs[0]), str(kref[-1]), 0
 
 
-def compile_only(launcher, tab_ptr: int, glob_ptr: int, nlayers: int) -> None:
-    import torch
+def canonical_compile(job: dict) -> None:
+    """`--compile` (a fresh process): the code object of one Cfg, independent of the
+    process. FlyDSL traces and lowers it (COMPILE_ONLY, CPU only); the lowered module
+    before `gpu-module-to-binary` (FlyDSL's IR dump) is printed without locations,
+    parsed again, and serialized with FlyDSL's binary pass. FlyDSL 0.4.0's own binary
+    varies from process to process for some kernels (register allocation; Qwen3.6 M = 1,
+    2) although the printed IR is the same: the in-memory module differs, and a parsed
+    module does not (NOTES.md). A fresh process also keeps the kernel name a function of
+    the Cfg: tracing sets mkcore.dev.PROBE["on"], which the next build's key holds.
+    Writes job['out'] and prints `COMPILED {json}`."""
+    import tempfile
 
-    os.environ["COMPILE_ONLY"] = "1"
-    try:
-        r = launcher(tab_ptr, glob_ptr, nlayers, stream=torch.cuda.current_stream())
-    finally:
-        del os.environ["COMPILE_ONLY"]
-    assert r is None
+    dump = tempfile.mkdtemp(prefix="co_dump_")
+    os.environ.update(COMPILE_ONLY="1", FLYDSL_DUMP_IR="1", FLYDSL_DUMP_DIR=dump,
+                      FLYDSL_COMPILE_ARCH=job["arch"], FLYDSL_GPU_ARCH=job["arch"],
+                      FLYDSL_RUNTIME_ENABLE_CACHE="0")
+    from flydsl._mlir import ir
+    from flydsl._mlir.dialects import gpu
+    from flydsl._mlir.passmanager import PassManager
+    from flydsl.compiler.backends import get_backend
+    from flydsl.compiler.jit_function import _create_mlir_context
+
+    kmod = importlib.import_module(job["module"])
+    cfg = eval(job["cfg"], {"Cfg": kmod.Cfg})  # noqa: S307 (our own repr)
+    assert repr(cfg) == job["cfg"], (repr(cfg), job["cfg"])
+    launcher = kmod.build(cfg)
+    assert launcher(0, 0, job["nlayers"]) is None
+    _, sym, lds = elf_of(launcher)
+    stages = sorted(pathlib.Path(dump).glob("*/[0-9][0-9]_*.mlir"))
+    nbin = [i for i, p in enumerate(stages) if p.name[3:] == "gpu_module_to_binary.mlir"]
+    assert len(nbin) == 1 and nbin[0] > 0, [p.name for p in stages]
+    lowered = stages[nbin[0] - 1].read_text()
+    fragment = get_backend(arch=job["arch"]).external_binary_pipeline_fragments(compile_hints={})[1]
+    with _create_mlir_context():
+        text = ir.Module.parse(lowered).operation.get_asm(enable_debug_info=False)
+    objs = []
+    with _create_mlir_context():
+        m = ir.Module.parse(text)
+        PassManager.parse(f"builtin.module({fragment})").run(m.operation)
+
+        def visit(op):
+            if op.name == "gpu.binary":
+                objs.extend(bytes(gpu.ObjectAttr(o).object) for o in ir.ArrayAttr(op.attributes["objects"]))
+            return ir.WalkResult.ADVANCE
+
+        m.operation.walk(visit)
+    assert len(objs) == 1, len(objs)
+    pathlib.Path(job["out"]).write_bytes(objs[0])
+    for p in sorted(pathlib.Path(dump).rglob("*"), reverse=True):
+        p.rmdir() if p.is_dir() else p.unlink()
+    os.rmdir(dump)
+    print("COMPILED " + json.dumps(dict(symbol=sym, lds_bytes=lds, fragment=fragment)), flush=True)
+
+
+def compile_fresh(kmod, cfg, nlayers: int, arch: str, out: str) -> tuple[bytes, dict]:
+    """canonical_compile of one Cfg in a fresh process: (ELF, its COMPILED fields)."""
+    job = dict(module=kmod.__name__, cfg=repr(cfg), nlayers=nlayers, arch=arch, out=out)
+    r = subprocess.run([sys.executable, "-B", str(SELF), "--compile",
+                        json.dumps(job)], capture_output=True, text=True)
+    lines = [ln for ln in r.stdout.splitlines() if ln.startswith("COMPILED ")]
+    assert r.returncode == 0 and len(lines) == 1, f"compile {job}: {r.stdout[-3000:]}{r.stderr[-3000:]}"
+    return pathlib.Path(out).read_bytes(), json.loads(lines[0][len("COMPILED "):])
 
 
 # ------------------------------------------------------------------ runtime objects
@@ -205,15 +259,16 @@ def _export_rank(model, out_dir: str, Ms: list) -> dict:
     objs = []
     for w in Ms:
         cfg = dec.cfgs[w]
-        launcher = kmod.build(cfg)
-        compile_only(launcher, dec.tab.data_ptr(), dec.glob.data_ptr(), nl)
-        elf, sym, lds = elf_of(launcher)
+        src = src_key(keymod, kdir, cfg)
+        f = f"{dep['model']}_M{w}_{src[:16]}.co"
+        tmp = pathlib.Path(out_dir) / f".{f}.rank{rank}"
+        elf, c = compile_fresh(kmod, cfg, nl, dep["arch"], str(tmp))
+        tmp.unlink()
+        sym, lds = c["symbol"], c["lds_bytes"]
         meta = elf_kernel_meta(elf)
         assert meta["symbol"] == sym, (meta["symbol"], sym)
         assert meta["target"].endswith("-" + dep["arch"]), (meta["target"], dep["arch"])
-        src = src_key(keymod, kdir, cfg)
         sha = hashlib.sha256(elf).hexdigest()
-        f = f"{dep['model']}_M{w}_{src[:16]}.co"
         if rank == 0:
             p = pathlib.Path(out_dir) / f
             if p.exists():
@@ -266,8 +321,12 @@ def main():
     ap.add_argument("--out")
     ap.add_argument("--deploy", action="append", default=[])
     ap.add_argument("--one", help=argparse.SUPPRESS)  # internal: one vLLM process
+    ap.add_argument("--compile", help=argparse.SUPPRESS)  # internal: canonical_compile
     ap.add_argument("--merge", nargs="+", metavar="DIR", help="merge export dirs into --out")
     a = ap.parse_args()
+    if a.compile:
+        canonical_compile(json.loads(a.compile))
+        return
     if a.one:
         export_one(json.loads(pathlib.Path(a.one).read_text()))
         return

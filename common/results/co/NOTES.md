@@ -10,11 +10,14 @@ check), `run_set.sh` (driver on this host) and `node_model.sh` (one model on the
    `PYTHONPATH`, vLLM nightly image, `common/scripts/vrun`) with the engine arguments of the
    models' `bench/vllm_e2e.py` and `load_format="dummy"`. The DecodeSpec binds the caches,
    so `kernel.cfgs[M]` is the `Cfg` that the vLLM runtime builds for that deployment. In
-   each TP rank (`llm.apply_model`) the script builds the checkout's
-   `kernels/kernel.build(cfg)`, calls it with `COMPILE_ONLY=1`, and takes the ELF from the
-   lowered module (`gpu.binary`, spike slice A). `src` =
-   `kernels/mkcore/key.compile_key(cfg.compiled(), <kernels dir>)` of the checkout (`cfg`
-   where the checkout has no `compiled()`, rt0). Every TP rank must give the same bytes.
+   each TP rank (`llm.apply_model`) the script compiles each `Cfg` in a fresh Python
+   process (`export_co.py --compile`, CPU only): the checkout's `kernels/kernel.build(cfg)`
+   with `COMPILE_ONLY=1` and FlyDSL's IR dump; the lowered module before
+   `gpu-module-to-binary` is printed without locations, parsed again, and serialized with
+   FlyDSL's own binary pass (canonical serialization, see "FlyDSL serialization" below).
+   `src` = `kernels/mkcore/key.compile_key(cfg.compiled(), <kernels dir>)` of the checkout
+   (`cfg` where the checkout has no `compiled()`, rt0). Every TP rank must give the same
+   bytes.
 2. Each deployment is exported twice (runs `a` and `b`, two vLLM processes each);
    `logs/determinism.log` compares the manifests and every file byte for byte.
 3. `h1_co.py` starts vLLM with the real weights on the same checkout and deployment. Per
@@ -24,9 +27,10 @@ check), `run_set.sh` (driver on this host) and `node_model.sh` (one model on the
    disjoint block tables, slot mappings and state indices) with the FlyDSL launch, then
    with the code object (`hipModuleLoadData`, `hipModuleLaunchKernel`, grid `cus`, block
    `block_threads`, `lds_bytes`, the runtime's `tab` and `glob`, `nlayers` = the model's
-   layer count), then FlyDSL again; and checks that the ELF that the runtime launcher
-   compiled has the manifest sha256. PASS: equal output hashes, finite outputs, equal
-   fields, equal sha256, on every rank.
+   layer count), then FlyDSL again; and compiles the runtime `Cfg` again as step 1 does
+   and requires the manifest sha256. PASS: equal output hashes, finite outputs, equal
+   fields, equal sha256, on every rank. Reported only: whether the runtime launcher's own
+   JIT ELF has the manifest bytes and kernel name.
 
 ## Field definitions (shared with MkEngine and the vLLM payload)
 
@@ -60,6 +64,32 @@ check), `run_set.sh` (driver on this host) and `node_model.sh` (one model on the
   serves all four (section 4 of the design lists 1 and 2 from the older branch).
 - The rt2 set exports Qwen3.8 TP1 and Qwen3.6 at max_model_len 4096 and 8192; the export
   asserts one object (one `src`, one sha256) per width for both.
+
+## FlyDSL serialization (Qwen3.6 rt0 determinism FAIL, 2026-10-30)
+
+First pipeline run (`f9e41ae`, in-process COMPILE_ONLY in the vLLM worker): Qwen3.6 rt0
+export runs a and b differ at M = 1 and 2 (same size, `.text` differs: register
+allocation, one extra instruction), and no H1 width had the runtime JIT's bytes, although
+all output hashes were equal (alola `~/coexport/sets/rt0/qwen36-35b-a3b-fp8-gfx942/logs/`,
+`~/mk/out/pipeline/c_rt0_q6.log`). Two causes, both outside the exporter's key:
+
+1. Kernel name. `build()` hashes `mkcore.dev.PROBE` into the key that names the kernel;
+   tracing sets `PROBE["on"]`, so a build after any trace in the process gets another
+   name (Qwen3.6 M = 1: `fe4610df` first build, `91b513f2` after). vLLM builds every
+   width before it traces any, so its names are the first-build names; an export after
+   vLLM's warmup is not. Same code in Qwen3.8 and Gemma (`D.PROBE` in their keys).
+2. Serialization. CPU-only compiles of one Qwen3.6 `Cfg` in fresh processes on the node:
+   the printed IR of every stage up to `reconcile-unrealized-casts`, the LLVM IR and the
+   ISA dump are identical (4 of 4), but FlyDSL's `gpu-module-to-binary` output varies
+   (M = 2: two variants in 4 processes; in one process too). The same pass on the printed
+   module parsed again gives one ELF: 12 of 12 (2 dumps x 3 processes x 2). [INFERENCE]
+   The in-memory module carries state that printing drops (for example use-list order),
+   and LLVM codegen depends on it.
+
+Fix in the exporter: one fresh process per object (first-build name) and serialization
+of the parsed module (`canonical_compile`). The vLLM runtime JIT keeps FlyDSL's own
+serialization, so its bytes may differ from the manifest; H1 reports that and requires
+equal outputs and an equal rebuild. Scripts and logs of the investigation: `det/`.
 
 ## Sets
 
