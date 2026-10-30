@@ -109,7 +109,7 @@ class Slurm:
 
     def probe(self, job, gpus):
         cmd = ("hostname; test -d $HOME/mk/models && echo HOME_OK; "
-               "rocminfo 2>/dev/null | grep -m1 -oE 'gfx[0-9a-f]+'")
+               "rocminfo 2>/dev/null | grep -m1 -oE 'gfx[0-9a-f]+'; true")  # CPU nodes: no gfx
         try:
             r = subprocess.run(["srun", f"--jobid={job}", "--overlap", "-n1", "--time=3",
                                 "bash", "-c", cmd], capture_output=True, text=True, timeout=600)
