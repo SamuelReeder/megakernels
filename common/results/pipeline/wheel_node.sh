@@ -15,8 +15,16 @@ trap 'cd /; rm -rf "$W"' EXIT
 export PIP_CACHE_DIR=$W/pipcache XDG_CACHE_HOME=$W/cache PYTHONNOUSERSITE=1
 mkdir -p "$W" "$out" && cd "$W" || exit 2
 echo "start $(date -Is) $(hostname) nproc=$(nproc) rocm-libraries $RL_SHA set $final"
+# the build reads the root CMake files, cmake/, dnn-providers/, projects/hipdnn/ and shared/
+# (about 0.3 GB of the 11 GB tree): a sparse, blob-filtered fetch, retried (a full depth-1
+# fetch broke off once with "unexpected disconnect while reading sideband packet")
 git init -q src && git -C src remote add origin https://github.com/ROCm/rocm-libraries.git \
-  && git -C src fetch -q --depth 1 origin "$RL_SHA" && git -C src checkout -q FETCH_HEAD || exit 2
+  && git -C src sparse-checkout set cmake dnn-providers projects/hipdnn shared .dvc || exit 2
+for i in 1 2 3 4; do
+  git -C src fetch -q --depth 1 --filter=blob:none origin "$RL_SHA" && git -C src checkout -q FETCH_HEAD && break
+  echo "fetch attempt $i failed $(date -Is)"; sleep 60
+done
+[ "$(git -C src rev-parse HEAD 2>/dev/null)" = "$RL_SHA" ] || exit 2
 echo "src $(git -C src log --oneline -1)"
 D=dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel
 TOOL=src/dnn-providers/hip-kernel-provider/descriptor-packaging/tools/hkp_megakernel_lock.py
