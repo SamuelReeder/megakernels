@@ -23,12 +23,16 @@
 #   Payloads: every "launches through hipDNN ... payload" line selects exactly one
 #       manifest entry (all key fields equal).
 #
-# Env: MK_CO (megakernels worktree of users/sareeder/co-export, run_set.sh), RL (rocm-
+# Env: MK_CO (megakernels worktree of users/sareeder/co-export, run_set.sh), FINAL (the
+#   set's merged directory, default MK_CO's common/results/co/rt2/final), RL (rocm-
 #   libraries checkout that merges users/sareeder/hipdnn-vllm-custom-op 0398903c801 and
 #   the megakernel engine branch 85a5c480493), VLLM_WT (vLLM worktrees), OUT (results,
 #   default this directory/gpu), M (models dir on the node), WHEEL_ENV (build_wheel.sh
 #   VENV/WORK/KPACK_PYTHON_DIR settings: a venv with the vLLM image's torch, so that _C
 #   loads in the image).
+# common/results/pipeline/ runs these stages unattended on the Alola login node: it calls
+#   `e2e_plan.sh info K` and `e2e_plan.sh cmd K RES WHEEL` for the node commands, and
+#   `e2e_plan.sh check` with OUT and FINAL on the Alola home.
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
@@ -37,6 +41,7 @@ RL=${RL:-/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-engin
 VLLM_WT=${VLLM_WT:-/home/sareeder/ROCm-workspace/worktrees/vllm}
 OUT=${OUT:-$here/gpu}
 SET=rt2
+FINAL=${FINAL:-$MK_CO/common/results/co/$SET/final}
 DESC=$RL/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel
 # vLLM heads with the hipDNN launch backend, and the rt2 set's commits they sit on:
 # the commit does not touch kernels/, so src (the kernels/ hash) is the set's.
@@ -52,10 +57,30 @@ declare -A W=([q8]=Qwen3.8-27B-Quark-AWQ-MXFP4 [q8tp2]=Qwen3.8-27B-Quark-AWQ-MXF
 declare -A ENVS=([q8]="MK_ATTN=ROCM_ATTN" [q8tp2]="MK_ATTN=ROCM_ATTN MK_TP=2 VLLM_SPECIALIZED_DECODE_CHECK_PATHS=1"
                  [q6]="MK_ATTN=TRITON_ATTN" [g]="MK_ATTN=TRITON_ATTN")
 OPS_ON=attention,encoder_attention,rms_norm,fused_add_rms_norm,layer_norm,custom_op
+# bench/vllm_e2e.py CLI: Qwen3.8 takes WEIGHTS MODE OUT; Qwen3.6 and Gemma take run WEIGHTS MODE OUT.
+declare -A E2E=([q8]="bench/vllm_e2e.py" [q8tp2]="bench/vllm_e2e.py"
+                [q6]="bench/vllm_e2e.py run" [g]="bench/vllm_e2e.py run")
 
-stage=${1:?usage: e2e_plan.sh export|stage|wheel|runs|drop|check [JOBID]}
+# node_cmd K RES WHEEL: the command of stage 4 for model K, run in the model directory in
+# the vLLM image; results in RES, the wheel file (glob) WHEEL. MODES selects a subset.
+node_cmd() {
+  local k=$1 res=$2 whl=$3 mode
+  local rep="HIPDNN_VLLM_REPORT_DIR=$res/rep"
+  local e2e="${ENVS[$k]} python ${E2E[$k]} \$M/${W[$k]} on"
+  local cmd="pip install -q --no-deps $whl && mkdir -p $res/rep"
+  for mode in ${MODES:-flydsl hipdnn default nowheel}; do
+    case $mode in
+      flydsl|hipdnn) cmd+=" && VLLM_SPECIALIZED_DECODE_LAUNCH=$mode HIPDNN_VLLM_OPS=$OPS_ON $rep/$mode $e2e $res/$mode.json" ;;
+      default) cmd+=" && $rep/default $e2e $res/default.json" ;;
+      nowheel) cmd+=" && pip uninstall -q -y hipdnn_vllm && $e2e $res/nowheel.json" ;;
+    esac
+  done
+  echo "$cmd"
+}
+
+stage=${1:?usage: e2e_plan.sh export|stage|wheel|runs|drop|check [JOBID] | info K | cmd K RES WHEEL}
 job=${2:-}
-mkdir -p "$OUT"
+case $stage in info|cmd) ;; *) mkdir -p "$OUT" ;; esac
 
 case $stage in
 export)  # 1. the set; then prove that the heads' kernels/ equal the set's
@@ -67,13 +92,15 @@ export)  # 1. the set; then prove that the heads' kernels/ equal the set's
   "$MK_CO/common/results/co/run_set.sh" "$job" "$SET"  # -> $MK_CO/common/results/co/rt2/final
   ;;
 stage)  # 2. DVC-local: the set's bytes in artifacts/, the lock, the generated KDP
-  final=$MK_CO/common/results/co/$SET/final
+  final=$FINAL
   mkdir -p "$DESC/artifacts"
   cp "$final/manifest.json" "$DESC/manifest.json"
   cp "$final"/*.co "$DESC/artifacts/"
   tool=$RL/dnn-providers/hip-kernel-provider/descriptor-packaging/tools/hkp_megakernel_lock.py
   python3 "$tool" generate --lock "$DESC/manifest.json"
   python3 "$tool" verify --lock "$DESC/manifest.json" | tee "$OUT/lock_verify.txt"
+  # configure compares the folder's file count with artifacts.dvc: record the new folder
+  (cd "$RL" && dvc add "$DESC/artifacts")
   ;;
 wheel)  # 3. on a compute node (build_wheel.sh compiles); BUILD_PINS gfx94X has the engine ON.
   # RL_ALOLA: the same rocm-libraries commit as RL, checked out on the Alola home, with
@@ -87,17 +114,7 @@ runs)  # 4. per model: flydsl, hipdnn, default (wheel, nothing opted in), no whe
   # MODES and WHEEL select a subset (stage 5); results on the Alola home, then fetched.
   wd=${WHEEL:-step8/wheel} tag=${TAG:-runs}
   for k in ${MODELS:-q8 q8tp2 q6 g}; do
-    res=\$HOME/step8/$tag/$k
-    rep="HIPDNN_VLLM_REPORT_DIR=$res/rep"
-    e2e="${ENVS[$k]} python bench/vllm_e2e.py \$M/${W[$k]} on"
-    cmd="pip install -q --no-deps \$HOME/$wd/hipdnn_vllm-*.whl && mkdir -p $res/rep"
-    for mode in ${MODES:-flydsl hipdnn default nowheel}; do
-      case $mode in
-        flydsl|hipdnn) cmd+=" && VLLM_SPECIALIZED_DECODE_LAUNCH=$mode HIPDNN_VLLM_OPS=$OPS_ON $rep/$mode $e2e $res/$mode.json" ;;
-        default) cmd+=" && $rep/default $e2e $res/default.json" ;;
-        nowheel) cmd+=" && pip uninstall -q -y hipdnn_vllm && $e2e $res/nowheel.json" ;;
-      esac
-    done
+    cmd=$(node_cmd "$k" "\$HOME/step8/$tag/$k" "\$HOME/$wd/hipdnn_vllm-*.whl")
     MK_TIME=240 VLLM_REV=${HEAD[$k]} "$root/common/scripts/vrun" "$root/${DIR[$k]}" "$VLLM_WT/${WT[$k]}" \
       -j "$job" "$cmd" > "$OUT/${tag}_$k.log" 2>&1 || echo "$k: run failed (see ${tag}_$k.log)"
     mkdir -p "$OUT/$tag/$k"
@@ -124,15 +141,18 @@ PY
 check)  # 6. verdicts from the fetched results
   { for k in q8 q8tp2 q6 g; do
     echo "== $k (vLLM ${HEAD[$k]})"
-    python3 - "$OUT/runs/$k" "$MK_CO/common/results/co/$SET/final/manifest.json" "$OUT/runs_$k.log" <<'PY'
+    python3 - "$OUT/runs/$k" "$FINAL/manifest.json" "$OUT/runs_$k.log" <<'PY' || echo "FAIL $k: check error (missing results?)"
 import glob, json, re, sys
 d, man, log = sys.argv[1:]
 r = {m: json.load(open(f"{d}/{m}.json")) for m in ("flydsl", "hipdnn", "default", "nowheel")}
-same = lambda a, b: all(x["tokens"] == y["tokens"] and x["logprobs"] == y["logprobs"]
+v = lambda ok: "PASS" if ok else "FAIL"
+# Qwen3.8 saves the generated tokens' logprobs, Qwen3.6 and Gemma the top-5 per position
+lp = lambda o: o["logprobs"] if "logprobs" in o else o["top"]
+same = lambda a, b: all(x["tokens"] == y["tokens"] and lp(x) == lp(y)
                         for x, y in zip(r[a]["outputs"], r[b]["outputs"]))
-print("H1 tokens+logprobs hipdnn == flydsl:", same("hipdnn", "flydsl"))
-print("H6 tokens default == no wheel:", all(x["tokens"] == y["tokens"] for x, y in
-      zip(r["default"]["outputs"], r["nowheel"]["outputs"])))
+print(v(same("hipdnn", "flydsl")), "H1 tokens+logprobs hipdnn == flydsl")
+print(v(all(x["tokens"] == y["tokens"] for x, y in zip(r["default"]["outputs"], r["nowheel"]["outputs"]))),
+      "H6 tokens default == no wheel")
 for B in ("1", "2", "4", "8"):
     f, h = r["flydsl"]["tpot_ms"][B], r["hipdnn"]["tpot_ms"][B]
     print(f"TPOT B={B}: flydsl {f:.3f} ms, hipdnn {h:.3f} ms ({(h / f - 1) * 100:+.2f} %)")
@@ -143,21 +163,34 @@ def rows(sub):
     return out
 cap = [x for x in rows("hipdnn") if "CAPTURE_INVARIANT" in json.dumps(x)]
 fb = [x for x in rows("hipdnn") if x.get("op") == "custom_op" and x.get("route") == "fallback"]
-print("H4 CAPTURE_INVARIANT rows:", len(cap), "custom_op fallback rows:", len(fb))
-print("H6 default custom_op rows:", len([x for x in rows("default") if x.get("op") == "custom_op"]))
+print(v(not cap and not fb), "H4 CAPTURE_INVARIANT rows:", len(cap), "custom_op fallback rows:", len(fb))
+n6 = len([x for x in rows("default") if x.get("op") == "custom_op"])
+print(v(n6 == 0), "H6 default custom_op rows:", n6)
 keys = ("model", "src", "arch", "cus", "kv", "block", "M", "tp", "rt", "lm_head")
 entries = json.load(open(man))
+n = 0
 for m in re.finditer(r"launches through hipDNN \S+; payload (\{.*\})", open(log).read()):
     p = json.loads(m.group(1))
     hits = [e for e in entries if all(e[k] == p[k] for k in keys)]
-    print("payload M", p["M"], "tp", p["tp"], "manifest entries:", len(hits))
+    n += 1
+    print(v(len(hits) == 1), "payload M", p["M"], "tp", p["tp"], "manifest entries:", len(hits))
+print(v(n > 0), "payload lines:", n)
 PY
   done
   for k in q8 q6; do  # H2
-    echo "== $k drop4: $(grep -c "width 4 keeps vLLM's path: hipDNN declined" "$OUT/drop4_$k.log") decline line(s) for width 4;" \
-      "$(grep -c 'launches through hipDNN' "$OUT/drop4_$k.log") launch line(s) (3 per cache bind);" \
-      "DecodeUnsupported: $(grep -c DecodeUnsupported "$OUT/drop4_$k.log"); hipdnn.json: $(ls "$OUT/drop4/$k/hipdnn.json" 2>/dev/null || echo missing)"
+    nd=$(grep -c "width 4 keeps vLLM's path: hipDNN declined" "$OUT/drop4_$k.log" 2>/dev/null || true)
+    nl=$(grep -c 'launches through hipDNN' "$OUT/drop4_$k.log" 2>/dev/null || true)
+    nu=$(grep -c DecodeUnsupported "$OUT/drop4_$k.log" 2>/dev/null || true)
+    [ "${nd:-0}" -gt 0 ] && [ "${nl:-0}" -gt 0 ] && [ "${nu:-0}" = 0 ] && [ -f "$OUT/drop4/$k/hipdnn.json" ] && h2=PASS || h2=FAIL
+    echo "$h2 H2 $k drop4: ${nd:-0} decline line(s) for width 4; ${nl:-0} launch line(s) (3 per cache bind);" \
+      "DecodeUnsupported: ${nu:-0}; hipdnn.json: $(ls "$OUT/drop4/$k/hipdnn.json" 2>/dev/null || echo missing)"
   done; } | tee "$OUT/verdicts.txt"
+  ;;
+info)  # model K: its directory and vLLM head
+  echo "${DIR[$job]} ${HEAD[$job]}"
+  ;;
+cmd)  # model K's stage 4 command (RES results dir, WHEEL wheel file) for the pipeline
+  node_cmd "$job" "${3:?RES}" "${4:?WHEEL}"
   ;;
 *) echo "unknown stage $stage" >&2; exit 2 ;;
 esac
