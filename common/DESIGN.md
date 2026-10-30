@@ -299,13 +299,18 @@ Design:
 
 1. `mkcore.SRC_HASH` = sha256 over the sorted relative paths and bytes of the package's
    `.py` files, computed at import.
-2. `mkcore.key.compile_key(cfg, pkg_dir, *extra)` = sha256 of `repr((cfg, *extra))`, then
-   `SRC_HASH`, then `source_hash(pkg_dir)` (sorted relative paths and bytes of the `.py`
-   files under the model's kernel package: `mk/` standalone, `kernels/` in vLLM, which
-   then holds `kernels/mkcore/` too). `extra` = the debug globals that change the traced
-   code: `PROFILE`, `D.PROBE` (all three models), `D.ARPROBE` (Qwen3.8). `dev.FENCE` and
-   `dev.CHAOS` need no entry: `build` sets them from `cfg.fence` / `cfg.chaos`, which
-   `repr(cfg)` holds. (Fixed at M1: this is the hotfix key plus `SRC_HASH`.)
+2. `mkcore.key.compile_key(cfg, pkg_dir, *extra)` = sha256 of `repr((cfg.compiled(),
+   *extra))`, then `SRC_HASH`, then `source_hash(pkg_dir)` (sorted relative paths and
+   bytes of the `.py` files under the model's kernel package: `mk/` standalone, `kernels/`
+   in vLLM, which then holds `kernels/mkcore/` too). `Cfg.compiled()` is the Cfg the code
+   object is built for: at `rt_geom` 2 its run-time fields (`maxlen`, `maxblocks*`) are 0,
+   at `rt_geom` 0 it is the Cfg itself; it is idempotent. So one code object has one key
+   whatever `max_model_len` the caller's Cfg holds (`common/tests/key_test.py`); the
+   hipDNN route's `src` is this key (`docs/hipdnn-route.md` section 4). `extra` = the
+   debug globals that change the traced code: `PROFILE`, `D.PROBE` (all three models),
+   `D.ARPROBE` (Qwen3.8). `dev.FENCE` and `dev.CHAOS` need no entry: `build` sets them
+   from `cfg.fence` / `cfg.chaos`, which `repr(cfg)` holds. (Fixed at M1: this is the
+   hotfix key plus `SRC_HASH`.)
 3. `mkcore.key.kernel_name(prefix, cfg, key)` = `f"{prefix}_m{cfg.M}_{crc32(key):08x}"`
    (the current format; the crc is now of the key, not of `repr(cfg)`).
 4. `build` binds `key` (a `str`) in the closure of the `@flyc.jit` launcher with the
