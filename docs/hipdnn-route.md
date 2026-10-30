@@ -1,10 +1,25 @@
 # Shipping the megakernels through hipDNN to vLLM: design
 
-Status: design, 2026-10-30. No RFC cycle. Each part lands as a small PR behind a default-OFF flag.
+Status: implemented and validated on MI300X, 2026-10-30. No RFC cycle. Each part lands as a small PR behind a default-OFF flag.
 Each decision in section 5 has a recommendation and the evidence that reverses it; the decisions
 do not block implementation. Only two items need sign-off from another team: the hipdnn_vllm
 generic op and its `strict` semantics (D2, #14255 owner dpeabody-amd), and write access to the DVC
 `ingestor` remote (D5, hip-kernel-provider owners).
+
+## Implementation status (2026-10-30)
+
+| Step | Branch, head | Result |
+|---|---|---|
+| 1a | megakernels `users/sareeder/cfg-compiled` `4380245` (PR #16); vLLM fork `qwen38-gfx942-specialized-decode`, `qwen38-gfx942-tp2`, `qwen36-gfx942-specialized-decode`, `gemma4-moe-batch` | Gates new == main; greedy smoke equal at TP1 (4096, 8192). TP2 differs within vLLM's TP2 run-to-run spread. |
+| 1 | megakernels `users/sareeder/co-export` `0cafc63` (PR #17) | 16 objects (manifest sha256 `5b83b31430d7`), two exports byte-equal, H1 28/28. FlyDSL 0.4.0 binary output varies per process; the exporter compiles each object in a fresh process with canonical serialization. |
+| 4 | rocm-libraries `users/sareeder/megakernel-engine` `18c6ef46d60` | OFF and ON builds and unit tests pass; sha256 lock check fails the build on mismatch; GPU integration test passes on gfx942. |
+| 6 | rocm-libraries `users/sareeder/hipdnn-vllm-custom-op` `adeef272211` | custom_op tests pass on gfx942. The wheel must build in the image that runs it (glibc). The other failures are also on #14255's head. |
+| 8 | vLLM fork heads `e745c7910`, `b9a1943fb`, `81b2b128d`, `3cd36e151` | `VLLM_SPECIALIZED_DECODE_LAUNCH=hipdnn`. e2e: H1, H2, H4, H6 pass for Qwen3.8 TP1, Qwen3.6, Gemma4; H3 passes at TP2; TPOT within +0.8 % of FlyDSL at B = 1-8. |
+
+Evidence: `common/results/step8/gpu/` and `common/results/pipeline/` on this branch. Not tested: H7
+(launch-failure injection on one TP2 rank) and H5 on a GPU with fewer free CUs. TP2 tokens are not
+bitwise repeatable in vLLM itself (FlyDSL vs FlyDSL: 6 of 8 prompts equal), so TP2 H1 rests on the
+per-step output hashes in the exporter's H1 check. Nothing is pushed to the DVC `ingestor` remote.
 
 ## 0. Evidence references
 
