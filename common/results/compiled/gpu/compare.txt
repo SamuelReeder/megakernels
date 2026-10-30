@@ -1,0 +1,8 @@
+GATE q8 hashes.txt new=main PASS
+GATE q8 isa.txt new=main PASS
+GATE q6 hashes.txt new=main PASS
+GATE q6 isa.txt new=main PASS
+GATE g hashes.txt new=main PASS
+GATE g isa.txt new=main PASS
+GATE q8tp2 hashes.txt new=main PASS
+GATE q8tp2 isa.txt new=main PASS

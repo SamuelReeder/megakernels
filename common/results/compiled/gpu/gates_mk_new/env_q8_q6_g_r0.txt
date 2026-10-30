@@ -1,0 +1,7 @@
+2026-10-30T13:05:40-04:00
+ctr-cx66-mi300x-31.adc.amd.com
+job 68215802 rank 0 parts q8 q6 g
+gfx942
+torch 2.14.1+rocm7.2 flydsl 0.4.0 1 GPUs
+9a195e4b6a73a87b5e78b293789afe8dba125b5a
+2026-10-30T15:01:30-04:00

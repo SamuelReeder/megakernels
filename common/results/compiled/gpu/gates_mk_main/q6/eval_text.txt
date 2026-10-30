@@ -1,0 +1,10 @@
+5 passages, [145, 98, 77, 189, 83] tokens
+fp8 runs 201s
+bf16 runs 392s
+passage 0: ppl kernel 1.098 fp8 1.099 bf16 1.099 | top1 kernel=fp8 1.000 kernel=bf16 0.993 fp8=bf16 0.993 | KL(bf16||kernel) 0.0008 KL(bf16||fp8) 0.0007 | batch-invariant True
+passage 1: ppl kernel 3.572 fp8 3.519 bf16 3.514 | top1 kernel=fp8 0.990 kernel=bf16 0.990 fp8=bf16 1.000 | KL(bf16||kernel) 0.0058 KL(bf16||fp8) 0.0031 | batch-invariant True
+passage 2: ppl kernel 1.507 fp8 1.509 bf16 1.503 | top1 kernel=fp8 1.000 kernel=bf16 1.000 fp8=bf16 1.000 | KL(bf16||kernel) 0.0013 KL(bf16||fp8) 0.0006 | batch-invariant True
+passage 3: ppl kernel 1.122 fp8 1.122 bf16 1.117 | top1 kernel=fp8 1.000 kernel=bf16 0.989 fp8=bf16 0.989 | KL(bf16||kernel) 0.0031 KL(bf16||fp8) 0.0032 | batch-invariant True
+passage 4: ppl kernel 2.717 fp8 2.715 bf16 2.737 | top1 kernel=fp8 0.964 kernel=bf16 0.952 fp8=bf16 0.976 | KL(bf16||kernel) 0.0044 KL(bf16||fp8) 0.0023 | batch-invariant True
+all: ppl kernel 1.589 fp8 1.585 bf16 1.584
+PASS
