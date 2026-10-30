@@ -1,0 +1,7 @@
+# 2026-10-30T12:10:29+00:00 gemma4-moe-batch 3cd36e1519ccb5e9a0f228342d7f7c7bd2491532 dirty 0; ruff 0.14.0
+## ruff check
+All checks passed!
+rc 0
+## ruff format --check
+25 files already formatted
+rc 0
