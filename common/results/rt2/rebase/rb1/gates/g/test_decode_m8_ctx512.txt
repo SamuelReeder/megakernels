@@ -1,0 +1,27 @@
+node quanta-ccs-aus-j02-45.adc.amd.com load+pack+build 13s cfg Cfg(M=8, cus=304, maxlen=536, block_s=16, maxblocks_s=34, kv_s=(65536, 512, 4096, 256), block_f=32, maxblocks_f=17, kv_f=(65536, 1024, 2048, 512), lm_head=True, c_qkv=1, c_o=4, c_router=1, c_e1=11, c_e2=2, c_lm=1, router_publish=True, combine_rows=True, e2_rows=True, e1_cta=True, debug_route=True, fence=False, chaos=False, rt_geom=0)
+reference prefill 512 x 8 rows: 5s
+step 0: kernel~emulate cos 0.988792 top1 1.00 | kernel~exact cos 0.992292 top1 1.00 (gap 0.000) | emulate~exact cos 0.989973 top1 1.00 | router cos min over layers 0.966644 (layer 0 1.000000) | routing-code layers wrong 0
+step 1: kernel~emulate cos 0.987264 top1 1.00 | kernel~exact cos 0.966174 top1 0.88 (gap 0.057) | emulate~exact cos 0.929428 top1 0.88 | router cos min over layers 0.985047 (layer 0 1.000000) | routing-code layers wrong 0
+step 2: kernel~emulate cos 0.962181 top1 1.00 | kernel~exact cos 0.974827 top1 1.00 (gap 0.000) | emulate~exact cos 0.977921 top1 1.00 | router cos min over layers 0.969860 (layer 0 1.000000) | routing-code layers wrong 0
+step 3: kernel~emulate cos 0.983540 top1 1.00 | kernel~exact cos 0.983011 top1 1.00 (gap 0.000) | emulate~exact cos 0.989470 top1 1.00 | router cos min over layers 0.989062 (layer 0 1.000000) | routing-code layers wrong 0
+step 4: kernel~emulate cos 0.984327 top1 1.00 | kernel~exact cos 0.983240 top1 1.00 (gap 0.000) | emulate~exact cos 0.991348 top1 1.00 | router cos min over layers 0.992839 (layer 0 1.000000) | routing-code layers wrong 0
+step 5: kernel~emulate cos 0.956146 top1 0.88 | kernel~exact cos 0.960318 top1 1.00 (gap 0.000) | emulate~exact cos 0.989308 top1 0.88 | router cos min over layers 0.791280 (layer 0 1.000000) | routing-code layers wrong 0
+step 6: kernel~emulate cos 0.950987 top1 1.00 | kernel~exact cos 0.983125 top1 1.00 (gap 0.000) | emulate~exact cos 0.971630 top1 1.00 | router cos min over layers 0.981642 (layer 0 1.000000) | routing-code layers wrong 0
+step 7: kernel~emulate cos 0.985196 top1 0.88 | kernel~exact cos 0.989980 top1 1.00 (gap 0.000) | emulate~exact cos 0.990181 top1 0.88 | router cos min over layers 0.987522 (layer 0 1.000000) | routing-code layers wrong 0
+step 8: kernel~emulate cos 0.955733 top1 1.00 | kernel~exact cos 0.984887 top1 1.00 (gap 0.000) | emulate~exact cos 0.973206 top1 1.00 | router cos min over layers 0.909555 (layer 0 1.000000) | routing-code layers wrong 0
+step 9: kernel~emulate cos 0.984198 top1 1.00 | kernel~exact cos 0.991222 top1 1.00 (gap 0.000) | emulate~exact cos 0.986972 top1 1.00 | router cos min over layers 0.928071 (layer 0 1.000000) | routing-code layers wrong 0
+step 10: kernel~emulate cos 0.909178 top1 0.88 | kernel~exact cos 0.988773 top1 0.88 (gap 0.928) | emulate~exact cos 0.889358 top1 1.00 | router cos min over layers 0.905687 (layer 0 1.000000) | routing-code layers wrong 0
+step 11: kernel~emulate cos 0.970911 top1 1.00 | kernel~exact cos 0.814231 top1 1.00 (gap 0.000) | emulate~exact cos 0.911363 top1 1.00 | router cos min over layers 0.985897 (layer 0 1.000000) | routing-code layers wrong 0
+step 12: kernel~emulate cos 0.974298 top1 1.00 | kernel~exact cos 0.964813 top1 1.00 (gap 0.000) | emulate~exact cos 0.972507 top1 1.00 | router cos min over layers 0.873707 (layer 0 1.000000) | routing-code layers wrong 0
+step 13: kernel~emulate cos 0.972328 top1 1.00 | kernel~exact cos 0.960720 top1 1.00 (gap 0.000) | emulate~exact cos 0.959208 top1 1.00 | router cos min over layers 0.978868 (layer 0 1.000000) | routing-code layers wrong 0
+step 14: kernel~emulate cos 0.982349 top1 1.00 | kernel~exact cos 0.987178 top1 1.00 (gap 0.000) | emulate~exact cos 0.980176 top1 1.00 | router cos min over layers 0.974100 (layer 0 1.000000) | routing-code layers wrong 0
+step 15: kernel~emulate cos 0.951635 top1 0.75 | kernel~exact cos 0.955500 top1 0.88 (gap 0.530) | emulate~exact cos 0.971921 top1 0.88 | router cos min over layers 0.959181 (layer 0 1.000000) | routing-code layers wrong 0
+kernel~emulate: worst cos 0.909178 top1 0.961
+kernel~exact:   worst cos 0.814231 top1 0.977
+emulate~exact:  worst cos 0.889358 top1 0.969
+routing vs emulate (drifted inputs; information): 1437 (row, layer, step) expert-set differences of 3840
+steps with a top-1 change at an exact logit gap > 0.5 (information): kernel 2, emulating reference 0
+I5: steps where two CTAs built different routing tables: 0
+routing code: steps where a layer's tables differ from route_logits of the kernel's logits: 0
+steps with non-finite logits (kernel or reference): 0
+PASS

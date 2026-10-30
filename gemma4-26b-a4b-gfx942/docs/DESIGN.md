@@ -549,6 +549,9 @@ Evidence (`bench/results/rt2/`, MI325X, job 68211382):
 - vLLM (`vllm/`, TP1, greedy): base vs rt2 tokens and logprobs bitwise equal at 4096 and
   8192. The rt2 vLLM TPOTs overlap another run on the same GPU and are not measurements.
   The vLLM branch keeps the rt0 kernels.
+- After the rebase onto main `e72a981` (common/ migration): rt0 ISA equals main's, one
+  rt2 ELF across maxlens (`isa_rebase.txt`); hash rt0 == rt2 and every hard gate PASS
+  (job 68213193, `common/results/rt2/rebase/summary.txt`).
 - Next: find the M = 1 cost before flipping the default.
 
 ## Decisions

@@ -1,0 +1,29 @@
+rt2 rebased onto main e72a981 (common/ migration M6-M9). One conflict: Gemma
+mk/kernel.py _attn_layer_t, main's SL.epi_raw (M7 stagelib) next to rt2's barrier_then(pre=ld_geo).
+
+1. Compile-only ISA, local FlyDSL 0.4.0 (*/bench/results/rt2/isa_rebase.txt), vLLM geometry,
+   lm_head off, M = 1 and 8:
+   - rt_geom 0 final ISA == main e72a981: Qwen3.8, Qwen3.6, Gemma (all 6 builds).
+   - rt_geom 2: one kernel name and one ELF across maxlen 4096 / 8192 / 16384 (Gemma 4096 / 8192)
+     per M; ISA hashes unchanged from before the rebase (isa_local.txt).
+
+2. GPU, job 68213193, quanta-ccs-aus-j02-45 (AUSTIN, MI325X, 2 GPUs), torch 2.14.1+rocm7.2,
+   FlyDSL 0.4.0, FLYDSL_RUNTIME_ENABLE_CACHE=0; jobs job1.sh, job2.sh, then
+   `srun -n2 common/scripts/gates.sh rb1/gates q8tp2`. BASE (/work/base): M1 hashes.txt, M7 isa.txt
+   (q8 and q8tp2: m7/fix, q6 and g: m7).
+   - vgeom.py (rb1/vgeom_q38.txt): Qwen3.8 rt0 == rt2 bitwise at block 784, x-packed KV,
+     maxlen 4096 and 8192, 1800 steps, M = 1, 2, 4, 8 (8 of 8 EQUAL).
+   - checks.sh hash (rb1/hash_*): logits hash rt_geom 0 == 2 at M = 1, 2, 4, 8 for q8, q6, g
+     (q6 and g also lm_head off). Qwen3.8 hashes equal M1's (4db972e0..., cf305425...).
+   - gates.sh q8 q6 g at the defaults (rb1/gates/summary.txt): every hard gate PASS and
+     hashes.txt=base PASS for all three. isa.txt=base FAIL for q8 and q6 is expected: their
+     default is rt_geom 2, a different kernel; Gemma (default 0) isa.txt=base PASS.
+     q8 eval_text failed at start (rc 1: the node lacked the BF16 checkpoint Qwen/Qwen3.8-27B;
+     the three BF16 references were then downloaded from HF onto the node); rerun PASS
+     (job2.sh, rb1/gates/summary_eval_text.txt). q6 and g eval_text ran after the download: PASS.
+   - rt_geom 0 ISA dumps vs base (rb1/isa_rt0/summary.txt): q8 PASS, q6 PASS; g FAIL on
+     M=1 lm=on only, 07771981c25e40dd vs f2c0314eb98ad89f. In the same job the gates' Gemma
+     build of the same config (rt_geom 0 is Gemma's default) gave f2c0314eb98ad89f (PASS), so
+     this is the documented Gemma M=1 lm_head-on build-to-build variant (common/DESIGN.md
+     open question 7; M6 saw the same 07771981c25e40dd), not rt2.
+   - q8tp2 (rt_geom 0 at TP2, rb1/gates/summary.txt): all 14 gates PASS, hashes and ISA = base.

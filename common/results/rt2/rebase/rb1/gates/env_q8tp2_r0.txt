@@ -1,0 +1,7 @@
+2026-10-29T21:55:13-04:00
+quanta-ccs-aus-j02-45.adc.amd.com
+job 68213193 rank 0 parts q8tp2
+gfx942
+torch 2.14.1+rocm7.2 flydsl 0.4.0 2 GPUs
+megakernels 677df60409bfc9f1e77312810005900e77b75942 dirty 7
+2026-10-29T22:11:14-04:00

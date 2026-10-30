@@ -689,6 +689,9 @@ Evidence (`bench/results/rt2/`, MI325X, job 68211382):
 - One ELF for maxlen 4096, 8192, 16384 (`isa_local.txt`).
 - vLLM (`vllm/`, TP1, greedy): base vs rt2 tokens and logprobs bitwise equal at
   `max_model_len` 4096 and 8192.
+- After the rebase onto main `e72a981` (common/ migration): rt0 ISA equals main's, one
+  rt2 ELF across maxlens (`isa_rebase.txt`); hash rt0 == rt2 and every hard gate PASS
+  (job 68213193, `common/results/rt2/rebase/summary.txt`).
 
 ## Correctness oracle
 

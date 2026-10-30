@@ -1,0 +1,24 @@
+2026-10-29T21:08:17-04:00
+quanta-ccs-aus-j02-45.adc.amd.com
+gfx942
+GPU[0]		: Card Series: 		AMD Instinct MI325X
+megakernels e0f184aa0cb3cde2a8449af93dc43b502afb4abe dirty 3
+rt_geom=0:
+HASH tp1 M=1 lm=on steps=16 layers=40 logits d5604309e6d480d9 finite True
+HASH tp1 M=2 lm=on steps=16 layers=40 logits b7ca25b1820fd3c6 finite True
+HASH tp1 M=4 lm=on steps=16 layers=40 logits 450529bb14a9acd7 finite True
+HASH tp1 M=8 lm=on steps=16 layers=40 logits cc940f489fa21d01 finite True
+HASH tp1 M=1 lm=off steps=16 layers=40 hidden 416bf85f760cfce9 finite True
+HASH tp1 M=2 lm=off steps=16 layers=40 hidden 330e6a953f46de98 finite True
+HASH tp1 M=4 lm=off steps=16 layers=40 hidden 9c2ab9c777ba6878 finite True
+HASH tp1 M=8 lm=off steps=16 layers=40 hidden 7197290b3d310bc8 finite True
+rt_geom=2:
+HASH tp1 M=1 lm=on steps=16 layers=40 logits d5604309e6d480d9 finite True
+HASH tp1 M=2 lm=on steps=16 layers=40 logits b7ca25b1820fd3c6 finite True
+HASH tp1 M=4 lm=on steps=16 layers=40 logits 450529bb14a9acd7 finite True
+HASH tp1 M=8 lm=on steps=16 layers=40 logits cc940f489fa21d01 finite True
+HASH tp1 M=1 lm=off steps=16 layers=40 hidden 416bf85f760cfce9 finite True
+HASH tp1 M=2 lm=off steps=16 layers=40 hidden 330e6a953f46de98 finite True
+HASH tp1 M=4 lm=off steps=16 layers=40 hidden 9c2ab9c777ba6878 finite True
+HASH tp1 M=8 lm=off steps=16 layers=40 hidden 7197290b3d310bc8 finite True
+hash rt0 == rt2: PASS

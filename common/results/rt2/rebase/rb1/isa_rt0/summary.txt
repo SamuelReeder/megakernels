@@ -1,0 +1,3 @@
+GATE q8 isa_rt0=base PASS
+GATE q6 isa_rt0=base PASS
+GATE g isa_rt0=base FAIL

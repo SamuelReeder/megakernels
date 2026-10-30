@@ -1,0 +1,16 @@
+2026-10-29T21:04:18-04:00
+quanta-ccs-aus-j02-45.adc.amd.com
+gfx942
+GPU[0]		: Card Series: 		AMD Instinct MI325X
+megakernels e0f184aa0cb3cde2a8449af93dc43b502afb4abe dirty 3
+rt_geom=0:
+HASH tp1 M=1 lm=on steps=8 layers=64 logits 4db972e0ec306d4f rank-slice 4db972e0ec306d4f finite True
+HASH tp1 M=2 lm=on steps=8 layers=64 logits c33baa53118edc27 rank-slice c33baa53118edc27 finite True
+HASH tp1 M=4 lm=on steps=8 layers=64 logits 412eec22e6dbe80b rank-slice 412eec22e6dbe80b finite True
+HASH tp1 M=8 lm=on steps=8 layers=64 logits cf305425fce9de61 rank-slice cf305425fce9de61 finite True
+rt_geom=2:
+HASH tp1 M=1 lm=on steps=8 layers=64 logits 4db972e0ec306d4f rank-slice 4db972e0ec306d4f finite True
+HASH tp1 M=2 lm=on steps=8 layers=64 logits c33baa53118edc27 rank-slice c33baa53118edc27 finite True
+HASH tp1 M=4 lm=on steps=8 layers=64 logits 412eec22e6dbe80b rank-slice 412eec22e6dbe80b finite True
+HASH tp1 M=8 lm=on steps=8 layers=64 logits cf305425fce9de61 rank-slice cf305425fce9de61 finite True
+hash rt0 == rt2: PASS

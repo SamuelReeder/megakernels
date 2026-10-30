@@ -1,0 +1,11 @@
+# python common/results/rt2/vmodes.py (from qwen3.8-27b-gfx942/bench/results): cm6, cm8 = common/ migration runs (rt_geom 0 kernels, MI300X), rt2/vllm = PR #12 runs (MI325X)
+cm6/tp1_base_on.json: d325c288 2f706b54 0f7294ea 5c35b608 9a6ec758 187ed0ad fac45e8a ecb40c10 | prompt 1 logprob[1] -1.212131
+cm6/tp1_m6_on.json: d325c288 2f706b54 0f7294ea 5c35b608 9a6ec758 187ed0ad fac45e8a ecb40c10 | prompt 1 logprob[1] -1.212131
+cm8/tp1_base_r1.json: d325c288 f048d756 0f7294ea 5c35b608 9a6ec758 187ed0ad fac45e8a ecb40c10 | prompt 1 logprob[1] -1.250210
+cm8/tp1_new_r1.json: d325c288 2f706b54 0f7294ea 5c35b608 9a6ec758 187ed0ad fac45e8a ecb40c10 | prompt 1 logprob[1] -1.212131
+rt2/vllm/base_4096.json: d325c288 2f706b54 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.212131
+rt2/vllm/base_8192.json: d325c288 2f706b54 0f7294ea 5c35b608 9a6ec758 187ed0ad fac45e8a ecb40c10 | prompt 1 logprob[1] -1.212131
+rt2/vllm/rt2_4096.json: d325c288 f048d756 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.250210
+rt2/vllm/rt2_4096_run1.json: d325c288 f048d756 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.250210
+rt2/vllm/rt2_8192.json: d325c288 f048d756 0f7294ea 5c35b608 9a6ec758 187ed0ad fac45e8a ecb40c10 | prompt 1 logprob[1] -1.250210
+rt2/vllm/rt2_8192_run1.json: d325c288 f048d756 0f7294ea 5c35b608 9a6ec758 187ed0ad fac45e8a ecb40c10 | prompt 1 logprob[1] -1.250210
