@@ -1,0 +1,9 @@
+==== 2026-10-30T17:20:00 d_wheel attempt 1 job 68220723 gpus - tleft 262 min
+# 2026-10-30T17:20:00-04:00 d_wheel job 68220723 gpus - tleft 262 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=fc2f1664e7624c51b928a20dac76712be455d81d PIPE_REV="hipdnn-design fc2f166 dirty 0" RL_SHA=adeef27221140ff316429f13b658994777ff4f6b E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+PASS lock verify (full set)
+PASS wheel /home/AMD/sareeder/mk/out/pipeline/e2e/wheel/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (139 s)
+PASS lock verify (drop M=4)
+PASS wheel-drop4 /home/AMD/sareeder/mk/out/pipeline/e2e/wheel-drop4/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (41 s)
+/home/AMD/sareeder/mk/out/pipeline/e2e/wheel-drop4/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl
+/home/AMD/sareeder/mk/out/pipeline/e2e/wheel/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl
+RESULT d_wheel PASS rc=0 2026-10-30T17:24:18-04:00

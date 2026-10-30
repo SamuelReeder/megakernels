@@ -1,0 +1,4 @@
+==== 2026-10-30T17:25:03 e_q8 attempt 1 job 68220723 gpus 0 tleft 257 min
+# 2026-10-30T17:25:03-04:00 e_q8 job 68220723 gpus 0 tleft 257 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=fc2f1664e7624c51b928a20dac76712be455d81d PIPE_REV="hipdnn-design fc2f166 dirty 0" RL_SHA=adeef27221140ff316429f13b658994777ff4f6b E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+==== 2026-10-30T18:42:01 e_q8 attempt 2 job 68220723 gpus 0 tleft 180 min
+==== 2026-10-30T18:42:01 e_q8 attempt 2 job 68220723 gpus 0 tleft 180 min

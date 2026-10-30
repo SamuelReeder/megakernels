@@ -1,0 +1,21 @@
+node ctr-cx66-mi300x-31.adc.amd.com job 68218902 gpus 1 megakernels ac6c4a17fdca8f85e83837fab005d56d519b170f dirty 0; vllm 7f586cd2a60ca51b9c74c7a63a081651ddf9c13f dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+# 2026-10-30T13:13:30-04:00 ctr-cx66-mi300x-31.adc.amd.com megakernels ac6c4a17fdca8f85e83837fab005d56d519b170f dirty 0; vllm 7f586cd2a60ca51b9c74c7a63a081651ddf9c13f dirty 0
+gfx942
+GPU[0]		: Card Series: 		AMD Instinct MI300X
+flydsl 0.4.0 torch 2.13.0+rocm10.0.0 dev AMD Instinct MI300X cus 304
+export a: exit 0 MANIFEST /home/AMD/sareeder/coexport/sets/rt0/gemma4-26b-a4b-fp8-gfx942/a/manifest.json 4 objects sha256 f486aba4ff5d7051b17daca8272e48ebeb6b7683842adac25f8e7f1a10003707
+export b: exit 0 MANIFEST /home/AMD/sareeder/coexport/sets/rt0/gemma4-26b-a4b-fp8-gfx942/b/manifest.json 4 objects sha256 f486aba4ff5d7051b17daca8272e48ebeb6b7683842adac25f8e7f1a10003707
+# determinism: export runs a and b, 2026-10-30T13:22:28-04:00 ctr-cx66-mi300x-31.adc.amd.com
+manifest.json a == b: EQUAL
+files and sha256 a == b: EQUAL
+f486aba4ff5d7051b17daca8272e48ebeb6b7683842adac25f8e7f1a10003707  manifest.json
+4053b83d7cd86708fdca54aead761b4f91bc6f8eb9c53d2ab3b848cadb922ed1  gemma4-26b-a4b-fp8-gfx942_M1_90ae76949d6abf76.co
+3f77cc681e3c63455e501ea2d02051b1671491d824ad45d80b019f08ca4c6995  gemma4-26b-a4b-fp8-gfx942_M2_2941c148f48f8157.co
+df81a9940c654ce3fcc48d47668ebe16a46ea4cb3e0052c55d2be9995386ce8a  gemma4-26b-a4b-fp8-gfx942_M4_38128b0c5303aa58.co
+67ae815f3400caa50ecdc26e291d1d5bfceb0cc7f205a6d532b862374c34f45c  gemma4-26b-a4b-fp8-gfx942_M8_d3c2094a0772144e.co
+# H1 gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 M=[1, 2, 4, 8] steps=16
+H1 PASS model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=1 src=90ae76949d6abf76 file=gemma4-26b-a4b-fp8-gfx942_M1_90ae76949d6abf76.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['15f7cdc75a417e2a', True] co=['15f7cdc75a417e2a', True] flydsl_again=['15f7cdc75a417e2a', True]
+H1 PASS model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=2 src=2941c148f48f8157 file=gemma4-26b-a4b-fp8-gfx942_M2_2941c148f48f8157.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['e18c82909acdd7dd', True] co=['e18c82909acdd7dd', True] flydsl_again=['e18c82909acdd7dd', True]
+H1 PASS model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=4 src=38128b0c5303aa58 file=gemma4-26b-a4b-fp8-gfx942_M4_38128b0c5303aa58.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['93e620ff0b5b186d', True] co=['93e620ff0b5b186d', True] flydsl_again=['93e620ff0b5b186d', True]
+H1 PASS model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=8 src=d3c2094a0772144e file=gemma4-26b-a4b-fp8-gfx942_M8_d3c2094a0772144e.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['9f7a321e6548bd16', True] co=['9f7a321e6548bd16', True] flydsl_again=['9f7a321e6548bd16', True]
+H1-SUMMARY model=gemma4-26b-a4b-fp8-gfx942 pass 4/4 manifest objects of this model not checked: none

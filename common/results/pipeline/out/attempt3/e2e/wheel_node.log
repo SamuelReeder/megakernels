@@ -1,0 +1,14 @@
+start 2026-10-30T20:10:23+00:00 ctr-smc-s22-17.adc.amd.com nproc=32 rocm-libraries 9bb279d30d031a60a2d490150b081cee264086e8 set /home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7
+src 9bb279d Merge commit '18c6ef46d6073d9925740535ad1228780596b0a8' into users/sareeder/hipdnn-vllm-custom-op
+torch 2.13.0+rocm10.0.0 vllm 0.32.1rc1.dev117+gdf3bd094a
+descriptor folder: 16 of 16 objects (drop M=-)
+  size: 2229944
+  nfiles: 17
+PASS lock verify (full set)
+PASS wheel /home/AMD/sareeder/mk/out/pipeline/e2e/wheel/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (352 s)
+descriptor folder: 12 of 16 objects (drop M=4)
+  size: 1665321
+  nfiles: 13
+PASS lock verify (drop M=4)
+PASS wheel-drop4 /home/AMD/sareeder/mk/out/pipeline/e2e/wheel-drop4/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (108 s)
+done 2026-10-30T20:31:18+00:00

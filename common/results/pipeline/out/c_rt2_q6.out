@@ -1,0 +1,26 @@
+node ctr-cx66-mi300x-31.adc.amd.com job 68218902 gpus 0 megakernels ac6c4a17fdca8f85e83837fab005d56d519b170f dirty 0; vllm 6657a8352398a753fe56a530c9464e8f57a07c76 dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+# 2026-10-30T13:26:33-04:00 ctr-cx66-mi300x-31.adc.amd.com megakernels ac6c4a17fdca8f85e83837fab005d56d519b170f dirty 0; vllm 6657a8352398a753fe56a530c9464e8f57a07c76 dirty 0
+gfx942
+GPU[0]		: Card Series: 		AMD Instinct MI300X
+flydsl 0.4.0 torch 2.13.0+rocm10.0.0 dev AMD Instinct MI300X cus 304
+export a: exit 0 MANIFEST /home/AMD/sareeder/coexport/sets/rt2/qwen36-35b-a3b-fp8-gfx942/a/manifest.json 4 objects sha256 49081f26ca57e4673048c8e7c8452a44f3d9ddb997edc84ed777877a0c36a7e9
+export b: exit 0 MANIFEST /home/AMD/sareeder/coexport/sets/rt2/qwen36-35b-a3b-fp8-gfx942/b/manifest.json 4 objects sha256 49081f26ca57e4673048c8e7c8452a44f3d9ddb997edc84ed777877a0c36a7e9
+# determinism: export runs a and b, 2026-10-30T13:42:41-04:00 ctr-cx66-mi300x-31.adc.amd.com
+manifest.json a == b: EQUAL
+files and sha256 a == b: EQUAL
+49081f26ca57e4673048c8e7c8452a44f3d9ddb997edc84ed777877a0c36a7e9  manifest.json
+e57a8f35926d2f8508334c0b467873a880c1968e0744fbfd30f2773a8f6382e7  qwen36-35b-a3b-fp8-gfx942_M1_3114a57a34fd38b1.co
+e94b77e9640feacd851aeeafe1c1be0d5ae01fe5e990587d3e12552f737edd49  qwen36-35b-a3b-fp8-gfx942_M2_67a5e0e201d613c6.co
+b5b8704061f9c01dd23e34277a9e0be137ca07434e6a678e64f3caf06ae965e7  qwen36-35b-a3b-fp8-gfx942_M4_c5a04a3b246bcdbd.co
+fc8beacab7d119eb264f64f31ccd43cada3491c177e3da6ca383d8bbe2353ec0  qwen36-35b-a3b-fp8-gfx942_M8_187b7b29193d7bf5.co
+# H1 qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 M=[1, 2, 4, 8] steps=16
+H1 PASS model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=1 src=3114a57a34fd38b1 file=qwen36-35b-a3b-fp8-gfx942_M1_3114a57a34fd38b1.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=False runtime_jit_same_symbol=True flydsl=['c1a46dc3a92ef792', True] co=['c1a46dc3a92ef792', True] flydsl_again=['c1a46dc3a92ef792', True]
+H1 PASS model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=2 src=67a5e0e201d613c6 file=qwen36-35b-a3b-fp8-gfx942_M2_67a5e0e201d613c6.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=False runtime_jit_same_symbol=True flydsl=['8755b9b8f27efe17', True] co=['8755b9b8f27efe17', True] flydsl_again=['8755b9b8f27efe17', True]
+H1 PASS model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=4 src=c5a04a3b246bcdbd file=qwen36-35b-a3b-fp8-gfx942_M4_c5a04a3b246bcdbd.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['99a5f0b7e2f5a180', True] co=['99a5f0b7e2f5a180', True] flydsl_again=['99a5f0b7e2f5a180', True]
+H1 PASS model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=8 src=187b7b29193d7bf5 file=qwen36-35b-a3b-fp8-gfx942_M8_187b7b29193d7bf5.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=False runtime_jit_same_symbol=True flydsl=['d8291446f6c04e6b', True] co=['d8291446f6c04e6b', True] flydsl_again=['d8291446f6c04e6b', True]
+# H1 qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=8192 tp=1 M=[1, 2, 4, 8] steps=16
+H1 PASS model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=8192 tp=1 rank=0 M=1 src=3114a57a34fd38b1 file=qwen36-35b-a3b-fp8-gfx942_M1_3114a57a34fd38b1.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=False runtime_jit_same_symbol=True flydsl=['c1a46dc3a92ef792', True] co=['c1a46dc3a92ef792', True] flydsl_again=['c1a46dc3a92ef792', True]
+H1 PASS model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=8192 tp=1 rank=0 M=2 src=67a5e0e201d613c6 file=qwen36-35b-a3b-fp8-gfx942_M2_67a5e0e201d613c6.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['8755b9b8f27efe17', True] co=['8755b9b8f27efe17', True] flydsl_again=['8755b9b8f27efe17', True]
+H1 PASS model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=8192 tp=1 rank=0 M=4 src=c5a04a3b246bcdbd file=qwen36-35b-a3b-fp8-gfx942_M4_c5a04a3b246bcdbd.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['99a5f0b7e2f5a180', True] co=['99a5f0b7e2f5a180', True] flydsl_again=['99a5f0b7e2f5a180', True]
+H1 PASS model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=8192 tp=1 rank=0 M=8 src=187b7b29193d7bf5 file=qwen36-35b-a3b-fp8-gfx942_M8_187b7b29193d7bf5.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['d8291446f6c04e6b', True] co=['d8291446f6c04e6b', True] flydsl_again=['d8291446f6c04e6b', True]
+H1-SUMMARY model=qwen36-35b-a3b-fp8-gfx942 pass 8/8 manifest objects of this model not checked: none

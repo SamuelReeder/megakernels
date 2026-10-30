@@ -1,0 +1,47 @@
+==== 2026-10-30T12:33:32 a_cc attempt 1 job 68215802 gpus 0,1 tleft 311 min
+# 2026-10-30T12:33:32-04:00 a_cc job 68215802 gpus 0,1 tleft 311 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=f9e41ae702c68589c81b00c17aeb92acc83fc6dd MK_E2E=d0c48378374d4683fa9c06ef5e5072f1db2b7141 PIPE_REV="hipdnn-design d0c4837 dirty 0" RL_SHA=66d0838cd8fbddea98f4314f3f92801f1f6be75f KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/AMD/sareeder/mk/images/vllm-rocm-nightly-00b6c4c5.sqsh HIMG=/
+ctr-cx66-mi300x-31.adc.amd.com
+mk_main
+mk_new
+v_gnew
+v_gprev
+v_q6new
+v_q6prev
+v_q8new
+v_q8prev
+v_q8tp1new
+v_q8tp1prev
+915M	/tmp/cc_68215802
+PASS GATE q8 hashes.txt new=main
+PASS GATE q8 isa.txt new=main
+PASS GATE q6 hashes.txt new=main
+PASS GATE q6 isa.txt new=main
+PASS GATE g hashes.txt new=main
+PASS GATE g isa.txt new=main
+PASS GATE q8tp2 hashes.txt new=main
+PASS GATE q8tp2 isa.txt new=main
+PASS vllm gnew_4096 exit 0
+PASS vllm gprev_4096 exit 0
+PASS vllm q6new_4096 exit 0
+PASS vllm q6new_8192 exit 0
+PASS vllm q6prev_4096 exit 0
+PASS vllm q6prev_8192 exit 0
+PASS vllm q8new_4096 exit 0
+PASS vllm q8new_8192 exit 0
+PASS vllm q8new_tp2_4096 exit 0
+PASS vllm q8prev_4096 exit 0
+PASS vllm q8prev_8192 exit 0
+PASS vllm q8prev_tp2_4096 exit 0
+PASS vllm q8tp1prev_4096 exit 0
+PASS vllm q8tp1prev_8192 exit 0
+PASS greedy q8new_4096:q8prev_4096: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8new_4096.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8prev_4096.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 7.577424596050097, '2': 8.13875200384406, '4': 8.938961576410186, '8': 10.444589717742787} B {'1': 7.63054192
+PASS greedy q8new_8192:q8prev_8192: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8new_8192.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8prev_8192.json: tokens equal True, logprobs bitwise equal False; TPOT A {'1': 7.620011372537371, '2': 8.168228647064455, '4': 8.939096439337614, '8': 10.588322239402938} B {'1': 7.605913
+PASS greedy q8new_4096:q8tp1prev_4096: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8new_4096.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8tp1prev_4096.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 7.577424596050097, '2': 8.13875200384406, '4': 8.938961576410186, '8': 10.444589717742787} B {'1': 7.75596
+PASS greedy q8new_8192:q8tp1prev_8192: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8new_8192.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8tp1prev_8192.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 7.620011372537371, '2': 8.168228647064455, '4': 8.939096439337614, '8': 10.588322239402938} B {'1': 7.7221
+PASS greedy q6new_4096:q6prev_4096: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q6new_4096.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q6prev_4096.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 2.986704992180617, '2': 3.5679379608208204, '4': 4.625926431332368, '8': 6.143651082404141} B {'1': 2.9792202
+PASS greedy q6new_8192:q6prev_8192: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q6new_8192.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q6prev_8192.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 2.9764894157529387, '2': 3.5675988432166035, '4': 4.618761670666144, '8': 6.176386823576382} B {'1': 2.994356
+PASS greedy gnew_4096:gprev_4096: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/gnew_4096.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/gprev_4096.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 3.483878458763345, '2': 3.877697137353357, '4': 4.328669152934761, '8': 5.459280976427573} B {'1': 3.4804823802
+FAIL greedy q8new_tp2_4096:q8prev_tp2_4096: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8new_tp2_4096.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8prev_tp2_4096.json: tokens equal False, logprobs bitwise equal False; TPOT A {'1': 5.551512172564353, '2': 6.0059496274619715, '4': 6.8074827489908785, '8': 8.07245852158624} B {'1':
+PASS rt2 one binary q8new: ISA 4096 == 8192 (4 kernels)
+PASS rt2 one binary q6new: ISA 4096 == 8192 (4 kernels)
+RESULT a_cc FAIL rc=1 2026-10-30T15:43:34-04:00

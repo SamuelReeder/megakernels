@@ -1,0 +1,62 @@
+{
+ "68215720": {
+  "gone": true,
+  "gpus": 2,
+  "kind": "holder",
+  "probe": "ok",
+  "released": true,
+  "tries": 1
+ },
+ "68215745": {
+  "gone": true,
+  "gpus": 1,
+  "kind": "hvco",
+  "probe": null,
+  "released": false,
+  "tries": 0
+ },
+ "68215802": {
+  "gone": true,
+  "gpus": 2,
+  "kind": "holder",
+  "probe": "ok",
+  "released": true,
+  "tries": 1
+ },
+ "68218902": {
+  "by": "driver",
+  "gone": true,
+  "gpus": 2,
+  "kind": "holder",
+  "probe": "ok",
+  "released": true,
+  "tries": 1
+ },
+ "68220707": {
+  "by": "driver",
+  "gone": true,
+  "gpus": 0,
+  "kind": "cpu",
+  "probe": "ok",
+  "released": true,
+  "tries": 1
+ },
+ "68220723": {
+  "by": "driver",
+  "gone": true,
+  "gpus": 2,
+  "kind": "holder",
+  "probe": "ok",
+  "released": true,
+  "tries": 1
+ },
+ "68222903": {
+  "by": "driver",
+  "gone": false,
+  "gpus": 2,
+  "kind": "holder",
+  "probe": null,
+  "released": true,
+  "tries": 0
+ }
+}

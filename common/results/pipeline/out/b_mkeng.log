@@ -1,0 +1,44 @@
+==== 2026-10-30T12:33:32 b_mkeng attempt 1 job 68215720 gpus 0 tleft 131 min
+# 2026-10-30T12:33:32-04:00 b_mkeng job 68215720 gpus 0 tleft 131 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=f9e41ae702c68589c81b00c17aeb92acc83fc6dd MK_E2E=d0c48378374d4683fa9c06ef5e5072f1db2b7141 PIPE_REV="hipdnn-design d0c4837 dirty 0" RL_SHA=66d0838cd8fbddea98f4314f3f92801f1f6be75f KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/AMD/sareeder/mk/images/vllm-rocm-nightly-00b6c4c5.sqsh HIMG=/
+py deps ok
+host=ctr-cx66-mi300x-31.adc.amd.com nproc=32 date=2026-10-30T12:33:47-04:00
+source files updated: 10971
+cmake version 3.28.3
+HIP version: 7.17.26423-0000000
+MODE=ON configure_rc=0 s=27
+MODE=ON build_rc=0 s=473
+MODE=ON clang_tidy_rc=0
+hip_kernel_provider_census_tests
+hip_kernel_provider_integration_tests
+hip_kernel_provider_tests
+/tmp/mkeng-gpu/build-ON/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider/integration/integration/gfx942/megakernel/megakernel_standin.kdp.json
+/tmp/mkeng-gpu/build-ON/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/artifacts/megakernel.kdp.json
+/tmp/mkeng-gpu/build-ON/dnn-providers/hip-kernel-provider/descriptor-packaging/hkp-integration-intermediate/gfx942/megakernel/megakernel_standin.kdp.json
+/tmp/mkeng-gpu/build-ON/dnn-providers/hip-kernel-provider/descriptor-packaging/hkp-product-intermediate/gfx942/megakernel/artifacts/megakernel.kdp.json
+MODE=ON unit_rc=0
+[  PASSED  ] 1181 tests.
+[  SKIPPED ] 6 tests.
+MODE=ON megakernel_unit_rc=0
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (57 ms total)
+[  PASSED  ] 10 tests.
+gpu arch=gfx942
+integration_rc=0
+[       OK ] IntegrationGpuMegakernel.DeclinesAPayloadWhoseSrcNoObjectCarries (17 ms)
+[----------] 2 tests from IntegrationGpuMegakernel (333 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (333 ms total)
+[  PASSED  ] 2 tests.
+packaging pytest:
+pytest_rc=0
+...........                                                              [100%]
+11 passed in 0.90s
+done 2026-10-30T12:47:00-04:00
+PASS mkeng MODE=ON build_rc=0
+PASS mkeng MODE=ON unit_rc=0
+PASS mkeng MODE=ON megakernel_unit_rc=0
+PASS mkeng gpu arch=gfx942
+PASS mkeng integration_rc=0
+PASS mkeng pytest_rc=0
+RESULT b_mkeng PASS rc=0 2026-10-30T12:47:01-04:00
