@@ -1,0 +1,200 @@
+LOAD qwen3.6-35b-a3b-gfx942 base_r1 2026-10-29T20:29:43Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 16:29:48 up 13 days, 23:36,  0 user,  load average: 3.51, 7.63, 9.02
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels ba24a780b7d1c878f2300e0a5f3645e7b0d94d96 dirty 1; vllm bdf23a462 dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+on TRITON_ATTN batch 1: TPOT 3.01 ms (331.9 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.77 ms (265.1 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.68 ms (213.5 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 6.20 ms (161.4 tok/s/user), kernel steps per 256-token generate 255
+wrote bench/results/cm8/base_r1.json
+(MainProcess pid=2294701) WARNING 10-29 16:32:49 [core_client.py:839] [shutdown] MPClient: engine core exited unexpectedly; starting cleanup
+rc 0
+LOAD gemma4-26b-a4b-gfx942 base_r1 2026-10-29T20:33:13Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 16:34:34 up 13 days, 23:41,  0 user,  load average: 2.64, 4.78, 7.44
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 0; vllm 6d0ec44e8 dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+on default batch 1: TPOT 3.55 ms (281.3 tok/s/user), kernel steps per 256-token generate 255
+on default batch 2: TPOT 3.84 ms (260.3 tok/s/user), kernel steps per 256-token generate 255
+on default batch 4: TPOT 4.33 ms (231.0 tok/s/user), kernel steps per 256-token generate 255
+on default batch 8: TPOT 5.51 ms (181.5 tok/s/user), kernel steps per 256-token generate 255
+wrote bench/results/cm8/base_r1.json
+(MainProcess pid=2296385) WARNING 10-29 16:37:59 [core_client.py:839] [shutdown] MPClient: engine core exited unexpectedly; starting cleanup
+rc 0
+LOAD qwen3.8-27b-gfx942 tp1_base_r1 2026-10-29T20:38:16Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 16:38:25 up 13 days, 23:45,  0 user,  load average: 3.15, 4.09, 6.58
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 0; vllm 6220b7379 dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+on batch 1: TPOT 7.67 ms (130.4 tok/s/user)
+on batch 2: TPOT 8.23 ms (121.5 tok/s/user)
+on batch 4: TPOT 8.99 ms (111.2 tok/s/user)
+on batch 8: TPOT 10.47 ms (95.5 tok/s/user)
+wrote bench/results/cm8/tp1_base_r1.json
+rc 0
+LOAD qwen3.8-27b-gfx942 tp2_base_r1 2026-10-29T20:42:21Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 16:42:31 up 13 days, 23:49,  0 user,  load average: 3.47, 4.14, 6.05
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 1; vllm 6220b7379 dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+on batch 1: TPOT 5.59 ms (179.0 tok/s/user)
+on batch 2: TPOT 6.06 ms (165.1 tok/s/user)
+on batch 4: TPOT 6.86 ms (145.8 tok/s/user)
+on batch 8: TPOT 8.17 ms (122.5 tok/s/user)
+wrote bench/results/cm8/tp2_base_r1.json
+rc 0
+LOAD qwen3.6-35b-a3b-gfx942 new_r1 2026-10-29T20:46:27Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 16:47:07 up 13 days, 23:54,  0 user,  load average: 5.99, 5.91, 6.34
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 1; vllm 70f57a0ae7eccdd007586db4f76da88d6bd8ef6b dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+on TRITON_ATTN batch 1: TPOT 2.74 ms (364.3 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.65 ms (274.0 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.70 ms (212.9 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 6.25 ms (160.1 tok/s/user), kernel steps per 256-token generate 255
+wrote bench/results/cm8/new_r1.json
+(MainProcess pid=2302186) WARNING 10-29 17:04:40 [core_client.py:839] [shutdown] MPClient: engine core exited unexpectedly; starting cleanup
+rc 0
+LOAD gemma4-26b-a4b-gfx942 new_r1 2026-10-29T21:05:16Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 17:05:27 up 14 days, 12 min,  0 user,  load average: 2.80, 3.75, 4.55
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 1; vllm 7f586cd2a60ca51b9c74c7a63a081651ddf9c13f dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+(MainProcess pid=2304537) WARNING 10-29 17:08:20 [core_client.py:839] [shutdown] MPClient: engine core exited unexpectedly; starting cleanup
+rc 143
+LOAD qwen3.8-27b-gfx942 tp1_new_r1 2026-10-29T21:51:38Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 17:51:40 up 14 days, 58 min,  0 user,  load average: 5.53, 6.27, 4.73
+slurmstepd: error: *** STEP 68210225.60 ON banff-cyxtera-s70-4 CANCELLED AT 2026-10-29T17:52:01 ***
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 1; vllm fd8a77a5f35116f18f644d827253571d6fc1afaa dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+on batch 1: TPOT 8.29 ms (120.6 tok/s/user)
+on batch 2: TPOT 8.61 ms (116.1 tok/s/user)
+on batch 4: TPOT 10.34 ms (96.7 tok/s/user)
+on batch 8: TPOT 12.38 ms (80.7 tok/s/user)
+wrote bench/results/cm8/tp1_new_r1.json
+rc 0
+LOAD qwen3.8-27b-gfx942 tp2_new_r1 2026-10-29T21:57:27Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 17:57:29 up 14 days,  1:04,  0 user,  load average: 3.90, 5.95, 5.25
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 1; vllm fd8a77a5f35116f18f644d827253571d6fc1afaa dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+on batch 1: TPOT 6.21 ms (161.1 tok/s/user)
+on batch 2: TPOT 6.76 ms (148.0 tok/s/user)
+on batch 4: TPOT 7.64 ms (131.0 tok/s/user)
+on batch 8: TPOT 9.35 ms (106.9 tok/s/user)
+wrote bench/results/cm8/tp2_new_r1.json
+rc 0
+LOAD qwen3.6-35b-a3b-gfx942 new_r2 2026-10-29T22:01:07Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 18:01:09 up 14 days,  1:08,  0 user,  load average: 9.56, 6.96, 5.73
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 1; vllm 70f57a0ae7eccdd007586db4f76da88d6bd8ef6b dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+on TRITON_ATTN batch 1: TPOT 2.96 ms (337.3 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.95 ms (253.0 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 5.20 ms (192.5 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 7.11 ms (140.7 tok/s/user), kernel steps per 256-token generate 255
+wrote bench/results/cm8/new_r2.json
+(MainProcess pid=2327324) WARNING 10-29 18:04:07 [core_client.py:839] [shutdown] MPClient: engine core exited unexpectedly; starting cleanup
+rc 0
+LOAD gemma4-26b-a4b-gfx942 new_r2 2026-10-29T22:04:17Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 18:04:20 up 14 days,  1:11,  0 user,  load average: 3.32, 5.23, 5.29
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 1; vllm 7f586cd2a60ca51b9c74c7a63a081651ddf9c13f dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+on default batch 1: TPOT 3.68 ms (271.9 tok/s/user), kernel steps per 256-token generate 255
+on default batch 2: TPOT 4.27 ms (233.9 tok/s/user), kernel steps per 256-token generate 255
+on default batch 4: TPOT 4.72 ms (211.8 tok/s/user), kernel steps per 256-token generate 255
+on default batch 8: TPOT 5.93 ms (168.6 tok/s/user), kernel steps per 256-token generate 255
+wrote bench/results/cm8/new_r2.json
+(MainProcess pid=2330228) WARNING 10-29 18:07:34 [core_client.py:839] [shutdown] MPClient: engine core exited unexpectedly; starting cleanup
+rc 0
+LOAD qwen3.8-27b-gfx942 tp1_new_r2 2026-10-29T22:07:45Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 18:07:47 up 14 days,  1:14,  0 user,  load average: 3.16, 4.38, 4.95
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 1; vllm fd8a77a5f35116f18f644d827253571d6fc1afaa dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+on batch 1: TPOT 8.29 ms (120.7 tok/s/user)
+on batch 2: TPOT 8.88 ms (112.6 tok/s/user)
+(EngineCore pid=2332432) ERROR 10-29 18:11:21 [core.py:1586] EngineCore encountered a fatal error.
+(EngineCore pid=2332432) ERROR 10-29 18:11:21 [core.py:1586] torch.AcceleratorError: CUDA error: unspecified launch failure
+torch.AcceleratorError: CUDA error: unspecified launch failure
+torch.AcceleratorError: CUDA error: unspecified launch failure
+rc 134
+LOAD qwen3.8-27b-gfx942 tp2_new_r2 2026-10-29T22:11:34Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 18:11:37 up 14 days,  1:18,  0 user,  load average: 13.38, 6.78, 5.66
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 1; vllm fd8a77a5f35116f18f644d827253571d6fc1afaa dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+on batch 1: TPOT 5.57 ms (179.6 tok/s/user)
+on batch 2: TPOT 6.02 ms (166.0 tok/s/user)
+on batch 4: TPOT 6.84 ms (146.3 tok/s/user)
+on batch 8: TPOT 8.15 ms (122.7 tok/s/user)
+wrote bench/results/cm8/tp2_new_r2.json
+rc 0
+LOAD qwen3.6-35b-a3b-gfx942 base_r2 2026-10-29T22:15:13Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+ 18:15:14 up 14 days,  1:22,  0 user,  load average: 33.75, 20.23, 11.30
+node banff-cyxtera-s70-4.adc.amd.com job 68210225 megakernels 10a59dcac5b235e6e8470afb9d5ba7ef0d2a11b1 dirty 1; vllm bdf23a462 dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+(MainProcess pid=2336651) WARNING 10-29 18:17:53 [core_client.py:839] [shutdown] MPClient: engine core exited unexpectedly; starting cleanup
+slurmstepd: error: *** STEP 68210225.87 ON banff-cyxtera-s70-4 CANCELLED AT 2026-10-29T18:52:18 DUE TO TIME LIMIT ***
+srun: error: Slurm job 68210225 has expired
+rc 143
+LOAD gemma4-26b-a4b-gfx942 base_r2 2026-10-29T22:52:20Z
+68210225 mk7 sareeder gres/gpu:gfx942-mi300x:2 32
+68209506 sdpabwd sareeder gres/gpu:1 32
+srun: error: Slurm job 68210225 has expired
+srun: error: Slurm job 68210225 has expired
+rc 1
+LOAD qwen3.8-27b-gfx942 tp1_base_r2 2026-10-29T22:52:21Z
+68209506 sdpabwd sareeder gres/gpu:1 32
+srun: error: Slurm job 68210225 has expired
+srun: error: Slurm job 68210225 has expired
+rc 1
+LOAD qwen3.8-27b-gfx942 tp2_base_r2 2026-10-29T22:52:23Z
+68209506 sdpabwd sareeder gres/gpu:1 32
+srun: error: Slurm job 68210225 has expired
+srun: error: Slurm job 68210225 has expired
+rc 1
+LOAD qwen3.6-35b-a3b-gfx942 base_r3 2026-10-29T22:52:24Z
+68209506 sdpabwd sareeder gres/gpu:1 32
+srun: error: Slurm job 68210225 has expired
+srun: error: Slurm job 68210225 has expired
+rc 1
+LOAD gemma4-26b-a4b-gfx942 base_r3 2026-10-29T22:52:26Z
+68209506 sdpabwd sareeder gres/gpu:1 32
+srun: error: Slurm job 68210225 has expired
+srun: error: Slurm job 68210225 has expired
+rc 1
+LOAD qwen3.8-27b-gfx942 tp1_base_r3 2026-10-29T22:52:28Z
+68209506 sdpabwd sareeder gres/gpu:1 32
+srun: error: Slurm job 68210225 has expired
+srun: error: Slurm job 68210225 has expired
+rc 1
+LOAD qwen3.8-27b-gfx942 tp2_base_r3 2026-10-29T22:52:29Z
+68209506 sdpabwd sareeder gres/gpu:1 32
+srun: error: Slurm job 68210225 has expired
+srun: error: Slurm job 68210225 has expired
+rc 1
+LOAD qwen3.6-35b-a3b-gfx942 new_r3 2026-10-29T22:52:31Z
+68209506 sdpabwd sareeder gres/gpu:1 32
+srun: error: Slurm job 68210225 has expired
+srun: error: Slurm job 68210225 has expired
+rc 1
+LOAD gemma4-26b-a4b-gfx942 new_r3 2026-10-29T22:52:33Z
+68209506 sdpabwd sareeder gres/gpu:1 32
+srun: error: Slurm job 68210225 has expired
+srun: error: Slurm job 68210225 has expired
+rc 1
+LOAD qwen3.8-27b-gfx942 tp1_new_r3 2026-10-29T22:52:34Z
+68209506 sdpabwd sareeder gres/gpu:1 32
+srun: error: Slurm job 68210225 has expired
+srun: error: Slurm job 68210225 has expired
+rc 1
+LOAD qwen3.8-27b-gfx942 tp2_new_r3 2026-10-29T22:52:35Z
+68209506 sdpabwd sareeder gres/gpu:1 32
+srun: error: Slurm job 68210225 has expired
+srun: error: Slurm job 68210225 has expired
+rc 1
