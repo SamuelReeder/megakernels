@@ -9,3 +9,15 @@ rt2/vllm/rt2_4096.json: d325c288 f048d756 0f7294ea 4547b902 9a6ec758 187ed0ad fa
 rt2/vllm/rt2_4096_run1.json: d325c288 f048d756 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.250210
 rt2/vllm/rt2_8192.json: d325c288 f048d756 0f7294ea 5c35b608 9a6ec758 187ed0ad fac45e8a ecb40c10 | prompt 1 logprob[1] -1.250210
 rt2/vllm/rt2_8192_run1.json: d325c288 f048d756 0f7294ea 5c35b608 9a6ec758 187ed0ad fac45e8a ecb40c10 | prompt 1 logprob[1] -1.250210
+
+# 2026-10-30, MI325X job 68213193 (users/sareeder/m8-tpot common/results/m8q/drive.sh, PR #15): 3 alternating rounds each of base (vLLM 6220b7379, pre-migration rt0 export), new (fd8a77a5f, main's rt0 export) and rt2 (aa9c7ae58), TP1, maxlen 4096; copies in m8q/
+m8q/q8tp1_base_r1.json: d325c288 f048d756 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.250210
+m8q/q8tp1_base_r2.json: d325c288 2f706b54 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.212131
+m8q/q8tp1_base_r3.json: d325c288 2f706b54 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.212131
+m8q/q8tp1_new_r1.json: d325c288 f048d756 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.250210
+m8q/q8tp1_new_r2.json: d325c288 2f706b54 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.212131
+m8q/q8tp1_new_r3.json: d325c288 2f706b54 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.212131
+m8q/q8tp1_rt2_r1.json: d325c288 f048d756 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.250210
+m8q/q8tp1_rt2_r2.json: d325c288 f048d756 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.250210
+m8q/q8tp1_rt2_r3.json: d325c288 2f706b54 0f7294ea 4547b902 9a6ec758 187ed0ad fac45e8a dc85780f | prompt 1 logprob[1] -1.212131
+# prompt 1: -1.250210 in base_r1, new_r1, rt2_r1, rt2_r2; -1.212131 in the other 5. Both outputs come from rt0 and rt2 builds alike.
