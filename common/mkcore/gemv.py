@@ -40,8 +40,8 @@ from flydsl.expr.typing import T
 
 from . import dev as D
 from . import fp4
+from .pack import PAD_TILES
 
-PAD_TILES = 16  # spare tiles after a packed matrix (>= 3 P - 1)
 H4 = fp4.device_helpers()
 
 

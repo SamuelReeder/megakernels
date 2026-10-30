@@ -1,0 +1,37 @@
+#!/bin/bash
+# Run a command against a vLLM branch on a held gfx942 allocation on Alola (the vLLM
+# side of common/scripts/mkrun): ships the `vllm/` package of a local vLLM checkout and
+# <model-dir>/ + common/ to the compute node's /tmp, and runs the command in the model
+# directory inside the vLLM nightly image, with the checkout's `vllm/` first on
+# PYTHONPATH (plus the image's compiled `vllm/*.so` and `_version.py`, which a source
+# checkout lacks). A fresh container per call (no --container-name): no FlyDSL or AITER
+# cache survives from an earlier run; writable (quark JIT-compiles its MXFP4 emulation
+# extension into site-packages on first use). FLYDSL_RUNTIME_ENABLE_CACHE=0.
+# Usage: common/scripts/vrun <model-dir> <vllm-checkout> -j JOBID '<command>'
+# Env: MK_TIME (srun minutes, default 60), VLLM_IMAGE (default
+#      ~/mk/images/vllm-rocm-nightly-00b6c4c5.sqsh), M (models dir). The step sees every
+#      GPU of the allocation (TP2: hold two). VLLM_REV: the vLLM commit to log (default
+#      the checkout's HEAD).
+set -euo pipefail
+common=$(cd "$(dirname "$0")/.." && pwd)
+root=$(dirname "$common")
+model=$(cd "$1" && pwd)
+vllm=$(cd "$2" && pwd)
+shift 2
+[ "${1:-}" = "-j" ] || { echo "usage: vrun <model-dir> <vllm-checkout> -j JOBID 'cmd'" >&2; exit 2; }
+job=$2
+shift 2
+name=$(basename "$model")
+src=/tmp/vr-$name-$(date +%s%N)
+rev="megakernels $(git -C "$root" rev-parse HEAD) dirty $(git -C "$root" status --porcelain "$name" common | wc -l); vllm ${VLLM_REV:-$(git -C "$vllm" rev-parse HEAD)} dirty $(git -C "$vllm" status --porcelain vllm | wc -l)"
+{ tar -C "$root" --exclude __pycache__ --exclude "$name/bench/results" --exclude common/results -cf - "$name" common
+  tar -C "$vllm" --exclude __pycache__ --transform 's,^vllm,vsrc/vllm,' -cf - vllm; } | ssh -o BatchMode=yes alola \
+  "srun --jobid=$job --overlap -n1 --time=3 bash -c 'mkdir -p $src && tar -xif - -C $src && echo \"$rev\" > $src/REVISION'"
+rc=0
+ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=${MK_TIME:-60} \
+  --container-image=\${VLLM_IMAGE:-/home/AMD/sareeder/mk/images/vllm-rocm-nightly-00b6c4c5.sqsh} \
+  --container-mounts=/cluster:/cluster,/home/AMD/sareeder:/home/AMD/sareeder,/tmp:/tmp --container-writable \
+  bash -lc 'so=\$(find /usr /opt -maxdepth 7 -name _C.abi3.so -path \*packages/vllm/\* | head -1); cp -n \$(dirname \$so)/*.so \$(dirname \$so)/_version.py $src/vsrc/vllm/; export PYTHONPATH=$src/vsrc PIP_CACHE_DIR=/tmp/pipcache FLYDSL_RUNTIME_ENABLE_CACHE=0 HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false PYTHONPYCACHEPREFIX=/tmp/pycache M=\${M:-\$HOME/mk/models}; cd $src/$name && echo node \$(hostname) job $job \$(cat $src/REVISION) vllm .so from \$so >&2; $*' 2>&1" || rc=$?
+ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=2 bash -c 'tar -C $src/$name -cf - bench/results 2>/dev/null; rm -rf $src'" \
+  | tar -C "$model" -xf - 2>/dev/null || true
+exit $rc

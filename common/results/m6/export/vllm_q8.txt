@@ -1,0 +1,1 @@
+6220b73 [ROCm][Perf] Qwen3.8 gfx942 decode: re-export the TP2 kernel (deferred poll, 16-byte pushes, single grid wait)

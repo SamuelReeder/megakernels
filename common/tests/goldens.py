@@ -100,7 +100,13 @@ def geo_lines(model, KK):
             yield f"{model} geo tp{tp} M{M} part_floats {cfg.part_floats()}"
 
 
-def pack_lines(model, P):
+def pack_lines(model):
+    """Since M6 the layouts live in mkcore.pack. Each model keeps its M1 lines and labels
+    (its fp8 kind under the old name `fp8_tiles`; Qwen3.8's unit_order(t, C) is
+    unit_order(t, 3, C) here), so goldens.txt stays the oracle."""
+    from mkcore import fp4
+    from mkcore import pack as P
+
     g = torch.Generator().manual_seed(1)
     w = torch.randn(64, 512, generator=g).to(torch.bfloat16)
     w2 = torch.randn(3, 64, 512, generator=g).to(torch.bfloat16)
@@ -108,11 +114,7 @@ def pack_lines(model, P):
     yield f"{model} pack gu_order {h(P.gu_order(w))}"
     tiles = P.pack_bf16(w)
     if "qwen3.8" in model:
-        yield f"{model} pack unit_order {h(P.unit_order(tiles, 2))}"
-        try:
-            from mkcore import fp4
-        except ImportError:  # trees before M5: mk/fp4.py
-            from mk import fp4
+        yield f"{model} pack unit_order {h(P.unit_order(tiles, 3, 2))}"
         wq = torch.randint(0, 256, (64, 256), generator=g, dtype=torch.uint8)
         sq = torch.randint(100, 140, (64, 16), generator=g, dtype=torch.uint8)
         yield f"{model} pack fp4.repack {h(*fp4.repack(wq, sq))}"
@@ -124,22 +126,18 @@ def pack_lines(model, P):
     if "qwen3.6" in model:
         s = torch.rand(1, 2, generator=g) + 0.5
         yield f"{model} pack row_scales {h(P.row_scales(s, 64))}"
-        yield f"{model} pack fp8_tiles {h(*P.fp8_tiles(w8, P.row_scales(s, 64)))}"
+        yield f"{model} pack fp8_tiles {h(*P.fp8_tiles_b128(w8, P.row_scales(s, 64)))}"
     else:
         s = torch.rand(64, generator=g) + 0.5
         yield f"{model} pack gu_order_rows {h(P.gu_order_rows(s))}"
-        yield f"{model} pack fp8_tiles {h(*P.fp8_tiles(w8, s))}"
+        yield f"{model} pack fp8_tiles {h(*P.fp8_tiles_row(w8, s))}"
 
 
 def lines():
     for model in MODELS:
-        KK, P = load(model)
-        sys.path.insert(0, os.path.join(ROOT, model))  # mk.fp4 import inside pack_lines
-        try:
-            yield from pack_lines(model, P)
-            yield from geo_lines(model, KK)
-        finally:
-            sys.path.pop(0)
+        KK, _ = load(model)
+        yield from pack_lines(model)
+        yield from geo_lines(model, KK)
 
 
 def main():

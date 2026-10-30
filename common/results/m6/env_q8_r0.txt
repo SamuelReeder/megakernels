@@ -1,0 +1,7 @@
+2026-10-29T15:39:54+00:00
+banff-cyxtera-s70-4.adc.amd.com
+job 68209742 rank 0 parts q8
+gfx942
+torch 2.14.1+rocm7.2 flydsl 0.4.0 1 GPUs
+3a5eedfe93d2725811a00fd0a787e2105fd17776 dirty files: 0
+2026-10-29T15:55:39+00:00

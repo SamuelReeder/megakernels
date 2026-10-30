@@ -808,6 +808,52 @@ M1. Export check: job 68208937 (`export/`, base = `main` `dc0ee48`).
 - Open for M8: the vLLM runtime files that import `kernels.gemv` or `kernels.fp4` (the
   weight packers) must import them from `kernels.mkcore` (with `kernels.dev`, M4).
 
+### M6: `mkcore.pack` (2026-10-29, sources `3a5eedf` .. `c86b812`)
+
+Change: `common/mkcore/pack.py` holds `PAD_TILES` (`gemv.py` imports it), `gu_order`
+(batched), `gu_order_rows`, `row_scales`, `pack_bf16` (casts to bf16), `unit_order(t,
+nrest, C)` (D14), `fp8_tiles_b128` (Qwen3.6) and `fp8_tiles_row` (Gemma). Each model's
+`mk/pack.py` keeps `Packed` and its model packers (Qwen3.8: the TP shard helpers). The
+Qwen3.6 and Gemma exports drop `pack` from `MODULES` and the `PACK_KEEP` cut (nothing is
+left to cut); `copy_mkcore` deletes the stale `kernels/pack.py`. Qwen3.6 `kernel.py`
+docstring rewrapped to 88 columns (vLLM E501, found by the M6 export) and its export now
+runs vLLM's full ruff check like the other two. `goldens.py` hashes `mkcore.pack` with
+each model's M1 lines and labels. New `common/scripts/vrun`: a command against a vLLM
+checkout on a held allocation (vLLM image, fresh writable container, the image's
+compiled `vllm/*.so` added to the source overlay).
+
+Evidence (`common/results/m6/`, banff-cyxtera-s70-4; jobs 68209742 Qwen3.8 then Gemma,
+68209743 Qwen3.6 and export check, 68209745 TP2; base = M1 hashes, M1 ISA for Qwen3.8,
+M5 ISA for Qwen3.6 and Gemma):
+
+- I-host: goldens 298 lines, 0 differ (login node).
+- I-bits: all four `hashes.txt=base PASS`.
+- I-isa: tier A for Qwen3.8 TP1 / TP2 and Qwen3.6. Gemma: 3 of 4 equal; M = 1 `lm_head`
+  on gave `07771981c25e40dd` (open question 7). `isaprobe/`: 3 builds of `main`
+  `2dd8dc3` and 2 of M6 all gave M5's `f2c0314eb98ad89f`.
+- I-gates: all hard gates PASS except Gemma `test_attention` (one case, `sliding M8 B16
+  boundaries step 1`, rel err 4.69e-3 > 2e-3). M6 changes no code that test traces (it
+  builds attention only, with `mkcore.dev`, unchanged since M4), and its steps >= 1 draw
+  unseeded inputs (`torch.randn_like`, line 214), so the failing input is not
+  reproducible. Classified as a pre-existing flake: the 5 x 5 rerun of `main` and M6
+  (`attnprobe/`, job 68209742) passes all 10 runs, max rel err 1.24e-3. The first TP2 run lost its node
+  `/tmp` tree mid-run (cleanup error by the operator): `summary.txt` keeps its two FAIL
+  lines; the full TP2 rerun (`q8tp2_rerun/`, `summary_q8tp2_rerun.txt`) passes all 14.
+- Oracle 5 (`export/`): the M6 exports build with M5's exported ISA (Qwen3.8
+  `8948b45554c46053`, Qwen3.6 `f5ad5702d077723c`, Gemma `a0c04b38a45dcac5`); the diff
+  against `main` is `kernels/pack.py` -> `kernels/mkcore/pack.py` and the `gemv` import.
+- vLLM weight loading (`vrun`, kernel on, greedy, base = branch head, new = M6 export
+  plus `runtime/weights.py` on `mkcore.pack`): Qwen3.6 (`TRITON_ATTN`) 1090 / 1090
+  tokens and every top-5 logprob equal (`qwen3.6-35b-a3b-gfx942/bench/results/cm6/`);
+  Gemma 1240 / 1240 tokens and top-5 equal (`gemma4.../bench/results/cm6/`). Qwen3.8
+  (job 68209745, `qwen3.8-27b-gfx942/bench/results/cm6/`): TP1 857 / 857 tokens and
+  every logprob equal; TP2 4 of 8 prompts identical, first logprob difference at decode
+  position 1 or 2, two prompts change token at 96 and 111. This is the documented
+  run-to-run spread of vLLM's TP2 path (`docs/DESIGN-TP2.md`, "Run-to-run repeatability":
+  kernel on, 6 of 8, first difference at position 1 or 2); the TP2 kernel ISA is tier A.
+  TPOT (ms, B = 1/2/4/8, single runs, shared node): TP1 base 8.12/8.99/10.15/12.38, M6
+  8.32/8.91/10.07/12.34; TP2 base 6.24/6.82/7.72/9.38, M6 6.28/6.82/7.73/9.44.
+
 ## Decisions
 
 - D1. Package `common/mkcore/` (FlyDSL gfx942 only), scripts in `common/scripts/`. Evidence:
@@ -859,6 +905,14 @@ M1. Export check: job 68208937 (`export/`, base = `main` `dc0ee48`).
      already fails when the copy in `mk/sync.py` differs.
   Migration milestones M0+ start only after the Gemma MoE, fixed-stage-cost and TP2
   branches merge; Main starts them.
+- D14. `mkcore.pack.unit_order(t, nrest, C)` takes the Qwen3.6 / Gemma signature; Qwen3.8
+  passes `nrest` (2 for mx tiles, 1 for scales, 3 for bf16 tiles). Its old `unit_order(t,
+  C)` is the case without leading dims (goldens: the same bytes). Rejected: `(t, C,
+  nrest=None)` (reorders every Qwen3.6 / Gemma call) and two functions with one name.
+- D15. Qwen3.8's vLLM target is `qwen38-gfx942-tp2` (as for oracle 5 since M3); it runs
+  TP 1 too. `qwen38-gfx942-specialized-decode` keeps its pre-TP2, pre-`mkcore` kernel copy
+  (it imports its own `kernels/gemv.py`, `fp4.py`, which stay): re-exporting `main` there
+  would need the TP2 runtime commits. Not re-exported.
 
 ## Rejected alternatives
 

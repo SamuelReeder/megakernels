@@ -27,8 +27,8 @@ The barrier epoch lives on the device (word EPOCH_WORD of the flag buffer), so a
 launch has no per-step host argument and can be captured in a graph.
 
 Every compile-time setting is a Cfg field or a debug global. FlyDSL's disk cache keys on
-mkcore.key.compile_key (the Cfg, the debug globals, the sources of mk/ and mkcore), which
-the launcher holds; the kernel name holds a hash of that key.
+mkcore.key.compile_key (the Cfg, the debug globals, the sources of mk/ and mkcore),
+which the launcher holds; the kernel name holds a hash of that key.
 """
 
 import functools
