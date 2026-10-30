@@ -10,7 +10,8 @@ Runs on the Alola login node in tmux (run.sh). Every POLL seconds it:
   4. starts each ready stage, in STAGES order, on a running job with free GPUs and enough
      time left for its estimate (best fit), as a detached process (survives the driver);
   5. submits a replacement job (at most MAX_JOBS jobs alive) when no alive job can hold a
-     stage, and releases a running job that no remaining stage fits;
+     stage (time left after its running stages), or when the GPU stages need more than 80 %
+     of the GPU time the alive jobs hold; releases a running job that no remaining stage fits;
   6. stops when every stage is PASS, FAIL, ERROR (after retries) or SKIP (a hard dependency
      ended in ERROR or SKIP), writes summary.txt and releases its jobs.
 State lives in ~/mk/out/pipeline/state (stages.json, jobs.json), so a restart resumes.
@@ -54,7 +55,7 @@ STAGES = [
     ("c_rt2_q6", 1, 55, [], False),
     ("c_rt2_g", 1, 45, [], False),
     ("c_rt2_merge", None, 2, ["c_rt2_q8", "c_rt2_q6", "c_rt2_g"], False),
-    ("d_wheel", 0, 150, ["c_rt2_merge"], False),  # gfx94X wheel + drop4 wheel from the rt2 set
+    ("d_wheel", 0, 60, ["c_rt2_merge"], False),  # gfx94X + drop4 wheels (local test: 27 min, 128 CPUs)
     ("e_q8", 1, 50, ["d_wheel"], False),   # e2e_plan.sh runs (flydsl, hipdnn, default, nowheel)
     ("e_q8tp2", 2, 50, ["d_wheel"], False),
     ("e_q6", 1, 50, ["d_wheel"], False),
@@ -358,19 +359,52 @@ class Driver:
     def alive_jobs(self):
         return [i for i, j in self.jobs.items() if not j["gone"] and not j["released"]]
 
+    def free_at(self, job, gpus):
+        """When the running stages on job leave room for a stage of gpus (estimates)."""
+        busy = sorted(self.busy(job), key=self.pfinish)
+        if gpus == 0 or any(SPEC[n]["gpus"] == 0 for n in busy):
+            return max([now()] + [self.pfinish(n) for n in busy])
+        free = len(self.free_slots(job))
+        t = now()
+        for n in busy:
+            if free >= gpus:
+                break
+            free += len(self.st[n]["slots"])
+            t = self.pfinish(n)
+        return t
+
     def could_hold(self, job, name, start):
         """job (alive) can run name, from start, now or once it starts."""
         sp, j, q = SPEC[name], self.jobs[job], self.q.get(job, {})
         if not self.touch(job, sp["gpus"]) or j["probe"] == "bad":
             return False
         if q.get("state") == "RUNNING" and j["probe"] == "ok":
-            return self.fits(name, job, start)
+            return self.fits(name, job, max(start, self.free_at(job, sp["gpus"])))
         return q.get("limit", 0) - MARGIN >= sp["est"]  # pending, or not probed yet
+
+    def capacity(self, alive):
+        """(GPU-minutes the GPU stages still need, GPU-minutes the alive jobs still hold)."""
+        need = 0
+        for name, sp in SPEC.items():
+            s = self.st[name]
+            if s["state"] in TERMINAL or not sp["gpus"]:
+                continue
+            left = s["t0"] / SCALE + sp["est"] - now() if s["state"] == "RUN" else sp["est"]
+            need += sp["gpus"] * max(0, left)
+        have = 0
+        for i in alive:
+            j, q = self.jobs[i], self.q.get(i, {})
+            if j["probe"] == "bad" or not q:
+                continue
+            t = q["end"] - now() if q["state"] == "RUNNING" else q["limit"]
+            have += j["gpus"] * max(0, t - MARGIN)
+        return need, have
 
     def maybe_submit(self):
         alive = self.alive_jobs()
         if len(alive) >= MAX_JOBS:
             return
+        why = None
         for name, sp in SPEC.items():
             if self.st[name]["state"] != "WAIT" or sp["gpus"] is None:
                 continue
@@ -380,17 +414,21 @@ class Driver:
                     continue
                 if any(self.jobs[i]["gpus"] == 0 and self.jobs[i]["probe"] is None for i in alive):
                     continue
-                gpus, minutes = 0, sp["est"] + 60
-            else:
-                start = self.pready(name)
-                if any(self.could_hold(i, name, start) for i in alive):
-                    continue
-                gpus, minutes = 2, max(360, sp["est"] + 60)
-            job = self.sl.submit(gpus, minutes)
-            self.jobs[job] = dict(gpus=gpus, kind="holder" if gpus else "cpu", probe=None,
-                                  tries=0, released=False, gone=False, by="driver")
-            log(f"submitted job {job} ({gpus} GPUs, {minutes} min) for stage {name}")
-            return
+                gpus, minutes, why = 0, sp["est"] + 60, f"stage {name}"
+                break
+            start = self.pready(name)
+            if not any(self.could_hold(i, name, start) for i in alive):
+                gpus, minutes, why = 2, max(360, sp["est"] + 60), f"stage {name}"
+                break
+        if why is None:  # every stage fits somewhere alone; together they may not
+            need, have = self.capacity(alive)
+            if need <= 0.8 * have:
+                return
+            gpus, minutes, why = 2, 360, f"capacity: stages need {need:.0f} GPU-min, jobs hold {have:.0f}"
+        job = self.sl.submit(gpus, minutes)
+        self.jobs[job] = dict(gpus=gpus, kind="holder" if gpus else "cpu", probe=None,
+                              tries=0, released=False, gone=False, by="driver")
+        log(f"submitted job {job} ({gpus} GPUs, {minutes} min) for {why}")
 
     def maybe_release(self, done):
         for job in self.alive_jobs():

@@ -114,7 +114,8 @@ rm -rf "$T/cc_tree"
 du -sh "$T"/bundles/* | sort -h | tail -4
 $A "test -f $VIMG && test -f $HIMG && test -f ~/work/mkeng/gpu.sh && test -f ~/work/mkeng/mk-src.tgz" \
   || { echo "an image or ~/work/mkeng input is missing on Alola" >&2; exit 1; }
-tar -C "$T" -czf - . | $A "mkdir -p ~/mk/pipeline && rm -rf ~/mk/pipeline/bundles && tar -xzf - -C ~/mk/pipeline && ls ~/mk/pipeline ~/mk/pipeline/bundles"
+# extract over the old files (no rm): a running stage keeps reading its open bundle
+tar -C "$T" -czf - . | $A "mkdir -p ~/mk/pipeline && tar -xzf - -C ~/mk/pipeline && ls ~/mk/pipeline ~/mk/pipeline/bundles"
 
 # the hvco job: after its tests, hold the allocation while the driver lives (driver.alive
 # touched within 15 min) and has not released it (state/release_<job>); mark its tests done
