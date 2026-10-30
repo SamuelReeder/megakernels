@@ -125,9 +125,14 @@ c_rt*)  # CoExporter run_set.sh, one model: node_model.sh (export a, b; determin
 d_wheel)  # e2e_plan.sh stage + wheel (+ drop's wheel), in the hipdnn image on any node
   [ -f "$RT2/manifest.json" ] || { echo "no $RT2/manifest.json"; exit 2; }
   mkdir -p "$E"
+  # the node reads a private copy: prep.sh replacing $P/wheel_node.sh on the NFS home while
+  # the node's bash reads it ends the build with "Stale file handle"
+  wn=$E/wheel_node.$$.sh
+  cp "$P/wheel_node.sh" "$wn"
   step "$(tcap 220)" --container-image="$HIMG" --container-mounts="/cluster:/cluster,$HOME:$HOME" \
-    bash -c "RL_SHA=$RL_SHA KP_SHA=$KP_SHA bash $P/wheel_node.sh $RT2 $E" > "$E/wheel_node.log" 2>&1
+    bash -c "RL_SHA=$RL_SHA KP_SHA=$KP_SHA bash $wn $RT2 $E" > "$E/wheel_node.log" 2>&1
   rc=$?
+  rm -f "$wn"
   grep -E '^(PASS|FAIL) ' "$E/wheel_node.log"
   ls "$E"/wheel/*.whl "$E"/wheel-drop4/*.whl 2>/dev/null
   [ -n "$(ls "$E"/wheel/*.whl 2>/dev/null)" ] || { tail -30 "$E/wheel_node.log"; exit 2; }
