@@ -98,7 +98,7 @@ for k in q8 q8tp2 q6 g; do
   tar -C "$b" -czf "$T/bundles/e2e_$k.tgz" . && rm -rf "$b"
 done
 
-cp "$here"/{driver.py,stage.sh,wheel_node.sh,run.sh} "$e2e" "$T/"
+cp "$here"/{driver.py,stage.sh,wheel_node.sh,run.sh,dryrun.py} "$e2e" "$T/"
 cat > "$T/pins.env" <<EOF
 MK_CC=$MK_CC
 MK_MAIN=$MK_MAIN
