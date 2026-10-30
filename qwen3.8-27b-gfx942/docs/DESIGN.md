@@ -168,6 +168,31 @@ throughput sets the stage end (weighted splits do not help).
   invariance.
 - `tests/test_determinism.py`: three runs, bitwise-equal logits.
 
+## Run-time geometry (rt2, 2026-10-29)
+
+`Cfg.rt_geom` 2: `maxlen` and `maxblocks` are read from glob slot `G_GEOM` at run time,
+so one build serves every `max_model_len`. Default 2 at TP1, 0 at TP2 (TP2 not checked).
+Evidence (`bench/results/rt2/`, MI325X, job 68211382):
+- Logits hash rt0 == rt2 at M = 1, 2, 4, 8; `test_decode` and determinism pass at M = 1, 8.
+- TPOT rt2 vs rt0 (median of 3, ctx 512): M = 1 −0.47 %, M = 8 +0.29 %.
+- One ELF for maxlen 4096, 8192, 16384 (`isa_local.txt`); rt0 ISA equals main's.
+- vLLM (`vllm/`, TP1, greedy, 128 tokens): base vs rt2 tokens equal at 4096 and 8192.
+  Prompt 1's logprobs differ by up to 0.145 in both. Cause: vLLM run-to-run variation,
+  not rt2. Prompt 1 has two outputs in vLLM (logprob at position 1 −1.212131 or
+  −1.250210, the rest follows), and rt0 kernels give both: the common/ migration's M8
+  base run (`cm8/tp1_base_r1.json`, pre-migration rt0 export) equals the rt2 runs on
+  prompt 1 bit for bit (`vllm/modes.txt`). Repeat (`vllm/m8q/`, 3 alternating rounds of
+  the pre-migration rt0 export, main's rt0 export and rt2, MI325X job 68213193): each
+  tree gives both outputs (−1.250210 in 1, 1 and 2 of 3 runs). The spike saw the same
+  0.145 once at 16384, between two runs of one build. At vLLM's geometry (block 784,
+  x-packed KV, maxlen 4096 and 8192, 1800 steps from position 0, M = 1, 2, 4, 8) rt0 and
+  rt2 logits are bitwise equal every step (`common/results/rt2/vgeom.py`,
+  `common/results/rt2/rebase/`). vLLM TPOT rt2 vs main's rt0 export (same rounds, median
+  of 3, B = 1 / 2 / 4 / 8): −0.10 / +0.29 / +0.36 / +0.12 %.
+- After the rebase onto main `e72a981` (common/ migration): rt0 ISA equals main's, one
+  rt2 ELF across maxlens (`isa_rebase.txt`); hash rt0 == rt2, every hard gate PASS, TP2
+  (rt0) gates PASS (job 68213193, `common/results/rt2/rebase/summary.txt`).
+
 ## Limits and open questions
 
 - Prefill runs one token per step; a real deployment needs a prefill path.

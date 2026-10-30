@@ -1,0 +1,1 @@
+GATE q8 eval_text PASS

@@ -1,0 +1,68 @@
+Traceback (most recent call last):
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/utils/hub.py", line 537, in cached_files
+    hf_hub_download(
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 85, in _inner_fn
+    validate_repo_id(arg_value)
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 133, in validate_repo_id
+    raise HFValidationError(
+huggingface_hub.errors.HFValidationError: Repo id must be in the form 'repo_name' or 'namespace/repo_name': '/home/AMD/sareeder/mk/models/Qwen3.8-27B'. Use `repo_type` argument if needed.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/models/auto/tokenization_auto.py", line 801, in from_pretrained
+    config = AutoConfig.from_pretrained(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/models/auto/configuration_auto.py", line 397, in from_pretrained
+    config_dict, unused_kwargs = PreTrainedConfig.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/configuration_utils.py", line 919, in get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/configuration_utils.py", line 971, in _get_config_dict
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/utils/hub.py", line 370, in cached_file
+    file = cached_files(path_or_repo_id=path_or_repo_id, filenames=[filename], **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/utils/hub.py", line 595, in cached_files
+    raise OSError(f"{e}") from e
+OSError: Repo id must be in the form 'repo_name' or 'namespace/repo_name': '/home/AMD/sareeder/mk/models/Qwen3.8-27B'. Use `repo_type` argument if needed.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/utils/hub.py", line 537, in cached_files
+    hf_hub_download(
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 85, in _inner_fn
+    validate_repo_id(arg_value)
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/huggingface_hub/utils/_validators.py", line 133, in validate_repo_id
+    raise HFValidationError(
+huggingface_hub.errors.HFValidationError: Repo id must be in the form 'repo_name' or 'namespace/repo_name': '/home/AMD/sareeder/mk/models/Qwen3.8-27B'. Use `repo_type` argument if needed.
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/work/src/rb-1793321649674787848/qwen3.8-27b-gfx942/tests/eval_text.py", line 149, in <module>
+    main()
+  File "/work/src/rb-1793321649674787848/qwen3.8-27b-gfx942/tests/eval_text.py", line 85, in main
+    tok = AutoTokenizer.from_pretrained(bf_dir)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/models/auto/tokenization_auto.py", line 805, in from_pretrained
+    config = PreTrainedConfig.from_pretrained(pretrained_model_name_or_path, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/configuration_utils.py", line 869, in from_pretrained
+    config_dict, kwargs = cls.get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/configuration_utils.py", line 919, in get_config_dict
+    config_dict, kwargs = cls._get_config_dict(pretrained_model_name_or_path, **kwargs)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/configuration_utils.py", line 971, in _get_config_dict
+    resolved_config_file = cached_file(
+                           ^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/utils/hub.py", line 370, in cached_file
+    file = cached_files(path_or_repo_id=path_or_repo_id, filenames=[filename], **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/transformers/utils/hub.py", line 595, in cached_files
+    raise OSError(f"{e}") from e
+OSError: Repo id must be in the form 'repo_name' or 'namespace/repo_name': '/home/AMD/sareeder/mk/models/Qwen3.8-27B'. Use `repo_type` argument if needed.

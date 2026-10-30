@@ -1,0 +1,81 @@
+{
+ "model": "qwen3.6-35b-a3b-gfx942",
+ "M": 8,
+ "ctx": 512,
+ "steps": 128,
+ "rounds": 3,
+ "maxlen": 704,
+ "node": "quanta-ccs-aus-j02-45.adc.amd.com",
+ "gpu": "AMD Instinct MI325X",
+ "date": "2026-10-29 18:16:11",
+ "cfgs": {
+  "0": "Cfg(M=8, cus=304, maxlen=704, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=1, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False, chaos=False, cta_red=True, skip_idle=True, rt_geom=0)",
+  "2": "Cfg(M=8, cus=304, maxlen=704, block=208, maxblocks=4, kv_s0=212992, kv_s1=256, kv_s2=512, kv_sv=106496, kv_xpack=False, conv_s0=2146304, ssm_s0=2146304, lm_head=True, c_inp=1, c_ba=8, c_out=1, c_qkv=1, c_o=16, c_router=1, c_e1=4, c_e2=1, c_lm=1, debug_route=False, fence=False, chaos=False, cta_red=True, skip_idle=True, rt_geom=2)"
+ },
+ "runs": {
+  "0": [
+   {
+    "tpot_ms": 5.303427219390869,
+    "kernel_ms_median": 4.9644551277160645
+   },
+   {
+    "tpot_ms": 5.3038811683654785,
+    "kernel_ms_median": 4.944024085998535
+   },
+   {
+    "tpot_ms": 5.304511070251465,
+    "kernel_ms_median": 4.9730682373046875
+   }
+  ],
+  "2": [
+   {
+    "tpot_ms": 5.286424160003662,
+    "kernel_ms_median": 4.940417766571045
+   },
+   {
+    "tpot_ms": 5.286859035491943,
+    "kernel_ms_median": 4.936091899871826
+   },
+   {
+    "tpot_ms": 5.28873872756958,
+    "kernel_ms_median": 4.9382147789001465
+   }
+  ]
+ },
+ "summary": {
+  "0": {
+   "tpot_ms": {
+    "median": 5.3038811683654785,
+    "min": 5.303427219390869,
+    "max": 5.304511070251465
+   },
+   "kernel_ms_median": {
+    "median": 4.9644551277160645,
+    "min": 4.944024085998535,
+    "max": 4.9730682373046875
+   }
+  },
+  "2": {
+   "tpot_ms": {
+    "median": 5.286859035491943,
+    "min": 5.286424160003662,
+    "max": 5.28873872756958
+   },
+   "kernel_ms_median": {
+    "median": 4.9382147789001465,
+    "min": 4.936091899871826,
+    "max": 4.940417766571045
+   }
+  }
+ },
+ "checks": {
+  "0": {
+   "prompt_logits_equal": true,
+   "tokens_equal": true
+  },
+  "2": {
+   "prompt_logits_equal": true,
+   "tokens_equal": true
+  }
+ }
+}

@@ -3,7 +3,8 @@
 Greedy generation of fixed prompts (tokens and logprobs saved for the comparison), then
 decode speed: TPOT = (time(256 tokens) - time(1 token)) / 255 for batches of 1 to 8.
 Usage: python bench/vllm_e2e.py MODEL_DIR on|off OUT.json [MAX_TOKENS]
-Env: MK_TP (tensor parallel size), MK_ATTN (attention backend), MK_NO_CUSTOM_AR=1.
+Env: MK_TP (tensor parallel size), MK_ATTN (attention backend), MK_NO_CUSTOM_AR=1,
+MK_MAXLEN (max_model_len, default 4096).
 """
 import json
 import os
@@ -27,7 +28,8 @@ PROMPTS = [
 def main():
     model, mode, out = sys.argv[1], sys.argv[2], sys.argv[3]
     max_tokens = int(sys.argv[4]) if len(sys.argv) > 4 else 128
-    kw = dict(model=model, max_model_len=4096, language_model_only=True, enable_prefix_caching=False,
+    kw = dict(model=model, max_model_len=int(os.environ.get("MK_MAXLEN", "4096")),
+              language_model_only=True, enable_prefix_caching=False,
               gpu_memory_utilization=0.85, max_num_seqs=8, seed=0)
     if mode == "on":
         kw["specialized_decode"] = "monokernel"

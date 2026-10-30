@@ -10,6 +10,7 @@ compare: per prompt the fraction of identical tokens, the first divergence and t
 Usage: python bench/vllm_e2e.py run MODEL_DIR on|off OUT.json [MAX_TOKENS]
        python bench/vllm_e2e.py compare OFF.json ON.json
 Env: MK_ATTN = TRITON_ATTN | ROCM_ATTN (vLLM's choice when unset).
+     MK_MAXLEN = max_model_len (default 4096).
 """
 import json
 import os
@@ -40,7 +41,8 @@ def run(model, mode, out, max_tokens):
     from vllm import LLM, SamplingParams
     from vllm.inputs import TokensPrompt
 
-    kw = dict(model=model, max_model_len=4096, language_model_only=True,
+    kw = dict(model=model, max_model_len=int(os.environ.get("MK_MAXLEN", "4096")),
+              language_model_only=True,
               enable_prefix_caching=False, gpu_memory_utilization=0.85, max_num_seqs=8,
               seed=0)
     if mode == "on":

@@ -537,6 +537,23 @@ Decision 12 (milestone 8): the vLLM DecodeSpec serves every width 1 to 8 (branch
 `users/sareeder/gemma4-gfx942-specialized-decode`). Evidence: the table above. Replaces
 decision 9. Rejected: keep widths 1 and 2 (slower at 4 and 8 by 1.49x and 1.36x).
 
+## Run-time geometry (rt2, 2026-10-29)
+
+`Cfg.rt_geom` 2 makes `maxblocks` of both layer types and the full layers' chunk count
+run-time values (glob slot `G_GEOM`); the sliding window, block sizes and strides stay
+compile-time. Default is **0**: rt2 is correct but misses the 1 % TPOT limit at M = 1.
+Evidence (`bench/results/rt2/`, MI325X, job 68211382):
+- Logits hash rt0 == rt2 at M = 1, 2, 4, 8; `test_decode` and determinism pass at M = 1, 8.
+- TPOT rt2 vs rt0 (median of 3, ctx 512): M = 1 **+1.81 %**, M = 8 −0.32 %.
+- One ELF for maxlen 4096 and 8192 (`isa_local.txt`).
+- vLLM (`vllm/`, TP1, greedy): base vs rt2 tokens and logprobs bitwise equal at 4096 and
+  8192. The rt2 vLLM TPOTs overlap another run on the same GPU and are not measurements.
+  The vLLM branch keeps the rt0 kernels.
+- After the rebase onto main `e72a981` (common/ migration): rt0 ISA equals main's, one
+  rt2 ELF across maxlens (`isa_rebase.txt`); hash rt0 == rt2 and every hard gate PASS
+  (job 68213193, `common/results/rt2/rebase/summary.txt`).
+- Next: find the M = 1 cost before flipping the default.
+
 ## Decisions
 
 Milestone 1 (signed off 2026-10-27):

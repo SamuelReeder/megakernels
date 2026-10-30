@@ -1,0 +1,11 @@
+variant rt_geom=0: cfg Cfg(M=8, cus=304, maxlen=704, block=208, maxblocks=4, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=(), fence=False, chaos=False, rt_geom=0)
+variant rt_geom=2: cfg Cfg(M=8, cus=304, maxlen=704, block=208, maxblocks=4, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=(), fence=False, chaos=False, rt_geom=2)
+load+pack+build 5s
+round 0 rt_geom=0: TPOT 8.979 ms, kernel median 9.024 ms
+round 0 rt_geom=2: TPOT 9.017 ms, kernel median 9.082 ms
+round 1 rt_geom=2: TPOT 9.031 ms, kernel median 9.087 ms
+round 1 rt_geom=0: TPOT 9.005 ms, kernel median 9.051 ms
+round 2 rt_geom=0: TPOT 9.015 ms, kernel median 9.072 ms
+round 2 rt_geom=2: TPOT 9.066 ms, kernel median 9.116 ms
+SUMMARY qwen3.8-27b-gfx942 M=8 ctx=512 maxlen=704 rt_geom=0: TPOT median 9.005 ms [8.979, 9.015] (+0.00% vs rt_geom=0), kernel 9.051; prompt logits equal True, greedy tokens equal True
+SUMMARY qwen3.8-27b-gfx942 M=8 ctx=512 maxlen=704 rt_geom=2: TPOT median 9.031 ms [9.017, 9.066] (+0.29% vs rt_geom=0), kernel 9.087; prompt logits equal True, greedy tokens equal True

@@ -1,0 +1,81 @@
+{
+ "model": "qwen3.8-27b-gfx942",
+ "M": 1,
+ "ctx": 512,
+ "steps": 128,
+ "rounds": 3,
+ "maxlen": 704,
+ "node": "quanta-ccs-aus-j02-45.adc.amd.com",
+ "gpu": "AMD Instinct MI325X",
+ "date": "2026-10-29 17:12:22",
+ "cfgs": {
+  "0": "Cfg(M=1, cus=304, maxlen=704, block=208, maxblocks=4, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=(), fence=False, chaos=False, rt_geom=0)",
+  "2": "Cfg(M=1, cus=304, maxlen=704, block=208, maxblocks=4, kv_s0=425984, kv_s1=256, kv_s2=1024, kv_sv=212992, kv_xpack=False, conv_s0=3207168, ssm_s0=3207168, lm_head=True, tp=1, ar_dtype='fp32', ar_local=False, chunks=(), fence=False, chaos=False, rt_geom=2)"
+ },
+ "runs": {
+  "0": [
+   {
+    "tpot_ms": 6.636270046234131,
+    "kernel_ms_median": 6.696832180023193
+   },
+   {
+    "tpot_ms": 6.66812801361084,
+    "kernel_ms_median": 6.74153995513916
+   },
+   {
+    "tpot_ms": 6.684883117675781,
+    "kernel_ms_median": 6.7581257820129395
+   }
+  ],
+  "2": [
+   {
+    "tpot_ms": 6.624113082885742,
+    "kernel_ms_median": 6.69775390625
+   },
+   {
+    "tpot_ms": 6.636494159698486,
+    "kernel_ms_median": 6.715781211853027
+   },
+   {
+    "tpot_ms": 6.679677963256836,
+    "kernel_ms_median": 6.742941856384277
+   }
+  ]
+ },
+ "summary": {
+  "0": {
+   "tpot_ms": {
+    "median": 6.66812801361084,
+    "min": 6.636270046234131,
+    "max": 6.684883117675781
+   },
+   "kernel_ms_median": {
+    "median": 6.74153995513916,
+    "min": 6.696832180023193,
+    "max": 6.7581257820129395
+   }
+  },
+  "2": {
+   "tpot_ms": {
+    "median": 6.636494159698486,
+    "min": 6.624113082885742,
+    "max": 6.679677963256836
+   },
+   "kernel_ms_median": {
+    "median": 6.715781211853027,
+    "min": 6.69775390625,
+    "max": 6.742941856384277
+   }
+  }
+ },
+ "checks": {
+  "0": {
+   "prompt_logits_equal": true,
+   "tokens_equal": true
+  },
+  "2": {
+   "prompt_logits_equal": true,
+   "tokens_equal": true
+  }
+ }
+}

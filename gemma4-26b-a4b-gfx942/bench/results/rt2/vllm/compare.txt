@@ -1,0 +1,22 @@
+prompt 0: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 1: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 2: 21 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 3: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 4: 159 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 5: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 6: 87 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 7: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 8: 121 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 9: 52 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+RESULT ../../../gemma4-26b-a4b-gfx942/bench/results/rt2/vllm/base_4096.json vs ../../../gemma4-26b-a4b-gfx942/bench/results/rt2/vllm/rt2_4096.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 3.3479800940874744, '2': 3.6796797687808676, '4': 4.0186615806876445, '8': 5.016417482265216} B {'1': 3.3572440469345333, '2': 3.6326668910024797, '4': 3.996770996052552, '8': 5.011008251184488}; kernel steps A {'quality': 1235, 'b1_n1': 0, 'b1_n256': 255, 'b2_n1': 0, 'b2_n256': 255, 'b4_n1': 0, 'b4_n256': 255, 'b8_n1': 0, 'b8_n256': 255} B {'quality': 1235, 'b1_n1': 0, 'b1_n256': 255, 'b2_n1': 0, 'b2_n256': 255, 'b4_n1': 0, 'b4_n256': 255, 'b8_n1': 0, 'b8_n256': 255}
+prompt 0: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 1: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 2: 21 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 3: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 4: 159 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 5: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 6: 87 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 7: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 8: 121 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 9: 52 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+RESULT ../../../gemma4-26b-a4b-gfx942/bench/results/rt2/vllm/base_8192.json vs ../../../gemma4-26b-a4b-gfx942/bench/results/rt2/vllm/rt2_8192.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 3.332809027850482, '2': 3.695010259181407, '4': 4.024631533698709, '8': 5.079105293706936} B {'1': 1.7974795216657953, '2': 9.928727443512601, '4': 1.0176019218074632, '8': 5.100195787792258}; kernel steps A {'quality': 1235, 'b1_n1': 0, 'b1_n256': 255, 'b2_n1': 0, 'b2_n256': 255, 'b4_n1': 0, 'b4_n256': 255, 'b8_n1': 0, 'b8_n256': 255} B {'quality': 1235, 'b1_n1': 0, 'b1_n256': 255, 'b2_n1': 0, 'b2_n256': 255, 'b4_n1': 0, 'b4_n256': 255, 'b8_n1': 0, 'b8_n256': 255}

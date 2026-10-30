@@ -1,0 +1,10 @@
+1,4c1,4
+< ISA tp1 M=1 lm=off 666a229ba04eb2c0
+< ISA tp1 M=1 lm=on e99502b71231965b
+< ISA tp1 M=8 lm=off 3c35f189e70fc42f
+< ISA tp1 M=8 lm=on fb509686c3147a25
+---
+> ISA tp1 M=1 lm=off ee5b2850664060fa
+> ISA tp1 M=1 lm=on a27a0f6f57643be9
+> ISA tp1 M=8 lm=off b483b473843d1ac5
+> ISA tp1 M=8 lm=on ab5f5a1f19052413

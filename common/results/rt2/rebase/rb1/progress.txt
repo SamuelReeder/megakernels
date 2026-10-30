@@ -1,0 +1,6 @@
+vgeom rc 0
+hash q8 rc 0
+hash q6 rc 0
+hash g rc 0
+gates rc 0
+isa_rt0 done
