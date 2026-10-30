@@ -12,7 +12,7 @@ set -uo pipefail
 final=$1 out=$2
 W=/tmp/pipe_wheel_${SLURM_JOB_ID:-local}_$$
 trap 'cd /; rm -rf "$W"' EXIT
-export PIP_CACHE_DIR=$W/pipcache XDG_CACHE_HOME=$W/cache PYTHONNOUSERSITE=1
+export PIP_CACHE_DIR=$W/pipcache XDG_CACHE_HOME=$W/cache PYTHONNOUSERSITE=1 DVC_NO_ANALYTICS=1
 mkdir -p "$W" "$out" && cd "$W" || exit 2
 echo "start $(date -Is) $(hostname) nproc=$(nproc) rocm-libraries $RL_SHA set $final"
 # the build reads the root CMake files, cmake/, dnn-providers/, projects/hipdnn/ and shared/
@@ -53,16 +53,11 @@ print(f"descriptor folder: {len(keep)} of {len(entries)} objects (drop M={drop o
 PY
   python3.12 "$TOOL" generate --lock "src/$D/manifest.json" || return 1
   python3.12 "$TOOL" verify --lock "src/$D/manifest.json" || return 1
-  # configure compares the folder's file count (and size) with artifacts.dvc: record the
-  # local folder in the pointer (no DVC cache or remote is involved)
-  python3.12 - "src/$D/artifacts" <<'PY' || return 1
-import pathlib, re, sys
-a = pathlib.Path(sys.argv[1]); p = a.with_name("artifacts.dvc")
-files = [f for f in a.rglob("*") if f.is_file()]
-s = re.sub(r"(?m)^  nfiles: \d+$", f"  nfiles: {len(files)}", p.read_text())
-s = re.sub(r"(?m)^  size: \d+$", f"  size: {sum(f.stat().st_size for f in files)}", s)
-p.write_text(s)
-PY
+  # configure compares the folder's file count with artifacts.dvc, and build_wheel.sh runs
+  # `dvc pull --recursive` on the descriptors: record the folder in the local DVC cache and
+  # the pointer (nothing is pushed). DVC writes its site cache under /var/tmp: the
+  # container must be writable (stage.sh --container-writable).
+  (cd src && ../tools/bin/dvc add "$D/artifacts") || return 1
   grep -E "nfiles|size" "src/$D/artifacts.dvc"
 }
 

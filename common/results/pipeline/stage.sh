@@ -129,7 +129,7 @@ d_wheel)  # e2e_plan.sh stage + wheel (+ drop's wheel), in the hipdnn image on a
   # the node's bash reads it ends the build with "Stale file handle"
   wn=$E/wheel_node.$$.sh
   cp "$P/wheel_node.sh" "$wn"
-  step "$(tcap 220)" --container-image="$HIMG" --container-mounts="/cluster:/cluster,$HOME:$HOME" \
+  step "$(tcap 220)" --container-image="$HIMG" --container-writable --container-mounts="/cluster:/cluster,$HOME:$HOME" \
     bash -c "RL_SHA=$RL_SHA KP_SHA=$KP_SHA bash $wn $RT2 $E" > "$E/wheel_node.log" 2>&1
   rc=$?
   rm -f "$wn"
