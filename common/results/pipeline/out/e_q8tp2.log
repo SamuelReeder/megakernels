@@ -1,0 +1,44 @@
+==== 2026-10-30T18:57:04 e_q8tp2 attempt 1 job 68220723 gpus 0,1 tleft 165 min
+# 2026-10-30T18:57:04-04:00 e_q8tp2 job 68220723 gpus 0,1 tleft 165 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=984605cb02707d1157a9555660601f432e708df2 PIPE_REV="hipdnn-design 984605c dirty 0" RL_SHA=adeef27221140ff316429f13b658994777ff4f6b E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+on batch 1: TPOT 5.59 ms (179.0 tok/s/user)
+on batch 2: TPOT 6.05 ms (165.3 tok/s/user)
+on batch 4: TPOT 6.90 ms (144.9 tok/s/user)
+on batch 8: TPOT 8.11 ms (123.3 tok/s/user)
+on batch 1: TPOT 5.63 ms (177.7 tok/s/user)
+on batch 2: TPOT 6.07 ms (164.8 tok/s/user)
+on batch 4: TPOT 6.89 ms (145.2 tok/s/user)
+on batch 8: TPOT 8.10 ms (123.5 tok/s/user)
+(Worker_TP0 pid=1541538) INFO 10-30 19:06:43 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 1 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":1,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP1 pid=1541537) INFO 10-30 19:06:43 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 1 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":1,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP0 pid=1541538) INFO 10-30 19:06:43 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 2 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":2,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP1 pid=1541537) INFO 10-30 19:06:43 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 2 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":2,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP0 pid=1541538) INFO 10-30 19:06:43 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 4 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":4,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP1 pid=1541537) INFO 10-30 19:06:43 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 4 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":4,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP0 pid=1541538) INFO 10-30 19:06:43 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 8 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":8,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP1 pid=1541537) INFO 10-30 19:06:43 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 8 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":8,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP0 pid=1541538) INFO 10-30 19:06:46 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 1 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":1,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP1 pid=1541537) INFO 10-30 19:06:46 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 1 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":1,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP0 pid=1541538) INFO 10-30 19:06:46 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 2 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":2,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP1 pid=1541537) INFO 10-30 19:06:46 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 2 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":2,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP0 pid=1541538) INFO 10-30 19:06:46 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 4 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":4,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP1 pid=1541537) INFO 10-30 19:06:46 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 4 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":4,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP0 pid=1541538) INFO 10-30 19:06:46 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 8 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":8,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(Worker_TP1 pid=1541537) INFO 10-30 19:06:46 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 8 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":8,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+on batch 1: TPOT 5.62 ms (178.0 tok/s/user)
+on batch 2: TPOT 6.05 ms (165.2 tok/s/user)
+on batch 4: TPOT 6.90 ms (144.9 tok/s/user)
+on batch 8: TPOT 8.10 ms (123.5 tok/s/user)
+on batch 1: TPOT 5.59 ms (178.8 tok/s/user)
+on batch 2: TPOT 6.04 ms (165.5 tok/s/user)
+on batch 4: TPOT 6.90 ms (145.0 tok/s/user)
+on batch 8: TPOT 8.12 ms (123.1 tok/s/user)
+on batch 1: TPOT 5.59 ms (178.8 tok/s/user)
+on batch 2: TPOT 6.05 ms (165.4 tok/s/user)
+on batch 4: TPOT 6.86 ms (145.8 tok/s/user)
+on batch 8: TPOT 8.08 ms (123.7 tok/s/user)
+PASS runs q8tp2 flydsl.json
+PASS runs q8tp2 flydsl2.json
+PASS runs q8tp2 hipdnn.json
+PASS runs q8tp2 default.json
+PASS runs q8tp2 nowheel.json
+RESULT e_q8tp2 PASS rc=0 2026-10-30T19:13:36-04:00

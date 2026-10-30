@@ -1,0 +1,2 @@
+==== 2026-10-30T16:49:44 e_q8tp2 attempt 1 job 68220723 gpus 0,1 tleft 293 min
+# 2026-10-30T16:49:44-04:00 e_q8tp2 job 68220723 gpus 0,1 tleft 293 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=836cb479c674c031883a1a8f7ef6b9db374cf770 PIPE_REV="hipdnn-design 836cb47 dirty 0" RL_SHA=9bb279d30d031a60a2d490150b081cee264086e8 E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A

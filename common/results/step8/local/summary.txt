@@ -1,0 +1,4 @@
+qwen38-gfx942-specialized-decode ruff: 2/2 rc0; hipdnn tests: 10 passed; kit: ======================== 81 passed, 1 warning in 32.63s ========================
+qwen38-gfx942-tp2 ruff: 2/2 rc0; hipdnn tests: 10 passed; kit: ======================== 81 passed, 1 warning in 33.80s ========================
+qwen36-gfx942-specialized-decode ruff: 2/2 rc0; hipdnn tests: 9 passed; kit: ======================== 75 passed, 1 warning in 26.98s ========================
+gemma4-moe-batch ruff: 2/2 rc0; hipdnn tests: 8 passed; kit: ======================== 83 passed, 1 warning in 27.54s ========================

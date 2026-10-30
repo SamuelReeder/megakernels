@@ -1,0 +1,25 @@
+==== 2026-10-30T15:42:54 g_check attempt 1 job - gpus - tleft 0 min
+# 2026-10-30T15:42:54-04:00 g_check job - gpus - tleft 0 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=e126b37da37bd7b1a4fdd0c7999d5ce99d502f47 PIPE_REV="hipdnn-design e126b37 dirty 0" RL_SHA=9bb279d30d031a60a2d490150b081cee264086e8 E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+== q8 (vLLM e745c7910)
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/AMD/sareeder/mk/out/pipeline/e2e/runs/q8/flydsl.json'
+FAIL q8: check error (missing results?)
+== q8tp2 (vLLM b9a1943fb)
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/AMD/sareeder/mk/out/pipeline/e2e/runs/q8tp2/flydsl.json'
+FAIL q8tp2: check error (missing results?)
+== q6 (vLLM 81b2b128d)
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/AMD/sareeder/mk/out/pipeline/e2e/runs/q6/flydsl.json'
+FAIL q6: check error (missing results?)
+== g (vLLM 3cd36e151)
+Traceback (most recent call last):
+  File "<stdin>", line 3, in <module>
+FileNotFoundError: [Errno 2] No such file or directory: '/home/AMD/sareeder/mk/out/pipeline/e2e/runs/g/flydsl.json'
+FAIL g: check error (missing results?)
+FAIL H2 q8 drop4: 0 decline line(s) for width 4; 0 launch line(s) (3 per cache bind); DecodeUnsupported: 0; hipdnn.json: missing
+FAIL H2 q6 drop4: 0 decline line(s) for width 4; 0 launch line(s) (3 per cache bind); DecodeUnsupported: 0; hipdnn.json: missing
+RESULT g_check FAIL rc=1 2026-10-30T15:42:54-04:00

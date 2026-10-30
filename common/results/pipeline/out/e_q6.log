@@ -1,0 +1,32 @@
+==== 2026-10-30T18:43:55 e_q6 attempt 1 job 68220723 gpus 1 tleft 178 min
+# 2026-10-30T18:43:55-04:00 e_q6 job 68220723 gpus 1 tleft 178 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=984605cb02707d1157a9555660601f432e708df2 PIPE_REV="hipdnn-design 984605c dirty 0" RL_SHA=adeef27221140ff316429f13b658994777ff4f6b E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+OSError: [Errno 122] Disk quota exceeded
+on TRITON_ATTN batch 1: TPOT 2.96 ms (337.7 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.58 ms (279.7 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.61 ms (216.9 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 6.15 ms (162.6 tok/s/user), kernel steps per 256-token generate 255
+(EngineCore pid=1483816) INFO 10-30 18:50:21 [hipdnn_launch.py:181] Specialized decode qwen36-35b-a3b-fp8-gfx942: width 1 launches through hipDNN megakernel.qwen36-35b-a3b-fp8-gfx942; payload {"M":1,"arch":"gfx942","block":1056,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"qwen36-35b-a3b-f
+(EngineCore pid=1483816) INFO 10-30 18:50:21 [hipdnn_launch.py:181] Specialized decode qwen36-35b-a3b-fp8-gfx942: width 2 launches through hipDNN megakernel.qwen36-35b-a3b-fp8-gfx942; payload {"M":2,"arch":"gfx942","block":1056,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"qwen36-35b-a3b-f
+(EngineCore pid=1483816) INFO 10-30 18:50:21 [hipdnn_launch.py:181] Specialized decode qwen36-35b-a3b-fp8-gfx942: width 4 launches through hipDNN megakernel.qwen36-35b-a3b-fp8-gfx942; payload {"M":4,"arch":"gfx942","block":1056,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"qwen36-35b-a3b-f
+(EngineCore pid=1483816) INFO 10-30 18:50:21 [hipdnn_launch.py:181] Specialized decode qwen36-35b-a3b-fp8-gfx942: width 8 launches through hipDNN megakernel.qwen36-35b-a3b-fp8-gfx942; payload {"M":8,"arch":"gfx942","block":1056,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"qwen36-35b-a3b-f
+(EngineCore pid=1483816) INFO 10-30 18:50:24 [hipdnn_launch.py:181] Specialized decode qwen36-35b-a3b-fp8-gfx942: width 1 launches through hipDNN megakernel.qwen36-35b-a3b-fp8-gfx942; payload {"M":1,"arch":"gfx942","block":1056,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"qwen36-35b-a3b-f
+(EngineCore pid=1483816) INFO 10-30 18:50:24 [hipdnn_launch.py:181] Specialized decode qwen36-35b-a3b-fp8-gfx942: width 2 launches through hipDNN megakernel.qwen36-35b-a3b-fp8-gfx942; payload {"M":2,"arch":"gfx942","block":1056,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"qwen36-35b-a3b-f
+(EngineCore pid=1483816) INFO 10-30 18:50:24 [hipdnn_launch.py:181] Specialized decode qwen36-35b-a3b-fp8-gfx942: width 4 launches through hipDNN megakernel.qwen36-35b-a3b-fp8-gfx942; payload {"M":4,"arch":"gfx942","block":1056,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"qwen36-35b-a3b-f
+(EngineCore pid=1483816) INFO 10-30 18:50:24 [hipdnn_launch.py:181] Specialized decode qwen36-35b-a3b-fp8-gfx942: width 8 launches through hipDNN megakernel.qwen36-35b-a3b-fp8-gfx942; payload {"M":8,"arch":"gfx942","block":1056,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"qwen36-35b-a3b-f
+on TRITON_ATTN batch 1: TPOT 2.98 ms (335.7 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.59 ms (278.5 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.65 ms (215.3 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 6.18 ms (161.7 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 1: TPOT 2.99 ms (335.0 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.61 ms (277.3 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.64 ms (215.6 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 6.17 ms (162.1 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 1: TPOT 2.99 ms (334.3 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.60 ms (277.6 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.63 ms (216.0 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 6.15 ms (162.5 tok/s/user), kernel steps per 256-token generate 255
+PASS runs q6 flydsl.json
+PASS runs q6 hipdnn.json
+PASS runs q6 default.json
+PASS runs q6 nowheel.json
+RESULT e_q6 PASS rc=0 2026-10-30T18:56:15-04:00

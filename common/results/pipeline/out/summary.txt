@@ -1,0 +1,256 @@
+# pipeline summary 2026-10-30T19:28:38
+a_cc         FAIL  job 68215802  attempts 1 
+b_mkeng      PASS  job 68215720  attempts 1 
+c_rt0_q8     PASS  job 68215720  attempts 1 
+c_rt0_q6     PASS  job 68218902  attempts 1 
+c_rt0_g      PASS  job 68218902  attempts 1 
+c_rt0_merge  PASS  job -         attempts 1 
+c_rt2_q8     PASS  job 68218902  attempts 1 
+c_rt2_q6     PASS  job 68218902  attempts 1 
+c_rt2_g      PASS  job 68218902  attempts 1 
+c_rt2_merge  PASS  job -         attempts 1 
+d_wheel      PASS  job 68220723  attempts 1 
+e_q8         PASS  job 68220723  attempts 1 
+e_q8tp2      PASS  job 68220723  attempts 1 
+e_q6         PASS  job 68220723  attempts 1 
+e_g          PASS  job 68220723  attempts 1 
+f_drop_q8    PASS  job 68220723  attempts 1 
+f_drop_q6    PASS  job 68220723  attempts 1 
+g_check      FAIL  job -         attempts 1 
+# jobs
+68215720 holder gpus 2 ENDED    node - probe ok released True
+68215745 hvco   gpus 1 ENDED    node - probe None released False
+68215802 holder gpus 2 ENDED    node - probe ok released True
+68218902 holder gpus 2 ENDED    node - probe ok released True
+68220707 cpu    gpus 0 ENDED    node - probe ok released True
+68220723 holder gpus 2 ENDED    node - probe ok released True
+68222903 holder gpus 2 PENDING  node  probe None released True
+# verdict lines (PASS/FAIL) of each stage log
+a_cc: PASS GATE q8 hashes.txt new=main
+a_cc: PASS GATE q8 isa.txt new=main
+a_cc: PASS GATE q6 hashes.txt new=main
+a_cc: PASS GATE q6 isa.txt new=main
+a_cc: PASS GATE g hashes.txt new=main
+a_cc: PASS GATE g isa.txt new=main
+a_cc: PASS GATE q8tp2 hashes.txt new=main
+a_cc: PASS GATE q8tp2 isa.txt new=main
+a_cc: PASS vllm gnew_4096 exit 0
+a_cc: PASS vllm gprev_4096 exit 0
+a_cc: PASS vllm q6new_4096 exit 0
+a_cc: PASS vllm q6new_8192 exit 0
+a_cc: PASS vllm q6prev_4096 exit 0
+a_cc: PASS vllm q6prev_8192 exit 0
+a_cc: PASS vllm q8new_4096 exit 0
+a_cc: PASS vllm q8new_8192 exit 0
+a_cc: PASS vllm q8new_tp2_4096 exit 0
+a_cc: PASS vllm q8prev_4096 exit 0
+a_cc: PASS vllm q8prev_8192 exit 0
+a_cc: PASS vllm q8prev_tp2_4096 exit 0
+a_cc: PASS vllm q8tp1prev_4096 exit 0
+a_cc: PASS vllm q8tp1prev_8192 exit 0
+a_cc: PASS greedy q8new_4096:q8prev_4096: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8new_4096.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8prev_4096.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 7.577424596050097, '2': 8.13875200384406, '4': 8.938961576410186, '8': 10.444589717742787} B {'1': 7.63054192
+a_cc: PASS greedy q8new_8192:q8prev_8192: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8new_8192.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8prev_8192.json: tokens equal True, logprobs bitwise equal False; TPOT A {'1': 7.620011372537371, '2': 8.168228647064455, '4': 8.939096439337614, '8': 10.588322239402938} B {'1': 7.605913
+a_cc: PASS greedy q8new_4096:q8tp1prev_4096: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8new_4096.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8tp1prev_4096.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 7.577424596050097, '2': 8.13875200384406, '4': 8.938961576410186, '8': 10.444589717742787} B {'1': 7.75596
+a_cc: PASS greedy q8new_8192:q8tp1prev_8192: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8new_8192.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8tp1prev_8192.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 7.620011372537371, '2': 8.168228647064455, '4': 8.939096439337614, '8': 10.588322239402938} B {'1': 7.7221
+a_cc: PASS greedy q6new_4096:q6prev_4096: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q6new_4096.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q6prev_4096.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 2.986704992180617, '2': 3.5679379608208204, '4': 4.625926431332368, '8': 6.143651082404141} B {'1': 2.9792202
+a_cc: PASS greedy q6new_8192:q6prev_8192: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q6new_8192.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q6prev_8192.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 2.9764894157529387, '2': 3.5675988432166035, '4': 4.618761670666144, '8': 6.176386823576382} B {'1': 2.994356
+a_cc: PASS greedy gnew_4096:gprev_4096: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/gnew_4096.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/gprev_4096.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 3.483878458763345, '2': 3.877697137353357, '4': 4.328669152934761, '8': 5.459280976427573} B {'1': 3.4804823802
+a_cc: FAIL greedy q8new_tp2_4096:q8prev_tp2_4096: RESULT /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8new_tp2_4096.json vs /home/AMD/sareeder/mk/out/cc_68215802/vllm/q8prev_tp2_4096.json: tokens equal False, logprobs bitwise equal False; TPOT A {'1': 5.551512172564353, '2': 6.0059496274619715, '4': 6.8074827489908785, '8': 8.07245852158624} B {'1':
+a_cc: PASS rt2 one binary q8new: ISA 4096 == 8192 (4 kernels)
+a_cc: PASS rt2 one binary q6new: ISA 4096 == 8192 (4 kernels)
+a_cc: RESULT a_cc FAIL rc=1 2026-10-30T15:43:34-04:00
+b_mkeng: PASS mkeng MODE=ON build_rc=0
+b_mkeng: PASS mkeng MODE=ON unit_rc=0
+b_mkeng: PASS mkeng MODE=ON megakernel_unit_rc=0
+b_mkeng: PASS mkeng gpu arch=gfx942
+b_mkeng: PASS mkeng integration_rc=0
+b_mkeng: PASS mkeng pytest_rc=0
+b_mkeng: RESULT b_mkeng PASS rc=0 2026-10-30T12:47:01-04:00
+c_rt0_q8: RESULT c_rt0_q8 ERROR rc=2 2026-10-30T12:58:35-04:00
+c_rt0_q8: PASS determinism qwen38-27b-mxfp4-gfx942: manifest.json a == b: EQUAL
+c_rt0_q8: PASS determinism qwen38-27b-mxfp4-gfx942: files and sha256 a == b: EQUAL
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=1 src=5684612144c87c80 file=qwen38-27b-mxfp4-gfx942_M1_5684612144c87c80.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['e5a780f97293920f', True] co=['e5a780f97293920f', True] flydsl_again=['e5a780f97293920f', True]
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=2 src=ce0eff23c7f6cd1a file=qwen38-27b-mxfp4-gfx942_M2_ce0eff23c7f6cd1a.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['9ac3f8026a46f66b', True] co=['9ac3f8026a46f66b', True] flydsl_again=['9ac3f8026a46f66b', True]
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=4 src=bbe695d956718e84 file=qwen38-27b-mxfp4-gfx942_M4_bbe695d956718e84.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['8f0bd7bc0ddbfdf1', True] co=['8f0bd7bc0ddbfdf1', True] flydsl_again=['8f0bd7bc0ddbfdf1', True]
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=8 src=bdacf39739dc08bc file=qwen38-27b-mxfp4-gfx942_M8_bdacf39739dc08bc.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['a31fcb1d9156f5a7', True] co=['a31fcb1d9156f5a7', True] flydsl_again=['a31fcb1d9156f5a7', True]
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=1 src=03671d6e0efdf85f file=qwen38-27b-mxfp4-gfx942_M1_03671d6e0efdf85f.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['225131fbb9002634', True] co=['225131fbb9002634', True] flydsl_again=['225131fbb9002634', True]
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=2 src=d50d2f7124df38f5 file=qwen38-27b-mxfp4-gfx942_M2_d50d2f7124df38f5.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['41f446ddf5cfa217', True] co=['41f446ddf5cfa217', True] flydsl_again=['41f446ddf5cfa217', True]
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=4 src=a4ed937734a3586d file=qwen38-27b-mxfp4-gfx942_M4_a4ed937734a3586d.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['bb248e45937fb61f', True] co=['bb248e45937fb61f', True] flydsl_again=['bb248e45937fb61f', True]
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=8 src=3f6fd93e50658b06 file=qwen38-27b-mxfp4-gfx942_M8_3f6fd93e50658b06.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['ab17ce3bd96d5c49', True] co=['ab17ce3bd96d5c49', True] flydsl_again=['ab17ce3bd96d5c49', True]
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=1 src=03671d6e0efdf85f file=qwen38-27b-mxfp4-gfx942_M1_03671d6e0efdf85f.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['225131fbb9002634', True] co=['225131fbb9002634', True] flydsl_again=['225131fbb9002634', True]
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=2 src=d50d2f7124df38f5 file=qwen38-27b-mxfp4-gfx942_M2_d50d2f7124df38f5.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['41f446ddf5cfa217', True] co=['41f446ddf5cfa217', True] flydsl_again=['41f446ddf5cfa217', True]
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=4 src=a4ed937734a3586d file=qwen38-27b-mxfp4-gfx942_M4_a4ed937734a3586d.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['bb248e45937fb61f', True] co=['bb248e45937fb61f', True] flydsl_again=['bb248e45937fb61f', True]
+c_rt0_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=8 src=3f6fd93e50658b06 file=qwen38-27b-mxfp4-gfx942_M8_3f6fd93e50658b06.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['ab17ce3bd96d5c49', True] co=['ab17ce3bd96d5c49', True] flydsl_again=['ab17ce3bd96d5c49', True]
+c_rt0_q8: RESULT c_rt0_q8 PASS rc=0 2026-10-30T13:43:08-04:00
+c_rt0_q6: FAIL determinism qwen36-35b-a3b-fp8-gfx942: manifest.json a == b: DIFFERENT
+c_rt0_q6: FAIL determinism qwen36-35b-a3b-fp8-gfx942: files and sha256 a == b: DIFFERENT
+c_rt0_q6: FAIL H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=1 src=c6b5a4f99b094231 file=qwen36-35b-a3b-fp8-gfx942_M1_c6b5a4f99b094231.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['c1a46dc3a92ef792', True] co=['c1a46dc3a92ef792', True] flydsl_again=['c1a46dc3a92ef792', True]
+c_rt0_q6: FAIL H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=2 src=22731dccfea0dcde file=qwen36-35b-a3b-fp8-gfx942_M2_22731dccfea0dcde.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['8755b9b8f27efe17', True] co=['8755b9b8f27efe17', True] flydsl_again=['8755b9b8f27efe17', True]
+c_rt0_q6: FAIL H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=4 src=8d9db94747609cb6 file=qwen36-35b-a3b-fp8-gfx942_M4_8d9db94747609cb6.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['99a5f0b7e2f5a180', True] co=['99a5f0b7e2f5a180', True] flydsl_again=['99a5f0b7e2f5a180', True]
+c_rt0_q6: FAIL H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=8 src=0077583dc3d34699 file=qwen36-35b-a3b-fp8-gfx942_M8_0077583dc3d34699.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['d8291446f6c04e6b', True] co=['d8291446f6c04e6b', True] flydsl_again=['d8291446f6c04e6b', True]
+c_rt0_q6: RESULT c_rt0_q6 FAIL rc=1 2026-10-30T12:45:54-04:00
+c_rt0_q6: PASS determinism qwen36-35b-a3b-fp8-gfx942: manifest.json a == b: EQUAL
+c_rt0_q6: PASS determinism qwen36-35b-a3b-fp8-gfx942: files and sha256 a == b: EQUAL
+c_rt0_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=1 src=c6b5a4f99b094231 file=qwen36-35b-a3b-fp8-gfx942_M1_c6b5a4f99b094231.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['c1a46dc3a92ef792', True] co=['c1a46dc3a92ef792', True] flydsl_again=['c1a46dc3a92ef792', True]
+c_rt0_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=2 src=22731dccfea0dcde file=qwen36-35b-a3b-fp8-gfx942_M2_22731dccfea0dcde.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=False runtime_jit_same_symbol=True flydsl=['8755b9b8f27efe17', True] co=['8755b9b8f27efe17', True] flydsl_again=['8755b9b8f27efe17', True]
+c_rt0_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=4 src=8d9db94747609cb6 file=qwen36-35b-a3b-fp8-gfx942_M4_8d9db94747609cb6.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['99a5f0b7e2f5a180', True] co=['99a5f0b7e2f5a180', True] flydsl_again=['99a5f0b7e2f5a180', True]
+c_rt0_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=8 src=0077583dc3d34699 file=qwen36-35b-a3b-fp8-gfx942_M8_0077583dc3d34699.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['d8291446f6c04e6b', True] co=['d8291446f6c04e6b', True] flydsl_again=['d8291446f6c04e6b', True]
+c_rt0_q6: RESULT c_rt0_q6 PASS rc=0 2026-10-30T13:25:46-04:00
+c_rt0_g: PASS determinism gemma4-26b-a4b-fp8-gfx942: manifest.json a == b: EQUAL
+c_rt0_g: PASS determinism gemma4-26b-a4b-fp8-gfx942: files and sha256 a == b: EQUAL
+c_rt0_g: FAIL H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=1 src=90ae76949d6abf76 file=gemma4-26b-a4b-fp8-gfx942_M1_90ae76949d6abf76.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['15f7cdc75a417e2a', True] co=['15f7cdc75a417e2a', True] flydsl_again=['15f7cdc75a417e2a', True]
+c_rt0_g: FAIL H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=2 src=2941c148f48f8157 file=gemma4-26b-a4b-fp8-gfx942_M2_2941c148f48f8157.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['e18c82909acdd7dd', True] co=['e18c82909acdd7dd', True] flydsl_again=['e18c82909acdd7dd', True]
+c_rt0_g: FAIL H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=4 src=38128b0c5303aa58 file=gemma4-26b-a4b-fp8-gfx942_M4_38128b0c5303aa58.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['93e620ff0b5b186d', True] co=['93e620ff0b5b186d', True] flydsl_again=['93e620ff0b5b186d', True]
+c_rt0_g: FAIL H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=8 src=d3c2094a0772144e file=gemma4-26b-a4b-fp8-gfx942_M8_d3c2094a0772144e.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['9f7a321e6548bd16', True] co=['9f7a321e6548bd16', True] flydsl_again=['9f7a321e6548bd16', True]
+c_rt0_g: RESULT c_rt0_g FAIL rc=1 2026-10-30T12:58:19-04:00
+c_rt0_g: PASS determinism gemma4-26b-a4b-fp8-gfx942: manifest.json a == b: EQUAL
+c_rt0_g: PASS determinism gemma4-26b-a4b-fp8-gfx942: files and sha256 a == b: EQUAL
+c_rt0_g: PASS H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=1 src=90ae76949d6abf76 file=gemma4-26b-a4b-fp8-gfx942_M1_90ae76949d6abf76.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['15f7cdc75a417e2a', True] co=['15f7cdc75a417e2a', True] flydsl_again=['15f7cdc75a417e2a', True]
+c_rt0_g: PASS H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=2 src=2941c148f48f8157 file=gemma4-26b-a4b-fp8-gfx942_M2_2941c148f48f8157.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['e18c82909acdd7dd', True] co=['e18c82909acdd7dd', True] flydsl_again=['e18c82909acdd7dd', True]
+c_rt0_g: PASS H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=4 src=38128b0c5303aa58 file=gemma4-26b-a4b-fp8-gfx942_M4_38128b0c5303aa58.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['93e620ff0b5b186d', True] co=['93e620ff0b5b186d', True] flydsl_again=['93e620ff0b5b186d', True]
+c_rt0_g: PASS H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=8 src=d3c2094a0772144e file=gemma4-26b-a4b-fp8-gfx942_M8_d3c2094a0772144e.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['9f7a321e6548bd16', True] co=['9f7a321e6548bd16', True] flydsl_again=['9f7a321e6548bd16', True]
+c_rt0_g: RESULT c_rt0_g PASS rc=0 2026-10-30T13:27:09-04:00
+c_rt0_merge: PASS merge rt0 -> /home/AMD/sareeder/coexport/sets/rt0/final
+c_rt0_merge: RESULT c_rt0_merge PASS rc=0 2026-10-30T13:43:27-04:00
+c_rt2_q8: PASS determinism qwen38-27b-mxfp4-gfx942: manifest.json a == b: EQUAL
+c_rt2_q8: PASS determinism qwen38-27b-mxfp4-gfx942: files and sha256 a == b: EQUAL
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=1 src=b1dd543085b568c3 file=qwen38-27b-mxfp4-gfx942_M1_b1dd543085b568c3.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['e5a780f97293920f', True] co=['e5a780f97293920f', True] flydsl_again=['e5a780f97293920f', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=2 src=0f380daa878c2bea file=qwen38-27b-mxfp4-gfx942_M2_0f380daa878c2bea.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['9ac3f8026a46f66b', True] co=['9ac3f8026a46f66b', True] flydsl_again=['9ac3f8026a46f66b', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=4 src=60cfbad7277ab9a5 file=qwen38-27b-mxfp4-gfx942_M4_60cfbad7277ab9a5.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['8f0bd7bc0ddbfdf1', True] co=['8f0bd7bc0ddbfdf1', True] flydsl_again=['8f0bd7bc0ddbfdf1', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=8 src=0129340e2ba74ea9 file=qwen38-27b-mxfp4-gfx942_M8_0129340e2ba74ea9.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['a31fcb1d9156f5a7', True] co=['a31fcb1d9156f5a7', True] flydsl_again=['a31fcb1d9156f5a7', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=8192 tp=1 rank=0 M=1 src=b1dd543085b568c3 file=qwen38-27b-mxfp4-gfx942_M1_b1dd543085b568c3.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['e5a780f97293920f', True] co=['e5a780f97293920f', True] flydsl_again=['e5a780f97293920f', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=8192 tp=1 rank=0 M=2 src=0f380daa878c2bea file=qwen38-27b-mxfp4-gfx942_M2_0f380daa878c2bea.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['9ac3f8026a46f66b', True] co=['9ac3f8026a46f66b', True] flydsl_again=['9ac3f8026a46f66b', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=8192 tp=1 rank=0 M=4 src=60cfbad7277ab9a5 file=qwen38-27b-mxfp4-gfx942_M4_60cfbad7277ab9a5.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['8f0bd7bc0ddbfdf1', True] co=['8f0bd7bc0ddbfdf1', True] flydsl_again=['8f0bd7bc0ddbfdf1', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=8192 tp=1 rank=0 M=8 src=0129340e2ba74ea9 file=qwen38-27b-mxfp4-gfx942_M8_0129340e2ba74ea9.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['a31fcb1d9156f5a7', True] co=['a31fcb1d9156f5a7', True] flydsl_again=['a31fcb1d9156f5a7', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=1 src=8b06c31963660652 file=qwen38-27b-mxfp4-gfx942_M1_8b06c31963660652.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['225131fbb9002634', True] co=['225131fbb9002634', True] flydsl_again=['225131fbb9002634', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=2 src=610b5ff6fcd63a40 file=qwen38-27b-mxfp4-gfx942_M2_610b5ff6fcd63a40.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['41f446ddf5cfa217', True] co=['41f446ddf5cfa217', True] flydsl_again=['41f446ddf5cfa217', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=4 src=c1e0c53a2855903d file=qwen38-27b-mxfp4-gfx942_M4_c1e0c53a2855903d.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['bb248e45937fb61f', True] co=['bb248e45937fb61f', True] flydsl_again=['bb248e45937fb61f', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=8 src=2f8627d1a801ef98 file=qwen38-27b-mxfp4-gfx942_M8_2f8627d1a801ef98.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['ab17ce3bd96d5c49', True] co=['ab17ce3bd96d5c49', True] flydsl_again=['ab17ce3bd96d5c49', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=1 src=8b06c31963660652 file=qwen38-27b-mxfp4-gfx942_M1_8b06c31963660652.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['225131fbb9002634', True] co=['225131fbb9002634', True] flydsl_again=['225131fbb9002634', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=2 src=610b5ff6fcd63a40 file=qwen38-27b-mxfp4-gfx942_M2_610b5ff6fcd63a40.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['41f446ddf5cfa217', True] co=['41f446ddf5cfa217', True] flydsl_again=['41f446ddf5cfa217', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=4 src=c1e0c53a2855903d file=qwen38-27b-mxfp4-gfx942_M4_c1e0c53a2855903d.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['bb248e45937fb61f', True] co=['bb248e45937fb61f', True] flydsl_again=['bb248e45937fb61f', True]
+c_rt2_q8: PASS H1 model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=8 src=2f8627d1a801ef98 file=qwen38-27b-mxfp4-gfx942_M8_2f8627d1a801ef98.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['ab17ce3bd96d5c49', True] co=['ab17ce3bd96d5c49', True] flydsl_again=['ab17ce3bd96d5c49', True]
+c_rt2_q8: RESULT c_rt2_q8 PASS rc=0 2026-10-30T14:39:11-04:00
+c_rt2_q6: RESULT c_rt2_q6 ERROR rc=2 2026-10-30T13:00:59-04:00
+c_rt2_q6: RESULT c_rt2_q6 ERROR rc=2 2026-10-30T13:12:04-04:00
+c_rt2_q6: PASS determinism qwen36-35b-a3b-fp8-gfx942: manifest.json a == b: EQUAL
+c_rt2_q6: PASS determinism qwen36-35b-a3b-fp8-gfx942: files and sha256 a == b: EQUAL
+c_rt2_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=1 src=3114a57a34fd38b1 file=qwen36-35b-a3b-fp8-gfx942_M1_3114a57a34fd38b1.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=False runtime_jit_same_symbol=True flydsl=['c1a46dc3a92ef792', True] co=['c1a46dc3a92ef792', True] flydsl_again=['c1a46dc3a92ef792', True]
+c_rt2_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=2 src=67a5e0e201d613c6 file=qwen36-35b-a3b-fp8-gfx942_M2_67a5e0e201d613c6.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=False runtime_jit_same_symbol=True flydsl=['8755b9b8f27efe17', True] co=['8755b9b8f27efe17', True] flydsl_again=['8755b9b8f27efe17', True]
+c_rt2_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=4 src=c5a04a3b246bcdbd file=qwen36-35b-a3b-fp8-gfx942_M4_c5a04a3b246bcdbd.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['99a5f0b7e2f5a180', True] co=['99a5f0b7e2f5a180', True] flydsl_again=['99a5f0b7e2f5a180', True]
+c_rt2_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=4096 tp=1 rank=0 M=8 src=187b7b29193d7bf5 file=qwen36-35b-a3b-fp8-gfx942_M8_187b7b29193d7bf5.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=False runtime_jit_same_symbol=True flydsl=['d8291446f6c04e6b', True] co=['d8291446f6c04e6b', True] flydsl_again=['d8291446f6c04e6b', True]
+c_rt2_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=8192 tp=1 rank=0 M=1 src=3114a57a34fd38b1 file=qwen36-35b-a3b-fp8-gfx942_M1_3114a57a34fd38b1.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=False runtime_jit_same_symbol=True flydsl=['c1a46dc3a92ef792', True] co=['c1a46dc3a92ef792', True] flydsl_again=['c1a46dc3a92ef792', True]
+c_rt2_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=8192 tp=1 rank=0 M=2 src=67a5e0e201d613c6 file=qwen36-35b-a3b-fp8-gfx942_M2_67a5e0e201d613c6.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['8755b9b8f27efe17', True] co=['8755b9b8f27efe17', True] flydsl_again=['8755b9b8f27efe17', True]
+c_rt2_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=8192 tp=1 rank=0 M=4 src=c5a04a3b246bcdbd file=qwen36-35b-a3b-fp8-gfx942_M4_c5a04a3b246bcdbd.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['99a5f0b7e2f5a180', True] co=['99a5f0b7e2f5a180', True] flydsl_again=['99a5f0b7e2f5a180', True]
+c_rt2_q6: PASS H1 model=qwen36-35b-a3b-fp8-gfx942 kv=TRITON_ATTN:1 block=1056 maxlen=8192 tp=1 rank=0 M=8 src=187b7b29193d7bf5 file=qwen36-35b-a3b-fp8-gfx942_M8_187b7b29193d7bf5.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['d8291446f6c04e6b', True] co=['d8291446f6c04e6b', True] flydsl_again=['d8291446f6c04e6b', True]
+c_rt2_q6: RESULT c_rt2_q6 PASS rc=0 2026-10-30T13:51:16-04:00
+c_rt2_g: PASS determinism gemma4-26b-a4b-fp8-gfx942: manifest.json a == b: EQUAL
+c_rt2_g: PASS determinism gemma4-26b-a4b-fp8-gfx942: files and sha256 a == b: EQUAL
+c_rt2_g: FAIL H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=1 src=8224cd6018173b23 file=gemma4-26b-a4b-fp8-gfx942_M1_8224cd6018173b23.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['15f7cdc75a417e2a', True] co=['15f7cdc75a417e2a', True] flydsl_again=['15f7cdc75a417e2a', True]
+c_rt2_g: FAIL H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=2 src=2fdaece916041a95 file=gemma4-26b-a4b-fp8-gfx942_M2_2fdaece916041a95.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['e18c82909acdd7dd', True] co=['e18c82909acdd7dd', True] flydsl_again=['e18c82909acdd7dd', True]
+c_rt2_g: FAIL H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=4 src=ffd45f253ea54bb4 file=gemma4-26b-a4b-fp8-gfx942_M4_ffd45f253ea54bb4.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['93e620ff0b5b186d', True] co=['93e620ff0b5b186d', True] flydsl_again=['93e620ff0b5b186d', True]
+c_rt2_g: FAIL H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=8 src=efb47c4191ad1669 file=gemma4-26b-a4b-fp8-gfx942_M8_efb47c4191ad1669.co fields_differ={} file_sha_ok=True runtime_elf_sha_ok=False flydsl=['9f7a321e6548bd16', True] co=['9f7a321e6548bd16', True] flydsl_again=['9f7a321e6548bd16', True]
+c_rt2_g: RESULT c_rt2_g FAIL rc=1 2026-10-30T13:07:25-04:00
+c_rt2_g: PASS determinism gemma4-26b-a4b-fp8-gfx942: manifest.json a == b: EQUAL
+c_rt2_g: PASS determinism gemma4-26b-a4b-fp8-gfx942: files and sha256 a == b: EQUAL
+c_rt2_g: PASS H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=1 src=8224cd6018173b23 file=gemma4-26b-a4b-fp8-gfx942_M1_8224cd6018173b23.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['15f7cdc75a417e2a', True] co=['15f7cdc75a417e2a', True] flydsl_again=['15f7cdc75a417e2a', True]
+c_rt2_g: PASS H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=2 src=2fdaece916041a95 file=gemma4-26b-a4b-fp8-gfx942_M2_2fdaece916041a95.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['e18c82909acdd7dd', True] co=['e18c82909acdd7dd', True] flydsl_again=['e18c82909acdd7dd', True]
+c_rt2_g: PASS H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=4 src=ffd45f253ea54bb4 file=gemma4-26b-a4b-fp8-gfx942_M4_ffd45f253ea54bb4.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['93e620ff0b5b186d', True] co=['93e620ff0b5b186d', True] flydsl_again=['93e620ff0b5b186d', True]
+c_rt2_g: PASS H1 model=gemma4-26b-a4b-fp8-gfx942 kv=TRITON_ATTN:1 block=16 maxlen=4096 tp=1 rank=0 M=8 src=efb47c4191ad1669 file=gemma4-26b-a4b-fp8-gfx942_M8_efb47c4191ad1669.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['9f7a321e6548bd16', True] co=['9f7a321e6548bd16', True] flydsl_again=['9f7a321e6548bd16', True]
+c_rt2_g: RESULT c_rt2_g PASS rc=0 2026-10-30T13:41:15-04:00
+c_rt2_merge: PASS merge rt2 -> /home/AMD/sareeder/coexport/sets/rt2/final
+c_rt2_merge: RESULT c_rt2_merge PASS rc=0 2026-10-30T14:39:54-04:00
+d_wheel: PASS lock verify (full set)
+d_wheel: PASS wheel /home/AMD/sareeder/mk/out/pipeline/e2e/wheel/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (139 s)
+d_wheel: PASS lock verify (drop M=4)
+d_wheel: PASS wheel-drop4 /home/AMD/sareeder/mk/out/pipeline/e2e/wheel-drop4/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (41 s)
+d_wheel: RESULT d_wheel PASS rc=0 2026-10-30T17:24:18-04:00
+e_q8: PASS runs q8 flydsl.json
+e_q8: PASS runs q8 hipdnn.json
+e_q8: PASS runs q8 default.json
+e_q8: PASS runs q8 nowheel.json
+e_q8: RESULT e_q8 PASS rc=0 2026-10-30T18:57:02-04:00
+e_q8tp2: PASS runs q8tp2 flydsl.json
+e_q8tp2: PASS runs q8tp2 flydsl2.json
+e_q8tp2: PASS runs q8tp2 hipdnn.json
+e_q8tp2: PASS runs q8tp2 default.json
+e_q8tp2: PASS runs q8tp2 nowheel.json
+e_q8tp2: RESULT e_q8tp2 PASS rc=0 2026-10-30T19:13:36-04:00
+e_q6: PASS runs q6 flydsl.json
+e_q6: PASS runs q6 hipdnn.json
+e_q6: PASS runs q6 default.json
+e_q6: PASS runs q6 nowheel.json
+e_q6: RESULT e_q6 PASS rc=0 2026-10-30T18:56:15-04:00
+e_g: PASS runs g flydsl.json
+e_g: PASS runs g hipdnn.json
+e_g: PASS runs g default.json
+e_g: PASS runs g nowheel.json
+e_g: RESULT e_g PASS rc=0 2026-10-30T19:27:01-04:00
+f_drop_q8: PASS drop4 q8 hipdnn.json
+f_drop_q8: RESULT f_drop_q8 PASS rc=0 2026-10-30T19:20:01-04:00
+f_drop_q6: PASS drop4 q6 hipdnn.json
+f_drop_q6: RESULT f_drop_q6 PASS rc=0 2026-10-30T19:25:13-04:00
+g_check: PASS H1 tokens+logprobs hipdnn == flydsl
+g_check: PASS H6 tokens default == no wheel
+g_check: PASS H4 CAPTURE_INVARIANT rows: 0 custom_op fallback rows: 0
+g_check: PASS H6 default custom_op rows: 0
+g_check: PASS payload M 1 tp 1 manifest entries: 1
+g_check: PASS payload M 2 tp 1 manifest entries: 1
+g_check: PASS payload M 4 tp 1 manifest entries: 1
+g_check: PASS payload M 8 tp 1 manifest entries: 1
+g_check: PASS payload M 1 tp 1 manifest entries: 1
+g_check: PASS payload M 2 tp 1 manifest entries: 1
+g_check: PASS payload M 4 tp 1 manifest entries: 1
+g_check: PASS payload M 8 tp 1 manifest entries: 1
+g_check: PASS payload lines: 8
+g_check: FAIL H1 tokens+logprobs hipdnn == flydsl
+g_check: FAIL H6 tokens default == no wheel
+g_check: PASS H4 CAPTURE_INVARIANT rows: 0 custom_op fallback rows: 0
+g_check: PASS H6 default custom_op rows: 0
+g_check: PASS H3 TP2 runs with VLLM_SPECIALIZED_DECODE_CHECK_PATHS=1 completed (no path disagreement raised)
+g_check: PASS payload M 1 tp 2 manifest entries: 1
+g_check: PASS payload M 1 tp 2 manifest entries: 1
+g_check: PASS payload M 2 tp 2 manifest entries: 1
+g_check: PASS payload M 2 tp 2 manifest entries: 1
+g_check: PASS payload M 4 tp 2 manifest entries: 1
+g_check: PASS payload M 4 tp 2 manifest entries: 1
+g_check: PASS payload M 8 tp 2 manifest entries: 1
+g_check: PASS payload M 8 tp 2 manifest entries: 1
+g_check: PASS payload M 1 tp 2 manifest entries: 1
+g_check: PASS payload M 1 tp 2 manifest entries: 1
+g_check: PASS payload M 2 tp 2 manifest entries: 1
+g_check: PASS payload M 2 tp 2 manifest entries: 1
+g_check: PASS payload M 4 tp 2 manifest entries: 1
+g_check: PASS payload M 4 tp 2 manifest entries: 1
+g_check: PASS payload M 8 tp 2 manifest entries: 1
+g_check: PASS payload M 8 tp 2 manifest entries: 1
+g_check: PASS payload lines: 16
+g_check: PASS H1 tokens+logprobs hipdnn == flydsl
+g_check: PASS H6 tokens default == no wheel
+g_check: PASS H4 CAPTURE_INVARIANT rows: 0 custom_op fallback rows: 0
+g_check: PASS H6 default custom_op rows: 0
+g_check: PASS payload M 1 tp 1 manifest entries: 1
+g_check: PASS payload M 2 tp 1 manifest entries: 1
+g_check: PASS payload M 4 tp 1 manifest entries: 1
+g_check: PASS payload M 8 tp 1 manifest entries: 1
+g_check: PASS payload M 1 tp 1 manifest entries: 1
+g_check: PASS payload M 2 tp 1 manifest entries: 1
+g_check: PASS payload M 4 tp 1 manifest entries: 1
+g_check: PASS payload M 8 tp 1 manifest entries: 1
+g_check: PASS payload lines: 8
+g_check: PASS H1 tokens+logprobs hipdnn == flydsl
+g_check: PASS H6 tokens default == no wheel
+g_check: PASS H4 CAPTURE_INVARIANT rows: 0 custom_op fallback rows: 0
+g_check: PASS H6 default custom_op rows: 0
+g_check: PASS payload M 1 tp 1 manifest entries: 1
+g_check: PASS payload M 2 tp 1 manifest entries: 1
+g_check: PASS payload M 4 tp 1 manifest entries: 1
+g_check: PASS payload M 8 tp 1 manifest entries: 1
+g_check: PASS payload M 1 tp 1 manifest entries: 1
+g_check: PASS payload M 2 tp 1 manifest entries: 1
+g_check: PASS payload M 4 tp 1 manifest entries: 1
+g_check: PASS payload M 8 tp 1 manifest entries: 1
+g_check: PASS payload lines: 8
+g_check: PASS H2 q8 drop4: 2 decline line(s) for width 4; 6 launch line(s) (3 per cache bind); DecodeUnsupported: 0; hipdnn.json: /home/AMD/sareeder/mk/out/pipeline/e2e/drop4/q8/hipdnn.json
+g_check: PASS H2 q6 drop4: 2 decline line(s) for width 4; 6 launch line(s) (3 per cache bind); DecodeUnsupported: 0; hipdnn.json: /home/AMD/sareeder/mk/out/pipeline/e2e/drop4/q6/hipdnn.json
+g_check: RESULT g_check FAIL rc=1 2026-10-30T19:27:38-04:00

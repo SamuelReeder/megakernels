@@ -1,0 +1,87 @@
+==== 2026-10-30T19:27:38 g_check attempt 1 job - gpus - tleft 0 min
+# 2026-10-30T19:27:38-04:00 g_check job - gpus - tleft 0 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=984605cb02707d1157a9555660601f432e708df2 PIPE_REV="hipdnn-design 984605c dirty 0" RL_SHA=adeef27221140ff316429f13b658994777ff4f6b E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+== q8 (vLLM e745c7910)
+PASS H1 tokens+logprobs hipdnn == flydsl
+PASS H6 tokens default == no wheel
+TPOT B=1: flydsl 7.526 ms, hipdnn 7.569 ms (+0.57 %)
+TPOT B=2: flydsl 8.078 ms, hipdnn 8.144 ms (+0.81 %)
+TPOT B=4: flydsl 8.918 ms, hipdnn 8.898 ms (-0.23 %)
+TPOT B=8: flydsl 10.352 ms, hipdnn 10.410 ms (+0.55 %)
+PASS H4 CAPTURE_INVARIANT rows: 0 custom_op fallback rows: 0
+PASS H6 default custom_op rows: 0
+PASS payload M 1 tp 1 manifest entries: 1
+PASS payload M 2 tp 1 manifest entries: 1
+PASS payload M 4 tp 1 manifest entries: 1
+PASS payload M 8 tp 1 manifest entries: 1
+PASS payload M 1 tp 1 manifest entries: 1
+PASS payload M 2 tp 1 manifest entries: 1
+PASS payload M 4 tp 1 manifest entries: 1
+PASS payload M 8 tp 1 manifest entries: 1
+PASS payload lines: 8
+== q8tp2 (vLLM b9a1943fb)
+FAIL H1 tokens+logprobs hipdnn == flydsl
+H1 spread: prompts bitwise equal hipdnn/flydsl 6, hipdnn/flydsl2 4, flydsl/flydsl2 6 of 8
+FAIL H6 tokens default == no wheel
+TPOT B=1: flydsl 5.585 ms, hipdnn 5.619 ms (+0.60 %)
+TPOT B=2: flydsl 6.049 ms, hipdnn 6.052 ms (+0.05 %)
+TPOT B=4: flydsl 6.903 ms, hipdnn 6.902 ms (-0.02 %)
+TPOT B=8: flydsl 8.111 ms, hipdnn 8.097 ms (-0.17 %)
+PASS H4 CAPTURE_INVARIANT rows: 0 custom_op fallback rows: 0
+PASS H6 default custom_op rows: 0
+PASS H3 TP2 runs with VLLM_SPECIALIZED_DECODE_CHECK_PATHS=1 completed (no path disagreement raised)
+PASS payload M 1 tp 2 manifest entries: 1
+PASS payload M 1 tp 2 manifest entries: 1
+PASS payload M 2 tp 2 manifest entries: 1
+PASS payload M 2 tp 2 manifest entries: 1
+PASS payload M 4 tp 2 manifest entries: 1
+PASS payload M 4 tp 2 manifest entries: 1
+PASS payload M 8 tp 2 manifest entries: 1
+PASS payload M 8 tp 2 manifest entries: 1
+PASS payload M 1 tp 2 manifest entries: 1
+PASS payload M 1 tp 2 manifest entries: 1
+PASS payload M 2 tp 2 manifest entries: 1
+PASS payload M 2 tp 2 manifest entries: 1
+PASS payload M 4 tp 2 manifest entries: 1
+PASS payload M 4 tp 2 manifest entries: 1
+PASS payload M 8 tp 2 manifest entries: 1
+PASS payload M 8 tp 2 manifest entries: 1
+PASS payload lines: 16
+== q6 (vLLM 81b2b128d)
+PASS H1 tokens+logprobs hipdnn == flydsl
+PASS H6 tokens default == no wheel
+TPOT B=1: flydsl 2.961 ms, hipdnn 2.979 ms (+0.60 %)
+TPOT B=2: flydsl 3.575 ms, hipdnn 3.591 ms (+0.45 %)
+TPOT B=4: flydsl 4.610 ms, hipdnn 4.645 ms (+0.77 %)
+TPOT B=8: flydsl 6.150 ms, hipdnn 6.183 ms (+0.54 %)
+PASS H4 CAPTURE_INVARIANT rows: 0 custom_op fallback rows: 0
+PASS H6 default custom_op rows: 0
+PASS payload M 1 tp 1 manifest entries: 1
+PASS payload M 2 tp 1 manifest entries: 1
+PASS payload M 4 tp 1 manifest entries: 1
+PASS payload M 8 tp 1 manifest entries: 1
+PASS payload M 1 tp 1 manifest entries: 1
+PASS payload M 2 tp 1 manifest entries: 1
+PASS payload M 4 tp 1 manifest entries: 1
+PASS payload M 8 tp 1 manifest entries: 1
+PASS payload lines: 8
+== g (vLLM 3cd36e151)
+PASS H1 tokens+logprobs hipdnn == flydsl
+PASS H6 tokens default == no wheel
+TPOT B=1: flydsl 3.470 ms, hipdnn 3.488 ms (+0.54 %)
+TPOT B=2: flydsl 3.871 ms, hipdnn 3.891 ms (+0.53 %)
+TPOT B=4: flydsl 4.356 ms, hipdnn 4.339 ms (-0.38 %)
+TPOT B=8: flydsl 5.476 ms, hipdnn 5.463 ms (-0.24 %)
+PASS H4 CAPTURE_INVARIANT rows: 0 custom_op fallback rows: 0
+PASS H6 default custom_op rows: 0
+PASS payload M 1 tp 1 manifest entries: 1
+PASS payload M 2 tp 1 manifest entries: 1
+PASS payload M 4 tp 1 manifest entries: 1
+PASS payload M 8 tp 1 manifest entries: 1
+PASS payload M 1 tp 1 manifest entries: 1
+PASS payload M 2 tp 1 manifest entries: 1
+PASS payload M 4 tp 1 manifest entries: 1
+PASS payload M 8 tp 1 manifest entries: 1
+PASS payload lines: 8
+PASS H2 q8 drop4: 2 decline line(s) for width 4; 6 launch line(s) (3 per cache bind); DecodeUnsupported: 0; hipdnn.json: /home/AMD/sareeder/mk/out/pipeline/e2e/drop4/q8/hipdnn.json
+PASS H2 q6 drop4: 2 decline line(s) for width 4; 6 launch line(s) (3 per cache bind); DecodeUnsupported: 0; hipdnn.json: /home/AMD/sareeder/mk/out/pipeline/e2e/drop4/q6/hipdnn.json
+RESULT g_check FAIL rc=1 2026-10-30T19:27:38-04:00
