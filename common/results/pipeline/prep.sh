@@ -15,7 +15,7 @@ A="ssh -o BatchMode=yes alola"
 # pinned commits
 MK_CC=$(git -C "$root" rev-parse 9a195e4)    # users/sareeder/cfg-compiled (VllmRt2, gpu.sh)
 MK_MAIN=$(git -C "$root" rev-parse 10bd202)  # megakernels main for the gates (gpu.sh MAIN)
-MK_CO=$(git -C "$root" rev-parse f9e41ae)    # users/sareeder/co-export (CoExporter)
+MK_CO=$(git -C "$root" rev-parse ac6c4a1)    # users/sareeder/co-export (CoExporter)
 MK_E2E=$(git -C "$root" rev-parse HEAD)      # users/sareeder/hipdnn-design (e2e_plan.sh, this)
 RL_SHA=$(git -C "$WS/worktrees/rocm-libraries/hipdnn-vllm-custom-op" rev-parse 66d0838cd8f)
 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac  # rocm-systems shared/kpack (notes/custom_op build)
