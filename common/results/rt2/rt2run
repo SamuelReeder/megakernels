@@ -44,7 +44,7 @@ rev="megakernels $(git -C "$root" rev-parse HEAD) dirty $(git -C "$root" status 
     --exclude 'common/results/m*' --exclude common/results/cache -cf - "$name" common
   if [ "$mode" = vllm ]; then
     tar -C "$vllm" --exclude __pycache__ --transform 's,^vllm,vsrc/vllm,' -cf - vllm
-  fi; } | gzip -1 | ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=5 bash -c 'mkdir -p $src && gzip -d | tar -xf - -C $src'"
+  fi; } | gzip -1 | ssh -o BatchMode=yes alola "srun --jobid=$job --overlap -n1 --time=5 bash -c 'mkdir -p $src && gzip -d | tar -ixf - -C $src'"
 if [ "$mode" = vllm ]; then
   rev="$rev; vllm $(git -C "$vllm" rev-parse HEAD) $(git -C "$vllm" branch --show-current) dirty $(git -C "$vllm" status --porcelain vllm | wc -l)"
   image=$W/vllm.sqsh

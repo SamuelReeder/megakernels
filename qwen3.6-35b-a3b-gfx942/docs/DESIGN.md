@@ -677,6 +677,19 @@ Logs: `bench/results/fsc/finish/`. Decisions and evidence:
 - I8: every compile-time setting is a `Cfg` field (P4). No module-level knob (such as
   Qwen3.8's `CHUNKS` dict) affects code generation.
 
+## Run-time geometry (rt2, 2026-10-29)
+
+`Cfg.rt_geom` (default 2): `maxlen` and `maxblocks` are read from glob slot `G_GEOM`
+at run time, so one build serves every `max_model_len`. Block size and cache strides
+stay compile-time. `rt_geom=0` compiles them in; its ISA equals main's.
+Evidence (`bench/results/rt2/`, MI325X, job 68211382):
+- Logits hash rt0 == rt2 at M = 1, 2, 4, 8; `test_decode` and determinism pass at M = 1, 8.
+- TPOT rt2 vs rt0 (median of 3, ctx 512): M = 1 −1.20 %, M = 8 −0.32 %. The M = 8 build
+  spills more SGPRs (1103 vs 855, `isa_local.txt`) without a measured cost.
+- One ELF for maxlen 4096, 8192, 16384 (`isa_local.txt`).
+- vLLM (`vllm/`, TP1, greedy): base vs rt2 tokens and logprobs bitwise equal at
+  `max_model_len` 4096 and 8192.
+
 ## Correctness oracle
 
 As built (milestones 2 and 3; results in `bench/results/m2`, `bench/results/m3`):

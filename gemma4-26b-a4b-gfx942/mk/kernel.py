@@ -121,8 +121,9 @@ class Cfg:
     debug_route: bool = False  # store a hash of every CTA's routing tables (I5)
     fence: bool = False  # L2 write-back / invalidate at every grid barrier (dev.grid_*)
     chaos: bool = False  # mkcore.key.COMMON_FIELDS; no barrier code reads it yet (M4)
-    rt_geom: int = 2  # 2: maxlen and maxblocks_* are run-time values (glob slot G_GEOM,
-    # geom_slots), so one build serves every max_model_len; 0: compiled in
+    rt_geom: int = 0  # 2: maxlen and maxblocks_* are run-time values (glob slot G_GEOM,
+    # geom_slots), so one build serves every max_model_len; 0: compiled in. Default 0:
+    # rt2 TPOT +1.81 % at M=1 on MI325X (bench/results/rt2/ab_m1.txt), over the 1 % limit
 
     def compiled(self):
         """The Cfg the kernel is built for: rt_geom zeroes its run-time fields

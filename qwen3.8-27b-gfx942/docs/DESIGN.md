@@ -168,6 +168,18 @@ throughput sets the stage end (weighted splits do not help).
   invariance.
 - `tests/test_determinism.py`: three runs, bitwise-equal logits.
 
+## Run-time geometry (rt2, 2026-10-29)
+
+`Cfg.rt_geom` 2: `maxlen` and `maxblocks` are read from glob slot `G_GEOM` at run time,
+so one build serves every `max_model_len`. Default 2 at TP1, 0 at TP2 (TP2 not checked).
+Evidence (`bench/results/rt2/`, MI325X, job 68211382):
+- Logits hash rt0 == rt2 at M = 1, 2, 4, 8; `test_decode` and determinism pass at M = 1, 8.
+- TPOT rt2 vs rt0 (median of 3, ctx 512): M = 1 −0.47 %, M = 8 +0.29 %.
+- One ELF for maxlen 4096, 8192, 16384 (`isa_local.txt`); rt0 ISA equals main's.
+- vLLM (`vllm/`, TP1, greedy, 128 tokens): base vs rt2 tokens equal at 4096 and 8192.
+  Prompt 1's logprobs differ by up to 0.145 in both; two rt2 runs are bitwise equal
+  (`rt2_*_run1.json`), so the difference is deterministic. Open: find its source.
+
 ## Limits and open questions
 
 - Prefill runs one token per step; a real deployment needs a prefill path.

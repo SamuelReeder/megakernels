@@ -1,0 +1,18 @@
+prompt 0: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 1: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 2: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 3: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 4: 17 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 5: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 6: 113 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 7: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+RESULT ../../../qwen3.6-35b-a3b-gfx942/bench/results/rt2/vllm/base_4096.json vs ../../../qwen3.6-35b-a3b-gfx942/bench/results/rt2/vllm/rt2_4096.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 2.8393118235958266, '2': 3.4015151297710107, '4': 4.352281698226637, '8': 5.7548504897995905} B {'1': 2.8713704000099325, '2': 3.4012105608103322, '4': 4.342418400041175, '8': 5.728191850871286}; kernel steps A {'quality': 159, 'b1_n1': 0, 'b1_n256': 255, 'b2_n1': 0, 'b2_n256': 255, 'b4_n1': 0, 'b4_n256': 255, 'b8_n1': 0, 'b8_n256': 255} B {'quality': 159, 'b1_n1': 0, 'b1_n256': 255, 'b2_n1': 0, 'b2_n256': 255, 'b4_n1': 0, 'b4_n256': 255, 'b8_n1': 0, 'b8_n256': 255}
+prompt 0: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 1: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 2: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 3: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 4: 17 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 5: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 6: 113 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 7: 160 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+RESULT ../../../qwen3.6-35b-a3b-gfx942/bench/results/rt2/vllm/base_8192.json vs ../../../qwen3.6-35b-a3b-gfx942/bench/results/rt2/vllm/rt2_8192.json: tokens equal True, logprobs bitwise equal True; TPOT A {'1': 2.829717925530584, '2': 3.3922810627914526, '4': 4.314860791954048, '8': 5.770120102291306} B {'1': 2.8736177567100407, '2': 3.4029725564680264, '4': 4.368504890076378, '8': 5.777440659300077}; kernel steps A {'quality': 159, 'b1_n1': 0, 'b1_n256': 255, 'b2_n1': 0, 'b2_n256': 255, 'b4_n1': 0, 'b4_n256': 255, 'b8_n1': 0, 'b8_n256': 255} B {'quality': 159, 'b1_n1': 0, 'b1_n256': 255, 'b2_n1': 0, 'b2_n256': 255, 'b4_n1': 0, 'b4_n256': 255, 'b8_n1': 0, 'b8_n256': 255}

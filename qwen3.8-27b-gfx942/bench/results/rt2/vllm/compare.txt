@@ -1,0 +1,18 @@
+prompt 0: 128 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 1: 128 tokens, equal True, logprobs bitwise False, max |dlogprob| 0.145
+prompt 2: 25 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 3: 128 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 4: 128 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 5: 128 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 6: 64 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 7: 128 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+RESULT ../../../qwen3.8-27b-gfx942/bench/results/rt2/vllm/base_4096.json vs ../../../qwen3.8-27b-gfx942/bench/results/rt2/vllm/rt2_4096.json: tokens equal True, logprobs bitwise equal False; TPOT A {'1': 6.580567827411727, '2': 7.286512960825919, '4': 7.738250615896986, '8': 8.97341975257458} B {'1': 6.53263318452838, '2': 7.057092638741083, '4': 7.727214889874792, '8': 8.994623286393928}; kernel steps A None B None
+prompt 0: 128 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 1: 128 tokens, equal True, logprobs bitwise False, max |dlogprob| 0.145
+prompt 2: 25 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 3: 128 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 4: 128 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 5: 128 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 6: 64 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+prompt 7: 128 tokens, equal True, logprobs bitwise True, max |dlogprob| 0
+RESULT ../../../qwen3.8-27b-gfx942/bench/results/rt2/vllm/base_8192.json vs ../../../qwen3.8-27b-gfx942/bench/results/rt2/vllm/rt2_8192.json: tokens equal True, logprobs bitwise equal False; TPOT A {'1': 6.59377973791504, '2': 7.112701043176155, '4': 7.767098886417408, '8': 9.255322039255178} B {'1': 6.56323936110472, '2': 7.103049686616835, '4': 7.779796259002943, '8': 9.24644156806536}; kernel steps A None B None
