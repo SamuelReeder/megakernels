@@ -10,7 +10,8 @@ import statistics as st
 import sys
 
 O = sys.argv[1]
-J = f"{O}/m8q"
+J = f"{O}/runs" if os.path.isdir(f"{O}/runs") else f"{O}/m8q"  # committed / drive.sh layout
+L = f"{O}/logs" if os.path.isdir(f"{O}/logs") else O
 ROWS = [("q6", "Qwen3.6 (TRITON_ATTN)"), ("g", "Gemma"), ("q8tp1", "Qwen3.8 TP1"),
         ("q8tp2", "Qwen3.8 TP2")]
 
@@ -21,7 +22,7 @@ def runs(p, k):
 
 
 def load(tag):
-    f = f"{O}/{tag}.log"
+    f = f"{L}/{tag}.log"
     if not os.path.exists(f):
         return "?"
     s = open(f).read()

@@ -1,0 +1,529 @@
+LOAD q6_base_r1 2026-10-30T02:28:44Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 22:28:45 up 7 days,  5:04,  0 user,  load average: 4.39, 6.57, 10.24
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on TRITON_ATTN batch 1: TPOT 2.90 ms (344.5 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.46 ms (289.1 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.41 ms (226.7 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 5.80 ms (172.3 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD g_base_r1 2026-10-30T02:32:25Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 22:32:29 up 7 days,  5:08,  0 user,  load average: 4.48, 5.22, 8.89
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on default batch 1: TPOT 3.34 ms (299.1 tok/s/user), kernel steps per 256-token generate 255
+on default batch 2: TPOT 3.68 ms (271.8 tok/s/user), kernel steps per 256-token generate 255
+on default batch 4: TPOT 4.03 ms (248.2 tok/s/user), kernel steps per 256-token generate 255
+on default batch 8: TPOT 5.02 ms (199.3 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD q8tp1_base_r1 2026-10-30T02:34:47Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 22:34:50 up 7 days,  5:10,  0 user,  load average: 5.95, 5.07, 8.29
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.62 ms (151.0 tok/s/user)
+on batch 2: TPOT 7.15 ms (139.9 tok/s/user)
+on batch 4: TPOT 7.80 ms (128.1 tok/s/user)
+on batch 8: TPOT 9.01 ms (111.0 tok/s/user)
+rc 0
+LOAD q8tp2_base_r1 2026-10-30T02:37:22Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 22:37:26 up 7 days,  5:13,  0 user,  load average: 4.88, 4.97, 7.74
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.64 ms (150.6 tok/s/user)
+on batch 2: TPOT 7.17 ms (139.5 tok/s/user)
+on batch 4: TPOT 7.82 ms (127.9 tok/s/user)
+on batch 8: TPOT 9.04 ms (110.6 tok/s/user)
+rc 0
+LOAD q6_new_r1 2026-10-30T02:39:56Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 22:39:59 up 7 days,  5:15,  0 user,  load average: 7.62, 5.75, 7.61
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on TRITON_ATTN batch 1: TPOT 2.89 ms (345.9 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.45 ms (289.7 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.41 ms (227.0 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 5.80 ms (172.3 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD g_new_r1 2026-10-30T02:42:11Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 22:42:14 up 7 days,  5:18,  0 user,  load average: 5.21, 5.37, 7.21
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on default batch 1: TPOT 3.35 ms (298.3 tok/s/user), kernel steps per 256-token generate 255
+on default batch 2: TPOT 3.69 ms (271.1 tok/s/user), kernel steps per 256-token generate 255
+on default batch 4: TPOT 4.03 ms (248.3 tok/s/user), kernel steps per 256-token generate 255
+on default batch 8: TPOT 5.04 ms (198.5 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD q8tp1_new_r1 2026-10-30T02:44:35Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 22:44:38 up 7 days,  5:20,  0 user,  load average: 8.02, 5.68, 7.01
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.61 ms (151.2 tok/s/user)
+on batch 2: TPOT 7.13 ms (140.3 tok/s/user)
+on batch 4: TPOT 7.80 ms (128.2 tok/s/user)
+on batch 8: TPOT 9.04 ms (110.6 tok/s/user)
+rc 0
+LOAD q8tp1_rt2_r1 2026-10-30T02:48:00Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 22:48:30 up 7 days,  5:24,  0 user,  load average: 3.90, 4.68, 6.29
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.62 ms (151.1 tok/s/user)
+on batch 2: TPOT 7.32 ms (136.6 tok/s/user)
+on batch 4: TPOT 7.83 ms (127.8 tok/s/user)
+on batch 8: TPOT 9.06 ms (110.4 tok/s/user)
+rc 0
+LOAD q8tp2_new_r1 2026-10-30T02:51:30Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 22:51:37 up 7 days,  5:27,  0 user,  load average: 6.50, 5.22, 6.17
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.64 ms (150.6 tok/s/user)
+on batch 2: TPOT 7.17 ms (139.4 tok/s/user)
+on batch 4: TPOT 7.82 ms (127.9 tok/s/user)
+on batch 8: TPOT 9.06 ms (110.4 tok/s/user)
+rc 0
+LOAD q6_new_r2 2026-10-30T02:54:31Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 22:54:34 up 7 days,  5:30,  0 user,  load average: 6.07, 5.25, 6.00
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on TRITON_ATTN batch 1: TPOT 2.88 ms (346.8 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.42 ms (292.5 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.37 ms (228.6 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 5.76 ms (173.6 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD g_new_r2 2026-10-30T02:57:04Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 22:57:14 up 7 days,  5:33,  0 user,  load average: 5.40, 4.83, 5.69
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on default batch 1: TPOT 3.35 ms (298.2 tok/s/user), kernel steps per 256-token generate 255
+on default batch 2: TPOT 3.70 ms (270.5 tok/s/user), kernel steps per 256-token generate 255
+on default batch 4: TPOT 4.03 ms (248.0 tok/s/user), kernel steps per 256-token generate 255
+on default batch 8: TPOT 5.04 ms (198.5 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD q8tp1_new_r2 2026-10-30T02:59:57Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 23:00:07 up 7 days,  5:35,  0 user,  load average: 4.79, 4.80, 5.52
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.64 ms (150.5 tok/s/user)
+on batch 2: TPOT 7.17 ms (139.4 tok/s/user)
+on batch 4: TPOT 7.82 ms (128.0 tok/s/user)
+on batch 8: TPOT 9.04 ms (110.6 tok/s/user)
+rc 0
+LOAD q8tp1_rt2_r2 2026-10-30T03:03:07Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 23:03:18 up 7 days,  5:39,  0 user,  load average: 5.65, 5.01, 5.44
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.66 ms (150.2 tok/s/user)
+on batch 2: TPOT 7.18 ms (139.4 tok/s/user)
+on batch 4: TPOT 7.85 ms (127.4 tok/s/user)
+on batch 8: TPOT 9.13 ms (109.6 tok/s/user)
+rc 0
+LOAD q8tp2_new_r2 2026-10-30T03:06:15Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 23:06:24 up 7 days,  5:42,  0 user,  load average: 5.01, 4.89, 5.30
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.67 ms (149.9 tok/s/user)
+on batch 2: TPOT 7.19 ms (139.0 tok/s/user)
+on batch 4: TPOT 7.84 ms (127.6 tok/s/user)
+on batch 8: TPOT 9.08 ms (110.2 tok/s/user)
+rc 0
+LOAD q6_base_r2 2026-10-30T03:09:20Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+68213636 alola-run-es9rtfqs tkoermen gres/gpu:gfx942-mi325x:1 24
+ 23:09:31 up 7 days,  5:45,  0 user,  load average: 5.02, 4.89, 5.21
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on TRITON_ATTN batch 1: TPOT 2.86 ms (350.1 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.41 ms (293.3 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.38 ms (228.2 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 5.78 ms (173.0 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD g_base_r2 2026-10-30T03:12:06Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:12:15 up 7 days,  5:48,  0 user,  load average: 3.16, 4.09, 4.85
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on default batch 1: TPOT 3.34 ms (299.6 tok/s/user), kernel steps per 256-token generate 255
+on default batch 2: TPOT 3.67 ms (272.2 tok/s/user), kernel steps per 256-token generate 255
+on default batch 4: TPOT 4.01 ms (249.2 tok/s/user), kernel steps per 256-token generate 255
+on default batch 8: TPOT 5.01 ms (199.5 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD q8tp1_base_r2 2026-10-30T03:15:01Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:15:07 up 7 days,  5:50,  0 user,  load average: 3.13, 3.19, 4.33
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.64 ms (150.7 tok/s/user)
+on batch 2: TPOT 7.16 ms (139.6 tok/s/user)
+on batch 4: TPOT 7.81 ms (128.0 tok/s/user)
+on batch 8: TPOT 9.03 ms (110.7 tok/s/user)
+rc 0
+LOAD q8tp2_base_r2 2026-10-30T03:18:07Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:18:16 up 7 days,  5:54,  0 user,  load average: 3.66, 2.98, 4.01
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.61 ms (151.3 tok/s/user)
+on batch 2: TPOT 7.14 ms (140.1 tok/s/user)
+on batch 4: TPOT 7.79 ms (128.4 tok/s/user)
+on batch 8: TPOT 9.01 ms (110.9 tok/s/user)
+rc 0
+LOAD q6_base_r3 2026-10-30T03:21:10Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:21:17 up 7 days,  5:57,  0 user,  load average: 4.13, 3.39, 3.97
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on TRITON_ATTN batch 1: TPOT 2.89 ms (345.8 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.43 ms (291.2 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.39 ms (228.0 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 5.80 ms (172.4 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD g_base_r3 2026-10-30T03:23:54Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:23:57 up 7 days,  5:59,  0 user,  load average: 3.85, 3.11, 3.74
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on default batch 1: TPOT 3.32 ms (301.2 tok/s/user), kernel steps per 256-token generate 255
+on default batch 2: TPOT 3.68 ms (271.9 tok/s/user), kernel steps per 256-token generate 255
+on default batch 4: TPOT 4.00 ms (249.8 tok/s/user), kernel steps per 256-token generate 255
+on default batch 8: TPOT 5.02 ms (199.3 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD q8tp1_base_r3 2026-10-30T03:26:33Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:26:40 up 7 days,  6:02,  0 user,  load average: 2.31, 2.56, 3.42
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.62 ms (151.0 tok/s/user)
+on batch 2: TPOT 7.15 ms (139.8 tok/s/user)
+on batch 4: TPOT 7.80 ms (128.1 tok/s/user)
+on batch 8: TPOT 9.04 ms (110.6 tok/s/user)
+rc 0
+LOAD q8tp2_base_r3 2026-10-30T03:29:37Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:29:45 up 7 days,  6:05,  0 user,  load average: 2.66, 2.44, 3.20
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.63 ms (150.8 tok/s/user)
+on batch 2: TPOT 7.16 ms (139.7 tok/s/user)
+on batch 4: TPOT 7.80 ms (128.2 tok/s/user)
+on batch 8: TPOT 9.02 ms (110.9 tok/s/user)
+rc 0
+LOAD q6_new_r3 2026-10-30T03:32:50Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:32:59 up 7 days,  6:08,  0 user,  load average: 3.90, 2.81, 3.17
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on TRITON_ATTN batch 1: TPOT 2.89 ms (346.1 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.45 ms (290.3 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.40 ms (227.2 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 5.81 ms (172.1 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD g_new_r3 2026-10-30T03:35:20Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:35:24 up 7 days,  6:11,  0 user,  load average: 3.55, 2.68, 3.04
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on default batch 1: TPOT 3.37 ms (297.1 tok/s/user), kernel steps per 256-token generate 255
+on default batch 2: TPOT 3.70 ms (270.1 tok/s/user), kernel steps per 256-token generate 255
+on default batch 4: TPOT 4.00 ms (249.8 tok/s/user), kernel steps per 256-token generate 255
+on default batch 8: TPOT 5.03 ms (198.9 tok/s/user), kernel steps per 256-token generate 255
+rc 0
+LOAD q8tp1_new_r3 2026-10-30T03:37:44Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:37:48 up 7 days,  6:13,  0 user,  load average: 5.08, 2.99, 3.06
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.63 ms (150.9 tok/s/user)
+on batch 2: TPOT 7.16 ms (139.8 tok/s/user)
+on batch 4: TPOT 7.79 ms (128.4 tok/s/user)
+on batch 8: TPOT 9.06 ms (110.4 tok/s/user)
+rc 0
+LOAD q8tp1_rt2_r3 2026-10-30T03:40:33Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:40:39 up 7 days,  6:16,  0 user,  load average: 3.07, 2.79, 2.96
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.62 ms (151.2 tok/s/user)
+on batch 2: TPOT 7.13 ms (140.3 tok/s/user)
+on batch 4: TPOT 7.81 ms (128.1 tok/s/user)
+on batch 8: TPOT 9.05 ms (110.5 tok/s/user)
+rc 0
+LOAD q8tp2_new_r3 2026-10-30T03:43:17Z
+68212064 interactive kejoseph gres/gpu:gfx942-mi325x:1 16
+68213193 rt2aus sareeder gres/gpu:2 32
+ 23:43:23 up 7 days,  6:19,  0 user,  load average: 3.11, 3.05, 3.04
+GPU[0]		: GPU use (%): 0
+GPU[1]		: GPU use (%): 0
+GPU[0]		: GPU Memory Allocated (VRAM%): 0
+GPU[0]		: GPU Memory Read/Write Activity (%): 0
+GPU[0]		: Memory Activity: N/A
+GPU[0]		: Not supported on the given system
+GPU[1]		: GPU Memory Allocated (VRAM%): 0
+GPU[1]		: GPU Memory Read/Write Activity (%): 0
+GPU[1]		: Memory Activity: N/A
+GPU[1]		: Not supported on the given system
+on batch 1: TPOT 6.64 ms (150.5 tok/s/user)
+on batch 2: TPOT 7.17 ms (139.5 tok/s/user)
+on batch 4: TPOT 7.80 ms (128.1 tok/s/user)
+on batch 8: TPOT 9.02 ms (110.9 tok/s/user)
+rc 0
+DRIVE-DONE

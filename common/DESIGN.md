@@ -1,7 +1,7 @@
 # Common FlyDSL megakernel package (`common/mkcore/`): design
 
-Status: phase 1 done (M0-M9), see "Milestone log"; open: the M8 1 % TPOT check on a quiet
-node. This document is the decision record.
+Status: phase 1 done (M0-M9), see "Milestone log"; the M8 1 % TPOT check passed on the
+re-measure ("M8 re-measure"). This document is the decision record.
 
 ## Fixed point
 
@@ -925,6 +925,42 @@ until cancelled, rc 143), Qwen3.8 TP1 new r2 (`hipErrorLaunchFailure`, rc 134), 
 Qwen3.6 **base** r2 (engine core exited; hung until the job expired). They hit both trees,
 and the same kind of fault hit the M7 gates (SIGBUS, HIP 719). Each retried new
 configuration passed.
+
+#### M8 re-measure (2026-10-30)
+
+Same trees and commands as above (base = the pre-refactor vLLM heads `bdf23a462`,
+`6d0ec44e8`, `6220b7379`; new = the M8 exports `70f57a0ae`, `7f586cd2a`, `fd8a77a5f`;
+megakernels `e72a981` for `bench/vllm_e2e.py`), 3 alternating rounds (base new, new
+base, base new), kernel on, greedy. Node quanta-ccs-aus-j02-45 (AUSTIN, MI325X, the only
+gfx942 node with free GPUs; every MARKHAM MI300X node was allocated), jobs 68213193 and
+68214189 (2 GPUs each, ours alone on them). Driver `common/results/m8q/drive.sh`; per
+run the node's jobs, `uptime` and `rocm-smi` of our GPUs before the run
+(`common/results/m8q/logs/`); JSONs in `common/results/m8q/runs/`; table
+`common/results/m8q/table.txt` (`table.py`).
+
+| TPOT ms, median of 3 (base / new), B = 1 / 2 / 4 / 8 | new / base - 1 |
+|---|---|
+| Qwen3.6 (`TRITON_ATTN`): 2.892 / 2.889, 3.435 / 3.445, 4.386 / 4.401, 5.800 / 5.803 | -0.08 / +0.31 / +0.35 / +0.04 % |
+| Gemma: 3.337 / 3.353, 3.678 / 3.698, 4.012 / 4.027, 5.018 / 5.038 | +0.46 / +0.54 / +0.37 / +0.40 % |
+| Qwen3.8 TP1: 6.625 / 6.626, 7.151 / 7.155, 7.805 / 7.799, 9.031 / 9.044 | +0.01 / +0.07 / -0.08 / +0.15 % |
+| Qwen3.8 TP2: 5.108 / 5.114, 5.512 / 5.517, 6.301 / 6.305, 7.477 / 7.494 | +0.12 / +0.10 / +0.06 / +0.23 % |
+
+Every cell is within the 1 % limit; the largest is Gemma B = 2, +0.54 %. The 3 runs of a
+variant span under 0.5 % in 22 of 36 (model, variant, B) cells and at most 2.7 %
+(Qwen3.8 TP1 rt2 B = 2; base and new at most 1.6 %, Qwen3.6 base B = 1). Node load:
+other users held 1 or 2 of the node's other 6 GPUs; the 1-minute load average was 2.3
+to 8.0 for the TP1 runs and 1.7 to 20.8 for the TP2 runs, with no visible TPOT effect.
+Conclusion: main's exports cost no TPOT; the M8 single-run gaps (up to +18 %) were most
+likely the shared MI300X node (a second GPU job, load up to 33.8, crashes in both trees),
+which agrees with the tier-A ISA. Not re-measured on MI300X (no free node).
+
+Outputs: Qwen3.6 6 of 6 runs and Gemma 6 of 6 identical to base r1 (8 / 8, 10 / 10).
+Qwen3.8 TP1: prompt 1 takes one of two outputs (logprob at position 1 -1.212131 or
+-1.250210) in base and new alike (base r1 and new r1 one mode, the others the other);
+the rest is identical. TP2: 5 to 8 of 8, vLLM's TP2 spread. The first TP2 attempt passed
+`MK_TP=2` to `cd` instead of Python, so it ran TP1; those 6 runs are kept as extra TP1
+samples in `common/results/m8q/tp1_as_tp2/` (`drive_run1.log`); the TP2 rows above are
+the rerun (`drive_run2_tp2.log`, `TP rank 1 of 2` in each log).
 
 ### M9: docs (2026-10-29)
 

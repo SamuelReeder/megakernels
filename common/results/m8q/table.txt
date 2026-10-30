@@ -1,0 +1,29 @@
+TPOT ms, median of rounds [min, max]; delta = new / base - 1 (and rt2 / base)
+
+Qwen3.6 (TRITON_ATTN): rounds base ['1', '2', '3'] new ['1', '2', '3']
+  B=1: base 2.892 [2.856, 2.903] | new 2.889 [2.884, 2.891]  new/base -0.08%
+  B=2: base 3.435 [3.409, 3.459] | new 3.445 [3.418, 3.452]  new/base +0.31%
+  B=4: base 4.386 [4.382, 4.412] | new 4.401 [4.374, 4.405]  new/base +0.35%
+  B=8: base 5.800 [5.779, 5.804] | new 5.803 [5.761, 5.810]  new/base +0.04%
+  outputs identical to base_r1 (load: 1-min load average / GPUs allocated on the node incl. our 2): base_r1 8/8 (load 4.39/4), base_r2 8/8 (load 5.02/4), base_r3 8/8 (load 4.13/3), new_r1 8/8 (load 7.62/4), new_r2 8/8 (load 6.07/4), new_r3 8/8 (load 3.90/3)
+
+Gemma: rounds base ['1', '2', '3'] new ['1', '2', '3']
+  B=1: base 3.337 [3.320, 3.344] | new 3.353 [3.352, 3.365]  new/base +0.46%
+  B=2: base 3.678 [3.673, 3.679] | new 3.698 [3.688, 3.702]  new/base +0.54%
+  B=4: base 4.012 [4.003, 4.030] | new 4.027 [4.004, 4.032]  new/base +0.37%
+  B=8: base 5.018 [5.014, 5.018] | new 5.038 [5.029, 5.038]  new/base +0.40%
+  outputs identical to base_r1 (load: 1-min load average / GPUs allocated on the node incl. our 2): base_r1 10/10 (load 4.48/4), base_r2 10/10 (load 3.16/3), base_r3 10/10 (load 3.85/3), new_r1 10/10 (load 5.21/4), new_r2 10/10 (load 5.40/4), new_r3 10/10 (load 3.55/3)
+
+Qwen3.8 TP1: rounds base ['1', '2', '3'] new ['1', '2', '3'] rt2 ['1', '2', '3']
+  B=1: base 6.625 [6.621, 6.638] | new 6.626 [6.612, 6.644] | rt2 6.619 [6.616, 6.656]  new/base +0.01%  rt2/base -0.08%
+  B=2: base 7.151 [7.148, 7.162] | new 7.155 [7.128, 7.172] | rt2 7.176 [7.129, 7.319]  new/base +0.07%  rt2/base +0.35%
+  B=4: base 7.805 [7.804, 7.815] | new 7.799 [7.790, 7.815] | rt2 7.827 [7.807, 7.852]  new/base -0.08%  rt2/base +0.28%
+  B=8: base 9.031 [9.005, 9.039] | new 9.044 [9.041, 9.059] | rt2 9.055 [9.053, 9.126]  new/base +0.15%  rt2/base +0.27%
+  outputs identical to base_r1 (load: 1-min load average / GPUs allocated on the node incl. our 2): base_r1 8/8 (load 5.95/4), base_r2 7/8 (load 3.13/3), base_r3 7/8 (load 2.31/3), new_r1 8/8 (load 8.02/4), new_r2 7/8 (load 4.79/4), new_r3 7/8 (load 5.08/3), rt2_r1 8/8 (load 3.90/4), rt2_r2 8/8 (load 5.65/4), rt2_r3 7/8 (load 3.07/3)
+
+Qwen3.8 TP2: rounds base ['1', '2', '3'] new ['1', '2', '3']
+  B=1: base 5.108 [5.105, 5.110] | new 5.114 [5.113, 5.137]  new/base +0.12%
+  B=2: base 5.512 [5.508, 5.519] | new 5.517 [5.511, 5.536]  new/base +0.10%
+  B=4: base 6.301 [6.300, 6.304] | new 6.305 [6.298, 6.321]  new/base +0.06%
+  B=8: base 7.477 [7.472, 7.487] | new 7.494 [7.479, 7.494]  new/base +0.23%
+  outputs identical to base_r1 (load: 1-min load average / GPUs allocated on the node incl. our 2): base_r1 8/8 (load 1.69/4), base_r2 8/8 (load 20.82/4), base_r3 7/8 (load 13.87/4), new_r1 5/8 (load 12.22/4), new_r2 5/8 (load 14.14/4), new_r3 5/8 (load 16.23/4)
