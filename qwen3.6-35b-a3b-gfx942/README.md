@@ -171,11 +171,11 @@ the held allocation (`MK_JOB=<jobid>`). Request `gpu:gfx942-mi300x`: the constra
 
 ```
 mk/kernel.py       the kernel: stage sequence, grid barriers, Cfg (every compile-time setting)
-mk/gemv.py         the split-K FP8 / bf16 GEMV stream
+../common/mkcore/  shared code: device helpers, split-K FP8 / bf16 GEMV stream, packing
 mk/moe.py          routing, the grouped expert GEMV, the expert epilogues
 mk/stages.py       GEMV prologues (LDS input) and epilogues
 mk/mixer.py        Gated DeltaNet and attention tasks, the attention merge prologue
-mk/dev.py, dims.py device helpers (barrier, DPP reductions), model dimensions
+mk/dims.py         model dimensions
 mk/pack.py         FP8 checkpoint -> unit-order tiles
 mk/runner.py       host engine: buffers, pointer tables, one launch per step
 mk/reference.py    PyTorch reference of the decode step (exact and fp8-emulating modes)

@@ -117,14 +117,15 @@ uses only 36 wave tasks, and the bf16 LM head takes 0.6 ms of the 7.5 ms. The wh
 
 ```
 mk/kernel.py       the kernel: stage sequence, grid barriers
-mk/gemv.py         the split-K MXFP4 / bf16 GEMV stream
+mk/dims.py         model dimensions
 mk/stages.py       GEMV prologues (LDS input) and epilogues
 mk/mixer.py        Gated DeltaNet and attention tasks
-mk/dev.py, fp4.py  device helpers, MXFP4 tile layout
+mk/tpdev.py        trace-time state and TP debug helpers (R-state: not in mkcore)
 mk/pack.py         offline weight packing
 mk/runner.py       host engine: buffers, pointer tables, one launch per step
 mk/reference.py    PyTorch reference of the decode step (exact and fp8-emulating modes)
-../common/mkcore/ shared FlyDSL megakernel code (compile key, vendored FlyDSL buffer_ops.py)
+../common/mkcore/  shared FlyDSL megakernel code: dev helpers, GEMV stream, MXFP4 layout,
+                   packing, stage helpers, compile key, vendored FlyDSL buffer_ops.py
 mk/tp.py           TP2 harness of the standalone engine (one process per GPU)
 mk/sync.py, peer.py  copies of vLLM's DSv4.1 mailbox and PeerBuffer (no aiter in the image)
 tests/             kernel vs reference, real-text perplexity, determinism, reference vs HF

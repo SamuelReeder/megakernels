@@ -38,7 +38,7 @@ optimization log, and [`qwen3.8-27b-gfx942/README.md`](qwen3.8-27b-gfx942/README
 ## Layout
 
 ```
-common/                 code shared across models (bandwidth roofline microbenchmark)
+common/                 mkcore/ (shared FlyDSL gfx942 megakernel package), scripts/, bw.cu
 qwen3.5-0.8b/           one self-contained project per model (CUDA, RTX 5080)
 qwen3.8-27b-gfx942/     Qwen3.8-27B on MI300X (FlyDSL, ROCm)
 qwen3.6-35b-a3b-gfx942/ Qwen3.6-35B-A3B on MI300X (FlyDSL, ROCm)
@@ -51,7 +51,8 @@ docs/adding-a-model.md  how to add the next model
 ```
 
 Each model directory is installable on its own (`pip install -e qwen3.5-0.8b`) and ships its own
-console scripts, so models never depend on each other.
+console scripts. Each gfx942 model depends only on `common/` and on itself (`common/` imports no
+model); no model depends on another. `qwen3.5-0.8b` stays self-contained.
 
 ## Quick start
 

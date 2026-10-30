@@ -1,8 +1,7 @@
 # Common FlyDSL megakernel package (`common/mkcore/`): design
 
-Status: design only (2026-10-29). No model code moves until the prerequisites in
-"Migration plan" are true. This document is the decision record. Update it at each
-milestone.
+Status: phase 1 done (M0-M9), see "Milestone log"; open: the M8 1 % TPOT check on a quiet
+node. This document is the decision record.
 
 ## Fixed point
 
@@ -926,6 +925,13 @@ until cancelled, rc 143), Qwen3.8 TP1 new r2 (`hipErrorLaunchFailure`, rc 134), 
 Qwen3.6 **base** r2 (engine core exited; hung until the job expired). They hit both trees,
 and the same kind of fault hit the M7 gates (SIGBUS, HIP 719). Each retried new
 configuration passed.
+
+### M9: docs (2026-10-29)
+
+Docs only, no code change. Files: `README.md` (layout, dependency rule),
+`docs/adding-a-model.md` (R-share wording, gfx942 FlyDSL section), `common/DESIGN.md`
+(status, this entry), `README.md` file tables and `docs/DESIGN.md` "Reuse" sections of
+`qwen3.8-27b-gfx942/`, `qwen3.6-35b-a3b-gfx942/` and `gemma4-26b-a4b-gfx942/`.
 
 ## Decisions
 

@@ -95,22 +95,18 @@ Rows share experts on real text, so the routed-expert bytes at M > 1 are an uppe
 
 ## Reuse
 
-Copied (copy and diverge, D2) from `qwen3.6-35b-a3b-gfx942/` at megakernels `e2a6fb8`; each
-file names its source at the top:
+From `common/mkcore` (`common/DESIGN.md`): `dev` (barrier, DPP reductions, buffer
+loads, `tanh`, `gelu_tanh`, `bf16_rne`, `pack_bf2`), `gemv.Gemv` (the split-K stream;
+the `fp8_row` kind has one scale per output row, 16 fp32 per unit, for the
+per-channel checkpoint scales), `pack` (`unit_order`, FP8 tiles), `stagelib`
+(`store_quant8`, `epi_raw`), `key` (compile key) and `vendor.buffer_ops`.
 
-- `mk/dev.py`: unchanged, plus `tanh`, `gelu_tanh`, `bf16_rne`, `pack_bf2`.
-- `mk/gemv.py`: the flat unit-stream GEMV (split-K, fixed-order last arriver, `fp8` and `bf16`
-  kinds). Changed: the `fp8` kind has one scale per output row (16 fp32 per unit), because the
-  Gemma checkpoint has per-channel scales, not 128 x 128 blocks.
-- `mk/moe.py`: routing in every CTA, the grouped expert GEMV over the unique selected experts
-  with piece-aligned wave ranges, per-slot partials, two-level S6 counters. Changed: see "MoE
-  stages".
-- `mk/stages.py`: `store_quant8`, `epi_raw`, `prologue_scaled`, the rstd reduction.
-- `mk/kernel.py`, `mk/runner.py`, `mk/pack.py`: the grid, the barriers with the device epoch,
-  opaque thread ids, pointer tables, `Cfg`, the unit-order packing.
-- `mk/vendor/`: FlyDSL's `buffer_ops` (identical in the Qwen3.8 and Qwen3.6 directories).
-- Harness: `tests/test_decode.py`, `tests/test_determinism.py`, `tests/eval_text.py`,
-  `bench/bench_decode.py`, `bench/profile_decode.py`, `bench/stock/`, `tools/`.
+In `mk/`: `dims.py`, `kernel.py` (`Cfg`, `build`, stage schedule, barriers with the
+device epoch), `stages.py` (`rstd_from_ssq`, `prologue_scaled`, the row prologues and
+epilogues), `moe.py` (routing in every CTA, the grouped expert GEMV, two-level S6
+counters; see "MoE stages"), `attention.py`, `reference.py`, `runner.py`, `pack.py`
+(`Packed`). The harness (`tests/`, `bench/`, `tools/`) started as a copy of
+`qwen3.6-35b-a3b-gfx942/`.
 
 New for Gemma: `mk/attention.py` (milestone 2 work), the whole-row prologues with the deferred
 residual (`stages.rebuild_h`, `prologue_router`, `prologue_gu`, `prologue_final`), the

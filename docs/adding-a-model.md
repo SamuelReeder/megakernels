@@ -17,7 +17,38 @@ installing several models side by side does not collide.
   tests/  results/  docs/
 ```
 
-Shared code goes in `common/` only once a second model needs it.
+A definition moves to `common/` when two or more models use it and one version serves all of
+them with an unchanged ISA (R-share in [`common/DESIGN.md`](../common/DESIGN.md)).
+
+## gfx942 FlyDSL models
+
+Start from `common/mkcore`, the shared FlyDSL megakernel package: `from mkcore import dev as D`
+(barrier, DPP reductions, buffer loads), `from mkcore.gemv import Gemv` (split-K unit-stream
+GEMV), `mkcore.fp4` (MXFP4 tile layout), `mkcore.pack` (host-side unit-order packing),
+`mkcore.stagelib` (shared stage helpers such as `store_quant8`), `mkcore.key` (compile key) and
+`mkcore.vendor.buffer_ops`. Then copy from the closest existing model
+(`qwen3.8-27b-gfx942/`, `qwen3.6-35b-a3b-gfx942/` or `gemma4-26b-a4b-gfx942/`) only what
+diverges, into the model's `mk/` package:
+
+- `kernel.py`: `Cfg`, `build`, the stage schedule.
+- `stages.py`: `rstd_from_ssq`, `prologue_scaled` and the model's prologues and epilogues.
+- `mixer.py` / `moe.py` / `attention.py`: the model's token mixer, experts, attention.
+- `dims.py`, `reference.py`, `runner.py`, and `pack.py` (`Packed` and the model packers).
+
+Rules from [`common/DESIGN.md`](../common/DESIGN.md):
+
+- R-dep: `mkcore` imports no model module; a model imports `mkcore` and itself only.
+- R-share: code moves to `mkcore` only when two or more models use it and one version keeps
+  every model's ISA unchanged.
+- R-state: model state never lives in `mkcore` modules.
+- D4: the model owns its `Cfg`. D5: the compile key and kernel name come from `mkcore.key`
+  and must cover every compile-time setting.
+
+Gates and runs use `common/scripts/`: `gates.sh` (all-model gates, R-dep grep), `mkrun` (ship
+the model and `common/` to a held gfx942 allocation and run a command there), `setup_env.sh`.
+vLLM export: the model's `scripts/export_vllm.py` built on `common/scripts/export_lib.py`,
+checked with `common/scripts/export_check.sh` (export diff and ISA hash), and run against a
+vLLM branch with `common/scripts/vrun`.
 
 ## Checklist
 
