@@ -286,7 +286,7 @@ Count per model, with one KV layout class per model, at rt0 (until step 1a):
 | Gemma4-26B-A4B | 1 | 0 | 1, 2 | 2 per max_model_len | not measured |
 
 Total: 14 objects per max_model_len (about 2 MB before kpack compression). After step 1a, Qwen3.6
-and Qwen3.8 TP1 need one set for every max_model_len, and each extra max_model_len adds 6 (Qwen3.8
+and Qwen3.8 TP1 need one set that serves every max_model_len, and each extra max_model_len adds 6 (Qwen3.8
 TP2 and Gemma4). Each extra accepted Qwen KV
 layout multiplies the Qwen rows. [INFERENCE] MI300X and MI325X share one binary, because both are
 gfx942 with 304 CUs and the compile input is the same; the TP2 kernel gave the same bits on both
