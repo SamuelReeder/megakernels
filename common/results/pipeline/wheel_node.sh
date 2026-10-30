@@ -22,11 +22,12 @@ D=dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descripto
 TOOL=src/dnn-providers/hip-kernel-provider/descriptor-packaging/tools/hkp_megakernel_lock.py
 T=src/projects/hipdnn/tools/hipdnn_vllm
 
-# build tools and dvc as build_wheel.sh installs them (it reuses this TOOLS_VENV)
+# build tools as build_wheel.sh installs them (it reuses this TOOLS_VENV)
 python3.12 -m venv tools && tools/bin/pip install -q cmake ninja pytest build numpy \
   "zstandard>=0.20.0" msgpack "dvc[s3]==3.62.0" "pathspec<1" || exit 2
 
-# desc DROP_M: the set (without width DROP_M if given) as the descriptor folder
+# desc DROP_M: the set (without width DROP_M if given) as the descriptor folder; the full
+# set keeps the lock file byte for byte
 desc() {
   rm -rf "src/$D/artifacts" && mkdir -p "src/$D/artifacts"
   python3.12 - "$final" "src/$D" "$1" <<'PY' || return 1
@@ -36,20 +37,34 @@ entries = json.loads((src / "manifest.json").read_text())
 keep = [e for e in entries if not (drop and e["M"] == int(drop))]
 for e in keep:
     shutil.copyfile(src / e["file"], d / "artifacts" / e["file"])
-(d / "manifest.json").write_text(json.dumps(keep, indent=1) + "\n")
+if drop:
+    (d / "manifest.json").write_text(json.dumps(keep, indent=1) + "\n")
+else:
+    shutil.copyfile(src / "manifest.json", d / "manifest.json")
 print(f"descriptor folder: {len(keep)} of {len(entries)} objects (drop M={drop or '-'})")
 PY
   python3.12 "$TOOL" generate --lock "src/$D/manifest.json" || return 1
   python3.12 "$TOOL" verify --lock "src/$D/manifest.json" || return 1
-  (cd src && ../tools/bin/dvc add -q "$D/artifacts") || return 1
+  # configure compares the folder's file count (and size) with artifacts.dvc: record the
+  # local folder in the pointer (no DVC cache or remote is involved)
+  python3.12 - "src/$D/artifacts" <<'PY' || return 1
+import pathlib, re, sys
+a = pathlib.Path(sys.argv[1]); p = a.with_name("artifacts.dvc")
+files = [f for f in a.rglob("*") if f.is_file()]
+s = re.sub(r"(?m)^  nfiles: \d+$", f"  nfiles: {len(files)}", p.read_text())
+s = re.sub(r"(?m)^  size: \d+$", f"  size: {sum(f.stat().st_size for f in files)}", s)
+p.write_text(s)
+PY
   grep -E "nfiles|size" "src/$D/artifacts.dvc"
 }
 
 # the pinned vLLM venv (BUILD_PINS.toml), as notes/custom_op's build
 set -- $(python3.12 -c "import tomllib;p=tomllib.load(open('$T/BUILD_PINS.toml','rb'))['pins'];print(p['vllm'],p['rocm'],p['vllm_index'])")
+# torchvision pinned: whl-next also serves 0.29.0+rocm10.0.0, which pip prefers and which
+# does not load with torch 2.13.0 (hipdnn_vllm notes/custom_op/NOTES.md)
 python3.12 -m venv venv && venv/bin/pip install -q --upgrade pip \
-  && venv/bin/pip install -q "vllm==$1" "rocm[devel]==$2" --extra-index-url "$3" \
-       --extra-index-url https://stable.repo.amd.com/rocm/whl-next/ || exit 2
+  && venv/bin/pip install -q "vllm==$1" "rocm[devel]==$2" "torchvision==0.28.0+rocm10.0.0" \
+       --extra-index-url "$3" --extra-index-url https://stable.repo.amd.com/rocm/whl-next/ || exit 2
 venv/bin/python -c "import torch, vllm; print('torch', torch.__version__, 'vllm', vllm.__version__)" || exit 2
 mkdir kp && git -C kp init -q . && git -C kp remote add origin https://github.com/ROCm/rocm-systems.git \
   && git -C kp sparse-checkout set shared/kpack && git -C kp fetch -q --depth 1 --filter=blob:none origin "$KP_SHA" \

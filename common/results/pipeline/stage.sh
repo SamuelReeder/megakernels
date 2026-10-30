@@ -11,9 +11,9 @@ P=${PIPE_DIR:-$HOME/mk/pipeline}
 O=${PIPE_OUT:-$HOME/mk/out/pipeline}
 ST=$O/state
 E=$O/e2e
-RT2=${RT2_FINAL:-$HOME/coexport/sets/rt2/final}
 # shellcheck source=/dev/null
 . "$P/pins.env"
+RT2=${RT2_FINAL:-${E2E_SET:-$HOME/coexport/sets/rt2/final}}  # the e2e code-object set (lock)
 MNT=/cluster:/cluster,$HOME:$HOME,/tmp:/tmp
 trap 'rc=$?; case $rc in 0) r=PASS;; 1) r=FAIL;; *) r=ERROR;; esac
       echo "RESULT $name $r rc=$rc $(date -Is)"; echo $rc > "$ST/$name.rc"' EXIT

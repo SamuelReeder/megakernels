@@ -17,7 +17,10 @@ MK_CC=$(git -C "$root" rev-parse 9a195e4)    # users/sareeder/cfg-compiled (Vllm
 MK_MAIN=$(git -C "$root" rev-parse 10bd202)  # megakernels main for the gates (gpu.sh MAIN)
 MK_CO=$(git -C "$root" rev-parse ac6c4a1)    # users/sareeder/co-export (CoExporter)
 MK_E2E=$(git -C "$root" rev-parse HEAD)      # users/sareeder/hipdnn-design (e2e_plan.sh, this)
-RL_SHA=$(git -C "$WS/worktrees/rocm-libraries/hipdnn-vllm-custom-op" rev-parse 66d0838cd8f)
+RL_SHA=$(git -C "$WS/worktrees/rocm-libraries/hipdnn-vllm-custom-op" rev-parse 9bb279d30d0)  # + megakernel-engine 18c6ef46d60
+# the e2e set: megakernel-engine's lock (manifest sha256 5b83b31430d7) with its objects from
+# the co-export sets; assembled on Alola from ~/coexport/sets/{rt2,rt0}/final, sha256 checked
+E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7
 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac  # rocm-systems shared/kpack (notes/custom_op build)
 VIMG=/home/AMD/sareeder/mk/images/vllm-rocm-nightly-00b6c4c5.sqsh
 HIMG=/cluster/images/hipdnn/hipdnn_20261024_gfx942.sqsh  # pinned: hipdnn_latest moves on Saturdays
@@ -106,6 +109,7 @@ MK_CO=$MK_CO
 MK_E2E=$MK_E2E
 PIPE_REV="hipdnn-design $(git -C "$root" rev-parse --short HEAD) dirty $(git -C "$root" status --porcelain common/results/pipeline common/results/step8 | wc -l)"
 RL_SHA=$RL_SHA
+E2E_SET=$E2E_SET
 KP_SHA=$KP_SHA
 VIMG=$VIMG
 HIMG=$HIMG
