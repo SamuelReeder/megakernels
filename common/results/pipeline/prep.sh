@@ -17,7 +17,7 @@ MK_CC=$(git -C "$root" rev-parse 9a195e4)    # users/sareeder/cfg-compiled (Vllm
 MK_MAIN=$(git -C "$root" rev-parse 10bd202)  # megakernels main for the gates (gpu.sh MAIN)
 MK_CO=$(git -C "$root" rev-parse ac6c4a1)    # users/sareeder/co-export (CoExporter)
 MK_E2E=$(git -C "$root" rev-parse HEAD)      # users/sareeder/hipdnn-design (e2e_plan.sh, this)
-RL_SHA=$(git -C "$WS/worktrees/rocm-libraries/hipdnn-vllm-custom-op" rev-parse 9bb279d30d0)  # + megakernel-engine 18c6ef46d60
+RL_SHA=$(git -C "$WS/worktrees/rocm-libraries/hipdnn-vllm-custom-op" rev-parse adeef272211)  # merge of megakernel-engine 18c6ef46d60 + build_wheel.sh sysdeps fix
 # the e2e set: megakernel-engine's lock (manifest sha256 5b83b31430d7) with its objects from
 # the co-export sets; assembled on Alola from ~/coexport/sets/{rt2,rt0}/final, sha256 checked
 E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7

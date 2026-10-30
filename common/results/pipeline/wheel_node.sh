@@ -1,10 +1,14 @@
 #!/bin/bash
-# Pipeline stage d_wheel, on a compute node inside the hipdnn image (Ubuntu 24, as the
-# hipdnn_env docker of hipdnn_vllm/notes/custom_op/NOTES.md): the hipdnn_vllm gfx94X wheel
-# of rocm-libraries RL_SHA with the code-object set SETDIR as the megakernel descriptor
-# folder (DVC-local, as step8/e2e_plan.sh stage: lock, artifacts, generated KDP, verify,
-# `dvc add` so configure's file count matches), then the drop4 wheel (the set without its
-# M = 4 objects, for H2) from the same build tree. Nothing is pushed.
+# Pipeline stage d_wheel, on a compute node inside the vLLM image the e2e runs use
+# (stage.sh): the hipdnn_vllm gfx94X wheel of rocm-libraries RL_SHA with the code-object
+# set SETDIR as the megakernel descriptor folder (DVC-local, as step8/e2e_plan.sh stage:
+# lock, artifacts, generated KDP, verify, `dvc add`), then the drop4 wheel (the set
+# without its M = 4 objects, for H2) from the same build tree. Nothing is pushed.
+# The wheel must load in that image (Ubuntu 22.04: glibc 2.35, libstdc++ 6.0.30): a wheel
+# built in the Ubuntu 24 hipdnn image needs GLIBC_2.38 and GLIBCXX_3.4.32, its bundled
+# backend fails to load and the frontend falls back to rocm-sdk's 0.3.0 backend. So it
+# builds against the image's own python, torch 2.13.0+rocm10.0.0 and rocm-sdk 10.0.0
+# (the BUILD_PINS versions; e2e_plan.sh WHEEL_ENV).
 # Usage: wheel_node.sh SETDIR OUTDIR   (env RL_SHA, KP_SHA: rocm-systems commit of kpack)
 # Output: OUTDIR/wheel/*.whl, OUTDIR/wheel-drop4/*.whl, OUTDIR/{lock_verify,
 #   lock_verify_drop4,wheel_build,wheel_build_drop4}.txt|log; PASS/FAIL lines on stdout.
@@ -18,7 +22,9 @@ echo "start $(date -Is) $(hostname) nproc=$(nproc) rocm-libraries $RL_SHA set $f
 # the build reads the root CMake files, cmake/, dnn-providers/, projects/hipdnn/ and shared/
 # (about 0.3 GB of the 11 GB tree): a sparse, blob-filtered fetch, retried (a full depth-1
 # fetch broke off once with "unexpected disconnect while reading sideband packet")
+# (cone mode keeps the root files; git 2.34 of Ubuntu 22.04 does not default to it)
 git init -q src && git -C src remote add origin https://github.com/ROCm/rocm-libraries.git \
+  && git -C src sparse-checkout init --cone \
   && git -C src sparse-checkout set cmake dnn-providers projects/hipdnn shared .dvc || exit 2
 for i in 1 2 3 4; do
   git -C src fetch -q --depth 1 --filter=blob:none origin "$RL_SHA" && git -C src checkout -q FETCH_HEAD && break
@@ -61,14 +67,17 @@ PY
   grep -E "nfiles|size" "src/$D/artifacts.dvc"
 }
 
-# the pinned vLLM venv (BUILD_PINS.toml), as notes/custom_op's build
-set -- $(python3.12 -c "import tomllib;p=tomllib.load(open('$T/BUILD_PINS.toml','rb'))['pins'];print(p['vllm'],p['rocm'],p['vllm_index'])")
-# torchvision pinned: whl-next also serves 0.29.0+rocm10.0.0, which pip prefers and which
-# does not load with torch 2.13.0 (hipdnn_vllm notes/custom_op/NOTES.md)
-python3.12 -m venv venv && venv/bin/pip install -q --upgrade pip \
-  && venv/bin/pip install -q "vllm==$1" "rocm[devel]==$2" "torchvision==0.28.0+rocm10.0.0" \
-       --extra-index-url "$3" --extra-index-url https://stable.repo.amd.com/rocm/whl-next/ || exit 2
+# VENV for build_wheel.sh: the image's python (its site-packages hold torch, rocm-sdk and
+# vLLM) and rocm-sdk
+# (wrappers, not symlinks: a symlinked python in venv/bin takes venv/ as its prefix;
+# absolute paths: the mounted home's ~/.local/bin on PATH has another python3.12)
+mkdir -p venv/bin || exit 2
+printf '#!/bin/sh\nexec /usr/bin/python3.12 "$@"\n' > venv/bin/python
+printf '#!/bin/sh\nexec /usr/local/bin/rocm-sdk "$@"\n' > venv/bin/rocm-sdk
+chmod +x venv/bin/python venv/bin/rocm-sdk
 venv/bin/python -c "import torch, vllm; print('torch', torch.__version__, 'vllm', vllm.__version__)" || exit 2
+venv/bin/rocm-sdk init > /dev/null 2>&1
+cat /etc/os-release | grep -m1 PRETTY_NAME; ldd --version | head -1
 mkdir kp && git -C kp init -q . && git -C kp remote add origin https://github.com/ROCm/rocm-systems.git \
   && git -C kp sparse-checkout set shared/kpack && git -C kp fetch -q --depth 1 --filter=blob:none origin "$KP_SHA" \
   && git -C kp checkout -q FETCH_HEAD || exit 2
