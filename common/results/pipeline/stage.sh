@@ -44,7 +44,10 @@ vstep() {
       cp -n \$(dirname \$so)/*.so \$(dirname \$so)/_version.py $src/vsrc/vllm/
       export PYTHONPATH=$src/vsrc PIP_CACHE_DIR=/tmp/pipcache FLYDSL_RUNTIME_ENABLE_CACHE=0 \
         HF_HUB_OFFLINE=1 TOKENIZERS_PARALLELISM=false PYTHONPYCACHEPREFIX=/tmp/pycache_$$ \
-        M=\$HOME/mk/models HIP_VISIBLE_DEVICES=$gpus
+        M=\$HOME/mk/models HIP_VISIBLE_DEVICES=$gpus \
+        XDG_CACHE_HOME=$src/cache TRITON_CACHE_DIR=$src/triton
+      # caches (vLLM torch.compile, comgr, triton) in node /tmp: written to the home they
+      # filled its quota on 2026-10-30 and every later write failed
       cd $src/$d && echo node \$(hostname) job $job gpus $gpus \$(cat $src/REVISION) vllm .so from \$so
       $cmd"
   rc=$?
