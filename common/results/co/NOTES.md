@@ -89,7 +89,8 @@ all output hashes were equal (alola `~/coexport/sets/rt0/qwen36-35b-a3b-fp8-gfx9
 Fix in the exporter: one fresh process per object (first-build name) and serialization
 of the parsed module (`canonical_compile`). The vLLM runtime JIT keeps FlyDSL's own
 serialization, so its bytes may differ from the manifest; H1 reports that and requires
-equal outputs and an equal rebuild. Scripts and logs of the investigation: `det/`.
+equal outputs and an equal rebuild. Scripts and logs of the investigation: `det/`. The
+rerun with `ac6c4a1` (Results) has the runtime's kernel names in every row.
 
 ## Sets
 
@@ -97,3 +98,19 @@ equal outputs and an equal rebuild. Scripts and logs of the investigation: `det/
 |---|---|---|---|
 | `rt0` | `fd8a77a5f` (rt0, rt0) | `70f57a0ae` (rt0) | `7f586cd2a` (rt0) |
 | `rt2` | `9fc7bc243` (rt2, rt0) | `6657a8352` (rt2) | `5a25d336a` (rt0) |
+
+## Results (exporter `ac6c4a1`, MI300X ctr-cx66-mi300x-31, FlyDSL 0.4.0, vLLM nightly image)
+
+Each set has `<set>/final/` (`manifest.json` and the `.co` files, 2.2 MB per set, committed)
+and `<set>/<model>/logs/` (`env.txt`, `export_{a,b}.log`, `determinism.log`, `sha_{a,b}.txt`,
+`h1.log`) plus `<set>/<model>/a/{manifest.json,export.log}`. On Alola: `~/coexport/sets/<set>/`.
+
+| Set | `final/manifest.json` sha256 | Objects | Determinism a == b | H1 (rank x width rows) |
+|---|---|---|---|---|
+| `rt0` | `e689d054dfca5f05…` | 16 | EQUAL (3 models) | 20/20 PASS: Qwen3.8 12 (TP1 4, TP2 2 x 4), Qwen3.6 4, Gemma4 4 |
+| `rt2` | `5b83b31430d7f43e…` | 16 | EQUAL (3 models) | 28/28 PASS: Qwen3.8 16 (TP1 at 4096 and 8192, TP2 2 x 4), Qwen3.6 8 (4096 and 8192), Gemma4 4 |
+
+rt2: Qwen3.8 TP1 and Qwen3.6 give one object per width at max_model_len 4096 and 8192
+(`rt2/*/a/export.log`, OBJECT lines). The runtime JIT's own bytes equal the manifest in
+every row except Qwen3.6 rt0 M = 2 and rt2 M = 1, 2, 8 (4096) / M = 1 (8192), the
+FlyDSL serialization variance above; the output hashes are equal in every row.
