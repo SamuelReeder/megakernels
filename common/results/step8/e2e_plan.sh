@@ -62,25 +62,30 @@ declare -A E2E=([q8]="bench/vllm_e2e.py" [q8tp2]="bench/vllm_e2e.py"
                 [q6]="bench/vllm_e2e.py run" [g]="bench/vllm_e2e.py run")
 
 # node_cmd K RES WHEEL: the command of stage 4 for model K, run in the model directory in
-# the vLLM image; results in RES, the wheel file (glob) WHEEL. MODES selects a subset.
+# the vLLM image; results in RES, the wheel file (glob) WHEEL. MODES selects a subset; each
+# mode runs even when an earlier one fails. flydsl2 repeats flydsl: the run-to-run spread
+# of vLLM at TP2 (qwen3.8 docs/DESIGN-TP2.md: TP2 is not repeatable inside vLLM).
 node_cmd() {
   local k=$1 res=$2 whl=$3 mode
   local rep="HIPDNN_VLLM_REPORT_DIR=$res/rep"
   local e2e="${ENVS[$k]} python ${E2E[$k]} \$M/${W[$k]} on"
   local cmd="pip install -q --no-deps $whl && mkdir -p $res/rep"
-  for mode in ${MODES:-flydsl hipdnn default nowheel}; do
+  for mode in ${MODES:-$(modes "$k")}; do
     case $mode in
-      flydsl|hipdnn) cmd+=" && VLLM_SPECIALIZED_DECODE_LAUNCH=$mode HIPDNN_VLLM_OPS=$OPS_ON $rep/$mode $e2e $res/$mode.json" ;;
-      default) cmd+=" && $rep/default $e2e $res/default.json" ;;
-      nowheel) cmd+=" && pip uninstall -q -y hipdnn_vllm && $e2e $res/nowheel.json" ;;
+      flydsl|flydsl2|hipdnn) cmd+="; VLLM_SPECIALIZED_DECODE_LAUNCH=${mode%2} HIPDNN_VLLM_OPS=$OPS_ON $rep/$mode $e2e $res/$mode.json" ;;
+      default) cmd+="; $rep/default $e2e $res/default.json" ;;
+      nowheel) cmd+="; pip uninstall -q -y hipdnn_vllm && $e2e $res/nowheel.json" ;;
     esac
   done
   echo "$cmd"
 }
+modes() {  # the stage 4 modes of model K
+  if [ "$1" = q8tp2 ]; then echo "flydsl flydsl2 hipdnn default nowheel"; else echo "flydsl hipdnn default nowheel"; fi
+}
 
 stage=${1:?usage: e2e_plan.sh export|stage|wheel|runs|drop|check [JOBID] | info K | cmd K RES WHEEL}
 job=${2:-}
-case $stage in info|cmd) ;; *) mkdir -p "$OUT" ;; esac
+case $stage in info|cmd|modes) ;; *) mkdir -p "$OUT" ;; esac
 
 case $stage in
 export)  # 1. the set; then prove that the heads' kernels/ equal the set's
@@ -145,12 +150,21 @@ check)  # 6. verdicts from the fetched results
 import glob, json, re, sys
 d, man, log = sys.argv[1:]
 r = {m: json.load(open(f"{d}/{m}.json")) for m in ("flydsl", "hipdnn", "default", "nowheel")}
+try:
+    r["flydsl2"] = json.load(open(f"{d}/flydsl2.json"))
+except OSError:
+    pass
 v = lambda ok: "PASS" if ok else "FAIL"
 # Qwen3.8 saves the generated tokens' logprobs, Qwen3.6 and Gemma the top-5 per position
 lp = lambda o: o["logprobs"] if "logprobs" in o else o["top"]
 same = lambda a, b: all(x["tokens"] == y["tokens"] and lp(x) == lp(y)
                         for x, y in zip(r[a]["outputs"], r[b]["outputs"]))
 print(v(same("hipdnn", "flydsl")), "H1 tokens+logprobs hipdnn == flydsl")
+if "flydsl2" in r:  # TP2: the run-to-run spread of vLLM itself, for reading H1
+    eq = lambda a, b: sum(x["tokens"] == y["tokens"] and lp(x) == lp(y)
+                          for x, y in zip(r[a]["outputs"], r[b]["outputs"]))
+    print(f"H1 spread: prompts bitwise equal hipdnn/flydsl {eq('hipdnn', 'flydsl')}, hipdnn/flydsl2 "
+          f"{eq('hipdnn', 'flydsl2')}, flydsl/flydsl2 {eq('flydsl', 'flydsl2')} of {len(r['flydsl']['outputs'])}")
 print(v(all(x["tokens"] == y["tokens"] for x, y in zip(r["default"]["outputs"], r["nowheel"]["outputs"]))),
       "H6 tokens default == no wheel")
 for B in ("1", "2", "4", "8"):
@@ -166,6 +180,8 @@ fb = [x for x in rows("hipdnn") if x.get("op") == "custom_op" and x.get("route")
 print(v(not cap and not fb), "H4 CAPTURE_INVARIANT rows:", len(cap), "custom_op fallback rows:", len(fb))
 n6 = len([x for x in rows("default") if x.get("op") == "custom_op"])
 print(v(n6 == 0), "H6 default custom_op rows:", n6)
+if d.rstrip("/").endswith("q8tp2"):  # the four runs loaded above completed
+    print("PASS H3 TP2 runs with VLLM_SPECIALIZED_DECODE_CHECK_PATHS=1 completed (no path disagreement raised)")
 keys = ("model", "src", "arch", "cus", "kv", "block", "M", "tp", "rt", "lm_head")
 entries = json.load(open(man))
 n = 0
@@ -185,6 +201,9 @@ PY
     echo "$h2 H2 $k drop4: ${nd:-0} decline line(s) for width 4; ${nl:-0} launch line(s) (3 per cache bind);" \
       "DecodeUnsupported: ${nu:-0}; hipdnn.json: $(ls "$OUT/drop4/$k/hipdnn.json" 2>/dev/null || echo missing)"
   done; } | tee "$OUT/verdicts.txt"
+  ;;
+modes)  # model K's stage 4 modes
+  modes "$job"
   ;;
 info)  # model K: its directory and vLLM head
   echo "${DIR[$job]} ${HEAD[$job]}"

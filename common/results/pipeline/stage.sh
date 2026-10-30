@@ -137,7 +137,7 @@ d_wheel)  # e2e_plan.sh stage + wheel (+ drop's wheel), in the hipdnn image on a
 e_*|f_drop_*)  # e2e_plan.sh runs (e_K: four modes) or drop (f_drop_K: hipdnn on the drop4 wheel)
   k=${name#e_}; k=${k#f_drop_}
   read -r dir _ < <(bash "$P/e2e_plan.sh" info "$k")
-  if [ "${name%%_*}" = e ]; then tag=runs whl=wheel modes="flydsl hipdnn default nowheel"
+  if [ "${name%%_*}" = e ]; then tag=runs whl=wheel modes=$(bash "$P/e2e_plan.sh" modes "$k")
   else tag=drop4 whl=wheel-drop4 modes=hipdnn; fi
   [ -n "$(ls "$E/$whl"/*.whl 2>/dev/null)" ] || { echo "no wheel in $E/$whl"; exit 2; }
   res=$E/$tag/$k

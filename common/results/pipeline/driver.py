@@ -57,7 +57,7 @@ STAGES = [
     ("c_rt2_merge", None, 2, ["c_rt2_q8", "c_rt2_q6", "c_rt2_g"], False),
     ("d_wheel", 0, 60, ["c_rt2_merge"], False),  # gfx94X + drop4 wheels (local test: 27 min, 128 CPUs)
     ("e_q8", 1, 50, ["d_wheel"], False),   # e2e_plan.sh runs (flydsl, hipdnn, default, nowheel)
-    ("e_q8tp2", 2, 50, ["d_wheel"], False),
+    ("e_q8tp2", 2, 65, ["d_wheel"], False),
     ("e_q6", 1, 50, ["d_wheel"], False),
     ("e_g", 1, 45, ["d_wheel"], False),
     ("f_drop_q8", 1, 20, ["d_wheel"], False),  # e2e_plan.sh drop (H2): hipdnn on the drop4 wheel
