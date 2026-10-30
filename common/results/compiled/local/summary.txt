@@ -1,0 +1,4 @@
+qwen38-gfx942-specialized-decode ruff: 2/2 rc0; kit: 71 passed, 1 warning in 25.44s
+qwen38-gfx942-tp2 ruff: 2/2 rc0; kit: 71 passed, 1 warning in 25.54s
+qwen36-gfx942-specialized-decode ruff: 2/2 rc0; kit: 66 passed, 1 warning in 21.30s
+gemma4-moe-batch ruff: 2/2 rc0; kit: 75 passed, 1 warning in 20.36s
