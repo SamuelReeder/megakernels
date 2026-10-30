@@ -46,6 +46,7 @@ from flydsl.expr import const_expr, gpu, range_constexpr, rocdl
 from flydsl.expr.typing import T
 
 from mkcore import dev as D
+from mkcore import stagelib as SL
 from . import stages as S
 from .dims import NDS, NE, TOPK
 from mkcore.gemv import fp8_row_compute, fp8_row_load
@@ -723,6 +724,6 @@ def prologue_act_moe(c, g, xq, xs, act, R, pos0):
         raw.append((i, sl, m, kc, [D.ld(ra, base + o, 4, T.f32, D.CM_DEV) for o in (0, 4)]))
     for i, sl, m, kc, v in raw:
         x = [v[0][0], v[0][1], v[0][2], v[0][3], v[1][0], v[1][1], v[1][2], v[1][3]]
-        S.store_quant8_at(c, xq, xs, x, sl * 16 + m, g.XR, g.XSR, kc, tid + NT * i < nch)
+        SL.store_quant8_at(c, xq, xs, x, sl * 16 + m, g.XR, g.XSR, kc, tid + NT * i < nch)
     gpu.barrier()
     D.probe(c, 8)

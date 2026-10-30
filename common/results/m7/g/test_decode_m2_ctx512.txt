@@ -1,0 +1,71 @@
+/tmp/gemma4-26b-a4b-gfx942-src-1793294806066283649/gemma4-26b-a4b-gfx942/mk/reference.py:268: UserWarning: uncheckedSetDevice() ignoring error: CUDA error: unspecified launch failure
+Search for `hipErrorLaunchFailure' in https://rocm.docs.amd.com/projects/HIP/en/latest/index.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing AMD_SERIALIZE_KERNEL=3
+Device-side assertion tracking was not enabled by user.
+Exception raised from SetDevice at /__w/pytorch/pytorch/c10/hip/HIPFunctions.cpp:334 (most recent call first):
+frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x9d (0x7b94710627fd in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #1: <unknown function> + 0x12cd2 (0x7b951c86ecd2 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10_hip.so)
+frame #2: c10::cuda::SetDevice(signed char, bool) + 0x65 (0x7b951c8b59e5 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10_hip.so)
+frame #3: <unknown function> + 0x2f99b (0x7b951c88b99b in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10_hip.so)
+frame #4: <unknown function> + 0xcd8cff (0x7b94e527ecff in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_hip.so)
+frame #5: at::_ops::nonzero::redispatch(c10::DispatchKeySet, at::Tensor const&) + 0xde (0x7b9507ae9e7e in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #6: <unknown function> + 0x5419ac8 (0x7b950a854ac8 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #7: at::_ops::nonzero::call(at::Tensor const&) + 0x111 (0x7b9507b5fa61 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #8: at::native::nonzero_numpy(at::Tensor const&) + 0x9d (0x7b9507531cfd in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #9: <unknown function> + 0x31d86bc (0x7b95086136bc in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #10: at::_ops::nonzero_numpy::call(at::Tensor const&) + 0x119 (0x7b9507ba2349 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #11: <unknown function> + 0x4b8f9d (0x7b951af50f9d in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_python.so)
+frame #12: python() [0x551418]
+<omitting python frames>
+frame #16: python() [0x608852]
+frame #17: python() [0x6b50d3]
+frame #22: <unknown function> + 0x2a1ca (0x7b951d22a1ca in /lib/x86_64-linux-gnu/libc.so.6)
+frame #23: __libc_start_main + 0x8b (0x7b951d22a28b in /lib/x86_64-linux-gnu/libc.so.6)
+ (Triggered internally at /__w/pytorch/pytorch/c10/hip/impl/HIPGuardImpl.h:70.)
+  r, k = (ids == e).nonzero(as_tuple=True)
+/tmp/gemma4-26b-a4b-gfx942-src-1793294806066283649/gemma4-26b-a4b-gfx942/mk/reference.py:268: UserWarning: uncheckedSetDevice() ignoring error: CUDA error: unspecified launch failure
+Search for `hipErrorLaunchFailure' in https://rocm.docs.amd.com/projects/HIP/en/latest/index.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing AMD_SERIALIZE_KERNEL=3
+Device-side assertion tracking was not enabled by user.
+Exception raised from SetDevice at /__w/pytorch/pytorch/c10/hip/HIPFunctions.cpp:334 (most recent call first):
+frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x9d (0x7b94710627fd in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #1: <unknown function> + 0x12cd2 (0x7b951c86ecd2 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10_hip.so)
+frame #2: c10::cuda::SetDevice(signed char, bool) + 0x65 (0x7b951c8b59e5 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10_hip.so)
+frame #3: <unknown function> + 0x2f99b (0x7b951c88b99b in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10_hip.so)
+frame #4: <unknown function> + 0x21bcdf (0x7b951acb3cdf in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_python.so)
+frame #5: python() [0x551418]
+<omitting python frames>
+frame #9: python() [0x608852]
+frame #10: python() [0x6b50d3]
+frame #15: <unknown function> + 0x2a1ca (0x7b951d22a1ca in /lib/x86_64-linux-gnu/libc.so.6)
+frame #16: __libc_start_main + 0x8b (0x7b951d22a28b in /lib/x86_64-linux-gnu/libc.so.6)
+ (Triggered internally at /__w/pytorch/pytorch/c10/hip/impl/HIPGuardImpl.h:70.)
+  r, k = (ids == e).nonzero(as_tuple=True)
+node banff-cyxtera-s70-4.adc.amd.com load+pack+build 17s cfg Cfg(M=2, cus=304, maxlen=536, block_s=16, maxblocks_s=34, kv_s=(65536, 512, 4096, 256), block_f=32, maxblocks_f=17, kv_f=(65536, 1024, 2048, 512), lm_head=True, c_qkv=1, c_o=4, c_router=1, c_e1=11, c_e2=2, c_lm=1, router_publish=True, combine_rows=True, e2_rows=True, e1_cta=True, debug_route=True, fence=False, chaos=False)
+Traceback (most recent call last):
+  File "/tmp/gemma4-26b-a4b-gfx942-src-1793294806066283649/gemma4-26b-a4b-gfx942/tests/test_decode.py", line 136, in <module>
+    main()
+  File "/tmp/gemma4-26b-a4b-gfx942-src-1793294806066283649/gemma4-26b-a4b-gfx942/tests/test_decode.py", line 54, in main
+    R.prefill(W, ids[:, :CTX], st_x, layers=LAYERS)
+  File "/home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/utils/_contextlib.py", line 124, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/gemma4-26b-a4b-gfx942-src-1793294806066283649/gemma4-26b-a4b-gfx942/mk/reference.py", line 395, in prefill
+    h = ffn(W, i, h, a)
+        ^^^^^^^^^^^^^^^
+  File "/tmp/gemma4-26b-a4b-gfx942-src-1793294806066283649/gemma4-26b-a4b-gfx942/mk/reference.py", line 297, in ffn
+    e = moe(W, i, rms(h1, W.L(i, "pre_feedforward_layernorm_2.weight")), ids, wts)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/gemma4-26b-a4b-gfx942-src-1793294806066283649/gemma4-26b-a4b-gfx942/mk/reference.py", line 268, in moe
+    r, k = (ids == e).nonzero(as_tuple=True)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.AcceleratorError: CUDA error: unspecified launch failure
+Search for `hipErrorLaunchFailure' in https://rocm.docs.amd.com/projects/HIP/en/latest/index.html for more information.
+CUDA kernel errors might be asynchronously reported at some other API call, so the stacktrace below might be incorrect.
+For debugging consider passing AMD_SERIALIZE_KERNEL=3
+Device-side assertion tracking was not enabled by user.
+Error code 719
+Error code 719
+Error code 719

@@ -1,0 +1,38 @@
+[flydsl.compile] FLYDSL_DUMP_IR=1 dir=/tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9
+[flydsl.compile] dump 00_origin -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/00_origin.mlir
+[flydsl.compile] dump 01_fly_rewrite_func_signature -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/01_fly_rewrite_func_signature.mlir
+[flydsl.compile] dump 02_fly_canonicalize -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/02_fly_canonicalize.mlir
+[flydsl.compile] dump 03_fly_rocdl_expand_ops -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/03_fly_rocdl_expand_ops.mlir
+[flydsl.compile] dump 04_fly_layout_lowering -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/04_fly_layout_lowering.mlir
+[flydsl.compile] dump 05_fly_int_swizzle_simplify -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/05_fly_int_swizzle_simplify.mlir
+[flydsl.compile] dump 06_canonicalize -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/06_canonicalize.mlir
+[flydsl.compile] dump 07_fly_convert_atom_call_to_ssa_form -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/07_fly_convert_atom_call_to_ssa_form.mlir
+[flydsl.compile] dump 08_fly_promote_regmem_to_vectorssa -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/08_fly_promote_regmem_to_vectorssa.mlir
+[flydsl.compile] dump 09_convert_fly_to_rocdl -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/09_convert_fly_to_rocdl.mlir
+[flydsl.compile] dump 10_canonicalize -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/10_canonicalize.mlir
+[flydsl.compile] dump 11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl.mlir
+[flydsl.compile] dump 12_rocdl_attach_target -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/12_rocdl_attach_target.mlir
+[flydsl.compile] dump 13_convert_scf_to_cf -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/13_convert_scf_to_cf.mlir
+[flydsl.compile] dump 14_convert_cf_to_llvm -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/14_convert_cf_to_llvm.mlir
+[flydsl.compile] dump 15_gpu_to_llvm -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/15_gpu_to_llvm.mlir
+[flydsl.compile] dump 16_convert_vector_to_llvm -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/16_convert_vector_to_llvm.mlir
+[flydsl.compile] dump 17_convert_arith_to_llvm -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/17_convert_arith_to_llvm.mlir
+[flydsl.compile] dump 18_convert_func_to_llvm -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/18_convert_func_to_llvm.mlir
+[flydsl.compile] dump 19_reconcile_unrealized_casts -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/19_reconcile_unrealized_casts.mlir
+[flydsl.compile] dump 20_gpu_module_to_binary -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/20_gpu_module_to_binary.mlir
+[flydsl.compile] dump 21_llvm_ir -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/21_llvm_ir.ll
+[flydsl.compile] dump 22_final_isa -> /tmp/isa_dump_2286798_1_1_on/qwen38_decode_m1_ec6a0bb9/22_final_isa.s
+HASH tp2 ar fp32 rank 1 M=1 lm=on steps=1 layers=4 logits 8697079dd766f09d rank-slice c0d6cbb789f04ef9 finite True
+[rank1]:[W1029 20:06:24.257372504 TCPStore.cpp:125] [c10d] recvValue failed on SocketImpl(fd=6, addr=[localhost]:44666, remote=[localhost]:29541): Connection reset by peer
+Exception raised from recvBytes at /__w/pytorch/pytorch/torch/csrc/distributed/c10d/Utils.hpp:787 (most recent call first):
+frame #0: c10::Error::Error(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x9d (0x71f56b4f47fd in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #1: c10::DistError::DistError(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x72 (0x71f56b4f57d2 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #2: c10::DistNetworkError::DistNetworkError(c10::SourceLocation, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >) + 0x72 (0x71f56b4f5c92 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libc10.so)
+frame #3: <unknown function> + 0x68fee93 (0x71f55a939e93 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #4: c10d::TCPStore::check(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&) + 0x383 (0x71f55a933623 in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_cpu.so)
+frame #5: c10d::ProcessGroupNCCL::HeartbeatMonitor::runLoop() + 0x43d (0x71f536857b3d in /home/AMD/sareeder/mk/venv/lib/python3.12/site-packages/torch/lib/libtorch_hip.so)
+frame #6: <unknown function> + 0xecdb4 (0x71f4be0ecdb4 in /lib/x86_64-linux-gnu/libstdc++.so.6)
+frame #7: <unknown function> + 0x9cb84 (0x71f56c49cb84 in /lib/x86_64-linux-gnu/libc.so.6)
+frame #8: <unknown function> + 0x129ecc (0x71f56c529ecc in /lib/x86_64-linux-gnu/libc.so.6)
+
+[rank1]:[W1029 20:06:24.263266367 ProcessGroupNCCL.cpp:1893] [PG ID 0 PG GUID 0 Rank 1] TCPStore check for dump key "exception_dump" failed (store unavailable, not absent key). Cannot detect remote dump signals. A rank exiting outside NCCL without broadcasting is a separate case. Error: Connection reset by peer
