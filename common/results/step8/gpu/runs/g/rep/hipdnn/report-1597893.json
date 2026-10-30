@@ -1,0 +1,40 @@
+{
+  "argv0": "vllm_e2e.py",
+  "attention_plans": {
+    "by_origin": {},
+    "count": 0,
+    "sizes": []
+  },
+  "counters": [
+    {
+      "count": 6,
+      "op": "custom_op",
+      "phase": "capture",
+      "reason": "",
+      "route": "hipdnn"
+    },
+    {
+      "count": 13,
+      "op": "custom_op",
+      "phase": "eager",
+      "reason": "",
+      "route": "hipdnn"
+    }
+  ],
+  "fallback_reasons": {},
+  "pid": 1597893,
+  "rank": "0",
+  "runtime": {
+    "execute_calls": 19,
+    "execute_host_ns": 437114,
+    "plan_build_declines": 0,
+    "plan_build_ns": 14785958,
+    "plan_builds": 4,
+    "plan_cache_capacity": 4096,
+    "plan_cache_evictions": 0,
+    "plan_cache_hits": 23,
+    "plan_cache_pinned": 4,
+    "plan_cache_size": 4
+  },
+  "time": 1793402471.2698371
+}

@@ -1,0 +1,16 @@
+start 2026-10-30T17:20:15-04:00 ctr-cx66-mi300x-31.adc.amd.com nproc=32 rocm-libraries adeef27221140ff316429f13b658994777ff4f6b set /home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7
+src adeef27 fix(hipdnn_vllm): build_wheel.sh dependency check also searches rocm_sysdeps/lib of the pip ROCm install (build in the vLLM ROCm image)
+torch 2.13.0+rocm10.0.0 vllm 0.32.1rc1.dev505+g00b6c4c56
+PRETTY_NAME="Ubuntu 22.04.5 LTS"
+ldd (Ubuntu GLIBC 2.35-0ubuntu3.15) 2.35
+descriptor folder: 16 of 16 objects (drop M=-)
+  size: 2229944
+  nfiles: 17
+PASS lock verify (full set)
+PASS wheel /home/AMD/sareeder/mk/out/pipeline/e2e/wheel/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (139 s)
+descriptor folder: 12 of 16 objects (drop M=4)
+  size: 1665321
+  nfiles: 13
+PASS lock verify (drop M=4)
+PASS wheel-drop4 /home/AMD/sareeder/mk/out/pipeline/e2e/wheel-drop4/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (41 s)
+done 2026-10-30T17:24:13-04:00
