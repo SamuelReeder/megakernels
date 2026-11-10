@@ -25,12 +25,15 @@ SERIES = [
 ]
 
 fig, ax = plt.subplots(figsize=(8, 4.6), dpi=150)
-for label, low, high, color in SERIES:
-    ax.plot(B, low, "o-", color=color, label=label, lw=2)
+for i, (label, low, high, color) in enumerate(SERIES):
+    x = [b * (1 + 0.04 * (i - 1.5)) for b in B]  # small offset so points do not overlap
+    ax.plot(x, low, "o", color=color, label=label, ms=7)
+    ax.plot(x, low, ":", color=color, lw=1, alpha=0.5)
     if high:
-        ax.fill_between(B, low, high, color=color, alpha=0.15, lw=0)
+        ax.vlines(x, low, high, color=color, lw=2.5, alpha=0.35)
+        ax.plot(x, high, "_", color=color, ms=10, mew=2, alpha=0.6)
 ax.axvspan(8.5, 17, color="0.88")
-ax.text(11.6, 1.55, "above 8 sequences:\nkernel hands off to\nvLLM's normal path\n= 1.0x", ha="center",
+ax.text(11.6, 1.45, "above 8 sequences:\nvLLM's own path\n(not measured)", ha="center",
         va="center", fontsize=9, color="0.25")
 ax.axhline(1.0, color="0.4", lw=1, ls="--")
 ax.set_xscale("log", base=2)
@@ -42,8 +45,8 @@ ax.set_xlabel("concurrent sequences (batch)")
 ax.set_ylabel("decode speedup per user vs stock vLLM")
 ax.set_title("gfx942 megakernels vs stock vLLM, one MI300X (TP2: two)", fontsize=11)
 ax.legend(fontsize=8.5, loc="upper left", ncol=2, frameon=False)
-fig.text(0.01, 0.01, "Line: conservative baseline (best stock-vLLM day). Band: up to the same-session baseline.\n"
-         "* Part of the Qwen3.8 gain is MXFP4 weights (half the bytes of FP8); stock vLLM has no fast MXFP4 path on gfx942.",
+fig.text(0.01, 0.01, "Dot: against the best stock-vLLM day. Bar: up to the same-session baseline. Measured at batch 1, 2, 4, 8 only.\n"
+         "* MXFP4 weights (half the bytes of FP8, 4.9 % higher perplexity than BF16) against vLLM FP8; vLLM has no fast MXFP4 path on gfx942.",
          fontsize=7.5, color="0.3")
 fig.tight_layout(rect=(0, 0.06, 1, 1))
 fig.savefig(__file__.replace("plot_speedup.py", "speedup.png"))
