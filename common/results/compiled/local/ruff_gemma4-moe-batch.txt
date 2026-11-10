@@ -1,0 +1,7 @@
+# 2026-10-30T07:57:20+00:00 gemma4-moe-batch 5a25d336af19a94e6f261a54ff8b015d3b973c9c dirty 0; ruff 0.14.0; torch 2.14.0+cpu
+## ruff check vllm/models/gemma4/amd/specialized_decode
+All checks passed!
+rc 0
+## ruff format --check vllm/models/gemma4/amd/specialized_decode
+18 files already formatted
+rc 0

@@ -299,13 +299,18 @@ Design:
 
 1. `mkcore.SRC_HASH` = sha256 over the sorted relative paths and bytes of the package's
    `.py` files, computed at import.
-2. `mkcore.key.compile_key(cfg, pkg_dir, *extra)` = sha256 of `repr((cfg, *extra))`, then
-   `SRC_HASH`, then `source_hash(pkg_dir)` (sorted relative paths and bytes of the `.py`
-   files under the model's kernel package: `mk/` standalone, `kernels/` in vLLM, which
-   then holds `kernels/mkcore/` too). `extra` = the debug globals that change the traced
-   code: `PROFILE`, `D.PROBE` (all three models), `D.ARPROBE` (Qwen3.8). `dev.FENCE` and
-   `dev.CHAOS` need no entry: `build` sets them from `cfg.fence` / `cfg.chaos`, which
-   `repr(cfg)` holds. (Fixed at M1: this is the hotfix key plus `SRC_HASH`.)
+2. `mkcore.key.compile_key(cfg, pkg_dir, *extra)` = sha256 of `repr((cfg.compiled(),
+   *extra))`, then `SRC_HASH`, then `source_hash(pkg_dir)` (sorted relative paths and
+   bytes of the `.py` files under the model's kernel package: `mk/` standalone, `kernels/`
+   in vLLM, which then holds `kernels/mkcore/` too). `Cfg.compiled()` is the Cfg the code
+   object is built for: at `rt_geom` 2 its run-time fields (`maxlen`, `maxblocks*`) are 0,
+   at `rt_geom` 0 it is the Cfg itself; it is idempotent. So one code object has one key
+   whatever `max_model_len` the caller's Cfg holds (`common/tests/key_test.py`); the
+   hipDNN route's `src` is this key (`docs/hipdnn-route.md` section 4). `extra` = the
+   debug globals that change the traced code: `PROFILE`, `D.PROBE` (all three models),
+   `D.ARPROBE` (Qwen3.8). `dev.FENCE` and `dev.CHAOS` need no entry: `build` sets them
+   from `cfg.fence` / `cfg.chaos`, which `repr(cfg)` holds. (Fixed at M1: this is the
+   hotfix key plus `SRC_HASH`.)
 3. `mkcore.key.kernel_name(prefix, cfg, key)` = `f"{prefix}_m{cfg.M}_{crc32(key):08x}"`
    (the current format; the crc is now of the key, not of `repr(cfg)`).
 4. `build` binds `key` (a `str`) in the closure of the `@flyc.jit` launcher with the
@@ -1025,9 +1030,12 @@ Docs only, no code change. Files: `README.md` (layout, dependency rule),
   C)` is the case without leading dims (goldens: the same bytes). Rejected: `(t, C,
   nrest=None)` (reorders every Qwen3.6 / Gemma call) and two functions with one name.
 - D15. Qwen3.8's vLLM target is `qwen38-gfx942-tp2` (as for oracle 5 since M3); it runs
-  TP 1 too. `qwen38-gfx942-specialized-decode` keeps its pre-TP2, pre-`mkcore` kernel copy
-  (it imports its own `kernels/gemv.py`, `fp4.py`, which stay): re-exporting `main` there
-  would need the TP2 runtime commits. Not re-exported.
+  TP 1 too. Until 2026-10-30 `qwen38-gfx942-specialized-decode` kept its pre-TP2,
+  pre-`mkcore` kernel copy. Closed by the hipDNN route's step 1a: that branch merges
+  `qwen38-gfx942-tp2` (`e053aba09`, a fast-forward for the fork; the one conflict, its
+  per-model `compile_key` in `kernels/kernel.py`, takes the TP2 branch's `mkcore` key) and
+  then gets the same export (`0332fdc96`); its `vllm/` tree equals the TP2 branch's
+  (`common/results/compiled/`).
 
 ## Rejected alternatives
 

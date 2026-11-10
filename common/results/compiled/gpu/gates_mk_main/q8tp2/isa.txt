@@ -1,0 +1,8 @@
+ISA tp2_bf16_r0 M=1 lm=on b077d7ae35c914dc
+ISA tp2_bf16_r0 M=8 lm=on 78d9c7682e922348
+ISA tp2_bf16_r1 M=1 lm=on b077d7ae35c914dc
+ISA tp2_bf16_r1 M=8 lm=on 78d9c7682e922348
+ISA tp2_fp32_r0 M=1 lm=on 52e87a3c06736983
+ISA tp2_fp32_r0 M=8 lm=on 18040b8e5ecfa3c2
+ISA tp2_fp32_r1 M=1 lm=on 52e87a3c06736983
+ISA tp2_fp32_r1 M=8 lm=on 18040b8e5ecfa3c2

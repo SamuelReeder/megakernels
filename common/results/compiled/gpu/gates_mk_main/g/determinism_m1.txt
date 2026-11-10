@@ -1,0 +1,47 @@
+node ctr-cx66-mi300x-31.adc.amd.com
+  M=1 step 0
+  M=1 step 256
+  M=1 step 512
+  M=1 step 768
+  M=1 step 1024
+  M=1 step 0
+  M=1 step 256
+  M=1 step 512
+  M=1 step 768
+  M=1 step 1024
+  M=1 step 0
+  M=1 step 256
+  M=1 step 512
+  M=1 step 768
+  M=1 step 1024
+M=1 steps=1100: 3 runs bitwise equal: True
+  M=1 step 0
+  M=1 step 256
+  M=1 step 512
+  M=1 step 768
+  M=1 step 1024
+  M=2 step 0
+  M=2 step 256
+  M=2 step 512
+  M=2 step 768
+  M=2 step 1024
+row 0 alone vs inside M=2: bitwise equal True (steps that differ: 0)
+  M=4 step 0
+  M=4 step 256
+  M=4 step 512
+  M=4 step 768
+  M=4 step 1024
+row 0 alone vs inside M=4: bitwise equal True (steps that differ: 0)
+  M=8 step 0
+  M=8 step 256
+  M=8 step 512
+  M=8 step 768
+  M=8 step 1024
+  M=8 step 0
+  M=8 step 256
+  M=8 step 512
+  M=8 step 768
+  M=8 step 1024
+row 0 alone vs inside M=8: bitwise equal True (steps that differ: 0)
+row 0 alone vs inside M=8 with rows 4..7 padding: bitwise equal True
+PASS

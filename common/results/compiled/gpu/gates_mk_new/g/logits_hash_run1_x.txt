@@ -1,0 +1,8 @@
+HASH tp1 M=1 lm=on steps=1040 layers=30 logits b24507ff6293f91a finite True
+HASH tp1 M=2 lm=on steps=1040 layers=30 logits 8036b849244aaac4 finite True
+HASH tp1 M=4 lm=on steps=1040 layers=30 logits 82c285a00cfcfb8b finite True
+HASH tp1 M=8 lm=on steps=1040 layers=30 logits fa2d2856bf90a8e4 finite True
+HASH tp1 M=1 lm=off steps=1040 layers=30 hidden 00e033b221ce103f finite True
+HASH tp1 M=2 lm=off steps=1040 layers=30 hidden bfc9706774984895 finite True
+HASH tp1 M=4 lm=off steps=1040 layers=30 hidden 50ef2de028a1eaf8 finite True
+HASH tp1 M=8 lm=off steps=1040 layers=30 hidden 7122e51d62dd5c6a finite True

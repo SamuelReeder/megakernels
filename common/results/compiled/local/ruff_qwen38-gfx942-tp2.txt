@@ -1,0 +1,7 @@
+# 2026-10-30T07:56:16+00:00 qwen38-gfx942-tp2 9fc7bc243174c6e817823ea7b838482946fd714a dirty 0; ruff 0.14.0; torch 2.14.0+cpu
+## ruff check vllm/models/qwen3_5/amd/specialized_decode
+All checks passed!
+rc 0
+## ruff format --check vllm/models/qwen3_5/amd/specialized_decode
+18 files already formatted
+rc 0

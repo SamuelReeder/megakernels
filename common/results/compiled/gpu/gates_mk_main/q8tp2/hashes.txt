@@ -1,0 +1,16 @@
+HASH tp2 ar bf16 rank 0 M=1 lm=on steps=8 layers=64 logits 9489275e99206138 rank-slice 5385e1681c5ccd8e finite True
+HASH tp2 ar bf16 rank 0 M=2 lm=on steps=8 layers=64 logits ffaf9971d594de69 rank-slice ade2a4997eb85043 finite True
+HASH tp2 ar bf16 rank 0 M=4 lm=on steps=8 layers=64 logits d4e6389ed1a2448e rank-slice 7bca919db7635c8c finite True
+HASH tp2 ar bf16 rank 0 M=8 lm=on steps=8 layers=64 logits cc9e3b01889e1a4d rank-slice cb00be4078a2636b finite True
+HASH tp2 ar bf16 rank 1 M=1 lm=on steps=8 layers=64 logits 9489275e99206138 rank-slice d04d8d055d14f2c4 finite True
+HASH tp2 ar bf16 rank 1 M=2 lm=on steps=8 layers=64 logits ffaf9971d594de69 rank-slice b9880bfa3ede4a66 finite True
+HASH tp2 ar bf16 rank 1 M=4 lm=on steps=8 layers=64 logits d4e6389ed1a2448e rank-slice 10d4d7fbd11a3eda finite True
+HASH tp2 ar bf16 rank 1 M=8 lm=on steps=8 layers=64 logits cc9e3b01889e1a4d rank-slice e2de4286192bf5b2 finite True
+HASH tp2 ar fp32 rank 0 M=1 lm=on steps=8 layers=64 logits 1e8ad0ba3f15077a rank-slice 7a930d4b324d18f1 finite True
+HASH tp2 ar fp32 rank 0 M=2 lm=on steps=8 layers=64 logits ec3d5ed217c5c0c6 rank-slice e34d435b80b49cce finite True
+HASH tp2 ar fp32 rank 0 M=4 lm=on steps=8 layers=64 logits bf44cbcb806eaa8d rank-slice b0bb1c193c38f11d finite True
+HASH tp2 ar fp32 rank 0 M=8 lm=on steps=8 layers=64 logits 32d7b498e590659b rank-slice deaf28e8581c9965 finite True
+HASH tp2 ar fp32 rank 1 M=1 lm=on steps=8 layers=64 logits 1e8ad0ba3f15077a rank-slice be7cf24b038cd638 finite True
+HASH tp2 ar fp32 rank 1 M=2 lm=on steps=8 layers=64 logits ec3d5ed217c5c0c6 rank-slice 4bd7792bd890f43f finite True
+HASH tp2 ar fp32 rank 1 M=4 lm=on steps=8 layers=64 logits bf44cbcb806eaa8d rank-slice 2d6166b6c0428592 finite True
+HASH tp2 ar fp32 rank 1 M=8 lm=on steps=8 layers=64 logits 32d7b498e590659b rank-slice 3ab4cee1602890e2 finite True

@@ -1,0 +1,4 @@
+HASH tp2 ar bf16 rank 1 M=1 lm=on steps=8 layers=64 logits 9489275e99206138 rank-slice d04d8d055d14f2c4 finite True
+HASH tp2 ar bf16 rank 1 M=2 lm=on steps=8 layers=64 logits ffaf9971d594de69 rank-slice b9880bfa3ede4a66 finite True
+HASH tp2 ar bf16 rank 1 M=4 lm=on steps=8 layers=64 logits d4e6389ed1a2448e rank-slice 10d4d7fbd11a3eda finite True
+HASH tp2 ar bf16 rank 1 M=8 lm=on steps=8 layers=64 logits cc9e3b01889e1a4d rank-slice e2de4286192bf5b2 finite True

@@ -1,0 +1,4 @@
+HASH tp2 ar fp32 rank 1 M=1 lm=on steps=8 layers=64 logits 1e8ad0ba3f15077a rank-slice be7cf24b038cd638 finite True
+HASH tp2 ar fp32 rank 1 M=2 lm=on steps=8 layers=64 logits ec3d5ed217c5c0c6 rank-slice 4bd7792bd890f43f finite True
+HASH tp2 ar fp32 rank 1 M=4 lm=on steps=8 layers=64 logits bf44cbcb806eaa8d rank-slice 2d6166b6c0428592 finite True
+HASH tp2 ar fp32 rank 1 M=8 lm=on steps=8 layers=64 logits 32d7b498e590659b rank-slice 3ab4cee1602890e2 finite True

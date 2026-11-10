@@ -1,0 +1,11 @@
+# 2026-10-30T07:56:51+00:00 qwen36-gfx942-specialized-decode 6657a8352398a753fe56a530c9464e8f57a07c76 dirty 0
+..................................................................       [100%]
+=============================== warnings summary ===============================
+vllm/__init__.py:7
+  /home/sareeder/ROCm-workspace/worktrees/vllm/qwen36-gfx942-specialized-decode/vllm/__init__.py:7: RuntimeWarning: Failed to read commit hash:
+  No module named 'vllm._version'
+    from .version import __version__, __version_tuple__  # isort:skip
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+66 passed, 1 warning in 21.30s
+rc 0

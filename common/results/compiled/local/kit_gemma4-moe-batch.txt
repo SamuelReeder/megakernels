@@ -1,0 +1,12 @@
+# 2026-10-30T07:57:21+00:00 gemma4-moe-batch 5a25d336af19a94e6f261a54ff8b015d3b973c9c dirty 0
+........................................................................ [ 96%]
+...                                                                      [100%]
+=============================== warnings summary ===============================
+vllm/__init__.py:7
+  /home/sareeder/ROCm-workspace/worktrees/vllm/gemma4-moe-batch/vllm/__init__.py:7: RuntimeWarning: Failed to read commit hash:
+  No module named 'vllm._version'
+    from .version import __version__, __version_tuple__  # isort:skip
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+75 passed, 1 warning in 20.36s
+rc 0
