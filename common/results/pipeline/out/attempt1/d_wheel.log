@@ -1,0 +1,17 @@
+==== 2026-10-30T15:15:37 d_wheel attempt 1 job 68218902 gpus - tleft 199 min
+# 2026-10-30T15:15:37-04:00 d_wheel job 68218902 gpus - tleft 199 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=0cc00bebfdb497c3ac8376087ffabb59668ad983 PIPE_REV="hipdnn-design 0cc00be dirty 0" RL_SHA=9bb279d30d031a60a2d490150b081cee264086e8 E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+start 2026-10-30T15:15:43-04:00 ctr-cx66-mi300x-31.adc.amd.com nproc=32 rocm-libraries 9bb279d30d031a60a2d490150b081cee264086e8 set /home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7
+src 9bb279d3 Merge commit '18c6ef46d6073d9925740535ad1228780596b0a8' into users/sareeder/hipdnn-vllm-custom-op
+/home/AMD/sareeder/mk/pipeline/wheel_node.sh: error reading input file: Stale file handle
+srun: error: ctr-cx66-mi300x-31: task 0: Exited with exit code 2
+RESULT d_wheel ERROR rc=2 2026-10-30T15:29:20-04:00
+==== 2026-10-30T15:29:59 d_wheel attempt 2 job 68218902 gpus - tleft 185 min
+# 2026-10-30T15:29:59-04:00 d_wheel job 68218902 gpus - tleft 185 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=e126b37da37bd7b1a4fdd0c7999d5ce99d502f47 PIPE_REV="hipdnn-design e126b37 dirty 0" RL_SHA=9bb279d30d031a60a2d490150b081cee264086e8 E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+start 2026-10-30T15:30:05-04:00 ctr-cx66-mi300x-31.adc.amd.com nproc=32 rocm-libraries 9bb279d30d031a60a2d490150b081cee264086e8 set /home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7
+error: RPC failed; curl 56 Recv failure: Connection reset by peer
+error: 12132 bytes of body are still expected
+fetch-pack: unexpected disconnect while reading sideband packet
+fatal: early EOF
+fatal: fetch-pack: invalid index-pack output
+srun: error: ctr-cx66-mi300x-31: task 0: Exited with exit code 2
+RESULT d_wheel ERROR rc=2 2026-10-30T15:42:41-04:00

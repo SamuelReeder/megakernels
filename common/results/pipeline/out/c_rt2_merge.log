@@ -1,0 +1,5 @@
+==== 2026-10-30T14:39:54 c_rt2_merge attempt 1 job - gpus - tleft 0 min
+# 2026-10-30T14:39:54-04:00 c_rt2_merge job - gpus - tleft 0 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=21ea059b1aedcdb4e18746a8c0a6901d0b5bdb71 PIPE_REV="hipdnn-design 21ea059 dirty 0" RL_SHA=66d0838cd8fbddea98f4314f3f92801f1f6be75f KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/AMD/sareeder/mk/images/vllm-rocm-nightly-00b6c4c5.sqsh HIMG=/
+MANIFEST /home/AMD/sareeder/coexport/sets/rt2/final/manifest.json 16 objects sha256 5b83b31430d7f43ebfa2eda046e15a01c832ec12a426904601b8391cf35ffba1
+PASS merge rt2 -> /home/AMD/sareeder/coexport/sets/rt2/final
+RESULT c_rt2_merge PASS rc=0 2026-10-30T14:39:54-04:00

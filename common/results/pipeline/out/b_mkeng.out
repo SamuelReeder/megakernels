@@ -1,0 +1,35 @@
+py deps ok
+host=ctr-cx66-mi300x-31.adc.amd.com nproc=32 date=2026-10-30T12:33:47-04:00
+source files updated: 10971
+cmake version 3.28.3
+HIP version: 7.17.26423-0000000
+MODE=ON configure_rc=0 s=27
+MODE=ON build_rc=0 s=473
+MODE=ON clang_tidy_rc=0
+hip_kernel_provider_census_tests
+hip_kernel_provider_integration_tests
+hip_kernel_provider_tests
+/tmp/mkeng-gpu/build-ON/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider/integration/integration/gfx942/megakernel/megakernel_standin.kdp.json
+/tmp/mkeng-gpu/build-ON/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/artifacts/megakernel.kdp.json
+/tmp/mkeng-gpu/build-ON/dnn-providers/hip-kernel-provider/descriptor-packaging/hkp-integration-intermediate/gfx942/megakernel/megakernel_standin.kdp.json
+/tmp/mkeng-gpu/build-ON/dnn-providers/hip-kernel-provider/descriptor-packaging/hkp-product-intermediate/gfx942/megakernel/artifacts/megakernel.kdp.json
+MODE=ON unit_rc=0
+[  PASSED  ] 1181 tests.
+[  SKIPPED ] 6 tests.
+MODE=ON megakernel_unit_rc=0
+[----------] Global test environment tear-down
+[==========] 10 tests from 1 test suite ran. (57 ms total)
+[  PASSED  ] 10 tests.
+gpu arch=gfx942
+integration_rc=0
+[       OK ] IntegrationGpuMegakernel.DeclinesAPayloadWhoseSrcNoObjectCarries (17 ms)
+[----------] 2 tests from IntegrationGpuMegakernel (333 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (333 ms total)
+[  PASSED  ] 2 tests.
+packaging pytest:
+pytest_rc=0
+...........                                                              [100%]
+11 passed in 0.90s
+done 2026-10-30T12:47:00-04:00

@@ -1,0 +1,14 @@
+==== 2026-10-30T15:48:18 d_wheel attempt 1 job 68220707 gpus - tleft 113 min
+# 2026-10-30T15:48:18-04:00 d_wheel job 68220707 gpus - tleft 113 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=d8432fcc4a3c5d8d94efe25581f699585d0745f5 PIPE_REV="hipdnn-design d8432fc dirty 0" RL_SHA=9bb279d30d031a60a2d490150b081cee264086e8 E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+PASS lock verify (full set)
+FAIL wheel (see /home/AMD/sareeder/mk/out/pipeline/e2e/wheel_build.log)
+start 2026-10-30T19:48:45+00:00 ctr-smc-s22-17.adc.amd.com nproc=32 rocm-libraries 9bb279d30d031a60a2d490150b081cee264086e8 set /home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7
+src 9bb279d Merge commit '18c6ef46d6073d9925740535ad1228780596b0a8' into users/sareeder/hipdnn-vllm-custom-op
+torch 2.13.0+rocm10.0.0 vllm 0.32.1rc1.dev117+gdf3bd094a
+descriptor folder: 16 of 16 objects (drop M=-)
+  size: 2229944
+  nfiles: 17
+PASS lock verify (full set)
+FAIL wheel (see /home/AMD/sareeder/mk/out/pipeline/e2e/wheel_build.log)
+srun: error: ctr-smc-s22-17: task 0: Exited with exit code 1
+RESULT d_wheel ERROR rc=2 2026-10-30T16:01:55-04:00

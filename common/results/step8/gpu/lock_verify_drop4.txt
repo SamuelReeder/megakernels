@@ -1,0 +1,3 @@
+descriptor folder: 12 of 16 objects (drop M=4)
+  size: 1665321
+  nfiles: 13

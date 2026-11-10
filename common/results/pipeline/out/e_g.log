@@ -1,0 +1,31 @@
+==== 2026-10-30T19:14:28 e_g attempt 1 job 68220723 gpus 0 tleft 148 min
+# 2026-10-30T19:14:28-04:00 e_g job 68220723 gpus 0 tleft 148 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=984605cb02707d1157a9555660601f432e708df2 PIPE_REV="hipdnn-design 984605c dirty 0" RL_SHA=adeef27221140ff316429f13b658994777ff4f6b E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+on TRITON_ATTN batch 1: TPOT 3.47 ms (288.2 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.87 ms (258.3 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.36 ms (229.6 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 5.48 ms (182.6 tok/s/user), kernel steps per 256-token generate 255
+(EngineCore pid=1597893) INFO 10-30 19:20:35 [hipdnn_launch.py:181] Specialized decode gemma4-26b-a4b-fp8-gfx942: width 1 launches through hipDNN megakernel.gemma4-26b-a4b-fp8-gfx942; payload {"M":1,"arch":"gfx942","block":16,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"gemma4-26b-a4b-fp8
+(EngineCore pid=1597893) INFO 10-30 19:20:35 [hipdnn_launch.py:181] Specialized decode gemma4-26b-a4b-fp8-gfx942: width 2 launches through hipDNN megakernel.gemma4-26b-a4b-fp8-gfx942; payload {"M":2,"arch":"gfx942","block":16,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"gemma4-26b-a4b-fp8
+(EngineCore pid=1597893) INFO 10-30 19:20:35 [hipdnn_launch.py:181] Specialized decode gemma4-26b-a4b-fp8-gfx942: width 4 launches through hipDNN megakernel.gemma4-26b-a4b-fp8-gfx942; payload {"M":4,"arch":"gfx942","block":16,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"gemma4-26b-a4b-fp8
+(EngineCore pid=1597893) INFO 10-30 19:20:35 [hipdnn_launch.py:181] Specialized decode gemma4-26b-a4b-fp8-gfx942: width 8 launches through hipDNN megakernel.gemma4-26b-a4b-fp8-gfx942; payload {"M":8,"arch":"gfx942","block":16,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"gemma4-26b-a4b-fp8
+(EngineCore pid=1597893) INFO 10-30 19:20:38 [hipdnn_launch.py:181] Specialized decode gemma4-26b-a4b-fp8-gfx942: width 1 launches through hipDNN megakernel.gemma4-26b-a4b-fp8-gfx942; payload {"M":1,"arch":"gfx942","block":16,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"gemma4-26b-a4b-fp8
+(EngineCore pid=1597893) INFO 10-30 19:20:38 [hipdnn_launch.py:181] Specialized decode gemma4-26b-a4b-fp8-gfx942: width 2 launches through hipDNN megakernel.gemma4-26b-a4b-fp8-gfx942; payload {"M":2,"arch":"gfx942","block":16,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"gemma4-26b-a4b-fp8
+(EngineCore pid=1597893) INFO 10-30 19:20:38 [hipdnn_launch.py:181] Specialized decode gemma4-26b-a4b-fp8-gfx942: width 4 launches through hipDNN megakernel.gemma4-26b-a4b-fp8-gfx942; payload {"M":4,"arch":"gfx942","block":16,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"gemma4-26b-a4b-fp8
+(EngineCore pid=1597893) INFO 10-30 19:20:38 [hipdnn_launch.py:181] Specialized decode gemma4-26b-a4b-fp8-gfx942: width 8 launches through hipDNN megakernel.gemma4-26b-a4b-fp8-gfx942; payload {"M":8,"arch":"gfx942","block":16,"cus":304,"kv":"TRITON_ATTN:1","lm_head":false,"model":"gemma4-26b-a4b-fp8
+on TRITON_ATTN batch 1: TPOT 3.49 ms (286.7 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.89 ms (257.0 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.34 ms (230.5 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 5.46 ms (183.0 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 1: TPOT 3.48 ms (287.1 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.87 ms (258.1 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.32 ms (231.6 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 5.45 ms (183.5 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 1: TPOT 3.48 ms (287.1 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.89 ms (257.3 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.33 ms (230.9 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 5.45 ms (183.3 tok/s/user), kernel steps per 256-token generate 255
+PASS runs g flydsl.json
+PASS runs g hipdnn.json
+PASS runs g default.json
+PASS runs g nowheel.json
+RESULT e_g PASS rc=0 2026-10-30T19:27:01-04:00

@@ -1,0 +1,6 @@
+host=ctr-smc-s22-17.adc.amd.com nproc=32 family=gfx94X src=/tmp/pipe_wheel_68220707_291715/src date=2026-10-30T20:01:16+00:00
+gpu targets: gfx942
+provider flags: -DHIPKERNELPROVIDER_ENABLE_ROCKE=ON -DHIPDNN_ENABLE_SDPA=ON -DHIPDNN_ENABLE_KERNEL_INGESTOR=ON -DHIPDNN_ENABLE_CUDNN_COMPATIBILITY=ON -DHIPKERNELPROVIDER_ENABLE_TESTS=OFF -DHIPDNN_SKIP_TESTS=ON -DROCKE_INSTALL_TESTS=OFF -DHIPKERNELPROVIDER_REQUIRE_DVC_DESCRIPTORS=ON -DENABLE_MEGAKERNEL_ENGINE=ON
+ERROR: unexpected error - [Errno 30] Read-only file system: '/var/tmp/dvc'
+
+Having any troubles? Hit us up at https://dvc.org/support, we are always happy to help!

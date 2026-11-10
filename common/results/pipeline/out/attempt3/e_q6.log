@@ -1,0 +1,23 @@
+==== 2026-10-30T16:32:11 e_q6 attempt 1 job 68220723 gpus 1 tleft 310 min
+# 2026-10-30T16:32:11-04:00 e_q6 job 68220723 gpus 1 tleft 310 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=836cb479c674c031883a1a8f7ef6b9db374cf770 PIPE_REV="hipdnn-design 836cb47 dirty 0" RL_SHA=9bb279d30d031a60a2d490150b081cee264086e8 E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+on TRITON_ATTN batch 1: TPOT 2.97 ms (336.8 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.58 ms (279.0 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.62 ms (216.5 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 6.13 ms (163.2 tok/s/user), kernel steps per 256-token generate 255
+(EngineCore pid=1100890) ERROR 10-30 16:39:21 [core.py:1584] RuntimeError: hipdnn_vllm: _C was built against libhipdnn_backend 0.4.0.9bb279d but the loaded libhipdnn_backend reports 0.3.0.8d1ae90e. Install the hipdnn-vllm wheel built for this rocm-sdk version.
+RuntimeError: hipdnn_vllm: _C was built against libhipdnn_backend 0.4.0.9bb279d but the loaded libhipdnn_backend reports 0.3.0.8d1ae90e. Install the hipdnn-vllm wheel built for this rocm-sdk version.
+    raise RuntimeError(
+RuntimeError: Engine core initialization failed. See root cause above. Failed core proc(s): {}
+on TRITON_ATTN batch 1: TPOT 2.98 ms (335.5 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.59 ms (278.3 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.63 ms (216.1 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 6.14 ms (162.9 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 1: TPOT 2.99 ms (334.8 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 2: TPOT 3.61 ms (277.2 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 4: TPOT 4.70 ms (212.6 tok/s/user), kernel steps per 256-token generate 255
+on TRITON_ATTN batch 8: TPOT 6.12 ms (163.4 tok/s/user), kernel steps per 256-token generate 255
+PASS runs q6 flydsl.json
+FAIL runs q6 hipdnn.json
+PASS runs q6 default.json
+PASS runs q6 nowheel.json
+RESULT e_q6 FAIL rc=1 2026-10-30T16:49:17-04:00

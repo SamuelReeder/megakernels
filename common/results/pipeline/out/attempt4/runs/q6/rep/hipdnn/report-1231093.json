@@ -1,0 +1,25 @@
+{
+  "argv0": "vllm_e2e.py",
+  "attention_plans": {
+    "by_origin": {},
+    "count": 0,
+    "sizes": []
+  },
+  "counters": [],
+  "fallback_reasons": {},
+  "pid": 1231093,
+  "rank": "0",
+  "runtime": {
+    "execute_calls": 0,
+    "execute_host_ns": 0,
+    "plan_build_declines": 0,
+    "plan_build_ns": 0,
+    "plan_builds": 0,
+    "plan_cache_capacity": 4096,
+    "plan_cache_evictions": 0,
+    "plan_cache_hits": 0,
+    "plan_cache_pinned": 0,
+    "plan_cache_size": 0
+  },
+  "time": 1793395935.9703553
+}

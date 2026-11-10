@@ -1,0 +1,10 @@
+== q8 (vLLM e745c7910)
+FAIL q8: check error (missing results?)
+== q8tp2 (vLLM b9a1943fb)
+FAIL q8tp2: check error (missing results?)
+== q6 (vLLM 81b2b128d)
+FAIL q6: check error (missing results?)
+== g (vLLM 3cd36e151)
+FAIL g: check error (missing results?)
+FAIL H2 q8 drop4: 0 decline line(s) for width 4; 0 launch line(s) (3 per cache bind); DecodeUnsupported: 0; hipdnn.json: missing
+FAIL H2 q6 drop4: 0 decline line(s) for width 4; 0 launch line(s) (3 per cache bind); DecodeUnsupported: 0; hipdnn.json: missing

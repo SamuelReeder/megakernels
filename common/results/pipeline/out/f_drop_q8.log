@@ -1,0 +1,16 @@
+==== 2026-10-30T19:14:28 f_drop_q8 attempt 1 job 68220723 gpus 1 tleft 148 min
+# 2026-10-30T19:14:28-04:00 f_drop_q8 job 68220723 gpus 1 tleft 148 pins MK_CC=9a195e4b6a73a87b5e78b293789afe8dba125b5a MK_MAIN=10bd202c2cdceaf0703ea3bbb88ad03eaa308766 MK_CO=ac6c4a17fdca8f85e83837fab005d56d519b170f MK_E2E=984605cb02707d1157a9555660601f432e708df2 PIPE_REV="hipdnn-design 984605c dirty 0" RL_SHA=adeef27221140ff316429f13b658994777ff4f6b E2E_SET=/home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7 KP_SHA=a022846cf553c2b135410a5168f97705f1b9c6ac VIMG=/home/A
+(EngineCore pid=1580603) INFO 10-30 19:17:56 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 1 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":1,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(EngineCore pid=1580603) INFO 10-30 19:17:56 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 2 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":2,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(EngineCore pid=1580603) WARNING 10-30 19:17:56 [hipdnn_launch.py:171] Specialized decode qwen38-27b-mxfp4-gfx942: width 4 keeps vLLM's path: hipDNN declined megakernel.qwen38-27b-mxfp4-gfx942 (NO_ENGINE); payload {"M":4,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":
+(EngineCore pid=1580603) INFO 10-30 19:17:56 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 8 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":8,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(EngineCore pid=1580603) INFO 10-30 19:18:05 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 1 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":1,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(EngineCore pid=1580603) INFO 10-30 19:18:05 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 2 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":2,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+(EngineCore pid=1580603) WARNING 10-30 19:18:05 [hipdnn_launch.py:171] Specialized decode qwen38-27b-mxfp4-gfx942: width 4 keeps vLLM's path: hipDNN declined megakernel.qwen38-27b-mxfp4-gfx942 (NO_ENGINE); payload {"M":4,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":
+(EngineCore pid=1580603) INFO 10-30 19:18:05 [hipdnn_launch.py:181] Specialized decode qwen38-27b-mxfp4-gfx942: width 8 launches through hipDNN megakernel.qwen38-27b-mxfp4-gfx942; payload {"M":8,"arch":"gfx942","block":784,"cus":304,"kv":"ROCM_ATTN","lm_head":false,"model":"qwen38-27b-mxfp4-gfx942",
+on batch 1: TPOT 7.54 ms (132.6 tok/s/user)
+on batch 2: TPOT 8.11 ms (123.3 tok/s/user)
+on batch 4: TPOT 41.87 ms (23.9 tok/s/user)
+on batch 8: TPOT 10.47 ms (95.5 tok/s/user)
+PASS drop4 q8 hipdnn.json
+RESULT f_drop_q8 PASS rc=0 2026-10-30T19:20:01-04:00

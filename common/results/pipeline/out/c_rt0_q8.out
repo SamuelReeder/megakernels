@@ -1,0 +1,34 @@
+node ctr-cx66-mi300x-31.adc.amd.com job 68215720 gpus 0,1 megakernels ac6c4a17fdca8f85e83837fab005d56d519b170f dirty 0; vllm fd8a77a5f35116f18f644d827253571d6fc1afaa dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+# 2026-10-30T13:13:29-04:00 ctr-cx66-mi300x-31.adc.amd.com megakernels ac6c4a17fdca8f85e83837fab005d56d519b170f dirty 0; vllm fd8a77a5f35116f18f644d827253571d6fc1afaa dirty 0
+gfx942
+GPU[0]		: Card Series: 		AMD Instinct MI300X
+flydsl 0.4.0 torch 2.13.0+rocm10.0.0 dev AMD Instinct MI300X cus 304
+export a: exit 0 MANIFEST /home/AMD/sareeder/coexport/sets/rt0/qwen38-27b-mxfp4-gfx942/a/manifest.json 8 objects sha256 ff50bc0b7a2d5120da4527dc8fd8f97167aafffad3a038a1bf57ef3efd079455
+export b: exit 0 MANIFEST /home/AMD/sareeder/coexport/sets/rt0/qwen38-27b-mxfp4-gfx942/b/manifest.json 8 objects sha256 ff50bc0b7a2d5120da4527dc8fd8f97167aafffad3a038a1bf57ef3efd079455
+# determinism: export runs a and b, 2026-10-30T13:33:08-04:00 ctr-cx66-mi300x-31.adc.amd.com
+manifest.json a == b: EQUAL
+files and sha256 a == b: EQUAL
+ff50bc0b7a2d5120da4527dc8fd8f97167aafffad3a038a1bf57ef3efd079455  manifest.json
+339a5c55f8d560ad5175d3c4a4d374e83af57f60bcb47f0f6a93c3fccd459cd5  qwen38-27b-mxfp4-gfx942_M1_03671d6e0efdf85f.co
+bb2f12e8e00c98e6c2532e7acae886984f2320c4277a3d092676de139def6161  qwen38-27b-mxfp4-gfx942_M1_5684612144c87c80.co
+809bace81676626fb2e1abe579221441b3cffc202f10a08585ab92ef13627c74  qwen38-27b-mxfp4-gfx942_M2_ce0eff23c7f6cd1a.co
+dfe7edf0b4f8f1cea7c6577d4d75dd2ec5d83e96c54c9661519389eff98a8f70  qwen38-27b-mxfp4-gfx942_M2_d50d2f7124df38f5.co
+13912d5c777ea90bb3e9553459f6714875cb7279e2711c73d66bb0a65dcba63c  qwen38-27b-mxfp4-gfx942_M4_a4ed937734a3586d.co
+9a1d00fa8588c79f5aace34fe04084da2409f2cbb2f31151e1434aa0978c9bd9  qwen38-27b-mxfp4-gfx942_M4_bbe695d956718e84.co
+c79c3a61bafe89d9f8d82ec6ff2eb240732f9b413412d7cc64acc89d56679c7e  qwen38-27b-mxfp4-gfx942_M8_3f6fd93e50658b06.co
+b531893dae835a041343807658b799b65517a23dba67e7ae8c67141ec099b5ed  qwen38-27b-mxfp4-gfx942_M8_bdacf39739dc08bc.co
+# H1 qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 M=[1, 2, 4, 8] steps=16
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=1 src=5684612144c87c80 file=qwen38-27b-mxfp4-gfx942_M1_5684612144c87c80.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['e5a780f97293920f', True] co=['e5a780f97293920f', True] flydsl_again=['e5a780f97293920f', True]
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=2 src=ce0eff23c7f6cd1a file=qwen38-27b-mxfp4-gfx942_M2_ce0eff23c7f6cd1a.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['9ac3f8026a46f66b', True] co=['9ac3f8026a46f66b', True] flydsl_again=['9ac3f8026a46f66b', True]
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=4 src=bbe695d956718e84 file=qwen38-27b-mxfp4-gfx942_M4_bbe695d956718e84.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['8f0bd7bc0ddbfdf1', True] co=['8f0bd7bc0ddbfdf1', True] flydsl_again=['8f0bd7bc0ddbfdf1', True]
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=1 rank=0 M=8 src=bdacf39739dc08bc file=qwen38-27b-mxfp4-gfx942_M8_bdacf39739dc08bc.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['a31fcb1d9156f5a7', True] co=['a31fcb1d9156f5a7', True] flydsl_again=['a31fcb1d9156f5a7', True]
+# H1 qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 M=[1, 2, 4, 8] steps=16
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=1 src=03671d6e0efdf85f file=qwen38-27b-mxfp4-gfx942_M1_03671d6e0efdf85f.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['225131fbb9002634', True] co=['225131fbb9002634', True] flydsl_again=['225131fbb9002634', True]
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=2 src=d50d2f7124df38f5 file=qwen38-27b-mxfp4-gfx942_M2_d50d2f7124df38f5.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['41f446ddf5cfa217', True] co=['41f446ddf5cfa217', True] flydsl_again=['41f446ddf5cfa217', True]
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=4 src=a4ed937734a3586d file=qwen38-27b-mxfp4-gfx942_M4_a4ed937734a3586d.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['bb248e45937fb61f', True] co=['bb248e45937fb61f', True] flydsl_again=['bb248e45937fb61f', True]
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=0 M=8 src=3f6fd93e50658b06 file=qwen38-27b-mxfp4-gfx942_M8_3f6fd93e50658b06.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['ab17ce3bd96d5c49', True] co=['ab17ce3bd96d5c49', True] flydsl_again=['ab17ce3bd96d5c49', True]
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=1 src=03671d6e0efdf85f file=qwen38-27b-mxfp4-gfx942_M1_03671d6e0efdf85f.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['225131fbb9002634', True] co=['225131fbb9002634', True] flydsl_again=['225131fbb9002634', True]
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=2 src=d50d2f7124df38f5 file=qwen38-27b-mxfp4-gfx942_M2_d50d2f7124df38f5.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['41f446ddf5cfa217', True] co=['41f446ddf5cfa217', True] flydsl_again=['41f446ddf5cfa217', True]
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=4 src=a4ed937734a3586d file=qwen38-27b-mxfp4-gfx942_M4_a4ed937734a3586d.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['bb248e45937fb61f', True] co=['bb248e45937fb61f', True] flydsl_again=['bb248e45937fb61f', True]
+H1 PASS model=qwen38-27b-mxfp4-gfx942 kv=ROCM_ATTN block=784 maxlen=4096 tp=2 rank=1 M=8 src=3f6fd93e50658b06 file=qwen38-27b-mxfp4-gfx942_M8_3f6fd93e50658b06.co fields_differ={} file_sha_ok=True rebuild_sha_ok=True runtime_jit_same_bytes=True runtime_jit_same_symbol=True flydsl=['ab17ce3bd96d5c49', True] co=['ab17ce3bd96d5c49', True] flydsl_again=['ab17ce3bd96d5c49', True]
+H1-SUMMARY model=qwen38-27b-mxfp4-gfx942 pass 12/12 manifest objects of this model not checked: none

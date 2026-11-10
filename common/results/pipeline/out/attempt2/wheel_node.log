@@ -1,0 +1,9 @@
+start 2026-10-30T19:48:45+00:00 ctr-smc-s22-17.adc.amd.com nproc=32 rocm-libraries 9bb279d30d031a60a2d490150b081cee264086e8 set /home/AMD/sareeder/coexport/sets/mixed_5b83b31430d7
+src 9bb279d Merge commit '18c6ef46d6073d9925740535ad1228780596b0a8' into users/sareeder/hipdnn-vllm-custom-op
+torch 2.13.0+rocm10.0.0 vllm 0.32.1rc1.dev117+gdf3bd094a
+descriptor folder: 16 of 16 objects (drop M=-)
+  size: 2229944
+  nfiles: 17
+PASS lock verify (full set)
+FAIL wheel (see /home/AMD/sareeder/mk/out/pipeline/e2e/wheel_build.log)
+srun: error: ctr-smc-s22-17: task 0: Exited with exit code 1

@@ -1,0 +1,141 @@
+2026-10-30T12:33:25 driver start: dry=False scale=60.0s/min poll=60.0s dir=/home/AMD/sareeder/mk/pipeline out=/home/AMD/sareeder/mk/out/pipeline
+2026-10-30T12:33:26 job 68215720 probe ok (ctr-cx66-mi300x-31.adc.amd.com HOME_OK gfx942)
+2026-10-30T12:33:26 job 68215745 ended
+2026-10-30T12:33:32 job 68215802 probe ok (ctr-cx66-mi300x-31.adc.amd.com HOME_OK gfx942)
+2026-10-30T12:33:32 stage a_cc started on job 68215802 gpus ['0', '1'] (estimate 150 min, 311 min left), pid 883953
+2026-10-30T12:33:32 stage b_mkeng started on job 68215720 gpus ['0'] (estimate 75 min, 131 min left), pid 883954
+2026-10-30T12:33:32 stage c_rt0_q6 started on job 68215720 gpus ['1'] (estimate 45 min, 131 min left), pid 883959
+2026-10-30T12:40:24 driver start: dry=False scale=60.0s/min poll=60.0s dir=/home/AMD/sareeder/mk/pipeline out=/home/AMD/sareeder/mk/out/pipeline
+2026-10-30T12:40:24 stage a_cc: adopted, still running
+2026-10-30T12:40:24 stage b_mkeng: adopted, still running
+2026-10-30T12:40:24 stage c_rt0_q6: adopted, still running
+2026-10-30T12:40:25 submitted job 68218902 (2 GPUs, 360 min) for capacity: stages need 1142 GPU-min, jobs hold 839
+2026-10-30T12:41:26 job 68218902 probe ok (ctr-cx66-mi300x-31.adc.amd.com HOME_OK gfx942)
+2026-10-30T12:41:26 stage c_rt0_q8 started on job 68218902 gpus ['0', '1'] (estimate 70 min, 354 min left), pid 1108755
+2026-10-30T12:46:30 stage c_rt0_q6 ended on job 68215720: rc 1 -> FAIL
+2026-10-30T12:46:30 stage c_rt0_g started on job 68215720 gpus ['1'] (estimate 45 min, 118 min left), pid 1262481
+2026-10-30T12:47:31 stage b_mkeng ended on job 68215720: rc 0 -> PASS
+2026-10-30T12:47:31 stage c_rt2_q6 started on job 68215720 gpus ['0'] (estimate 55 min, 117 min left), pid 1295242
+2026-10-30T12:58:45 stage c_rt0_g ended on job 68215720: rc 1 -> FAIL
+2026-10-30T12:58:45 stage c_rt0_q8 ended on job 68218902: rc 2 -> ERROR
+2026-10-30T12:58:45 stage c_rt0_q8: retry (1/2 attempts used)
+2026-10-30T12:58:45 stage c_rt0_q8 started on job 68218902 gpus ['0', '1'] (estimate 70 min, 336 min left), pid 1629875
+2026-10-30T12:58:45 stage c_rt2_g started on job 68215720 gpus ['1'] (estimate 45 min, 105 min left), pid 1629876
+2026-10-30T13:01:48 stage c_rt2_q6 ended on job 68215720: rc 2 -> ERROR
+2026-10-30T13:01:48 stage c_rt2_q6: retry (1/2 attempts used)
+2026-10-30T13:01:48 stage c_rt2_q6 started on job 68215720 gpus ['0'] (estimate 55 min, 102 min left), pid 1713008
+2026-10-30T13:07:59 stage c_rt2_g ended on job 68215720: rc 1 -> FAIL
+2026-10-30T13:13:08 driver start: dry=False scale=60.0s/min poll=60.0s dir=/home/AMD/sareeder/mk/pipeline out=/home/AMD/sareeder/mk/out/pipeline
+2026-10-30T13:13:08 stage a_cc: adopted, still running
+2026-10-30T13:13:09 stage c_rt0_q8 started on job 68215720 gpus ['0', '1'] (estimate 70 min, 91 min left), pid 2051712
+2026-10-30T13:13:09 stage c_rt0_q6 started on job 68218902 gpus ['0'] (estimate 45 min, 322 min left), pid 2051713
+2026-10-30T13:13:09 stage c_rt0_g started on job 68218902 gpus ['1'] (estimate 45 min, 322 min left), pid 2051715
+2026-10-30T13:26:17 stage c_rt0_q6 ended on job 68218902: rc 0 -> PASS
+2026-10-30T13:26:17 stage c_rt2_q6 started on job 68218902 gpus ['0'] (estimate 55 min, 309 min left), pid 2457474
+2026-10-30T13:27:17 stage c_rt0_g ended on job 68218902: rc 0 -> PASS
+2026-10-30T13:27:17 stage c_rt2_g started on job 68218902 gpus ['1'] (estimate 45 min, 308 min left), pid 2483590
+2026-10-30T13:41:25 stage c_rt2_g ended on job 68218902: rc 0 -> PASS
+2026-10-30T13:43:27 stage c_rt0_q8 ended on job 68215720: rc 0 -> PASS
+2026-10-30T13:43:27 stage c_rt0_merge started on job - gpus - (estimate 2 min, 0 min left), pid 2951917
+2026-10-30T13:43:27 job 68215720 released: no remaining stage fits (66 min left)
+2026-10-30T13:44:28 job 68215720 ended
+2026-10-30T13:44:28 stage c_rt0_merge ended on job -: rc 0 -> PASS
+2026-10-30T13:51:35 stage c_rt2_q6 ended on job 68218902: rc 0 -> PASS
+2026-10-30T13:51:35 stage c_rt2_q8 started on job 68218902 gpus ['0', '1'] (estimate 90 min, 283 min left), pid 3217454
+2026-10-30T14:39:54 stage c_rt2_q8 ended on job 68218902: rc 0 -> PASS
+2026-10-30T14:39:54 stage c_rt2_merge started on job - gpus - (estimate 2 min, 0 min left), pid 533247
+2026-10-30T14:40:55 stage c_rt2_merge ended on job -: rc 0 -> PASS
+2026-10-30T14:40:55 stage d_wheel started on job 68218902 gpus - (estimate 60 min, 234 min left), pid 572049
+2026-10-30T15:10:24 stage d_wheel ended on job 68218902: rc 2 -> ERROR
+2026-10-30T15:10:24 stage d_wheel: retry (1/2 attempts used)
+2026-10-30T15:10:24 stage d_wheel started on job 68218902 gpus - (estimate 60 min, 205 min left), pid 1462740
+2026-10-30T15:15:36 driver start: dry=False scale=60.0s/min poll=60.0s dir=/home/AMD/sareeder/mk/pipeline out=/home/AMD/sareeder/mk/out/pipeline
+2026-10-30T15:15:36 stage a_cc: adopted, still running
+2026-10-30T15:15:37 stage d_wheel started on job 68218902 gpus - (estimate 60 min, 199 min left), pid 1635074
+2026-10-30T15:23:54 driver start: dry=False scale=60.0s/min poll=60.0s dir=/home/AMD/sareeder/mk/pipeline out=/home/AMD/sareeder/mk/out/pipeline
+2026-10-30T15:23:54 stage a_cc: adopted, still running
+2026-10-30T15:23:54 stage d_wheel: adopted, still running
+2026-10-30T15:29:59 stage d_wheel ended on job 68218902: rc 2 -> ERROR
+2026-10-30T15:29:59 stage d_wheel: retry (1/2 attempts used)
+2026-10-30T15:29:59 stage d_wheel started on job 68218902 gpus - (estimate 60 min, 185 min left), pid 2107019
+2026-10-30T15:42:54 stage d_wheel ended on job 68218902: rc 2 -> ERROR
+2026-10-30T15:42:54 stage e_q8: SKIP (dependency d_wheel ERROR)
+2026-10-30T15:42:54 stage e_q8tp2: SKIP (dependency d_wheel ERROR)
+2026-10-30T15:42:54 stage e_q6: SKIP (dependency d_wheel ERROR)
+2026-10-30T15:42:54 stage e_g: SKIP (dependency d_wheel ERROR)
+2026-10-30T15:42:54 stage f_drop_q8: SKIP (dependency d_wheel ERROR)
+2026-10-30T15:42:54 stage f_drop_q6: SKIP (dependency d_wheel ERROR)
+2026-10-30T15:42:54 stage g_check started on job - gpus - (estimate 2 min, 0 min left), pid 2500038
+2026-10-30T15:42:55 job 68218902 released: no remaining stage fits (178 min left)
+2026-10-30T15:43:56 job 68218902 ended
+2026-10-30T15:43:56 stage a_cc ended on job 68215802: rc 1 -> FAIL
+2026-10-30T15:43:56 stage g_check ended on job -: rc 1 -> FAIL
+2026-10-30T15:43:56 job 68215802 released: all stages ended
+2026-10-30T15:43:56 all stages ended; summary in /home/AMD/sareeder/mk/out/pipeline/summary.txt
+driver exit 0 2026-10-30T15:43:56-04:00
+2026-10-30T15:46:38 driver start: dry=False scale=60.0s/min poll=60.0s dir=/home/AMD/sareeder/mk/pipeline out=/home/AMD/sareeder/mk/out/pipeline
+2026-10-30T15:46:39 job 68215802 ended
+2026-10-30T15:46:40 submitted job 68220707 (0 GPUs, 120 min) for stage d_wheel
+2026-10-30T15:47:42 job 68220707 probe failed (ctr-smc-s22-17.adc.amd.com HOME_OK srun: error: ctr-smc-s22-17: task 0: Exited with exit code 1)
+2026-10-30T15:47:43 submitted job 68220723 (2 GPUs, 360 min) for stage e_q8
+2026-10-30T15:48:16 driver start: dry=False scale=60.0s/min poll=60.0s dir=/home/AMD/sareeder/mk/pipeline out=/home/AMD/sareeder/mk/out/pipeline
+2026-10-30T15:48:18 job 68220707 probe ok (ctr-smc-s22-17.adc.amd.com HOME_OK)
+2026-10-30T15:48:18 job 68220723 probe ok (ctr-cx66-mi300x-31.adc.amd.com HOME_OK gfx942)
+2026-10-30T15:48:18 stage d_wheel started on job 68220707 gpus - (estimate 60 min, 113 min left), pid 2650741
+2026-10-30T16:09:59 driver start: dry=False scale=60.0s/min poll=60.0s dir=/home/AMD/sareeder/mk/pipeline out=/home/AMD/sareeder/mk/out/pipeline
+2026-10-30T16:09:59 stage d_wheel started on job 68220707 gpus - (estimate 60 min, 91 min left), pid 3276849
+2026-10-30T16:32:11 stage d_wheel ended on job 68220707: rc 0 -> PASS
+2026-10-30T16:32:11 stage e_q8 started on job 68220723 gpus ['0'] (estimate 50 min, 310 min left), pid 4055964
+2026-10-30T16:32:11 stage e_q6 started on job 68220723 gpus ['1'] (estimate 50 min, 310 min left), pid 4055983
+2026-10-30T16:32:35 job 68220707 released: no remaining stage fits (75 min left)
+2026-10-30T16:33:36 job 68220707 ended
+2026-10-30T16:49:44 stage e_q6 ended on job 68220723: rc 1 -> FAIL
+2026-10-30T16:49:44 stage e_q8 ended on job 68220723: rc 1 -> FAIL
+2026-10-30T16:49:44 stage e_q8tp2 started on job 68220723 gpus ['0', '1'] (estimate 65 min, 293 min left), pid 364935
+2026-10-30T17:19:59 driver start: dry=False scale=60.0s/min poll=60.0s dir=/home/AMD/sareeder/mk/pipeline out=/home/AMD/sareeder/mk/out/pipeline
+2026-10-30T17:20:00 stage d_wheel started on job 68220723 gpus - (estimate 60 min, 262 min left), pid 1429322
+2026-10-30T17:25:03 stage d_wheel ended on job 68220723: rc 0 -> PASS
+2026-10-30T17:25:03 stage e_q8 started on job 68220723 gpus ['0'] (estimate 50 min, 257 min left), pid 1584784
+2026-10-30T17:25:03 stage e_q6 started on job 68220723 gpus ['1'] (estimate 50 min, 257 min left), pid 1584797
+2026-10-30T18:42:01 driver start: dry=False scale=60.0s/min poll=60.0s dir=/home/AMD/sareeder/mk/pipeline out=/home/AMD/sareeder/mk/out/pipeline
+2026-10-30T18:42:01 stage e_q6: ended while the driver was down
+2026-10-30T18:42:01 stage e_q8: ended while the driver was down
+2026-10-30T18:42:01 stage e_q6 ended on job 68220723: rc None -> ERROR
+2026-10-30T18:42:01 stage e_q6: retry (1/3 attempts used)
+2026-10-30T18:42:01 stage e_q8 ended on job 68220723: rc None -> ERROR
+2026-10-30T18:42:01 stage e_q8: retry (1/3 attempts used)
+Traceback (most recent call last):
+  File "/home/AMD/sareeder/mk/pipeline/driver.py", line 514, in <module>
+    main()
+  File "/home/AMD/sareeder/mk/pipeline/driver.py", line 510, in main
+    Driver().run()
+  File "/home/AMD/sareeder/mk/pipeline/driver.py", line 494, in run
+    while not self.step():
+              ^^^^^^^^^^^
+  File "/home/AMD/sareeder/mk/pipeline/driver.py", line 461, in step
+    self.launch(name, *where)
+  File "/home/AMD/sareeder/mk/pipeline/driver.py", line 267, in launch
+    f.flush()
+OSError: [Errno 122] Disk quota exceeded
+driver exit 1 2026-10-30T18:42:01-04:00
+2026-10-30T18:43:54 driver start: dry=False scale=60.0s/min poll=60.0s dir=/home/AMD/sareeder/mk/pipeline out=/home/AMD/sareeder/mk/out/pipeline
+2026-10-30T18:43:55 stage e_q8 started on job 68220723 gpus ['0'] (estimate 50 min, 178 min left), pid 3928211
+2026-10-30T18:43:55 stage e_q6 started on job 68220723 gpus ['1'] (estimate 50 min, 178 min left), pid 3928212
+2026-10-30T18:43:55 submitted job 68222903 (2 GPUs, 360 min) for capacity: stages need 315 GPU-min, jobs hold 348
+2026-10-30T18:57:04 stage e_q6 ended on job 68220723: rc 0 -> PASS
+2026-10-30T18:57:04 stage e_q8 ended on job 68220723: rc 0 -> PASS
+2026-10-30T18:57:04 stage e_q8tp2 started on job 68220723 gpus ['0', '1'] (estimate 65 min, 165 min left), pid 141132
+2026-10-30T19:14:28 stage e_q8tp2 ended on job 68220723: rc 0 -> PASS
+2026-10-30T19:14:28 stage e_g started on job 68220723 gpus ['0'] (estimate 45 min, 148 min left), pid 641834
+2026-10-30T19:14:28 stage f_drop_q8 started on job 68220723 gpus ['1'] (estimate 20 min, 148 min left), pid 641836
+2026-10-30T19:20:31 stage f_drop_q8 ended on job 68220723: rc 0 -> PASS
+2026-10-30T19:20:31 stage f_drop_q6 started on job 68220723 gpus ['1'] (estimate 20 min, 142 min left), pid 796711
+2026-10-30T19:25:35 stage f_drop_q6 ended on job 68220723: rc 0 -> PASS
+2026-10-30T19:27:38 stage e_g ended on job 68220723: rc 0 -> PASS
+2026-10-30T19:27:38 stage g_check started on job - gpus - (estimate 2 min, 0 min left), pid 972780
+2026-10-30T19:27:38 job 68220723 released: no remaining stage fits (140 min left)
+2026-10-30T19:28:38 job 68220723 ended
+2026-10-30T19:28:38 stage g_check ended on job -: rc 1 -> FAIL
+2026-10-30T19:28:38 job 68222903 released: all stages ended
+2026-10-30T19:28:38 all stages ended; summary in /home/AMD/sareeder/mk/out/pipeline/summary.txt
+driver exit 0 2026-10-30T19:28:38-04:00

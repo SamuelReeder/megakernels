@@ -1,0 +1,17 @@
+node ctr-cx66-mi300x-31.adc.amd.com job 68220723 gpus 0,1 megakernels 836cb479c674c031883a1a8f7ef6b9db374cf770 dirty 0; vllm b9a1943fb5b7fa89015c749aa3b0aac3e57db337 dirty 0 vllm .so from /usr/local/lib/python3.12/dist-packages/vllm/_C.abi3.so
+/usr/local/lib/python3.12/dist-packages/tvm_ffi/_optional_torch_c_dlpack.py:181: UserWarning: Failed to JIT torch c dlpack extension, EnvTensorAllocator will not be enabled.
+We recommend installing via `pip install torch-c-dlpack-ext`
+  warnings.warn(
+(MainProcess pid=1127371) INFO 10-30 16:50:25 [startup.py:96] non-default args: {'max_model_len': 4096, 'tensor_parallel_size': 2, 'enable_prefix_caching': False, 'gpu_memory_utilization': 0.85, 'max_num_seqs': 8, 'disable_log_stats': True, 'language_model_only': True, 'specialized_decode': 'monokernel', 'attention_backend': 'ROCM_ATTN', 'model': '/home/AMD/sareeder/mk/models/Qwen3.8-27B-Quark-AWQ-MXFP4'}
+(MainProcess pid=1127371) INFO 10-30 16:50:25 [model.py:744] Resolved architecture: Qwen3_5ForConditionalGeneration
+(MainProcess pid=1127371) INFO 10-30 16:50:25 [model.py:2170] Using max model len 4096
+(MainProcess pid=1127371) INFO 10-30 16:50:25 [model.py:964] All limits of multimodal modalities supported by the model are set to 0, running in text-only mode.
+(MainProcess pid=1127371) INFO 10-30 16:50:25 [model.py:1021] Disabled mm_prefix attention mode because multimodal inputs are configuration-disabled. Attention backends without mm_prefix support may now be selected.
+[aiter] import [module_aiter_core] under /usr/local/lib/python3.12/dist-packages/aiter/jit/module_aiter_core.so
+(MainProcess pid=1127371) INFO 10-30 16:50:29 [scheduler.py:310] Chunked prefill is enabled with max_num_batched_tokens=16384.
+(MainProcess pid=1127371) INFO 10-30 16:50:29 [kernel.py:484] Final IR op priority after setting platform defaults: IrOpPriorityConfig(rms_norm=['native'], fused_add_rms_norm=['native'], gelu_and_mul_sparse=['native'])
+srun: forcing job termination
+RESULT e_q8tp2 PASS rc=0 2026-10-30T16:50:29-04:00
+srun: Job step aborted: Waiting up to 32 seconds for job step to finish.
+slurmstepd: error: *** STEP 68220723.12 ON ctr-cx66-mi300x-31 CANCELLED AT 2026-10-30T16:50:29 ***
+srun: error: ctr-cx66-mi300x-31: task 0: Killed
