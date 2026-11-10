@@ -19,8 +19,8 @@
 A normal engine launches hundreds of small kernels for each generated token. At small batch, the GPU spends
 much of the step between kernels instead of reading weights. A megakernel keeps one workgroup resident on each
 of the 304 compute units for the whole step. It streams every weight once and passes data from one stage to the
-next through grid barriers inside the launch. AMD's ATOM and aitermk megakernels target MI355X. For MI300X,
-#61311 adds a DeepSeek-V4.1 decode megakernel (TP4) and the hooks that our kernels plug into.
+next through grid barriers inside the launch. AMD's ATOM and aitermk megakernels target MI355X. vLLM main already
+runs a DeepSeek-V4.1 decode megakernel on MI300X (TP4); #61311 moves it onto shared hooks that our kernels plug into.
 
 ## Results
 
@@ -28,9 +28,9 @@ next through grid barriers inside the launch. AMD's ATOM and aitermk megakernels
 
 | Model | Weights | Batch 1 per user | Speedup vs stock vLLM, batch 1 → 8 | In vLLM, kernel on, batch 1 |
 |---|---|---|---|---|
-| [Qwen3.6-35B-A3B](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/qwen3.6-35b-a3b-gfx942/README.md) (hybrid attention, 256-expert MoE) | FP8 | 3.11 ms, 322 tok/s | **1.64x → 1.13x** (same-day baseline: 1.72x → 1.25x) | 2.9-3.2 ms |
-| [Gemma 4 26B-A4B](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/gemma4-26b-a4b-gfx942/README.md) (sliding window, 128-expert MoE) | FP8 | 3.74 ms, 267 tok/s | **1.18x → 1.06x** (same-day baseline: 1.64x → 1.37x) | 3.67 ms |
-| [Qwen3.8-27B](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/qwen3.8-27b-gfx942/README.md) (hybrid attention, dense) | MXFP4 * | 7.56 ms, 132 tok/s | **2.06x → 1.68x** | 7.8 ms |
+| [Qwen3.6-35B-A3B](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/qwen3.6-35b-a3b-gfx942/README.md) (MoE) | FP8 | 3.11 ms, 322 tok/s | **1.64x → 1.13x** (same-day baseline: 1.72x → 1.25x) | 2.9-3.2 ms |
+| [Gemma 4 26B-A4B](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/gemma4-26b-a4b-gfx942/README.md) (MoE) | FP8 | 3.74 ms, 267 tok/s | **1.18x → 1.06x** (same-day baseline: 1.64x → 1.37x) | 3.67 ms |
+| [Qwen3.8-27B](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/qwen3.8-27b-gfx942/README.md) (dense) | MXFP4 * | 7.56 ms, 132 tok/s | **2.06x → 1.68x** | 7.8 ms |
 | [Qwen3.8-27B, 2 GPUs (TP2)](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/qwen3.8-27b-gfx942/README.md#tensor-parallel-2-two-mi300x-over-xgmi) | MXFP4 * | 5.59 ms, 179 tok/s | **1.76x → 1.41x** vs vLLM TP2 | 5.58 ms |
 
 **How this was measured.**
@@ -52,40 +52,37 @@ bytes of FP8, so part of the gain is the format. The MXFP4 checkpoint scores 4.9
 - **Inside vLLM:** greedy output follows vLLM's own path until the first near-tied token. We have not run a
   task-level evaluation.
 - **Determinism:** every kernel is bitwise deterministic, and a request gets the same bits alone or in a batch.
-- **Repeat runs:** earlier versions of each kernel gave the same results on a second day and on an MI325X. The
-  current Qwen3.6 and Gemma kernels have passed their checks on one node only.
+  Earlier versions of each kernel repeated on a second day and on an MI325X; the current Qwen3.6 and Gemma
+  kernels have passed their checks on one node only.
 
 ## Where it helps, and where it does not
 
 | Serving situation | Effect |
 |---|---|
 | 1-8 concurrent requests in decode (chat, agents, latency targets) | **Faster**, by the ratios above |
-| More than 8 concurrent requests, or any step that includes prefill | **None**: vLLM's own path runs |
+| More than 8 concurrent requests, or any step that includes prefill | **None**: vLLM's own path runs. Under real traffic the gain is therefore smaller (not yet measured) |
 | Time to first token | **None** |
-| KV-cache capacity, and therefore peak throughput and long context | **Lower**: the kernel's weight copy uses 18-25 % of the KV cache (Qwen3.6, Gemma) |
-
-All speed numbers come from steady decode with a fixed batch. Under real traffic, any step that mixes in a new
-prompt runs on vLLM's path, so the gain will be smaller. We have not measured how much.
+| KV-cache capacity, and therefore peak throughput and long context | **Lower**: the kernel's own weight copy cuts KV-cache space by 18-25 % (Qwen3.6, Gemma) |
 
 ## Tradeoffs to weigh
 
 1. **One kernel per model.**
-   - Each model has about 1,900-2,300 lines of kernel code, plus a PyTorch reference and the vLLM integration.
+   - Each model has about 2,000-2,400 lines of kernel code, plus a PyTorch reference and the vLLM integration.
    - Qwen3.6 and Gemma took 1-2 days each, with agents, by adapting the earlier kernels. TP2 took
      3 days. The shared parts now live in one common library.
    - New checkpoint formats or new vLLM cache layouts need kernel work.
 2. **Strict deployment needs.**
    - The kernel must have every compute unit to itself. A partitioned GPU, or other work on the same GPU,
      can make it hang.
-   - A check that turns this into a refusal is designed but not yet tested.
-   - Each model needs one binary per batch width (1, 2, 4, 8) for each GPU model, KV layout and TP size.
+   - A refusal check exists on the hipDNN route but is untested; the default vLLM path has none.
+   - Each model needs one binary per batch width (1, 2, 4, 8) for each GPU model, KV layout and TP size
+     (Gemma and TP2 also for each max_model_len).
    - The tuning is for gfx942; MI355X would need a port.
 3. **Upstream dependency.**
    - Our vLLM integration builds on [#61311](https://github.com/vllm-project/vllm/pull/61311), which is open,
      not merged. After it lands, each model needs its own upstream PR.
-   - An optional route ships precompiled kernels through hipDNN. It works end to end, with the same bits and
-     speed within 0.8 %. It waits on [ROCm/rocm-libraries#14255](https://github.com/ROCm/rocm-libraries/pull/14255),
-     which is a draft.
+   - A hipDNN route for shipping precompiled kernels works end to end (same bits, speed within 0.8 %), but
+     it waits on the draft [ROCm/rocm-libraries#14255](https://github.com/ROCm/rocm-libraries/pull/14255).
 
 ## Recommendation
 
@@ -99,7 +96,8 @@ prompt runs on vLLM's path, so the gain will be smaller. We have not measured ho
 4. **Next engineering work, if we continue:**
    - Cut the fixed cost per stage: barriers and hand-offs are about 40 % of a Qwen3.8 step, and the weight
      stream reaches 3.3-3.7 TB/s of the GPU's 5.3 TB/s.
-   - Share one weight copy with vLLM, which recovers the KV cache.
+   - Try reading vLLM's weights in place: this saves about 32 GiB for Qwen3.6, at an unmeasured cost in
+     stream speed.
    - Verify several speculative tokens in each launch.
 
 ## Links
