@@ -24,14 +24,14 @@ next through grid barriers inside the launch. AMD's ATOM and aitermk megakernels
 
 ## Results
 
-![Speedup per batch size](https://raw.githubusercontent.com/SamuelReeder/megakernels/1c4b881b6f47066a990078a58a1b29746d0bc192/docs/report/speedup.png)
+![Speedup per batch size](https://raw.githubusercontent.com/SamuelReeder/megakernels/25948a617c66239c74240abfa0121aa871e1a190/docs/report/speedup.png)
 
 | Model | Weights | Batch 1 per user | Speedup vs stock vLLM, batch 1 → 8 | In vLLM, kernel on, batch 1 |
 |---|---|---|---|---|
-| [Qwen3.6-35B-A3B](https://github.com/SamuelReeder/megakernels/blob/1c4b881b6f47066a990078a58a1b29746d0bc192/qwen3.6-35b-a3b-gfx942/README.md) (hybrid attention, 256-expert MoE) | FP8 | 3.11 ms, 322 tok/s | **1.64x → 1.13x** (same-day baseline: 1.72x → 1.25x) | 2.9-3.2 ms |
-| [Gemma 4 26B-A4B](https://github.com/SamuelReeder/megakernels/blob/1c4b881b6f47066a990078a58a1b29746d0bc192/gemma4-26b-a4b-gfx942/README.md) (sliding window, 128-expert MoE) | FP8 | 3.74 ms, 267 tok/s | **1.18x → 1.06x** (same-day baseline: 1.64x → 1.37x) | 3.67 ms |
-| [Qwen3.8-27B](https://github.com/SamuelReeder/megakernels/blob/1c4b881b6f47066a990078a58a1b29746d0bc192/qwen3.8-27b-gfx942/README.md) (hybrid attention, dense) | MXFP4 * | 7.56 ms, 132 tok/s | **2.06x → 1.68x** | 7.8 ms |
-| [Qwen3.8-27B, 2 GPUs (TP2)](https://github.com/SamuelReeder/megakernels/blob/1c4b881b6f47066a990078a58a1b29746d0bc192/qwen3.8-27b-gfx942/README.md#tensor-parallel-2-two-mi300x-over-xgmi) | MXFP4 * | 5.59 ms, 179 tok/s | **1.76x → 1.41x** vs vLLM TP2 | 5.58 ms |
+| [Qwen3.6-35B-A3B](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/qwen3.6-35b-a3b-gfx942/README.md) (hybrid attention, 256-expert MoE) | FP8 | 3.11 ms, 322 tok/s | **1.64x → 1.13x** (same-day baseline: 1.72x → 1.25x) | 2.9-3.2 ms |
+| [Gemma 4 26B-A4B](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/gemma4-26b-a4b-gfx942/README.md) (sliding window, 128-expert MoE) | FP8 | 3.74 ms, 267 tok/s | **1.18x → 1.06x** (same-day baseline: 1.64x → 1.37x) | 3.67 ms |
+| [Qwen3.8-27B](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/qwen3.8-27b-gfx942/README.md) (hybrid attention, dense) | MXFP4 * | 7.56 ms, 132 tok/s | **2.06x → 1.68x** | 7.8 ms |
+| [Qwen3.8-27B, 2 GPUs (TP2)](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/qwen3.8-27b-gfx942/README.md#tensor-parallel-2-two-mi300x-over-xgmi) | MXFP4 * | 5.59 ms, 179 tok/s | **1.76x → 1.41x** vs vLLM TP2 | 5.58 ms |
 
 **How this was measured.**
 - **Setup:** one MI300X (two for TP2), 512-token prompts, time per output token, October 22-29.
@@ -104,6 +104,6 @@ prompt runs on vLLM's path, so the gain will be smaller. We have not measured ho
 
 ## Links
 
-- Per-model results, every run and log: [Qwen3.6](https://github.com/SamuelReeder/megakernels/blob/1c4b881b6f47066a990078a58a1b29746d0bc192/qwen3.6-35b-a3b-gfx942/README.md) · [Gemma 4](https://github.com/SamuelReeder/megakernels/blob/1c4b881b6f47066a990078a58a1b29746d0bc192/gemma4-26b-a4b-gfx942/README.md) · [Qwen3.8](https://github.com/SamuelReeder/megakernels/blob/1c4b881b6f47066a990078a58a1b29746d0bc192/qwen3.8-27b-gfx942/README.md) · [Qwen3.8 TP2 design](https://github.com/SamuelReeder/megakernels/blob/1c4b881b6f47066a990078a58a1b29746d0bc192/qwen3.8-27b-gfx942/docs/DESIGN-TP2.md)
-- hipDNN distribution route (design and results): [docs/hipdnn-route.md](https://github.com/SamuelReeder/megakernels/blob/1c4b881b6f47066a990078a58a1b29746d0bc192/docs/hipdnn-route.md)
-- Chart data and sources: [docs/report/plot_speedup.py](https://github.com/SamuelReeder/megakernels/blob/1c4b881b6f47066a990078a58a1b29746d0bc192/docs/report/plot_speedup.py)
+- Per-model results, every run and log: [Qwen3.6](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/qwen3.6-35b-a3b-gfx942/README.md) · [Gemma 4](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/gemma4-26b-a4b-gfx942/README.md) · [Qwen3.8](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/qwen3.8-27b-gfx942/README.md) · [Qwen3.8 TP2 design](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/qwen3.8-27b-gfx942/docs/DESIGN-TP2.md)
+- hipDNN distribution route (design and results): [docs/hipdnn-route.md](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/docs/hipdnn-route.md)
+- Chart data and sources: [docs/report/plot_speedup.py](https://github.com/SamuelReeder/megakernels/blob/25948a617c66239c74240abfa0121aa871e1a190/docs/report/plot_speedup.py)
