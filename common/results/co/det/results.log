@@ -1,0 +1,75 @@
+# CoExporter Qwen3.6 rt0 determinism investigation, 2026-10-30, node ctr-cx66-mi300x-31 (job 68215802,
+# CPU-only srun --overlap steps, HIP_VISIBLE_DEVICES empty, FLYDSL_COMPILE_ARCH=gfx942), vLLM image of
+# ~/mk/pipeline/pins.env, bundle ~/mk/pipeline/bundles/co_rt0_q6.tgz (vLLM 70f57a0ae), flydsl 0.4.0.
+# Output of each step as printed (ssh | tail).
+
+## det.sh: FlyDSL compile in-process (export_co f9e41ae elf_of), 3 processes x (M=1, M=2) x 2 builds (bare), 2 processes via the vllm package
+flydsl 0.4.0
+DET mode=bare pid=568401 M=1 i=0 qwen36moe_decode_m1_fe4610df sha=dc4c165185c44b8c
+DET mode=bare pid=568401 M=1 i=1 qwen36moe_decode_m1_91b513f2 sha=954a467b5fe4322e
+DET mode=bare pid=568401 M=2 i=0 qwen36moe_decode_m2_f7882f7d sha=629307664df8d0b5
+DET mode=bare pid=568401 M=2 i=1 qwen36moe_decode_m2_f7882f7d sha=46934f26199a022e
+DET mode=bare pid=571090 M=1 i=0 qwen36moe_decode_m1_fe4610df sha=658a01781d8d8bf2
+DET mode=bare pid=571090 M=1 i=1 qwen36moe_decode_m1_91b513f2 sha=954a467b5fe4322e
+DET mode=bare pid=571090 M=2 i=0 qwen36moe_decode_m2_f7882f7d sha=46934f26199a022e
+DET mode=bare pid=571090 M=2 i=1 qwen36moe_decode_m2_f7882f7d sha=46934f26199a022e
+DET mode=bare pid=573401 M=1 i=0 qwen36moe_decode_m1_fe4610df sha=d607db3aeb3fe726
+DET mode=bare pid=573401 M=1 i=1 qwen36moe_decode_m1_91b513f2 sha=8ed6a4e05fff3422
+DET mode=bare pid=573401 M=2 i=0 qwen36moe_decode_m2_f7882f7d sha=46934f26199a022e
+DET mode=bare pid=573401 M=2 i=1 qwen36moe_decode_m2_f7882f7d sha=629307664df8d0b5
+DET mode=vllm pid=575921 M=1 i=0 qwen36moe_decode_m1_fe4610df sha=dc4c165185c44b8c
+DET mode=vllm pid=575921 M=2 i=0 qwen36moe_decode_m2_f7882f7d sha=46934f26199a022e
+DET mode=vllm pid=577424 M=1 i=0 qwen36moe_decode_m1_fe4610df sha=dc4c165185c44b8c
+DET mode=vllm pid=577424 M=2 i=0 qwen36moe_decode_m2_f7882f7d sha=46934f26199a022e
+# export runs a/b (pipeline c_rt0_q6) M=1 91b513f2: 5940ba3d.. / 8ed6a4e0..; M=2: 62930766.. / 46934f26..
+
+## dump.sh: FLYDSL_DUMP_IR=1, M=2 first build, 4 processes; md5 (8 hex) of each stage per process
+DET mode=bare pid=581538 M=2 i=0 qwen36moe_decode_m2_88a34dc1 sha=63a16c9899c97d04
+DET mode=bare pid=583931 M=2 i=0 qwen36moe_decode_m2_88a34dc1 sha=cb489f963e9d3936
+DET mode=bare pid=585443 M=2 i=0 qwen36moe_decode_m2_88a34dc1 sha=cb489f963e9d3936
+DET mode=bare pid=587629 M=2 i=0 qwen36moe_decode_m2_88a34dc1 sha=63a16c9899c97d04
+00_origin.mlir 428c3f34 428c3f34 428c3f34 428c3f34 
+01_fly_rewrite_func_signature.mlir 428c3f34 428c3f34 428c3f34 428c3f34 
+02_fly_canonicalize.mlir 423ab4ad 423ab4ad 423ab4ad 423ab4ad 
+03_fly_rocdl_expand_ops.mlir 423ab4ad 423ab4ad 423ab4ad 423ab4ad 
+04_fly_layout_lowering.mlir b81a527d b81a527d b81a527d b81a527d 
+05_fly_int_swizzle_simplify.mlir b81a527d b81a527d b81a527d b81a527d 
+06_canonicalize.mlir c1c18d1e c1c18d1e c1c18d1e c1c18d1e 
+07_fly_convert_atom_call_to_ssa_form.mlir c1c18d1e c1c18d1e c1c18d1e c1c18d1e 
+08_fly_promote_regmem_to_vectorssa.mlir 28e48651 28e48651 28e48651 28e48651 
+09_convert_fly_to_rocdl.mlir fafb4a7c fafb4a7c fafb4a7c fafb4a7c 
+10_canonicalize.mlir 714b5db7 714b5db7 714b5db7 714b5db7 
+11_convert_scf_to_cf_cse_convert_rocdl_fastmath_ops_convert_gpu_to_rocdl.mlir b6b7de31 b6b7de31 b6b7de31 b6b7de31 
+12_rocdl_attach_target.mlir 86cda46e 86cda46e 86cda46e 86cda46e 
+13_convert_scf_to_cf.mlir 86cda46e 86cda46e 86cda46e 86cda46e 
+14_convert_cf_to_llvm.mlir 86cda46e 86cda46e 86cda46e 86cda46e 
+15_gpu_to_llvm.mlir e102a0f9 e102a0f9 e102a0f9 e102a0f9 
+16_convert_vector_to_llvm.mlir e102a0f9 e102a0f9 e102a0f9 e102a0f9 
+17_convert_arith_to_llvm.mlir e102a0f9 e102a0f9 e102a0f9 e102a0f9 
+18_convert_func_to_llvm.mlir e102a0f9 e102a0f9 e102a0f9 e102a0f9 
+19_reconcile_unrealized_casts.mlir e102a0f9 e102a0f9 e102a0f9 e102a0f9 
+20_gpu_module_to_binary.mlir b02aeae2 c14084a2 c14084a2 b02aeae2 
+21_llvm_ir.ll 8b6756e8 8b6756e8 8b6756e8 8b6756e8 
+22_final_isa.s 0199b57a 0199b57a 0199b57a 0199b57a 
+
+## rebin.py: gpu-module-to-binary{format=fatbin} on 19_reconcile_unrealized_casts.mlir parsed again; dump1 then dump2, 3 processes x 2 each
+REBIN 0 8cff9f95b674bd04 123592
+REBIN 1 8cff9f95b674bd04 123592
+REBIN 0 8cff9f95b674bd04 123592
+REBIN 1 8cff9f95b674bd04 123592
+REBIN 0 8cff9f95b674bd04 123592
+REBIN 1 8cff9f95b674bd04 123592
+REBIN 0 8cff9f95b674bd04 123592
+REBIN 1 8cff9f95b674bd04 123592
+REBIN 0 8cff9f95b674bd04 123592
+REBIN 1 8cff9f95b674bd04 123592
+REBIN 0 8cff9f95b674bd04 123592
+REBIN 1 8cff9f95b674bd04 123592
+
+## canon.sh: export_co.py --compile (canonical_compile, fresh process each), 3 x M=1, 3 x M=2
+M=1 r=1 dc4c165185c44b8c   symbol qwen36moe_decode_m1_fe4610df
+M=1 r=2 dc4c165185c44b8c   symbol qwen36moe_decode_m1_fe4610df
+M=1 r=3 dc4c165185c44b8c   symbol qwen36moe_decode_m1_fe4610df
+M=2 r=1 8cff9f95b674bd04   symbol qwen36moe_decode_m2_88a34dc1
+M=2 r=2 8cff9f95b674bd04   symbol qwen36moe_decode_m2_88a34dc1
+M=2 r=3 8cff9f95b674bd04   symbol qwen36moe_decode_m2_88a34dc1

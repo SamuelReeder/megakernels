@@ -1,0 +1,8 @@
+# determinism: export runs a and b, 2026-10-30T13:22:28-04:00 ctr-cx66-mi300x-31.adc.amd.com
+manifest.json a == b: EQUAL
+files and sha256 a == b: EQUAL
+f486aba4ff5d7051b17daca8272e48ebeb6b7683842adac25f8e7f1a10003707  manifest.json
+4053b83d7cd86708fdca54aead761b4f91bc6f8eb9c53d2ab3b848cadb922ed1  gemma4-26b-a4b-fp8-gfx942_M1_90ae76949d6abf76.co
+3f77cc681e3c63455e501ea2d02051b1671491d824ad45d80b019f08ca4c6995  gemma4-26b-a4b-fp8-gfx942_M2_2941c148f48f8157.co
+df81a9940c654ce3fcc48d47668ebe16a46ea4cb3e0052c55d2be9995386ce8a  gemma4-26b-a4b-fp8-gfx942_M4_38128b0c5303aa58.co
+67ae815f3400caa50ecdc26e291d1d5bfceb0cc7f205a6d532b862374c34f45c  gemma4-26b-a4b-fp8-gfx942_M8_d3c2094a0772144e.co
