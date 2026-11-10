@@ -4,6 +4,9 @@
 
 ## TL;DR
 
+**Verdict: viable for low-latency serving with few users, not as a throughput tool.** We recommend landing
+Qwen3.6 through vLLM, measuring real serving traffic, and building more kernels only where interactive demand exists.
+
 - We wrote decode megakernels for three current models on MI300X (gfx942). One persistent GPU launch runs
   every layer of a decode step, and the kernels run inside vLLM on our branches.
 - **With the same FP8 weights, each user gets tokens 1.2-1.6x faster at batch 1 and 1.06-1.13x faster at
