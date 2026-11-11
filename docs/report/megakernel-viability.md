@@ -4,18 +4,17 @@
 
 ## TL;DR
 
-**Verdict: viable for low-latency serving with few users, not as a throughput tool.** We recommend landing
-Qwen3.6 through vLLM, measuring real serving traffic, and building more kernels only where interactive demand exists.
+**Verdict: viable for low-latency serving with few users, not as a throughput tool.**
 
-- We wrote decode megakernels for three current models on MI300X (gfx942). One persistent GPU launch runs
-  every layer of a decode step, and the kernels run inside vLLM on our branches.
+- I wrote decode megakernels for three current models on MI300X (gfx942). One persistent GPU launch runs
+  every layer of a decode step, and the kernels run inside vLLM on my branches.
 - **With the same FP8 weights, each user gets tokens 1.2-1.6x faster at batch 1 and 1.06-1.13x faster at
   batch 8** than with stock vLLM on the same GPU. Qwen3.8 reaches 2.1x, partly because it also uses the
   smaller MXFP4 checkpoint, which costs accuracy.
 - **The gain is for interactive, low-concurrency decode only.** Above 8 concurrent requests, and during
   prefill, vLLM's own path runs. The kernel's own weight copy cuts KV-cache space by 18-25 %.
-- **Cost:** a new kernel for each model, and upstream landing waits on vLLM PR
-  [#61311](https://github.com/vllm-project/vllm/pull/61311).
+- **Cost:** a new kernel for each model. The vLLM integration builds on vLLM PR
+  [#61311](https://github.com/vllm-project/vllm/pull/61311), which is not merged yet.
 
 ## What a megakernel changes
 
@@ -23,7 +22,7 @@ A normal engine launches hundreds of small kernels for each generated token. At 
 much of the step between kernels instead of reading weights. A megakernel keeps one workgroup resident on each
 of the 304 compute units for the whole step. It streams every weight once and passes data from one stage to the
 next through grid barriers inside the launch. AMD's ATOM and aitermk megakernels target MI355X. vLLM main already
-runs a DeepSeek-V4.1 decode megakernel on MI300X (TP4); #61311 moves it onto shared hooks that our kernels plug into.
+runs a DeepSeek-V4.1 decode megakernel on MI300X (TP4); #61311 moves it onto shared hooks that my kernels plug into.
 
 ## Results
 
@@ -43,7 +42,7 @@ runs a DeepSeek-V4.1 decode megakernel on MI300X (TP4); #61311 moves it onto sha
 - **Harnesses:** the kernel was timed standalone, and vLLM through its own benchmark, which includes its
   scheduler. The last column is the kernel running inside vLLM.
 - **Which day:** the bold ratio uses the best day for stock vLLM. On other days it ran 4-38 % slower on the
-  same node, for reasons we did not find.
+  same node, for reasons I did not find.
 
 \* Qwen3.8 runs MXFP4 against vLLM's FP8, because vLLM has no fast MXFP4 path on gfx942. MXFP4 reads half the
 bytes of FP8, so part of the gain is the format. The MXFP4 checkpoint scores 4.9 % higher perplexity than BF16
@@ -52,7 +51,7 @@ bytes of FP8, so part of the gain is the format. The MXFP4 checkpoint scores 4.9
 **Correctness.**
 - **Accuracy:** perplexity is no more than 1 % above a reference with the same weights (Gemma's is lower).
   Qwen3.6, for example, scores 1.589, against 1.585 for the FP8 reference and 1.584 for BF16.
-- **Inside vLLM:** greedy output follows vLLM's own path until the first near-tied token. We have not run a
+- **Inside vLLM:** greedy output follows vLLM's own path until the first near-tied token. I have not run a
   task-level evaluation.
 - **Determinism:** every kernel is bitwise deterministic, and a request gets the same bits alone or in a batch.
   Earlier versions of each kernel repeated on a second day and on an MI325X; the current Qwen3.6 and Gemma
@@ -66,6 +65,9 @@ bytes of FP8, so part of the gain is the format. The MXFP4 checkpoint scores 4.9
 | More than 8 concurrent requests, or any step that includes prefill | **None**: vLLM's own path runs. Under real traffic the gain is therefore smaller (not yet measured) |
 | Time to first token | **None** |
 | KV-cache capacity, and therefore peak throughput and long context | **Lower**: the kernel's own weight copy cuts KV-cache space by 18-25 % (Qwen3.6, Gemma) |
+
+**Headroom.** These kernels are not at the hardware limit. Barriers and hand-offs take about 40 % of a Qwen3.8
+step, and the weight stream reaches 3.3-3.7 TB/s of the GPU's 5.3 TB/s.
 
 ## Tradeoffs to weigh
 
@@ -82,26 +84,10 @@ bytes of FP8, so part of the gain is the format. The MXFP4 checkpoint scores 4.9
      (Gemma and TP2 also for each max_model_len).
    - The tuning is for gfx942; MI355X would need a port.
 3. **Upstream dependency.**
-   - Our vLLM integration builds on [#61311](https://github.com/vllm-project/vllm/pull/61311), which is open,
+   - My vLLM integration builds on [#61311](https://github.com/vllm-project/vllm/pull/61311), which is open,
      not merged. After it lands, each model needs its own upstream PR.
    - A hipDNN route for shipping precompiled kernels works end to end (same bits, speed within 0.8 %), but
      it waits on the draft [ROCm/rocm-libraries#14255](https://github.com/ROCm/rocm-libraries/pull/14255).
-
-## Recommendation
-
-1. **Land through vLLM.** Push for review of [#61311](https://github.com/vllm-project/vllm/pull/61311). Then
-   upstream Qwen3.6 first, because it has the clearest result: FP8 against FP8, 1.64x at batch 1.
-2. **Measure real serving before any public claim.**
-   - Run `vllm bench serve` with the kernel on and off, with arrivals at concurrency 1-8, on one node and day.
-   - Report the KV-cache cost next to the speedup.
-3. **Build kernels only where there is demand,** meaning models that serve interactive traffic on
-   MI300X/MI325X. Agree the split with AMD's MI355X megakernel teams before starting one.
-4. **Next engineering work, if we continue:**
-   - Cut the fixed cost per stage: barriers and hand-offs are about 40 % of a Qwen3.8 step, and the weight
-     stream reaches 3.3-3.7 TB/s of the GPU's 5.3 TB/s.
-   - Try reading vLLM's weights in place: this saves about 32 GiB for Qwen3.6, at an unmeasured cost in
-     stream speed.
-   - Verify several speculative tokens in each launch.
 
 ## Links
 
