@@ -33,7 +33,7 @@ for i, (label, low, high, color) in enumerate(SERIES):
         ax.vlines(x, low, high, color=color, lw=2.5, alpha=0.35)
         ax.plot(x, high, "_", color=color, ms=10, mew=2, alpha=0.6)
 ax.axvspan(9.2, 17, color="0.88")
-ax.text(12.4, 1.45, "above 8 sequences:\nvLLM's own path\n(not measured)", ha="center",
+ax.text(12.4, 1.45, "above 8 sequences:\nnot tested\n(vLLM's own path runs)", ha="center",
         va="center", fontsize=9, color="0.25")
 ax.axhline(1.0, color="0.4", lw=1, ls="--")
 ax.set_xscale("log", base=2)
