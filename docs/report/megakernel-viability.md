@@ -133,7 +133,7 @@ There are two routes. I tested both end to end on MI300X, and they give the same
 | Route | How it works | Status |
 |---|---|---|
 | **vLLM direct** | A per-model DecodeSpec in vLLM compiles the kernel with FlyDSL at startup and launches it | Works on my vLLM branches; waits on vLLM [#61311](https://github.com/vllm-project/vllm/pull/61311). After that, each model needs its own upstream PR. |
-| **Through hipDNN** | The same DecodeSpec calls a hipDNN custom op. A hipDNN engine matches a precompiled code object and launches it, with no compiler at run time. | Speed within 0.8 % of the direct route. The engine, behind a default-OFF flag, is ready for review. The vLLM bridge waits on [ROCm/rocm-libraries#14255](https://github.com/ROCm/rocm-libraries/pull/14255). The binaries need an upload to hipDNN's DVC store. |
+| **Through hipDNN** | The same DecodeSpec calls a hipDNN custom op. A hipDNN engine matches a precompiled code object and launches it, with no compiler at run time. | Speed within 0.8 % of the direct route. The engine, behind a default-OFF flag, is in draft PR [ROCm/rocm-libraries#15686](https://github.com/ROCm/rocm-libraries/pull/15686). The vLLM bridge, draft PR [#15682](https://github.com/ROCm/rocm-libraries/pull/15682), is stacked on [#14255](https://github.com/ROCm/rocm-libraries/pull/14255). The binaries need an upload to hipDNN's DVC store. |
 
 Either way, each model keeps its own vLLM-side code: step checks, cache binding and weight packing.
 
