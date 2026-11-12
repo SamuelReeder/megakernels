@@ -1,0 +1,78 @@
+srun: job 68378225 queued and waiting for resources
+srun: job 68378225 has been allocated resources
+start 2026-11-12T11:46:55-05:00 banff-cyxtera-s70-4.adc.amd.com nproc=32 arch=gfx942
+PRETTY_NAME="Ubuntu 22.04.5 LTS"
+ldd (Ubuntu GLIBC 2.35-0ubuntu3.15) 2.35
+src A 95b75175 test(hipdnn_vllm): GPU tests for custom_op prepare/exec
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: /tmp/hvco_rb_68378225_1302839/tools/bin/python3.12 -m pip install --upgrade pip
+torch 2.13.0+rocm10.0.0 torchvision 0.28.0+rocm10.0.0 vllm 0.32.1rc1.dev505+g00b6c4c56
+[notice] To update, run: /usr/bin/python3.12 -m pip install --upgrade pip
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: /usr/bin/python3.12 -m pip install --upgrade pip
+== old wheel A: NUL-key and torch.compile tests (expected to fail)
+custom_op old rc=1
+tests/gpu/test_custom_op.py::test_plan_key_keeps_payload_bytes_after_nul FAILED [ 50%]
+tests/gpu/test_custom_op.py::test_exec_runs_under_torch_compile FAILED   [100%]
+=================================== FAILURES ===================================
+FAILED tests/gpu/test_custom_op.py::test_plan_key_keeps_payload_bytes_after_nul
+FAILED tests/gpu/test_custom_op.py::test_exec_runs_under_torch_compile - Asse...
+================= 2 failed, 8 deselected, 15 warnings in 3.38s =================
+PASS build A /home/AMD/sareeder/mk/hvco_rb2/out/A/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (123 s)
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: /usr/bin/python3.12 -m pip install --upgrade pip
+installed 95b7517548af8b02959b1055d1db9e4bc2c3cdc0 dirty 0 -DENABLE_MEGAKERNEL_ENGINE=ON
+== A unit (source tree, no GPU)
+unit rc=0
+205 passed, 15 warnings in 80.82s (0:01:20)
+PASS build C /home/AMD/sareeder/mk/hvco_rb2/out/C/hipdnn_vllm-0.1.0+rocm10.0.0.gfx950-cp312-cp312-linux_x86_64.whl (279 s)
+gpu targets: gfx950
+provider flags: -DHIPKERNELPROVIDER_ENABLE_ROCKE=ON -DHIPDNN_ENABLE_SDPA=ON -DHIPDNN_ENABLE_KERNEL_INGESTOR=ON -DHIPDNN_ENABLE_CUDNN_COMPATIBILITY=ON -DHIPKERNELPROVIDER_ENABLE_TESTS=OFF -DHIPDNN_SKIP_TESTS=ON -DROCKE_INSTALL_TESTS=OFF -DHIPKERNELPROVIDER_REQUIRE_DVC_DESCRIPTORS=ON
+== A test_custom_op (installed wheel, GPU)
+custom_op A rc=0
+tests/gpu/test_custom_op.py::test_prepare_returns_reason_for_unknown_op_id PASSED [ 10%]
+tests/gpu/test_custom_op.py::test_exec_strict_raises_and_non_strict_counts_fallback PASSED [ 20%]
+tests/gpu/test_custom_op.py::test_plan_cache_keyed_by_shape_and_payload_not_address PASSED [ 30%]
+tests/gpu/test_custom_op.py::test_plan_key_keeps_payload_bytes_after_nul PASSED [ 40%]
+tests/gpu/test_custom_op.py::test_exec_runs_under_torch_compile PASSED   [ 50%]
+tests/gpu/test_custom_op.py::test_disabled_declines_without_building PASSED [ 60%]
+tests/gpu/test_custom_op.py::test_capture_miss_strict_raises_non_strict_records PASSED [ 70%]
+tests/gpu/test_custom_op.py::test_engine_untouched_unless_opted_in_h6 SKIPPED [ 80%]
+tests/gpu/test_custom_op.py::test_megakernel_capture_replays SKIPPED     [ 90%]
+tests/gpu/test_custom_op.py::test_megakernel_key_mismatch_declines SKIPPED [100%]
+SKIPPED [1] tests/gpu/test_custom_op.py:190: megakernel engine not in this build
+SKIPPED [1] tests/gpu/test_custom_op.py:243: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+SKIPPED [1] tests/gpu/test_custom_op.py:283: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+================== 7 passed, 3 skipped, 16 warnings in 6.73s ===================
+src B 7273cf5d node: engine 18c6ef46d6073d9925740535ad1228780596b0a8 + hipdnn_vllm of 95b7517548af8b02959b1055d1db9e4bc2c3cdc0 tree 588bf4896f6af97c5c9909f5f9fbc3d5cee481a4 expect 588bf4896f6af97c5c9909f5f9fbc3d5cee481a4
+PASS tree B = local merge tree
+PASS set manifest = engine lock
+PASS build B /home/AMD/sareeder/mk/hvco_rb2/out/B/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (110 s)
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: /usr/bin/python3.12 -m pip install --upgrade pip
+installed 7273cf5df4cee6a5651d56efd0f65f9a8c6a6c56 dirty 0 -DENABLE_MEGAKERNEL_ENGINE=ON
+== B test_custom_op (production catalog)
+custom_op B rc=0
+tests/gpu/test_custom_op.py::test_prepare_returns_reason_for_unknown_op_id PASSED [ 10%]
+tests/gpu/test_custom_op.py::test_exec_strict_raises_and_non_strict_counts_fallback PASSED [ 20%]
+tests/gpu/test_custom_op.py::test_plan_cache_keyed_by_shape_and_payload_not_address PASSED [ 30%]
+tests/gpu/test_custom_op.py::test_plan_key_keeps_payload_bytes_after_nul PASSED [ 40%]
+tests/gpu/test_custom_op.py::test_exec_runs_under_torch_compile PASSED   [ 50%]
+tests/gpu/test_custom_op.py::test_disabled_declines_without_building PASSED [ 60%]
+tests/gpu/test_custom_op.py::test_capture_miss_strict_raises_non_strict_records PASSED [ 70%]
+tests/gpu/test_custom_op.py::test_engine_untouched_unless_opted_in_h6 PASSED [ 80%]
+tests/gpu/test_custom_op.py::test_megakernel_capture_replays SKIPPED     [ 90%]
+tests/gpu/test_custom_op.py::test_megakernel_key_mismatch_declines SKIPPED [100%]
+SKIPPED [1] tests/gpu/test_custom_op.py:243: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+SKIPPED [1] tests/gpu/test_custom_op.py:283: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+================== 8 passed, 2 skipped, 16 warnings in 9.74s ===================
+== B test_custom_op -k megakernel (stand-in catalog)
+custom_op B standin rc=0
+tests/gpu/test_custom_op.py::test_megakernel_capture_replays PASSED      [ 50%]
+tests/gpu/test_custom_op.py::test_megakernel_key_mismatch_declines PASSED [100%]
+================== 2 passed, 8 deselected, 1 warning in 0.51s ==================
+done 2026-11-12T12:00:00-05:00

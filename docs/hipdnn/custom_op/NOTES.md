@@ -8,7 +8,8 @@ with `users/sareeder/megakernel-engine` merged in.
 
 The branch `users/sareeder/hipdnn-vllm-custom-op` now has 3 linear commits on the #14255
 head `cb84aebee6f`, with no engine merge and no notes. The runs on that branch are in
-`rebuild_68377779/`. The PR description is `PR_BODY.md`.
+`rebuild_68377779/` (head `89fcfed57f6`) and `rebuild_68378225/` (head `95b7517548a`,
+after the review fixes). The PR description is `PR_BODY.md`.
 
 ## Decisions
 
