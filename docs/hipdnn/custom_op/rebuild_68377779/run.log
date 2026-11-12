@@ -1,0 +1,60 @@
+srun: job 68377779 queued and waiting for resources
+srun: job 68377779 has been allocated resources
+start 2026-11-12T11:26:13-05:00 banff-cyxtera-s70-4.adc.amd.com nproc=32 arch=gfx942
+PRETTY_NAME="Ubuntu 22.04.5 LTS"
+ldd (Ubuntu GLIBC 2.35-0ubuntu3.15) 2.35
+src A 89fcfed5 test(hipdnn_vllm): GPU tests for custom_op prepare/exec
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: /tmp/hvco_rb_68377779_516895/tools/bin/python3.12 -m pip install --upgrade pip
+torch 2.13.0+rocm10.0.0 torchvision 0.28.0+rocm10.0.0 vllm 0.32.1rc1.dev505+g00b6c4c56
+[notice] To update, run: /usr/bin/python3.12 -m pip install --upgrade pip
+PASS build A /home/AMD/sareeder/mk/hvco_rb/out/A/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (175 s)
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: /usr/bin/python3.12 -m pip install --upgrade pip
+installed 89fcfed57f685e25677008bd4748175c417a731b dirty 0 -DENABLE_MEGAKERNEL_ENGINE=ON
+== A unit (source tree, no GPU)
+unit rc=0
+205 passed, 15 warnings in 88.96s (0:01:28)
+== A test_custom_op (installed wheel, GPU)
+custom_op A rc=0
+tests/gpu/test_custom_op.py::test_prepare_returns_reason_for_unknown_op_id PASSED [ 12%]
+tests/gpu/test_custom_op.py::test_exec_strict_raises_and_non_strict_counts_fallback PASSED [ 25%]
+tests/gpu/test_custom_op.py::test_plan_cache_keyed_by_shape_and_payload_not_address PASSED [ 37%]
+tests/gpu/test_custom_op.py::test_disabled_declines_without_building PASSED [ 50%]
+tests/gpu/test_custom_op.py::test_capture_miss_strict_raises_non_strict_records PASSED [ 62%]
+tests/gpu/test_custom_op.py::test_engine_untouched_unless_opted_in_h6 SKIPPED [ 75%]
+tests/gpu/test_custom_op.py::test_megakernel_capture_replays SKIPPED     [ 87%]
+tests/gpu/test_custom_op.py::test_megakernel_key_mismatch_declines SKIPPED [100%]
+SKIPPED [1] tests/gpu/test_custom_op.py:156: megakernel engine not in this build
+SKIPPED [1] tests/gpu/test_custom_op.py:209: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+SKIPPED [1] tests/gpu/test_custom_op.py:249: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+=================== 5 passed, 3 skipped, 2 warnings in 5.63s ===================
+src B 71c9595a node: engine 18c6ef46d6073d9925740535ad1228780596b0a8 + hipdnn_vllm of 89fcfed57f685e25677008bd4748175c417a731b tree 54630ae8cce40446ffed0b64817d600a25c9c702 expect 54630ae8cce40446ffed0b64817d600a25c9c702
+PASS tree B = local merge tree
+PASS set manifest = engine lock
+PASS build B /home/AMD/sareeder/mk/hvco_rb/out/B/hipdnn_vllm-0.1.0+rocm10.0.0.gfx94x-cp312-cp312-linux_x86_64.whl (144 s)
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: /usr/bin/python3.12 -m pip install --upgrade pip
+installed 71c9595a5837371049d4eeb63b472cbb58fccbbd dirty 0 -DENABLE_MEGAKERNEL_ENGINE=ON
+== B test_custom_op (production catalog)
+custom_op B rc=0
+tests/gpu/test_custom_op.py::test_prepare_returns_reason_for_unknown_op_id PASSED [ 12%]
+tests/gpu/test_custom_op.py::test_exec_strict_raises_and_non_strict_counts_fallback PASSED [ 25%]
+tests/gpu/test_custom_op.py::test_plan_cache_keyed_by_shape_and_payload_not_address PASSED [ 37%]
+tests/gpu/test_custom_op.py::test_disabled_declines_without_building PASSED [ 50%]
+tests/gpu/test_custom_op.py::test_capture_miss_strict_raises_non_strict_records PASSED [ 62%]
+tests/gpu/test_custom_op.py::test_engine_untouched_unless_opted_in_h6 PASSED [ 75%]
+tests/gpu/test_custom_op.py::test_megakernel_capture_replays SKIPPED     [ 87%]
+tests/gpu/test_custom_op.py::test_megakernel_key_mismatch_declines SKIPPED [100%]
+SKIPPED [1] tests/gpu/test_custom_op.py:209: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+SKIPPED [1] tests/gpu/test_custom_op.py:249: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+=================== 6 passed, 2 skipped, 2 warnings in 8.78s ===================
+== B test_custom_op -k megakernel (stand-in catalog)
+custom_op B standin rc=0
+tests/gpu/test_custom_op.py::test_megakernel_capture_replays PASSED      [ 50%]
+tests/gpu/test_custom_op.py::test_megakernel_key_mismatch_declines PASSED [100%]
+================== 2 passed, 6 deselected, 1 warning in 0.92s ==================
+done 2026-11-12T11:34:49-05:00
