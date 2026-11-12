@@ -1,0 +1,11 @@
+Note: Google Test filter = TestMegakernel*:*EveryHandler*
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TestKernelIngestorEngine
+[ RUN      ] TestKernelIngestorEngine.EveryHandlerReportsSupportsSavingExactlyWhenItSavesAndRestores
+[       OK ] TestKernelIngestorEngine.EveryHandlerReportsSupportsSavingExactlyWhenItSavesAndRestores (3 ms)
+[----------] 1 test from TestKernelIngestorEngine (90 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (90 ms total)
+[  PASSED  ] 1 test.

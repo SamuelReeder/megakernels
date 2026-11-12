@@ -1,0 +1,43 @@
+head=6285fe01629b83d70ae70aa788b2f523421baa0f kind=asan mode=ON 2026-11-12T14:42:18-05:00
+Note: Google Test filter = TestMegakernel*
+[==========] Running 15 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 12 tests from TestMegakernelMatchers
+[ RUN      ] TestMegakernelMatchers.AcceptsThePayloadOfTheObjectsBinaryKey
+[       OK ] TestMegakernelMatchers.AcceptsThePayloadOfTheObjectsBinaryKey (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesACuCountOtherThanTheDevices
+[       OK ] TestMegakernelMatchers.DeclinesACuCountOtherThanTheDevices (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesADeviceWhoseCuCountIsNotTheObjects
+[       OK ] TestMegakernelMatchers.DeclinesADeviceWhoseCuCountIsNotTheObjects (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesASrcNoObjectCarries
+[       OK ] TestMegakernelMatchers.DeclinesASrcNoObjectCarries (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesAWidthOtherThanTheObjects
+[       OK ] TestMegakernelMatchers.DeclinesAWidthOtherThanTheObjects (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesAnotherSchemaVersion
+[       OK ] TestMegakernelMatchers.DeclinesAnotherSchemaVersion (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesMalformedJson
+[       OK ] TestMegakernelMatchers.DeclinesMalformedJson (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesAKeyOfTheWrongType
+[       OK ] TestMegakernelMatchers.DeclinesAKeyOfTheWrongType (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesAnOpIdThatNamesAnotherModel
+[       OK ] TestMegakernelMatchers.DeclinesAnOpIdThatNamesAnotherModel (0 ms)
+[ RUN      ] TestMegakernelMatchers.IgnoresCustomOpsOfOtherPluginsSilently
+[       OK ] TestMegakernelMatchers.IgnoresCustomOpsOfOtherPluginsSilently (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesAnNlayersThatIsNotAPositiveI32
+[       OK ] TestMegakernelMatchers.DeclinesAnNlayersThatIsNotAPositiveI32 (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesAnInputListOtherThanTabAndGlob
+[       OK ] TestMegakernelMatchers.DeclinesAnInputListOtherThanTabAndGlob (0 ms)
+[----------] 12 tests from TestMegakernelMatchers (143 ms total)
+
+[----------] 3 tests from TestMegakernelCoResidency
+[ RUN      ] TestMegakernelCoResidency.AcceptsOneWorkgroupPerCuOfTheGridsCuCount
+[       OK ] TestMegakernelCoResidency.AcceptsOneWorkgroupPerCuOfTheGridsCuCount (0 ms)
+[ RUN      ] TestMegakernelCoResidency.RefusesADeviceWithAnotherCuCount
+[       OK ] TestMegakernelCoResidency.RefusesADeviceWithAnotherCuCount (0 ms)
+[ RUN      ] TestMegakernelCoResidency.RefusesAFunctionThatFitsNoWorkgroupPerCu
+[       OK ] TestMegakernelCoResidency.RefusesAFunctionThatFitsNoWorkgroupPerCu (0 ms)
+[----------] 3 tests from TestMegakernelCoResidency (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 15 tests from 2 test suites ran. (144 ms total)
+[  PASSED  ] 15 tests.

@@ -1,0 +1,50 @@
+head=bf3255d71ebe532d4a5f070f2d7a49eb38e05e13 kind=main mode=ON-noobj 2026-11-12T15:32:22-05:00
+[ schema   ] hipkernel:Pointwise 1.0.0
+[ schema   ] hipkernel:ConvFwd 1.0.0
+[ schema   ] ASM_SDPA_ENGINE 1.4.0
+[ schema   ] HIP_MLOPS_ENGINE 1.4.0
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/compilation/TestProgramAndKernel.cpp:251: Skipped
+foreign-stream rejection requires two devices
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/device/TestScopedDevice.cpp:58: Skipped
+needs two devices: with one, ScopedDevice never switches
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/engines/asm_sdpa_engine/TestSdpaBwdPlanBuilder.cpp:1028: Skipped
+Test requires non-gfx942 device to assert rejection
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/engines/kernel_ingestor_engine/packs/TestGfx950ConvDgradMatchers.cpp:803: Skipped
+this configuration packed no gfx950 production tree, so the shipped hipkernel:Gfx950ConvDgradAot bundle is not staged beside this binary
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/engines/kernel_ingestor_engine/packs/TestGfx950ConvDgradMatchers.cpp:861: Skipped
+this configuration packed no gfx950 production tree, so the shipped hipkernel:Gfx950ConvDgradAot bundle is not staged beside this binary
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/engines/kernel_ingestor_engine/packs/TestGfx1250ConvDgradMatchers.cpp:243: Skipped
+this configuration packed no gfx1250 production tree, so the shipped hipkernel:Gfx1250ConvDgradAot bundle is not staged beside this binary
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/engines/kernel_ingestor_engine/packs/TestGfx1250ConvDgradMatchers.cpp:291: Skipped
+this configuration packed no gfx1250 production tree, so the shipped hipkernel:Gfx1250ConvDgradAot bundle is not staged beside this binary
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/ingestor/TestPackedDescriptorLoad.cpp:764: Skipped
+the unit tree has no gfx950 shard under "/tmp/mkeng3-main/build-ON-noobj/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider/unit/shared": this build does not pack for gfx950, and the 'slotted_hsaco' fixture is gfx950-only content.
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/ingestor/TestPackedDescriptorLoad.cpp:810: Skipped
+the slotted multi-launch fixture is rocKE content and this build packs without rocKE (HIPKERNELPROVIDER_ENABLE_ROCKE=OFF)
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/compilation/TestProgramAndKernel.cpp:203: Skipped
+cross-device launches require two devices
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/compilation/TestProgramAndKernel.cpp:203: Skipped
+cross-device launches require two devices
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/compilation/TestProgramAndKernel.cpp:203: Skipped
+cross-device launches require two devices
+
+/tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/compilation/TestProgramAndKernel.cpp:203: Skipped
+cross-device launches require two devices
+
+[==========] 1907 tests from 226 test suites ran. (6011 ms total)
+[  PASSED  ] 1894 tests.
+[  SKIPPED ] 13 tests.
+
+  YOU HAVE 1 DISABLED TEST
+

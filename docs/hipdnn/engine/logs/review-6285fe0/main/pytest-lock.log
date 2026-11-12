@@ -1,0 +1,20 @@
+head=6285fe01629b83d70ae70aa788b2f523421baa0f kind=main mode=pytest 2026-11-12T13:51:46-05:00
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.3, pluggy-1.6.0 -- /usr/bin/python3
+rootdir: /tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/descriptor-packaging
+configfile: pyproject.toml
+collecting ... collected 11 items
+
+tests/test_hkp_megakernel_lock.py::test_a_bundle_whose_objects_match_the_lock_verifies PASSED [  9%]
+tests/test_hkp_megakernel_lock.py::test_an_object_whose_bytes_differ_from_the_lock_fails_naming_it PASSED [ 18%]
+tests/test_hkp_megakernel_lock.py::test_an_object_the_lock_does_not_name_fails PASSED [ 27%]
+tests/test_hkp_megakernel_lock.py::test_a_missing_object_fails PASSED    [ 36%]
+tests/test_hkp_megakernel_lock.py::test_a_kdp_that_is_not_the_one_the_lock_generates_fails PASSED [ 45%]
+tests/test_hkp_megakernel_lock.py::test_a_bundle_not_pulled_from_dvc_passes PASSED [ 54%]
+tests/test_hkp_megakernel_lock.py::test_a_malformed_lock_fails[other-abi] PASSED [ 63%]
+tests/test_hkp_megakernel_lock.py::test_a_malformed_lock_fails[bool-for-int] PASSED [ 72%]
+tests/test_hkp_megakernel_lock.py::test_a_malformed_lock_fails[file-not-named-by-key] PASSED [ 81%]
+tests/test_hkp_megakernel_lock.py::test_the_pack_step_fails_on_a_lock_mismatch_only_with_the_family_enabled[ON] PASSED [ 90%]
+tests/test_hkp_megakernel_lock.py::test_the_pack_step_fails_on_a_lock_mismatch_only_with_the_family_enabled[OFF] PASSED [100%]
+
+============================== 11 passed in 1.81s ==============================

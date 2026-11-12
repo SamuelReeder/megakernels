@@ -1,0 +1,34 @@
+Note: Google Test filter = TestMegakernel*:*EveryHandler*
+[==========] Running 11 tests from 2 test suites.
+[----------] Global test environment set-up.
+[----------] 1 test from TestKernelIngestorEngine
+[ RUN      ] TestKernelIngestorEngine.EveryHandlerReportsSupportsSavingExactlyWhenItSavesAndRestores
+[       OK ] TestKernelIngestorEngine.EveryHandlerReportsSupportsSavingExactlyWhenItSavesAndRestores (3 ms)
+[----------] 1 test from TestKernelIngestorEngine (92 ms total)
+
+[----------] 10 tests from TestMegakernelMatchers
+[ RUN      ] TestMegakernelMatchers.AcceptsThePayloadOfTheObjectsBinaryKey
+[       OK ] TestMegakernelMatchers.AcceptsThePayloadOfTheObjectsBinaryKey (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesACuCountOtherThanTheDevices
+[       OK ] TestMegakernelMatchers.DeclinesACuCountOtherThanTheDevices (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesADeviceWhoseCuCountIsNotTheObjects
+[       OK ] TestMegakernelMatchers.DeclinesADeviceWhoseCuCountIsNotTheObjects (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesASrcNoObjectCarries
+[       OK ] TestMegakernelMatchers.DeclinesASrcNoObjectCarries (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesAWidthOtherThanTheObjects
+[       OK ] TestMegakernelMatchers.DeclinesAWidthOtherThanTheObjects (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesAnotherSchemaVersion
+[       OK ] TestMegakernelMatchers.DeclinesAnotherSchemaVersion (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesMalformedJson
+[       OK ] TestMegakernelMatchers.DeclinesMalformedJson (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesAKeyOfTheWrongType
+[       OK ] TestMegakernelMatchers.DeclinesAKeyOfTheWrongType (0 ms)
+[ RUN      ] TestMegakernelMatchers.DeclinesAnOpIdThatNamesAnotherModel
+[       OK ] TestMegakernelMatchers.DeclinesAnOpIdThatNamesAnotherModel (0 ms)
+[ RUN      ] TestMegakernelMatchers.IgnoresCustomOpsOfOtherPluginsSilently
+[       OK ] TestMegakernelMatchers.IgnoresCustomOpsOfOtherPluginsSilently (0 ms)
+[----------] 10 tests from TestMegakernelMatchers (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 11 tests from 2 test suites ran. (92 ms total)
+[  PASSED  ] 11 tests.

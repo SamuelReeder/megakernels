@@ -1,0 +1,12 @@
+[1/5] Processing file /tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/packs/MegakernelNative.cpp.
+95950 warnings generated.
+[2/5] Processing file /tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/IngestorPacks.cpp.
+191332 warnings generated.
+[3/5] Processing file /tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/engines/kernel_ingestor_engine/packs/TestMegakernelMatchers.cpp.
+292751 warnings generated.
+[4/5] Processing file /tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/engines/kernel_ingestor_engine/TestKernelIngestorEngine.cpp.
+401782 warnings generated.
+[5/5] Processing file /tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/integration_tests/kernel_ingestor_engine/IntegrationGpuMegakernel.cpp.
+489455 warnings generated.
+Suppressed 492398 warnings (489455 in non-user code, 2943 NOLINT).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.

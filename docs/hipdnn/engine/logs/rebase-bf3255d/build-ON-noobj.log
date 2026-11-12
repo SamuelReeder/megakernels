@@ -1,0 +1,1352 @@
+head=bf3255d71ebe532d4a5f070f2d7a49eb38e05e13 kind=main mode=ON-noobj 2026-11-12T15:25:19-05:00
+[0/2] Re-checking globbed directories...
+[1/1326] Staging UHD test fixture conformance/trained_against_slots.json
+[2/1326] Staging UHD test fixture dtype_selector/dtype_selector.uhd.json
+[3/1326] Staging UHD test fixture dtype_selector/model.bin
+[4/1326] Staging UHD test fixture model.bin
+[5/1326] Staging UHD test fixture tile_selector.uhd.json
+[6/1326] Staging winner_lines_golden.jsonl
+[7/1326] Staging hipdnn_bench.csv
+[8/1326] Staging batchnorm_activation_bwd.opmeta.json
+[9/1326] Staging batchnorm_bwd.opmeta.json
+[10/1326] Staging hipdnn_bench_sweep_result.json
+[11/1326] Staging batchnorm_fwd_training.opmeta.json
+[12/1326] Staging batchnorm_inference.opmeta.json
+[13/1326] Staging conv_bias_activation.opmeta.json
+[14/1326] Staging conv_bwd_data.opmeta.json
+[15/1326] Staging conv_bwd_weights.opmeta.json
+[16/1326] Staging conv_fwd.opmeta.json
+[17/1326] Staging engines.json
+[18/1326] Staging layernorm_bwd.opmeta.json
+[19/1326] Staging layernorm_fwd.opmeta.json
+[20/1326] Staging layernorm_fwd_training.opmeta.json
+[21/1326] Staging matmul.opmeta.json
+[22/1326] Staging matmul_epilogue.opmeta.json
+[23/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_test_scorer_lib.dir/heuristics/uhd/test_scorer_lib.cpp.o
+[24/1326] Staging mx_matmul.opmeta.json
+[25/1326] Staging pointwise.opmeta.json
+[26/1326] Staging pointwise_unary.opmeta.json
+[27/1326] Staging reduction.opmeta.json
+[28/1326] Staging resample_bwd.opmeta.json
+[29/1326] Staging resample_fwd.opmeta.json
+[30/1326] Staging rmsnorm_bwd.opmeta.json
+[31/1326] Staging rmsnorm_fwd.opmeta.json
+[32/1326] Staging rmsnorm_fwd_training.opmeta.json
+[33/1326] Staging sdpa_bwd.opmeta.json
+[34/1326] Staging sdpa_fwd.opmeta.json
+[35/1326] Staging batchnorm_activation_bwd.opmeta.json
+[36/1326] Staging batchnorm_bwd.opmeta.json
+[37/1326] Staging batchnorm_inference.opmeta.json
+[38/1326] Staging conv_bias_activation.opmeta.json
+[39/1326] Staging engines.json
+[40/1326] Staging batchnorm_fwd_training.opmeta.json
+[41/1326] Staging conv_bwd_data.opmeta.json
+[42/1326] Staging conv_bwd_weights.opmeta.json
+[43/1326] Staging conv_fwd.opmeta.json
+[44/1326] Staging layernorm_bwd.opmeta.json
+[45/1326] Staging layernorm_fwd.opmeta.json
+[46/1326] Staging layernorm_fwd_training.opmeta.json
+[47/1326] Staging matmul.opmeta.json
+[48/1326] Staging matmul_epilogue.opmeta.json
+[49/1326] Staging mx_matmul.opmeta.json
+[50/1326] Staging pointwise.opmeta.json
+[51/1326] Staging pointwise_unary.opmeta.json
+[52/1326] Staging reduction.opmeta.json
+[53/1326] Staging resample_bwd.opmeta.json
+[54/1326] Staging resample_fwd.opmeta.json
+[55/1326] Staging sdpa_bwd.opmeta.json
+[56/1326] Staging rmsnorm_fwd.opmeta.json
+[57/1326] Staging rmsnorm_bwd.opmeta.json
+[58/1326] Staging rmsnorm_fwd_training.opmeta.json
+[59/1326] Staging sdpa_fwd.opmeta.json
+[60/1326] Linking CXX shared library lib/test_plugins/libhipdnn_test_scorer_lib.so
+[61/1326] Generating ASM fwd kernel configuration header for gfx942;gfx950
+[62/1326] Generating ASM bwd kernel configuration header for gfx942;gfx950
+[63/1326] hkp: verifying embedded kernel sources (hip_kernel_provider_impl)
+hkp_verify_embedded_sources: hip_kernel_provider_impl: 0 embedded_source descriptors checked against 9 table keys
+[64/1326] Packing ASM SDPA kernels for gfx950 into .kpack
+Packing 130 .co files for gfx950...
+Written: /tmp/mkeng3-main/build-ON-noobj/dnn-providers/hip-kernel-provider/src/engines/asm_sdpa_engine/.kpack/hip_kernel_provider_sdpa_gfx950.kpack (991976 bytes)
+Round-trip verification passed for all 130 kernels.
+[65/1326] hkp: packing root 'unit' for gfx942
+UKD '2f8c17d6-4a90-4b53-9e18-c05a63b782d4' in pointwise_add.kdp.json: emitting kind 'embedded_source' as authored
+UKD 'a41b93e5-6d72-4f08-b3c9-15e847d0629f' in pointwise_add.kdp.json: emitting kind 'embedded_source' as authored
+standalone UKD pointwise_add_f16_block64.ukd.json: emitting kind 'embedded_source' as authored
+UKD '3acc760d-6286-438a-9e51-40561a127aab' in pointwise_mul.kdp.json: emitting kind 'embedded_source' as authored
+UKD 'f8e91362-ebe9-4d58-9a47-c51345c89ead' in pointwise_mul.kdp.json: emitting kind 'embedded_source' as authored
+UKD '02045f2e-f42b-47f3-a44c-a9abed808ea6' in pointwise_mul.kdp.json: emitting kind 'embedded_source' as authored
+UKD 'f8da0a47-fed7-453d-97ff-f5d3e0f382e1' in pointwise_sub.kdp.json: emitting kind 'embedded_source' as authored
+UKD '70cd25c3-f20c-4036-868f-ceffb938231f' in pointwise_sub.kdp.json: emitting kind 'embedded_source' as authored
+UKD '32c65a6b-06ec-4fab-aacc-75b00f531350' in pointwise_sub.kdp.json: emitting kind 'embedded_source' as authored
+[66/1326] hkp: packing root 'slotted' for gfx942
+UKD 'd5a00000-0000-4000-8000-000000000021' in dkdv.kdp.json: emitting kind 'embedded_source' as authored
+UKD 'd5a00000-0000-4000-8000-000000000022' in dkdv.kdp.json: emitting kind 'embedded_source' as authored
+UKD 'd5a00000-0000-4000-8000-000000000023' in dq.kdp.json: emitting kind 'embedded_source' as authored
+UKD 'd5a00000-0000-4000-8000-000000000024' in dq.kdp.json: emitting kind 'embedded_source' as authored
+UKD 'd5a00000-0000-4000-8000-000000000020' in prep.kdp.json: emitting kind 'embedded_source' as authored
+[67/1326] Packing ASM SDPA kernels for gfx942 into .kpack
+Packing 176 .co files for gfx942...
+Written: /tmp/mkeng3-main/build-ON-noobj/dnn-providers/hip-kernel-provider/src/engines/asm_sdpa_engine/.kpack/hip_kernel_provider_sdpa_gfx942.kpack (1357981 bytes)
+Round-trip verification passed for all 176 kernels.
+[68/1326] Running utility command for asm_kernel_kpack
+[69/1326] Generating the gfx942 unified 3D arguments table from rocKE
+[70/1326] Building CXX object _deps/gtest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[71/1326] Generating the gfx942 unified 3D split_rule table from rocKE
+[72/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatbuffers.dir/cmake_pch.hxx.pch
+[73/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatbuffers.dir/src/util.cpp.o
+[74/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/util.cpp.o
+[75/1326] Building CXX object _deps/gtest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
+[76/1326] hkp: packing root 'multi_launch' for gfx942
+[77/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_line_store_lock_helper_test.dir/utilities/LineStoreLockHelper.cpp.o
+[78/1326] Linking CXX executable bin/hipdnn_line_store_lock_helper_test
+[79/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/cmake_pch.hxx.pch
+[80/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/file_binary_writer.cpp.o
+[81/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/file_writer.cpp.o
+[82/1326] hkp: packing root 'unit_archive_fixture' for gfx942
+[83/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/file_name_saving_file_manager.cpp.o
+[84/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_binary.cpp.o
+[85/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/flatc_main.cpp.o
+[86/1326] hkp: packing root 'archive_fixture' for gfx942
+[87/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/include/codegen/python.cc.o
+[88/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatbuffers.dir/src/reflection.cpp.o
+[89/1326] Generating the gfx942 unified 3D admission table from rocKE
+[90/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/code_generators.cpp.o
+[91/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_grpc.cpp.o
+[92/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/swift_generator.cc.o
+[93/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/annotated_binary_text_gen.cpp.o
+[94/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/reflection.cpp.o
+[95/1326] hkp: packing root 'integration_shared' for gfx942
+[96/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatbuffers.dir/src/idl_gen_text.cpp.o
+[97/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/go_generator.cc.o
+[98/1326] Building CXX object _deps/gtest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
+[99/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/ts_generator.cc.o
+[100/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_fbs.cpp.o
+[101/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_json_schema.cpp.o
+[102/1326] hkp: packing root 'unit_shared' for gfx942
+[103/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/cpp_generator.cc.o
+[104/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/java_generator.cc.o
+[105/1326] hkp: verifying embedded kernel sources (hip_kernel_provider_tests)
+hkp_verify_embedded_sources: hip_kernel_provider_tests: 9 embedded_source descriptors checked against 4 table keys
+[106/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/python_generator.cc.o
+[107/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_text.cpp.o
+[108/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_lobster.cpp.o
+[109/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_php.cpp.o
+[110/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/flatc.cpp.o
+[111/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_dart.cpp.o
+[112/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_go.cpp.o
+[113/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/bfbs_gen_lua.cpp.o
+[114/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_kotlin.cpp.o
+[115/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_kotlin_kmp.cpp.o
+[116/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/binary_annotator.cpp.o
+[117/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/bfbs_gen_nim.cpp.o
+[118/1326] hkp: packing root 'integration' for gfx942
+hkp_pack: compiling 10 variants for gfx942 on 2 workers
+[119/1326] hkp: verifying embedded kernel sources (hip_kernel_provider_integration_tests)
+hkp_verify_embedded_sources: hip_kernel_provider_integration_tests: 0 embedded_source descriptors checked against 0 table keys
+[120/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_rust.cpp.o
+[121/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_swift.cpp.o
+[122/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_java.cpp.o
+[123/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_python.cpp.o
+[124/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_csharp.cpp.o
+[125/1326] Building CXX object _deps/gtest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[126/1326] Linking CXX static library lib/libgtest.a
+[127/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_ts.cpp.o
+[128/1326] Linking CXX static library lib/libgmock.a
+[129/1326] Linking CXX static library lib/libgtest_main.a
+[130/1326] Linking CXX static library lib/libgmock_main.a
+[131/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_cpp.cpp.o
+[132/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_runtime_load_header_cpp20.dir/TestRuntimeLoadHeaderCpp20.cpp.o
+[133/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatbuffers.dir/src/idl_parser.cpp.o
+[134/1326] Linking CXX static library lib/libflatbuffers.a
+[135/1326] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_parser.cpp.o
+[136/1326] Linking CXX executable bin/flatc
+[137/1326] Generating batchnorm_attributes_generated.h
+[138/1326] Generating batchnorm_backward_attributes_generated.h
+[139/1326] Generating batchnorm_inference_attributes_generated.h
+[140/1326] Generating batchnorm_inference_attributes_variance_ext_generated.h
+[141/1326] Generating block_scale_dequantize_attributes_generated.h
+[142/1326] Generating block_scale_quantize_attributes_generated.h
+[143/1326] Generating convolution_bwd_attributes_generated.h
+[144/1326] Generating convolution_common_generated.h
+[145/1326] Generating convolution_fwd_attributes_generated.h
+[146/1326] Generating convolution_wrw_attributes_generated.h
+[147/1326] Generating custom_op_attributes_generated.h
+[148/1326] Generating data_types_generated.h
+[149/1326] Generating device_properties_generated.h
+[150/1326] Generating engine_config_generated.h
+[151/1326] Generating engine_details_generated.h
+[152/1326] Generating execution_plan_generated.h
+[153/1326] Generating gdn_attributes_generated.h
+[154/1326] Generating kda_attributes_generated.h
+[155/1326] Generating layernorm_attributes_generated.h
+[156/1326] Generating engine_prediction_generated.h
+[157/1326] Generating knob_value_generated.h
+[158/1326] Generating layernorm_backward_attributes_generated.h
+[159/1326] Generating matmul_attributes_generated.h
+[160/1326] Generating gbdt_model_generated.h
+[161/1326] Generating norm_common_generated.h
+[162/1326] Generating moe_grouped_matmul_bwd_attributes_generated.h
+[163/1326] Generating linear_attention_common_generated.h
+[164/1326] Generating linear_model_generated.h
+[165/1326] Generating reduction_attributes_generated.h
+[166/1326] Generating pointwise_attributes_generated.h
+[167/1326] Generating moe_grouped_matmul_attributes_generated.h
+[168/1326] Generating resample_common_generated.h
+[169/1326] Generating ingestor_plan_generated.h
+[170/1326] Generating resample_bwd_attributes_generated.h
+[171/1326] Generating resample_fwd_attributes_generated.h
+[172/1326] Generating rmsnorm_attributes_generated.h
+[173/1326] Generating serialized_graph_and_plan_generated.h
+[174/1326] Generating rmsnorm_backward_attributes_generated.h
+[175/1326] Generating sdpa_attributes_generated.h
+[176/1326] Generating graph_generated.h
+[177/1326] Generating sdpa_backward_attributes_generated.h
+[178/1326] Generating tensor_attributes_generated.h
+[179/1326] Generating table_model_generated.h
+[180/1326] Generating uhd_gen FlatBuffers Python bindings
+[181/1326] Generating cachekey_generated.h from the FlatBuffers schemas
+[182/1326] Generating node_operands_generated.h from the FlatBuffers schemas
+[183/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestScopedResource.cpp.o
+[184/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestVisitor.cpp.o
+[185/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestVersion.cpp.o
+[186/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/TestVersion.cpp.o
+[187/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/main.cpp.o
+[188/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/main.cpp.o
+[189/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestFloats.cpp.o
+[190/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestFp8E8M0.cpp.o
+[191/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestShallowHostOnlyMigratableMemory.cpp.o
+[192/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestBfloat16.cpp.o
+[193/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestVersionUtils.cpp.o
+[194/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestAllocators.cpp.o
+[195/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/flatbuffer_utilities/TestFlatbufferTypeHelpers.cpp.o
+[196/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestHalf.cpp.o
+[197/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestTimingStatistics.cpp.o
+[198/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestMigratableMemory.cpp.o
+[199/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestFp4E2M1.cpp.o
+[200/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestFp8E4M3Fnuz.cpp.o
+[201/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestFp8E5M2Fnuz.cpp.o
+[202/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestFp8E4M3.cpp.o
+[203/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestFp8E5M2.cpp.o
+[204/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestStringUtil.cpp.o
+[205/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestUserDefinedLiterals.cpp.o
+[206/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestPathSanitizer.cpp.o
+[207/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestFp6E2M3.cpp.o
+[208/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestForwardingFunctions.cpp.o
+[209/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestFp6E3M2.cpp.o
+[210/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/flatbuffer_utilities/TestEngineConfigWrapper.cpp.o
+[211/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestCacheRoot.cpp.o
+[212/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestPlatformUtils.cpp.o
+[213/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestEngineNames.cpp.o
+[214/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestPackedFp4Tensor.cpp.o
+[215/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/flatbuffer_utilities/TestEngineDetailsWrapper.cpp.o
+[216/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestCrossTypeConversion.cpp.o
+[217/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/flatbuffer_utilities/TestKnobWrapper.cpp.o
+[218/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DataTypeConversion.cpp.o
+[219/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BackendDescriptor.cpp.o
+[220/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/utilities/TestPointwiseValidation.cpp.o
+[221/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/utilities/TestMoeGroupedMatmulValidation.cpp.o
+[222/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/flatbuffer_utilities/TestNodeWrapper.cpp.o
+[223/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestShallowTensor.cpp.o
+[224/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/flatbuffer_utilities/TestKnobSettingWrapper.cpp.o
+[225/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/utilities/TestFlatbufferUtils.cpp.o
+[226/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/utilities/TestApplicabilityUtils.cpp.o
+[227/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/utilities/TestUuid.cpp.o
+[228/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestPackedFp6Tensor.cpp.o
+[229/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestTensorView.cpp.o
+[230/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/KnobSettingDescriptor.cpp.o
+[231/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestLineStore.cpp.o
+[232/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormBackwardOperationDescriptor.cpp.o
+[233/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestShallowRaggedTensor.cpp.o
+[234/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormInferenceOperationDescriptor.cpp.o
+[235/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/flatbuffer_utilities/TestTensorAttributesWrapper.cpp.o
+[236/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormInferenceVarianceExtOperationDescriptor.cpp.o
+[237/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BlockScaleDequantizeOperationDescriptor.cpp.o
+[238/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DescriptorAttributeUtils.cpp.o
+[239/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestTensorIterator.cpp.o
+[240/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BlockScaleQuantizeOperationDescriptor.cpp.o
+[241/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/CustomOpOperationDescriptor.cpp.o
+[242/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionWrwOperationDescriptor.cpp.o
+[243/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormOperationDescriptor.cpp.o
+[244/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/flatbuffer_utilities/TestGraphWrapper.cpp.o
+[245/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionFwdOperationDescriptor.cpp.o
+[246/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionBwdOperationDescriptor.cpp.o
+[247/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MatmulOperationDescriptor.cpp.o
+[248/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/LayernormOperationDescriptor.cpp.o
+[249/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MoeGroupedMatmulBwdOperationDescriptor.cpp.o
+[250/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/PointwiseOperationDescriptor.cpp.o
+[251/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/LayernormBackwardOperationDescriptor.cpp.o
+[252/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MoeGroupedMatmulOperationDescriptor.cpp.o
+[253/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ResampleBwdOperationDescriptor.cpp.o
+[254/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/TensorDescriptor.cpp.o
+[255/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ReductionOperationDescriptor.cpp.o
+[256/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/RMSNormOperationDescriptor.cpp.o
+[257/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestShapeUtilities.cpp.o
+[258/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ResampleFwdOperationDescriptor.cpp.o
+[259/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/RMSNormBackwardOperationDescriptor.cpp.o
+[260/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_test_plugin1.dir/plugins/Plugin1.cpp.o
+[261/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_test_plugin2.dir/plugins/Plugin2.cpp.o
+[262/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/NodeFactory.cpp.o
+[263/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/flatbuffer_utilities/TestSerializedGraphContainer.cpp.o
+[264/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_test_no_api_version_plugin_name.dir/plugins/NoApiVersionPlugin.cpp.o
+[265/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/SdpaBwdOperationDescriptor.cpp.o
+[266/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/utilities/EngineOrdering.cpp.o
+[267/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/prediction/PredictionBuiltIn.cpp.o
+[268/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_test_plugin1.dir/plugins/PluginApiImpl.cpp.o
+[269/1326] Linking CXX shared library lib/test_plugins/libhipdnn_test_plugin1.so
+[270/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_test_plugin2.dir/plugins/PluginApiImpl.cpp.o
+[271/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineConfigDescriptor.cpp.o
+[272/1326] Linking CXX shared library lib/test_plugins/libhipdnn_test_plugin2.so
+[273/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/BuiltInHeuristics.cpp.o
+[274/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_test_no_api_version_plugin_name.dir/plugins/PluginApiImpl.cpp.o
+[275/1326] Linking CXX shared library lib/test_plugins/libhipdnn_test_no_api_version_plugin_name.so
+[276/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/SdpaFwdOperationDescriptor.cpp.o
+[277/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/DeviceProperties.cpp.o
+[278/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/static_ordering/StaticOrderingBuiltIn.cpp.o
+[279/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/KnobDescriptor.cpp.o
+[280/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/FlatbufferUtilities.cpp.o
+[281/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/HeuristicPlugin.cpp.o
+[282/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBackendLoggingHelpers.cpp.o
+[283/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestTensor.cpp.o
+[284/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestAttributes.cpp.o
+[285/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ProfilingControlDescriptor.cpp.o
+[286/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DescriptorFactory.cpp.o
+[287/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/handle/HandleFactory.cpp.o
+[288/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ExecutionPlanDescriptor.cpp.o
+[289/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBackendFactory.cpp.o
+[290/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/PlatformUtils.linux.cpp.o
+[291/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/SharedLibrary.cpp.o
+[292/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/handle/Handle.cpp.o
+[293/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/LastErrorManager.cpp.o
+[294/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/VariantDescriptor.cpp.o
+[295/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBackendLibraryResolution.cpp.o
+[296/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_test_engine_plugin1.dir/plugins/codegen_fixture/CodegenFixturePlugin.cpp.o
+[297/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/prediction/PredictionPolicy.cpp.o
+[298/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBlockScaleDequantizeAttributes.cpp.o
+[299/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineHeuristicDescriptor.cpp.o
+[300/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/EnginePlugin.cpp.o
+[301/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestCustomOpAttributes.cpp.o
+[302/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBlockScaleQuantizeAttributes.cpp.o
+[303/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/PluginCore.cpp.o
+[304/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/flatbuffer_utilities/TestGraphContentKey.cpp.o
+[305/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/SelectionHeuristic.cpp.o
+[306/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormBackwardAttributes.cpp.o
+[307/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormInferenceAttributes.cpp.o
+[308/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineDescriptor.cpp.o
+[309/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/HeuristicPluginResourceManager.cpp.o
+[310/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormInferenceAttributesVarianceExt.cpp.o
+[311/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestError.cpp.o
+[312/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionDgradAttributes.cpp.o
+[313/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormAttributes.cpp.o
+[314/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphAttributes.cpp.o
+[315/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_test_engine_plugin1.dir/plugins/codegen_fixture/CodegenFixturePluginPublic.cpp.o
+[316/1326] Linking CXX shared library lib/test_plugins/codegen_fixture/libhipdnn_test_engine_plugin1.so
+[317/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionFwdAttributes.cpp.o
+[318/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionWgradAttributes.cpp.o
+[319/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestIncompatibleBackendWrapper.cpp.o
+[320/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/utilities/TestRaggedTensor.cpp.o
+[321/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestFrontendLogging.cpp.o
+[322/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBlockScaleDequantizeNode.cpp.o
+[323/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestINode.cpp.o
+[324/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestLayernormAttributes.cpp.o
+[325/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestCustomOpNode.cpp.o
+[326/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMatmulAttributes.cpp.o
+[327/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMoeGroupedMatmulAttributes.cpp.o
+[328/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestLayernormBackwardAttributes.cpp.o
+[329/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMoeGroupedMatmulBwdAttributes.cpp.o
+[330/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormInferenceNode.cpp.o
+[331/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_autotune_cross_process_helper_test.dir/heuristics/AutotuneCrossProcessHelper.cpp.o
+[332/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBlockScaleQuantizeNode.cpp.o
+[333/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormInferenceNodeVarianceExt.cpp.o
+[334/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphOverrideValidation.cpp.o
+[335/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormBackwardNode.cpp.o
+[336/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestNode.cpp.o
+[337/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/main.cpp.o
+[338/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSdpaBackwardAttributes.cpp.o
+[339/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/logging/Logging.cpp.o
+[340/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSdpaAttributes.cpp.o
+[341/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestReductionAttributes.cpp.o
+[342/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/logging/GraphLogger.cpp.o
+[343/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormNode.cpp.o
+[344/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestPointwiseAttributes.cpp.o
+[345/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMatmulNode.cpp.o
+[346/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestResampleBwdAttributes.cpp.o
+[347/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionDgradNode.cpp.o
+[348/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestKnob.cpp.o
+[349/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestResampleFwdAttributes.cpp.o
+[350/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/config/ConfigBuiltIn.cpp.o
+[351/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/EnginePluginResourceManager.cpp.o
+[352/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestVersion.cpp.o
+[353/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestAsanDefaultSuppressions.cpp.o
+[354/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestRMSNormAttributes.cpp.o
+[355/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestLayernormBackwardNode.cpp.o
+[356/1326] Building CXX object projects/hipdnn/data_sdk/tests/CMakeFiles/hipdnn_data_sdk_tests.dir/types/TestPortableTypes.cpp.o
+[357/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestRMSNormBackwardAttributes.cpp.o
+[358/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSdkLogging.cpp.o
+[359/1326] Building CXX object projects/hipdnn/flatbuffers_sdk/tests/CMakeFiles/hipdnn_flatbuffers_sdk_tests.dir/utilities/TestJson.cpp.o
+[360/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestLayerNormNode.cpp.o
+[361/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/main.cpp.o
+[362/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestTensorAttributes.cpp.o
+[363/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/GraphDescriptor.cpp.o
+[364/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestReductionNode.cpp.o
+[365/1326] Linking CXX static library lib/libhipdnn_backend_private.a
+[366/1326] Linking CXX executable bin/hipdnn_autotune_cross_process_helper_test
+[367/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestTopologicalSortingUtils.cpp.o
+[368/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestResampleBwdNode.cpp.o
+[369/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_dynamic_load_tests.dir/TestRuntimeLoadBackendFactory.cpp.o
+[370/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestTypes.cpp.o
+[371/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestResampleFwdNode.cpp.o
+[372/1326] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend.dir/HipdnnBackend.cpp.o
+[373/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSdpaBwdNode.cpp.o
+[374/1326] Linking CXX shared library lib/libhipdnn_backend.so
+[375/1326] Linking CXX executable bin/hipdnn_data_sdk_tests
+[376/1326] Linking CXX executable bin/hipdnn_flatbuffers_sdk_tests
+[377/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestPointwiseNode.cpp.o
+[378/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestUtilities.cpp.o
+[379/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestHeuristicPolicyInfo.cpp.o
+[380/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestAutotuneTypes.cpp.o
+[381/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceResampleFwd.cpp.o
+[382/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestHandle.cpp.o
+[383/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphLayernormBackward.cpp.o
+[384/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestRMSNormBackwardNode.cpp.o
+[385/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestRMSNormNode.cpp.o
+[386/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphMoeGroupedMatmul.cpp.o
+[387/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphMoeGroupedMatmulBwd.cpp.o
+[388/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBackendDescriptor.cpp.o
+[389/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBlockScaleDequantizeOperationFromNode.cpp.o
+[390/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceResampleBwd.cpp.o
+[391/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBlockScaleQuantizeOperationFromNode.cpp.o
+[392/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestDescriptorFactory.cpp.o
+[393/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceBatchnormWithVariance.cpp.o
+[394/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBlockScaleDequantizeOperationDescriptor.cpp.o
+[395/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBlockScaleQuantizeOperationDescriptor.cpp.o
+[396/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestTensorValueAttributes.cpp.o
+[397/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMoeGroupedMatmulNode.cpp.o
+[398/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceRMSNorm.cpp.o
+[399/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceBlockScaleDequantize.cpp.o
+[400/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphResampleBwd.cpp.o
+[401/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMoeGroupedMatmulBwdNode.cpp.o
+[402/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestComparisonReport.cpp.o
+[403/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceSdpaRagged.cpp.o
+[404/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestCustomOpOperationDescriptor.cpp.o
+[405/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestCustomOpOperationFromNode.cpp.o
+[406/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestConvolutionWrwOperationFromNode.cpp.o
+[407/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceBlockScaleQuantize.cpp.o
+[408/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestScopedHipdnnBackendDescriptor.cpp.o
+[409/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestConvolutionWrwOperationDescriptor.cpp.o
+[410/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceSdpaOracles.cpp.o
+[411/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestConvolutionFwdOperationDescriptor.cpp.o
+[412/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionWgradNode.cpp.o
+[413/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSetEnginePluginPaths.cpp.o
+[414/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionNode.cpp.o
+[415/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSdpaFwdNode.cpp.o
+[416/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestDescriptorHelpers.cpp.o
+[417/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestAutotuneFileWriter.cpp.o
+[418/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBatchnormInferenceOperationFromNode.cpp.o
+[419/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestKnobUnpacker.cpp.o
+[420/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_dynamic_load_tests.dir/TestRuntimeLoadBackendStaticCheck.cpp.o
+[421/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBatchnormInferenceOperationDescriptor.cpp.o
+[422/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestEngineQueries.cpp.o
+[423/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestTensorDescriptor.cpp.o
+[424/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBatchnormOperationFromNode.cpp.o
+[425/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestKnobSettingDescriptor.cpp.o
+[426/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorCustomOp.cpp.o
+[427/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBatchnormBackwardOperationFromNode.cpp.o
+[428/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBatchnormOperationDescriptor.cpp.o
+[429/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestMatmulOperationFromNode.cpp.o
+[430/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestMatmulOperationDescriptor.cpp.o
+[431/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBatchnormBackwardOperationDescriptor.cpp.o
+[432/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestConvolutionBwdOperationDescriptor.cpp.o
+[433/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorConvolutionWrw.cpp.o
+[434/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestMoeGroupedMatmulOperationFromNode.cpp.o
+[435/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestMoeGroupedMatmulBwdOperationFromNode.cpp.o
+[436/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorBatchnorm.cpp.o
+[437/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorBatchnormInference.cpp.o
+[438/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBatchnormInferenceVarianceExtOperationFromNode.cpp.o
+[439/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorBlockScaleDequantize.cpp.o
+[440/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestMoeGroupedMatmulBwdOperationDescriptor.cpp.o
+[441/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestMoeGroupedMatmulOperationDescriptor.cpp.o
+[442/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceSdpa.cpp.o
+[443/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestBatchnormInferenceVarianceExtOperationDescriptor.cpp.o
+[444/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestConvolutionBwdOperationFromNode.cpp.o
+[445/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorBlockScaleQuantize.cpp.o
+[446/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestKnobDescriptor.cpp.o
+[447/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestProfilingControlDescriptor.cpp.o
+[448/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorMatmul.cpp.o
+[449/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestLayernormOperationFromNode.cpp.o
+[450/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestPointwiseOperationFromNode.cpp.o
+[451/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorMoeGroupedMatmulBwd.cpp.o
+[452/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorMoeGroupedMatmul.cpp.o
+[453/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptor.cpp.o
+[454/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorBatchnormBackward.cpp.o
+[455/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestReductionOperationFromNode.cpp.o
+[456/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorConvolutionBwd.cpp.o
+[457/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestLayernormBackwardOperationFromNode.cpp.o
+[458/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestReductionOperationDescriptor.cpp.o
+[459/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestEngineConfigDescriptor.cpp.o
+[460/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorBatchnormInferenceVarianceExt.cpp.o
+[461/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorPointwise.cpp.o
+[462/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorLayernorm.cpp.o
+[463/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestLayernormBackwardOperationDescriptor.cpp.o
+[464/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorLayernormBackward.cpp.o
+[465/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorLifting.cpp.o
+[466/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestPointwiseOperationDescriptor.cpp.o
+[467/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorRMSNorm.cpp.o
+[468/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestRMSNormOperationFromNode.cpp.o
+[469/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestRMSNormOperationDescriptor.cpp.o
+[470/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestLayernormOperationDescriptor.cpp.o
+[471/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorSdpaFwd.cpp.o
+[472/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestExecutionPlanSerializationApi.cpp.o
+[473/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestLastErrorManager.cpp.o
+[474/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestAutotune.cpp.o
+[475/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestEngineDescriptor.cpp.o
+[476/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestRMSNormBackwardOperationFromNode.cpp.o
+[477/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestRMSNormBackwardOperationDescriptor.cpp.o
+[478/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestHelpers.cpp.o
+[479/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestResampleFwdOperationFromNode.cpp.o
+[480/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestSdpaBwdOperationFromNode.cpp.o
+[481/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphMatchKey.cpp.o
+[482/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestBackendEnumStringUtils.cpp.o
+[483/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestResampleBwdOperationFromNode.cpp.o
+[484/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestNodeFactory.cpp.o
+[485/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestResampleFwdOperationDescriptor.cpp.o
+[486/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorReduction.cpp.o
+[487/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestHandle.cpp.o
+[488/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestExecutionPlanDescriptor.cpp.o
+[489/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestDataTypeConversion.cpp.o
+[490/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/heuristics/TestAutotuneCacheEnv.cpp.o
+[491/1326] Linking CXX executable bin/hipdnn_frontend_dynamic_load_tests
+[492/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestFlatbufferUtilities.cpp.o
+[493/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestResampleBwdOperationDescriptor.cpp.o
+[494/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestDescriptorFromFlatBuffer.cpp.o
+[495/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorRMSNormBackward.cpp.o
+[496/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestHeuristicPolicyFramework.cpp.o
+[497/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorOps.cpp.o
+[498/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/heuristics/TestDeviceProperties.cpp.o
+[499/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestVersion.cpp.o
+[500/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestVariantPackDescriptor.cpp.o
+[501/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestSdpaBwdOperationDescriptor.cpp.o
+[502/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/main.cpp.o
+[503/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/utilities/TestEngineOrdering.cpp.o
+[504/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestPlatformUtils.cpp.o
+[505/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestSharedLibrary.cpp.o
+[506/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorSdpaBwd.cpp.o
+[507/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestDescriptorUnpackHelpers.cpp.o
+[508/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestRaggedTokenBoundaries.cpp.o
+[509/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestSdpaFwdOperationDescriptor.cpp.o
+[510/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorResampleFwd.cpp.o
+[511/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestSdpaFwdOperationFromNode.cpp.o
+[512/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/heuristics/TestStaticOrderingBuiltIn.cpp.o
+[513/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestHeuristicPlugin.cpp.o
+[514/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestGraphDescriptorResampleBwd.cpp.o
+[515/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/IntegrationHeuristicPlugin.cpp.o
+[516/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestHeuristicPluginManager.cpp.o
+[517/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestDescriptorAttributeUtils.cpp.o
+[518/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/descriptors/TestEngineHeuristicDescriptor.cpp.o
+[519/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuTypeUtilities.cpp.o
+[520/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestHeuristicPluginManagerValidationPaths.cpp.o
+[521/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/heuristics/TestAutotuneRankingStore.cpp.o
+[522/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestGraphLogger.cpp.o
+[523/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/IntegrationHeuristicPolicyPlugins.cpp.o
+[524/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/heuristics/TestAutotuneCacheKey.cpp.o
+[525/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestBackendLogger.cpp.o
+[526/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestRaggedLengthUids.cpp.o
+[527/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestFlatbufferDatatypeMapping.cpp.o
+[528/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestUserLoggingApis.cpp.o
+[529/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestHeuristicPluginResourceManager.cpp.o
+[530/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestScopedEnvironmentVariableSetter.cpp.o
+[531/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestDynamicTolerancesCommon.cpp.o
+[532/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestScopedDirectory.cpp.o
+[533/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestPlugin.cpp.o
+[534/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestLoggingUtils.cpp.o
+[535/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestSelectionHeuristic.cpp.o
+[536/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceLayernorm.cpp.o
+[537/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestVectorLoggingUtils.cpp.o
+[538/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceMoeGroupedMatmulBwd.cpp.o
+[539/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestScratchDirectory.cpp.o
+[540/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceReduction.cpp.o
+[541/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestOperationUnpacker.cpp.o
+[542/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestSeeds.cpp.o
+[543/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceUtilities.cpp.o
+[544/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestHipdnnBackendWriteRanking.cpp.o
+[545/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestEnginePluginOverride.cpp.o
+[546/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestLogRecorder.cpp.o
+[547/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/heuristics/TestEngineOverrideConfig.cpp.o
+[548/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceInputValidation.cpp.o
+[549/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/heuristics/TestPredictionPolicies.cpp.o
+[550/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestDynamicTolerancesMatmul.cpp.o
+[551/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceMoeGroupedMatmul.cpp.o
+[552/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestDynamicTolerancesLayerNorm.cpp.o
+[553/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestDynamicTolerancesPointwise.cpp.o
+[554/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestFlatbufferGraphMutators.cpp.o
+[555/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestSdkFrontendTypeConversions.cpp.o
+[556/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestDynamicTolerancesRMSNorm.cpp.o
+[557/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceLayernormBackward.cpp.o
+[558/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestDynamicTolerancesSdpa.cpp.o
+[559/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceMiopenRmsValidation.cpp.o
+[560/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestBackendExecuteDeviceCheck.cpp.o
+[561/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestSdpaGraphMutators.cpp.o
+[562/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceBatchnorm.cpp.o
+[563/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceConvolution.cpp.o
+[564/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestBlockScaleDequantizeSignatureKey.cpp.o
+[565/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/heuristics/TestConfigBuiltIn.cpp.o
+[566/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestBlockScaleQuantizeSignatureKey.cpp.o
+[567/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestTensorDiff.cpp.o
+[568/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestDynamicTolerancesConv.cpp.o
+[569/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestGraphAndPlanSerializationApi.cpp.o
+[570/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceValidation.cpp.o
+[571/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestFlatbufferTensorAttributesUtils.cpp.o
+[572/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestGraphTestHelpers.cpp.o
+[573/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestResampleFwdSignatureKey.cpp.o
+[574/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestResampleFwdPlan.cpp.o
+[575/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestBatchnormFwdInferenceSignatureKey.cpp.o
+[576/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestBlockScaleDequantizePlan.cpp.o
+[577/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestResampleBwdSignatureKey.cpp.o
+[578/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestBatchnormBwdSignatureKey.cpp.o
+[579/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestResampleBwdPlan.cpp.o
+[580/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestConvolutionWrwSignatureKey.cpp.o
+[581/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestConvolutionBwdSignatureKey.cpp.o
+[582/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestBlockScaleQuantizePlan.cpp.o
+[583/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestDynamicTolerancesBatchNorm.cpp.o
+[584/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestConvolutionFwdSignatureKey.cpp.o
+[585/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuFpReferenceMatmul.cpp.o
+[586/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestBatchnormTrainSignatureKey.cpp.o
+[587/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestConvolutionWrwPlan.cpp.o
+[588/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestBatchnormTrainPlan.cpp.o
+[589/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestConvolutionBwdPlan.cpp.o
+[590/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestMoeGroupedMatmulBwdSignatureKey.cpp.o
+[591/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestMatmulSignatureKey.cpp.o
+[592/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestLayernormFpropSignatureKey.cpp.o
+[593/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/TestVersion.cpp.o
+[594/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestBatchnormFwdInferencePlan.cpp.o
+[595/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestBatchnormBwdPlan.cpp.o
+[596/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestConvolutionFwdPlan.cpp.o
+[597/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/main.cpp.o
+[598/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestPluginDataTypeHelpers.cpp.o
+[599/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestPluginException.cpp.o
+[600/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestArchMatch.cpp.o
+[601/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestPluginHelpers.cpp.o
+[602/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestLayernormBpropSignatureKey.cpp.o
+[603/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestPluginLastErrorManager.cpp.o
+[604/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestMoeGroupedMatmulBwdPlan.cpp.o
+[605/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestPluginDeviceBuffers.cpp.o
+[606/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestSdkLogging.cpp.o
+[607/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestKnobSettingFactory.cpp.o
+[608/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestKnobFactory.cpp.o
+[609/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestReductionSignatureKey.cpp.o
+[610/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestVersion.cpp.o
+[611/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestBatchnormFwdInferenceWithVariancePlan.cpp.o
+[612/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestEnginePluginContainer.cpp.o
+[613/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestGlobalKnobDefines.cpp.o
+[614/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestDeviceQuery.cpp.o
+[615/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestLoadGraphAndTensors.cpp.o
+[616/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestRuntimePassByValue.cpp.o
+[617/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestLayernormFpropPlan.cpp.o
+[618/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestGraphTensorBundle.cpp.o
+[619/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestCustomLibraryAdapter.cpp.o
+[620/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestJsonValue.cpp.o
+[621/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestLruCache.cpp.o
+[622/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestScoreTransform.cpp.o
+[623/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestNativeAdapter.cpp.o
+[624/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestMatmulPlan.cpp.o
+[625/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestSha256.cpp.o
+[626/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestRaggedSdpaFwdSupport.cpp.o
+[627/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestJsonDataSource.cpp.o
+[628/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestEngineManager.cpp.o
+[629/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestReductionPlan.cpp.o
+[630/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestRMSNormFwdSignatureKey.cpp.o
+[631/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestMoeGroupedMatmulPlan.cpp.o
+[632/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestMoeGroupedMatmulSignatureKey.cpp.o
+[633/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestPlanRegistrySignatureKey.cpp.o
+[634/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestTableAdapter.cpp.o
+[635/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestLinearDataAdapter.cpp.o
+[636/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestGenericTargets.cpp.o
+[637/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestRMSNormFwdPlan.cpp.o
+[638/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestCategoricalEncoding.cpp.o
+[639/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestInlineExpressions.cpp.o
+[640/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestFeatureExtractor.cpp.o
+[641/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestRMSNormBwdSignatureKey.cpp.o
+[642/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestPointwiseSignatureKey.cpp.o
+[643/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestTreeDataAdapterScoring.cpp.o
+[644/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestTreeDataAdapterSplitLeaf.cpp.o
+[645/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestUhdAdapters.cpp.o
+[646/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestTreeDataAdapter.cpp.o
+[647/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestJsonExpression.cpp.o
+[648/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestRMSNormBwdPlan.cpp.o
+[649/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/DigitGroupingLocale.cpp.o
+[650/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestNativeRegistry.cpp.o
+[651/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestDeviceKey.cpp.o
+[652/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestUhdCandidateOrdering.cpp.o
+[653/1326] Building CXX object projects/hipdnn/backend/tests/CMakeFiles/hipdnn_backend_tests.dir/TestEnginePluginResourceManager.cpp.o
+[654/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestKernelFeatureRows.cpp.o
+[655/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestLayernormBpropPlan.cpp.o
+[656/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/TestCpuReferencePointwise.cpp.o
+[657/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestUhdParser.cpp.o
+[658/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_good_plugin.dir/TestGoodPlugin.cpp.o
+[659/1326] Linking CXX shared library lib/test_plugins/custom/libtest_good_plugin.so
+[660/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_execute_fails_plugin.dir/TestExecuteFailsPlugin.cpp.o
+[661/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_hashed_name_plugin.dir/TestHashedNamePlugin.cpp.o
+[662/1326] Linking CXX shared library lib/test_plugins/custom/libtest_execute_fails_plugin.so
+[663/1326] Linking CXX shared library lib/test_plugins/custom/libtest_hashed_name_plugin.so
+[664/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_no_solver_plugin.dir/TestNoSolverPlugin.cpp.o
+[665/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_resource_fail_plugin.dir/TestResourceFailPlugin.cpp.o
+[666/1326] Linking CXX shared library lib/test_plugins/custom/libtest_no_solver_plugin.so
+[667/1326] Linking CXX shared library lib/test_plugins/custom/libtest_resource_fail_plugin.so
+[668/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_incomplete_api_plugin.dir/TestIncompleteApiPlugin.cpp.o
+[669/1326] Linking CXX shared library lib/test_plugins/custom/libtest_incomplete_api_plugin.so
+[670/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_lying_engine_name_plugin.dir/TestLyingEngineNamePlugin.cpp.o
+[671/1326] Linking CXX shared library lib/test_plugins/custom/libtest_lying_engine_name_plugin.so
+[672/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/TestEngineFeatures.cpp.o
+[673/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_mismatched_name_plugin.dir/TestMismatchedNamePlugin.cpp.o
+[674/1326] Linking CXX shared library lib/test_plugins/custom/libtest_mismatched_name_plugin.so
+[675/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestKernelDefinition.cpp.o
+[676/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestSdpaRaggedFwdSignatureKey.cpp.o
+[677/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_no_applicable_engines_a_plugin.dir/TestNoApplicableEnginesAPlugin.cpp.o
+[678/1326] Linking CXX shared library lib/test_plugins/custom/libtest_no_applicable_engines_a_plugin.so
+[679/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestSdpaBwdSignatureKey.cpp.o
+[680/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestWinnerLineGolden.cpp.o
+[681/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_no_applicable_engines_b_plugin.dir/TestNoApplicableEnginesBPlugin.cpp.o
+[682/1326] Linking CXX shared library lib/test_plugins/custom/libtest_no_applicable_engines_b_plugin.so
+[683/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_duplicate_id_a_plugin.dir/TestDuplicateIdAPlugin.cpp.o
+[684/1326] Linking CXX shared library lib/test_plugins/custom/libtest_duplicate_id_a_plugin.so
+[685/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_duplicate_id_b_plugin.dir/TestDuplicateIdBPlugin.cpp.o
+[686/1326] Linking CXX shared library lib/test_plugins/custom/libtest_duplicate_id_b_plugin.so
+[687/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestMatchContext.cpp.o
+[688/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_incompatible_version_plugin.dir/TestIncompatibleVersionPlugin.cpp.o
+[689/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_knob_constraint_validation_plugin.dir/TestKnobConstraintValidationPlugin.cpp.o
+[690/1326] Linking CXX shared library lib/test_plugins/custom/libtest_incompatible_version_plugin.so
+[691/1326] Linking CXX shared library lib/test_plugins/custom/libtest_knob_constraint_validation_plugin.so
+[692/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_incomplete_heuristic_api_plugin.dir/TestIncompleteHeuristicApiPlugin.cpp.o
+[693/1326] Linking CXX shared library lib/test_plugins/custom/libtest_incomplete_heuristic_api_plugin.so
+[694/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_knobs_plugin.dir/TestKnobsPlugin.cpp.o
+[695/1326] Linking CXX shared library lib/test_plugins/custom/libtest_knobs_plugin.so
+[696/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_override_implementing_plugin.dir/TestOverrideImplementingPlugin.cpp.o
+[697/1326] Linking CXX shared library lib/test_plugins/custom/libtest_override_implementing_plugin.so
+[698/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_good_heuristic_plugin.dir/TestGoodHeuristicPlugin.cpp.o
+[699/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_no_optional_heuristic_plugin.dir/TestNoOptionalHeuristicPlugin.cpp.o
+[700/1326] Linking CXX shared library lib/test_plugins/custom/libtest_good_heuristic_plugin.so
+[701/1326] Linking CXX shared library lib/test_plugins/custom/libtest_no_optional_heuristic_plugin.so
+[702/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_override_omitting_plugin.dir/TestOverrideOmittingPlugin.cpp.o
+[703/1326] Linking CXX shared library lib/test_plugins/custom/libtest_override_omitting_plugin.so
+[704/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_bad_api_version_heuristic_plugin.dir/TestBadApiVersionHeuristicPlugin.cpp.o
+[705/1326] Linking CXX shared library lib/test_plugins/custom/libtest_bad_api_version_heuristic_plugin.so
+[706/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_empty_name_heuristic_plugin.dir/TestEmptyNameHeuristicPlugin.cpp.o
+[707/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestGenericPlan.cpp.o
+[708/1326] Linking CXX shared library lib/test_plugins/custom/libtest_empty_name_heuristic_plugin.so
+[709/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_duplicate_policy_id_a_plugin.dir/TestDuplicatePolicyIdAPlugin.cpp.o
+[710/1326] Linking CXX shared library lib/test_plugins/custom/libtest_duplicate_policy_id_a_plugin.so
+[711/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_duplicate_policy_id_b_plugin.dir/TestDuplicatePolicyIdBPlugin.cpp.o
+[712/1326] Linking CXX shared library lib/test_plugins/custom/libtest_duplicate_policy_id_b_plugin.so
+[713/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_second_override_plugin.dir/TestSecondOverridePlugin.cpp.o
+[714/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_version_liar_plugin.dir/TestVersionLiarPlugin.cpp.o
+[715/1326] Linking CXX shared library lib/test_plugins/custom/libtest_second_override_plugin.so
+[716/1326] Linking CXX shared library lib/test_plugins/custom/libtest_version_liar_plugin.so
+[717/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_malformed_version_plugin.dir/TestMalformedVersionPlugin.cpp.o
+[718/1326] Linking CXX shared library lib/test_plugins/custom/libtest_malformed_version_plugin.so
+[719/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/main.cpp.o
+[720/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_version_zero_plugin.dir/TestVersionZeroPlugin.cpp.o
+[721/1326] Linking CXX executable bin/hipdnn_backend_tests
+[722/1326] Linking CXX shared library lib/test_plugins/custom/libtest_version_zero_plugin.so
+[723/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_pass_by_value_plugin.dir/TestPassByValuePlugin.cpp.o
+[724/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationBackendDescriptor.cpp.o
+[725/1326] Linking CXX shared library lib/test_plugins/custom/libtest_pass_by_value_plugin.so
+[726/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/heuristics/uhd/TestEnginePredictor.cpp.o
+[727/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationConvOperationDescriptorApi.cpp.o
+[728/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationHandleApi.cpp.o
+[729/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationGetLastErrorString.cpp.o
+[730/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_autotune_plugin.dir/TestAutotunePlugin.cpp.o
+[731/1326] Linking CXX shared library lib/test_plugins/custom/libtest_autotune_plugin.so
+[732/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationEngineApi.cpp.o
+[733/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationEngineConfigApi.cpp.o
+[734/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_good_default_plugin.dir/TestGoodDefaultPlugin.cpp.o
+[735/1326] Linking CXX shared library lib/test_plugins/default/libtest_good_default_plugin.so
+[736/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationExecutionPlanApi.cpp.o
+[737/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_cudnn_compatibility_v8_plugin.dir/TestCudnnCompatibilityV8Plugin.cpp.o
+[738/1326] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_pass_by_value_recorder_plugin.dir/TestPassByValueRecorderPlugin.cpp.o
+[739/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestArchGate.cpp.o
+[740/1326] Linking CXX shared library lib/test_plugins/custom/libtest_cudnn_compatibility_v8_plugin.so
+[741/1326] Linking CXX shared library lib/test_plugins/custom/libtest_pass_by_value_recorder_plugin.so
+[742/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationEngineHeuristicApi.cpp.o
+[743/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationPluginLogLevel.cpp.o
+[744/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationLoggingPipeline.cpp.o
+[745/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationSetPluginUnloadingModeExt.cpp.o
+[746/1326] Building CXX object projects/hipdnn/tests/backend_logging/CMakeFiles/hipdnn_backend_logging_shutdown_tests.dir/BackendLoggingShutdownTest.cpp.o
+[747/1326] Linking CXX executable bin/hipdnn_backend_logging_shutdown_tests
+[748/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationVariantPackApi.cpp.o
+[749/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationHipdnnDirectBackendWrapper.cpp.o
+[750/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationSetPluginPathsExt.cpp.o
+[751/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestKernelHeuristic.cpp.o
+[752/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationTensorDescriptorApi.cpp.o
+[753/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationKnobsApi.cpp.o
+[754/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationBackendExecuteApi.cpp.o
+[755/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationGraphDescriptorApi.cpp.o
+[756/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestDescriptors.cpp.o
+[757/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/TestUtil.cpp.o
+[758/1326] Building CXX object projects/hipdnn/tests/backend/CMakeFiles/hipdnn_public_backend_tests.dir/IntegrationPluginLoading.cpp.o
+[759/1326] Linking CXX executable bin/hipdnn_public_backend_tests
+[760/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/uhd/TestUhdGeneratedModel.cpp.o
+[761/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/main.cpp.o
+[762/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestSlottedWinnerRecords.cpp.o
+[763/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/TestKernelIngestorConcurrency.cpp.o
+[764/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBatchnormForwardInference.cpp.o
+[765/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBatchnormBackwardDescriptorLowering.cpp.o
+[766/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBatchnormForwardInferenceVarianceExt.cpp.o
+[767/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBatchnormInferenceDescriptorLowering.cpp.o
+[768/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestWinnerCache.cpp.o
+[769/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBatchnormDescriptorLowering.cpp.o
+[770/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBatchnormInferenceNodeVarianceExtDescriptorLowering.cpp.o
+[771/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBlockScaleDequantize.cpp.o
+[772/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBlockScaleQuantizeDescriptorLowering.cpp.o
+[773/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBlockScaleDequantizeDescriptorLowering.cpp.o
+[774/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBlockScaleQuantize.cpp.o
+[775/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationConvForward.cpp.o
+[776/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationConvolutionBackwardData.cpp.o
+[777/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationConvolutionBackwardWeight.cpp.o
+[778/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationConvFpropDescriptorLowering.cpp.o
+[779/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationHeuristicPolicyEnumeration.cpp.o
+[780/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestSdpaFwdSignatureKey.cpp.o
+[781/1326] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraph.cpp.o
+[782/1326] Linking CXX executable bin/hipdnn_frontend_tests
+[783/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestBenchmarkPlan.cpp.o
+[784/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationConvolutionDgradDescriptorLowering.cpp.o
+[785/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestSlottedEngine.cpp.o
+[786/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBlockScaleDequantizeDescriptorLifting.cpp.o
+[787/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBatchnormDescriptorLifting.cpp.o
+[788/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestSlotProgramBenchmark.cpp.o
+[789/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationConvolutionWgradDescriptorLowering.cpp.o
+[790/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBatchnormBackwardDescriptorLifting.cpp.o
+[791/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBatchnormInferenceNodeVarianceExtDescriptorLifting.cpp.o
+[792/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestSlottedStateManager.cpp.o
+[793/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationCustomOpDescriptorLowering.cpp.o
+[794/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationGraphKnobsDescriptorLifting.cpp.o
+[795/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBatchnormInferenceDescriptorLifting.cpp.o
+[796/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBlockScaleQuantizeDescriptorLifting.cpp.o
+[797/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationGraphKnobsApi.cpp.o
+[798/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestStagedApplicability.cpp.o
+[799/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationConvFpropDescriptorLifting.cpp.o
+[800/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationGraphKnobSettingsDescriptorLowering.cpp.o
+[801/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationGraphEngineFiltering.cpp.o
+[802/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestGenericEngine.cpp.o
+[803/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestKernelIngestorStateManager.cpp.o
+[804/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/uhd/TestUhdKernelHeuristic.cpp.o
+[805/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationGraphSupportCheck.cpp.o
+[806/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationLayerNormDescriptorLowering.cpp.o
+[807/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationLayernormBackward.cpp.o
+[808/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationLayernormBackwardDescriptorLowering.cpp.o
+[809/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationLayernormForward.cpp.o
+[810/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationMatmul.cpp.o
+[811/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationMalformedVersionPlugin.cpp.o
+[812/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationMatmulDescriptorLowering.cpp.o
+[813/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationMoeGroupedMatmulBwd.cpp.o
+[814/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationMoeGroupedMatmul.cpp.o
+[815/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationConvolutionDgradDescriptorLifting.cpp.o
+[816/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationMoeGroupedMatmulBwdDescriptorLowering.cpp.o
+[817/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationFrontendUserLogging.cpp.o
+[818/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestGenericPlanBuilder.cpp.o
+[819/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationCustomOpDescriptorLifting.cpp.o
+[820/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationMoeGroupedMatmulDescriptorLowering.cpp.o
+[821/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationConvolutionWgradDescriptorLifting.cpp.o
+[822/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationPassByValueVersionFilter.cpp.o
+[823/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationPointwiseDescriptorLowering.cpp.o
+[824/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationGraphLifting.cpp.o
+[825/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationResampleFwdDescriptorLowering.cpp.o
+[826/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationTestPluginInfrastructure.cpp.o
+[827/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationResampleBwdDescriptorLowering.cpp.o
+[828/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationLayerNormDescriptorLifting.cpp.o
+[829/1326] Building CXX object projects/hipdnn/tools/CMakeFiles/hipdnn_list_engines.dir/ListEngines.cpp.o
+[830/1326] Linking CXX executable bin/hipdnn_list_engines
+[831/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationReductionDescriptorLowering.cpp.o
+[832/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_dynamic_load_tests.dir/IntegrationHipdnnDynamicBackendWrapper.cpp.o
+[833/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationRMSNormForward.cpp.o
+[834/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationLayernormBackwardDescriptorLifting.cpp.o
+[835/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationRMSNormDescriptorLowering.cpp.o
+[836/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationBuildPlansFallback.cpp.o
+[837/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationSetPluginPathsExt.cpp.o
+[838/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationRMSNormBackwardDescriptorLowering.cpp.o
+[839/1326] Building CXX object projects/hipdnn/tools/bench/tests/CMakeFiles/hipdnn_bench_tests.dir/TestGraphFormat.cpp.o
+[840/1326] Building CXX object projects/hipdnn/tools/bench/tests/CMakeFiles/hipdnn_bench_tests.dir/TestCliNumbers.cpp.o
+[841/1326] Building CXX object projects/hipdnn/tools/bench/tests/CMakeFiles/hipdnn_bench_tests.dir/TestDeviceIdentity.cpp.o
+[842/1326] Building CXX object projects/hipdnn/tools/bench/tests/CMakeFiles/hipdnn_bench_tests.dir/TestGraphList.cpp.o
+[843/1326] Building CXX object projects/hipdnn/tools/CMakeFiles/hipdnn_uhd_features.dir/uhd_gen/UhdFeatures.cpp.o
+[844/1326] Linking CXX executable bin/hipdnn_uhd_features
+[845/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationMatmulDescriptorLifting.cpp.o
+[846/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_dynamic_load_tests.dir/main_dynamic.cpp.o
+[847/1326] Linking CXX executable bin/hipdnn_public_frontend_dynamic_load_tests
+[848/1326] Building CXX object projects/hipdnn/tools/bench/tests/CMakeFiles/hipdnn_bench_tests.dir/TestCsvOutput.cpp.o
+[849/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestFeasibleShapeSet.cpp.o
+[850/1326] Building CXX object projects/hipdnn/tools/bench/tests/CMakeFiles/hipdnn_bench_tests.dir/TestInputDomain.cpp.o
+[851/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationMoeGroupedMatmulBwdDescriptorLifting.cpp.o
+[852/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationMoeGroupedMatmulDescriptorLifting.cpp.o
+[853/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestGraphSize.cpp.o
+[854/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationPointwiseDescriptorLifting.cpp.o
+[855/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationAutotuneCompiledPlanPath.cpp.o
+[856/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationSdpaBwdDescriptorLowering.cpp.o
+[857/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationResampleFwdDescriptorLifting.cpp.o
+[858/1326] Building CXX object projects/hipdnn/tools/bench/tests/CMakeFiles/hipdnn_bench_tests.dir/TestVariantPackBuilder.cpp.o
+[859/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationResampleBwdDescriptorLifting.cpp.o
+[860/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationAutotuneConfigRoundTripUnsupportedOp.cpp.o
+[861/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestCorpusOutput.cpp.o
+[862/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationReductionDescriptorLifting.cpp.o
+[863/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationSdpaFwdDescriptorLowering.cpp.o
+[864/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationPassByValueDelivery.cpp.o
+[865/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationOverrideExecute.cpp.o
+[866/1326] Embedding GPU reference kernel sources
+[867/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationRaggedTensorDescriptorLowering.cpp.o
+[868/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationAutotunePersistence.cpp.o
+[869/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationRMSNormDescriptorLifting.cpp.o
+[870/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationAutotuneExhaustive.cpp.o
+[871/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationAutotuneEndToEnd.cpp.o
+[872/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestDeterministicRandom.cpp.o
+[873/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestPointFilter.cpp.o
+[874/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/ReferenceExecutorPool.cpp.o
+[875/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestEngineCoverage.cpp.o
+[876/1326] Building CXX object projects/hipdnn/tools/bench/tests/CMakeFiles/hipdnn_bench_tests.dir/TestNumericalValidation.cpp.o
+[877/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestPoolAssembly.cpp.o
+[878/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/ReferenceGraphExecutorFactory.cpp.o
+[879/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestOperationMetadata.cpp.o
+[880/1326] Building CXX object projects/hipdnn/tools/bench/tests/CMakeFiles/hipdnn_bench_tests.dir/TestCandidatePageJson.cpp.o
+[881/1326] Linking CXX executable bin/hipdnn_bench_tests
+[882/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationRMSNormBackwardDescriptorLifting.cpp.o
+[883/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestWorkloadSampling.cpp.o
+[884/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/ProductionPolicy.cpp.o
+[885/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestOperationDirectory.cpp.o
+[886/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/SupportClaimWriter.cpp.o
+[887/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/SupportVerdict.cpp.o
+[888/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestCorpusRealism.cpp.o
+[889/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestProblemSpace.cpp.o
+[890/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/SupportClaims.cpp.o
+[891/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/HarnessDependencies.cpp.o
+[892/1326] Building CXX object projects/hipdnn/plugin_sdk/tests/CMakeFiles/hipdnn_plugin_sdk_tests.dir/ingestor/TestDescriptorLoader.cpp.o
+[893/1326] Linking CXX executable bin/hipdnn_plugin_sdk_tests
+[894/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/GraphSession.cpp.o
+[895/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/SupportClaimReport.cpp.o
+[896/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/input-init/ResampleBackwardInputs.cpp.o
+[897/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationSdpaBwdLifting.cpp.o
+[898/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/ReferenceExecutorPool.cpp.o
+[899/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestServedExtent.cpp.o
+[900/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationSdpaFwdDescriptorLifting.cpp.o
+[901/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestRegimeLabel.cpp.o
+[902/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestModelShapeSource.cpp.o
+[903/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationOverrideValidation.cpp.o
+[904/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestEveryGraphBuilder.cpp.o
+[905/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/OutputComparison.cpp.o
+[906/1326] Building CXX object projects/hipdnn/tests/frontend/CMakeFiles/hipdnn_public_frontend_tests.dir/IntegrationAutotuneConfigRoundTrip.cpp.o
+[907/1326] Linking CXX executable bin/hipdnn_public_frontend_tests
+[908/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/bundle/SupportClaims.cpp.o
+[909/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/SweepManifestCache.cpp.o
+[910/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/bundle/SupportVerdict.cpp.o
+[911/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestDeclaredOracle.cpp.o
+[912/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/bundle/SupportClaimReport.cpp.o
+[913/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuReferencePointwise.cpp.o
+[914/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestGraphBuilderRegistry.cpp.o
+[915/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/bundle/GraphSession.cpp.o
+[916/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/input-init/ResampleBackwardInputs.cpp.o
+[917/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/input-init/SdpaBackwardInputs.cpp.o
+[918/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuFpReferenceConvolution.cpp.o
+[919/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestGraphIdentity.cpp.o
+[920/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuFpReferenceLayernorm.cpp.o
+[921/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuFpReferenceSdpa.cpp.o
+[922/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuFpReferenceReduction.cpp.o
+[923/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/reference-validation/ReferenceOpCoverage.cpp.o
+[924/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuFpReferenceMatmul.cpp.o
+[925/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuFpReferenceResample.cpp.o
+[926/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/input-init/FillInputs.cpp.o
+[927/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuFpReferenceSdpaRagged.cpp.o
+[928/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/bundle/OutputComparison.cpp.o
+[929/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuFpReferenceRMSNorm.cpp.o
+[930/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuRefLaunch.cpp.o
+[931/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/kernels/GpuRefKernelSources.cpp.o
+[932/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuFpReferenceBatchnorm.cpp.o
+[933/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuFpReferenceRmsValidation.cpp.o
+[934/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuRefKernelCompiler.cpp.o
+[935/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuFpReferenceValidation.cpp.o
+[936/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestCorpusManifest.cpp.o
+[937/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuIntReferenceValidation.cpp.o
+[938/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/main.cpp.o
+[939/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuRefValidatorHelpers.cpp.o
+[940/1326] Building CXX object dnn-providers/integration-tests/gpu-ref/CMakeFiles/hipdnn_gpu_ref.dir/src/GpuReferenceValidationFactory.cpp.o
+[941/1326] Linking CXX static library dnn-providers/integration-tests/gpu-ref/libhipdnn_gpu_ref.a
+[942/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_tests.dir/TestKernelCatalogSource.cpp.o
+[943/1326] Linking CXX executable bin/hipdnn_corpus_gen_tests
+[944/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/ReferenceGraphExecutorFactory.cpp.o
+[945/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/bundle/ProductionPolicy.cpp.o
+[946/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/VariantPackBuilder.cpp.o
+[947/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/bundle/SweepManifestCache.cpp.o
+[948/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/bundle/SupportClaimWriter.cpp.o
+[949/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/input-init/SdpaBackwardInputs.cpp.o
+[950/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/bundle/SupportVerdict.cpp.o
+[951/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/reference-validation/GoldenOutputProbe.cpp.o
+[952/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/bundle/SupportClaims.cpp.o
+[953/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/input-init/FillInputs.cpp.o
+[954/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/reference-validation/GoldenDataPlan.cpp.o
+[955/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/golden_data_main.cpp.o
+[956/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/input-init/ResampleBackwardInputs.cpp.o
+[957/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/bundle/SupportClaimReport.cpp.o
+[958/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/bundle/GraphSession.cpp.o
+[959/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestNodeTypeToString.cpp.o
+[960/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestPlatformUtils.cpp.o
+[961/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/integration-tests/IntegrationIsSupportedExtPerformance.cpp.o
+[962/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/reference-validation/ReferenceOpCoverage.cpp.o
+[963/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/IntegrationBundleVerificationHarness.cpp.o
+[964/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/bundle/VariantPackBuilder.cpp.o
+[965/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestFusedOperationsCpuGraphExecutor.cpp.o
+[966/1326] Building CXX object projects/hipdnn/tools/CMakeFiles/hipdnn_validate_descriptors.dir/IngestorGenerator/ValidateDescriptors.cpp.o
+[967/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestSupportClaims.cpp.o
+[968/1326] Linking CXX executable bin/hipdnn_validate_descriptors
+[969/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/bundle/OutputComparison.cpp.o
+[970/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestSupportMatrixCollector.cpp.o
+[971/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestTomlGuards.cpp.o
+[972/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/bundle/SweepManifestCache.cpp.o
+[973/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestTestConfig.cpp.o
+[974/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestTestSettings.cpp.o
+[975/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/input-init/SdpaBackwardInputs.cpp.o
+[976/1326] Building CXX object projects/hipdnn/tools/bench/CMakeFiles/hipdnn_bench_tool.dir/HipdnnBench.cpp.o
+[977/1326] Linking CXX executable bin/hipdnn_bench
+[978/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/reference-validation/BundleReferenceValidationHarness.cpp.o
+[979/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuBatchnormFwdTrainSignatureKey.cpp.o
+[980/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuConvolutionFwdSignatureKey.cpp.o
+[981/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/main.cpp.o
+[982/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/reference-validation/GoldenOutputProbe.cpp.o
+[983/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuConvolutionBwdSignatureKey.cpp.o
+[984/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestRaggedSdpaDensify.cpp.o
+[985/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuConvolutionWrwSignatureKey.cpp.o
+[986/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuLayernormBwdSignatureKey.cpp.o
+[987/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/reference-validation/GoldenDataPlan.cpp.o
+[988/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/input-init/FillInputs.cpp.o
+[989/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestPointwisePlan.cpp.o
+[990/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestBundleMetadata.cpp.o
+[991/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGraphDescription.cpp.o
+[992/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestSdpaRaggedFwdPlan.cpp.o
+[993/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/bundle/VariantPackBuilder.cpp.o
+[994/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/reference-validation/GoldenDataRegistration.cpp.o
+[995/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuMatmulSignatureKey.cpp.o
+[996/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuRaggedSdpaMapping.cpp.o
+[997/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuLayernormFwdSignatureKey.cpp.o
+[998/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuBatchnormFwdTrainPlan.cpp.o
+[999/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestCpuReferenceRaggedRejection.cpp.o
+[1000/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuReferenceGraphExecutor.cpp.o
+[1001/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuReductionSignatureKey.cpp.o
+[1002/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestSdpaFwdPlanZeroDropout.cpp.o
+[1003/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuRMSNormSignatureKey.cpp.o
+[1004/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/bundle/IntegrationBundleVerificationHarness.cpp.o
+[1005/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/bundle/FrontendGraphEngineRunner.cpp.o
+[1006/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/reference-validation/BundleReferenceValidationHarness.cpp.o
+[1007/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuBatchnormFwdInfSignatureKey.cpp.o
+[1008/1326] Building CXX object projects/hipdnn/tools/corpus_gen/tests/CMakeFiles/hipdnn_corpus_gen_frontend_tests.dir/TestShippedGraphsValidate.cpp.o
+[1009/1326] Linking CXX executable bin/hipdnn_corpus_gen_frontend_tests
+[1010/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuBatchnormFwdInfVarianceSignatureKey.cpp.o
+[1011/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestReferenceGraphExecutorFactory.cpp.o
+[1012/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestPointwiseOperationsCpuGraphExecutor.cpp.o
+[1013/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuResampleSignatureKey.cpp.o
+[1014/1326] Building CXX object projects/hipdnn/tools/corpus_gen/CMakeFiles/hipdnn_corpus_gen_tool.dir/CorpusGen.cpp.o
+[1015/1326] Linking CXX executable bin/hipdnn_corpus_gen
+[1016/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestSdpaBwdPlan.cpp.o
+[1017/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestCpuReferenceGraphExecutor.cpp.o
+[1018/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestSdpaFwdPlanSeqLenKvOnly.cpp.o
+[1019/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestSdpaFwdPlanVllmForm.cpp.o
+[1020/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestLoadedEngineTable.cpp.o
+[1021/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuRMSNormPlan.cpp.o
+[1022/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestToleranceResolver.cpp.o
+[1023/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestVerifierTally.cpp.o
+[1024/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuSdpaFwdPlanVllmForm.cpp.o
+[1025/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestInputFillRecipes.cpp.o
+[1026/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/integration-tests/conv/IntegrationConvForwardSerializeRoundTrip.cpp.o
+[1027/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuResamplePlan.cpp.o
+[1028/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGTestFilter.cpp.o
+[1029/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuPlanRegistrySignatureKey.cpp.o
+[1030/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestClaimModeResolution.cpp.o
+[1031/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestSupportClaimRoundTrip.cpp.o
+[1032/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuSdpaRaggedFwdPlan.cpp.o
+[1033/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGoldenOutputProbe.cpp.o
+[1034/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestSupportClaimWriter.cpp.o
+[1035/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestSupportVerdict.cpp.o
+[1036/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGraphSession.cpp.o
+[1037/1326] Building CXX object projects/hipdnn/test_sdk/tests/CMakeFiles/hipdnn_test_sdk_tests.dir/utilities/cpu_graph_executor/TestSdpaFwdPlan.cpp.o
+[1038/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestSupportClaimReport.cpp.o
+[1039/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/main.cpp.o
+[1040/1326] Linking CXX executable bin/hipdnn_test_sdk_tests
+[1041/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestReferenceOpCoverage.cpp.o
+[1042/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceSdpaBwd.cpp.o
+[1043/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGraphVerificationHarness.cpp.o
+[1044/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestVerificationPaths.cpp.o
+[1045/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceSdpaRagged.cpp.o
+[1046/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGoldenDataPlan.cpp.o
+[1047/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuSdpaFwdSignatureKey.cpp.o
+[1048/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestCapture.cpp.o
+[1049/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceConvolution.cpp.o
+[1050/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestProductionPolicy.cpp.o
+[1051/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferencePointwise.cpp.o
+[1052/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestErrorPaths.cpp.o
+[1053/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceDgrad.cpp.o
+[1054/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestFillInputs.cpp.o
+[1055/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuRefHipError.cpp.o
+[1056/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceRmsValidation.cpp.o
+[1057/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestExpectedRejection.cpp.o
+[1058/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/gpu-graph-executor/GpuReferenceGraphExecutor.cpp.o
+[1059/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuRefKernelCompiler.cpp.o
+[1060/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestSupportClaimEnforcement.cpp.o
+[1061/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceLayernormFwd.cpp.o
+[1062/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceMatmul.cpp.o
+[1063/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestVerificationModePaths.cpp.o
+[1064/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceLayernormBwd.cpp.o
+[1065/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestShallowDeviceOnlyMigratableMemory.cpp.o
+[1066/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceReduction.cpp.o
+[1067/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestEnforcementRungs.cpp.o
+[1068/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceWgrad.cpp.o
+[1069/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/ApplicabilityPool.cpp.o
+[1070/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestShallowGpuTensor.cpp.o
+[1071/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestObserveSupportOnly.cpp.o
+[1072/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuRefLaunch.cpp.o
+[1073/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/utilities/Digest.cpp.o
+[1074/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/utilities/sha256.cpp.o
+[1075/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/Kernel.cpp.o
+[1076/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/Program.cpp.o
+[1077/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/asm/PluginModuleDir.cpp.o
+[1078/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceCommon.cpp.o
+[1079/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestRngDumpHandoff.cpp.o
+[1080/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/Utils.cpp.o
+[1081/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestBundleReferenceValidationHarness.cpp.o
+[1082/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceResampleFwd.cpp.o
+[1083/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceRMSNormFwd.cpp.o
+[1084/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceRMSNormBwd.cpp.o
+[1085/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestUnpinnedRunEnforcement.cpp.o
+[1086/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceResampleBwd.cpp.o
+[1087/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestOutputComparison.cpp.o
+[1088/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormApplicabilityChecks.cpp.o
+[1089/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceSdpa.cpp.o
+[1090/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestBenchmark.cpp.o
+[1091/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestBundleDiscovery.cpp.o
+[1092/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceBatchnormBwd.cpp.o
+[1093/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceBatchnormFwdInf.cpp.o
+[1094/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestBundleVerificationHarness.cpp.o
+[1095/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormApplicabilityChecks.cpp.o
+[1096/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormApplicabilityChecks.cpp.o
+[1097/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceBatchnormFwdInfWithVariance.cpp.o
+[1098/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceBatchnormFwdTrain.cpp.o
+[1099/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/Handle.cpp.o
+[1100/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/gpu-graph-executor/GpuReferenceGraphExecutor.cpp.o
+[1101/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/ApplicabilityManager.cpp.o
+[1102/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleApplicabilityChecks.cpp.o
+[1103/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormUtilities.cpp.o
+[1104/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/AsmSdpaEngine.cpp.o
+[1105/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaBwdPlan.cpp.o
+[1106/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdInferencePlan.cpp.o
+[1107/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaFwdPlan.cpp.o
+[1108/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_gpu_ref_tests.dir/gpu-ref/TestGpuFpReferenceValidation.cpp.o
+[1109/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/HipMlopsEngine.cpp.o
+[1110/1326] Linking CXX executable bin/hipdnn_gpu_ref_tests
+[1111/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/PluginPublic.cpp.o
+[1112/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormPlanBuilder.cpp.o
+[1113/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormBwdPlan.cpp.o
+[1114/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/ApplicabilityChecks.cpp.o
+[1115/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdInferenceWithVariancePlan.cpp.o
+[1116/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdTrainingPlan.cpp.o
+[1117/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdTrainingPlanBuilder.cpp.o
+[1118/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormPlanBuilder.cpp.o
+[1119/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaFwdPlanBuilder.cpp.o
+[1120/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormBwdPlan.cpp.o
+[1121/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormFwdPlan.cpp.o
+[1122/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormBwdPlanBuilder.cpp.o
+[1123/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/KpackArchive.cpp.o
+[1124/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/CodeObjectLoad.cpp.o
+[1125/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormPlanBuilder.cpp.o
+[1126/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/serialization/IngestorPlanHeader.cpp.o
+[1127/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormBwdPlan.cpp.o
+[1128/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormFwdPlan.cpp.o
+[1129/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_sources.cpp.o
+[1130/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_includes.cpp.o
+[1131/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/KpackProgram.cpp.o
+[1132/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleFwdPlan.cpp.o
+[1133/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResamplePlanBuilder.cpp.o
+[1134/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/KpackKernelLoader.cpp.o
+[1135/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleBwdPlanBuilder.cpp.o
+[1136/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleBwdPlan.cpp.o
+[1137/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuConvolutionFwdPlan.cpp.o
+[1138/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/serialization/IngestorPlanCodec.cpp.o
+[1139/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/gpu-graph-executor/GpuReferenceGraphExecutor.cpp.o
+[1140/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/IngestorPacks.cpp.o
+[1141/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/core/TestPluginPublic.cpp.o
+[1142/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/utilities/TestDigest.cpp.o
+[1143/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_sources.cpp.o
+[1144/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_includes.cpp.o
+[1145/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/device/TestScopedDevice.cpp.o
+[1146/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/compilation/TestModuleCache.cpp.o
+[1147/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/IngestorPlanCapture.cpp.o
+[1148/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/compilation/TestProgramAndKernel.cpp.o
+[1149/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx950AttentionDenseNative.cpp.o
+[1150/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestSdpaBwdPlanGridMath.cpp.o
+[1151/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/IngestorPlanRestore.cpp.o
+[1152/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx942AttentionDenseNative.cpp.o
+[1153/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/ConvNative.cpp.o
+[1154/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/compilation/TestKernelCompileOptions.cpp.o
+[1155/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestAsmKernelPath.cpp.o
+[1156/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/PointwiseNative.cpp.o
+[1157/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestSdpaBwdKernelArgs.cpp.o
+[1158/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestSdpaFwdPlanGridMath.cpp.o
+[1159/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/ConfigHelpers.cpp.o
+[1160/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/core/TestUtils.cpp.o
+[1161/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx950AttentionUnified2DNative.cpp.o
+[1162/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestSdpaFwdKernelArgs.cpp.o
+[1163/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx942AttentionUnified3dNative.cpp.o
+[1164/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestAsmKpackLoading.cpp.o
+[1165/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/AttentionDenseNative.cpp.o
+[1166/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestAsmKpackArchive.cpp.o
+[1167/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx950AttentionUnified3DNative.cpp.o
+[1168/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestSdpaModuleCache.cpp.o
+[1169/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/TestHipMlopsKernelCompiler.cpp.o
+[1170/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuReductionPlan.cpp.o
+[1171/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/TestHipMlopsModuleCache.cpp.o
+[1172/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx1151WmmaAttentionNative.cpp.o
+[1173/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuBatchnormFwdInfPlan.cpp.o
+[1174/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuLayernormBwdPlan.cpp.o
+[1175/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Batchnorm/TestBatchnormCommon.cpp.o
+[1176/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/PluginSerialization.cpp.o
+[1177/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuMatmulPlan.cpp.o
+[1178/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/TestPlanUtils.cpp.o
+[1179/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/ConvDgradAotNative.cpp.o
+[1180/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/core/TestContext.cpp.o
+[1181/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuLayernormFwdPlan.cpp.o
+[1182/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/core/TestHandle.cpp.o
+[1183/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/MegakernelNative.cpp.o
+[1184/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuSdpaRaggedFwdSignatureKey.cpp.o
+[1185/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/main.cpp.o
+[1186/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Layernorm/TestLayernormApplicabilityChecks.cpp.o
+[1187/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuBatchnormFwdInfVariancePlan.cpp.o
+[1188/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Batchnorm/TestBatchnormApplicabilityChecks.cpp.o
+[1189/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Resample/TestResampleApplicabilityChecks.cpp.o
+[1190/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/core/TestApplicabilityManager.cpp.o
+[1191/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/TestCodeObjectTarget.cpp.o
+[1192/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestSdpaFwdCase.cpp.o
+[1193/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/RMSnorm/TestRMSnormApplicabilityChecks.cpp.o
+[1194/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/core/TestContainer.cpp.o
+[1195/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/AsmSdpaConfigHelpers.cpp.o
+[1196/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestAttentionDensePersistent.cpp.o
+[1197/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestAsmSdpaEngine.cpp.o
+[1198/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaBwdPlanBuilder.cpp.o
+[1199/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Batchnorm/TestBatchnormFwdInferencePlan.cpp.o
+[1200/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestAttentionDenseGeometry.cpp.o
+[1201/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Batchnorm/TestBatchnormBwdPlan.cpp.o
+[1202/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Layernorm/TestLayernormFwdPlan.cpp.o
+[1203/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/TestHandleDeviceResolver.cpp.o
+[1204/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Batchnorm/TestBatchnormFwdTrainingActivPlan.cpp.o
+[1205/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Batchnorm/TestBatchnormPlanBuilder.cpp.o
+[1206/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Batchnorm/TestBatchnormFwdTrainingPlan.cpp.o
+[1207/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionUnified3dGeometry.cpp.o
+[1208/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Batchnorm/TestBatchnormFwdInferenceWithVariancePlan.cpp.o
+[1209/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionUnified3dSplitRule.cpp.o
+[1210/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/RMSnorm/TestRMSnormPlanBuilder.cpp.o
+[1211/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestSdpaFwdPlanBuilder.cpp.o
+[1212/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Layernorm/TestLayernormBwdPlan.cpp.o
+[1213/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Resample/TestResampleFwdPlan.cpp.o
+[1214/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/TestRestoredIngestorPlan.cpp.o
+[1215/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionUnified3dArguments.cpp.o
+[1216/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Layernorm/TestLayernormPlanBuilder.cpp.o
+[1217/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/RMSnorm/TestRMSnormBwdPlan.cpp.o
+[1218/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Resample/TestResampleBwdPlan.cpp.o
+[1219/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Batchnorm/TestBatchnormFwdTrainingActivPlanBuilder.cpp.o
+[1220/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified2DGeometry.cpp.o
+[1221/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Resample/TestResamplePlanBuilder.cpp.o
+[1222/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified3DGeometry.cpp.o
+[1223/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/RMSnorm/TestRMSnormBwdPlanBuilder.cpp.o
+[1224/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/RMSnorm/TestRMSnormFwdPlan.cpp.o
+[1225/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestUnifiedAttentionGeometry.cpp.o
+[1226/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/plans/Resample/TestResampleBwdPlanBuilder.cpp.o
+[1227/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/hip_mlops_engine/TestHipMlopsEngine.cpp.o
+[1228/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/TestIngestorPlanRestoreChecks.cpp.o
+[1229/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/Container.cpp.o
+[1230/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/TestIngestorKernelCode.cpp.o
+[1231/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx1250ConvDgradGeometry.cpp.o
+[1232/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/serialization/TestIngestorPlanHeader.cpp.o
+[1233/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestPointwiseAddDispatchHandler.cpp.o
+[1234/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950ConvDgradGeometry.cpp.o
+[1235/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/compilation/TestKpackArchive.cpp.o
+[1236/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/compilation/TestKpackArchSelection.cpp.o
+[1237/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/serialization/TestSerializableSourceKind.cpp.o
+[1238/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestPointwiseAddMatchers.cpp.o
+[1239/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_integration_tests.dir/src/harness/CpuReferenceGraphExecutorAdapter.cpp.o
+[1240/1326] Linking CXX executable bin/hipdnn_integration_tests
+[1241/1326] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/KernelIngestorEngine.cpp.o
+[1242/1326] Linking CXX static library lib/libhip_kernel_provider_private.a
+[1243/1326] Linking CXX shared library lib/hipdnn_plugins/engines/libhip_kernel_provider.so
+[1244/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/TestLaunchKernelDefinition.cpp.o
+[1245/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/serialization/TestIngestorPlanLaunchContractGoldens.cpp.o
+[1246/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/TestKernelIngestorEngine.cpp.o
+[1247/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_sources.cpp.o
+[1248/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_includes.cpp.o
+[1249/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/serialization/TestIngestorPlanCodec.cpp.o
+[1250/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestPackLaunchValues.cpp.o
+[1251/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestAttentionDenseSignature.cpp.o
+[1252/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestAttentionDenseMatchers.cpp.o
+[1253/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionUnified3dScorer.cpp.o
+[1254/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestConvFwdPack.cpp.o
+[1255/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionUnified3dSignature.cpp.o
+[1256/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionUnified3dAdmission.cpp.o
+[1257/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestIngestorDispatchAliases.cpp.o
+[1258/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestAttentionDenseDispatch.cpp.o
+[1259/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified2DSignature.cpp.o
+[1260/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified3DSignature.cpp.o
+[1261/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionDenseMatchers.cpp.o
+[1262/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionUnified3dMatchers.cpp.o
+[1263/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified2DDispatch.cpp.o
+[1264/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified3DDispatch.cpp.o
+[1265/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified2DMatchers.cpp.o
+[1266/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified3DMatchers.cpp.o
+[1267/1326] Building CXX object dnn-providers/integration-tests/CMakeFiles/hipdnn_golden_data_tests.dir/src/harness/CpuReferenceGraphExecutorAdapter.cpp.o
+[1268/1326] Linking CXX executable bin/hipdnn_golden_data_tests
+[1269/1326] Building CXX object dnn-providers/hip-kernel-provider/src/integration_tests/CMakeFiles/hip_kernel_provider_integration_tests.dir/main.cpp.o
+[1270/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestMegakernelMatchers.cpp.o
+[1271/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx1151WmmaAttentionMatchers.cpp.o
+[1272/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionDenseMatchers.cpp.o
+[1273/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/main.cpp.o
+[1274/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionDenseCatalogTiles.cpp.o
+[1275/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionDensePacks.cpp.o
+[1276/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionUnified3dPacks.cpp.o
+[1277/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestPointwisePacks.cpp.o
+[1278/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/compilation/TestKpackKernelLoader.cpp.o
+[1279/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/compilation/TestCodeObjectLoad.cpp.o
+[1280/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/compilation/TestKpackGenericArchive.cpp.o
+[1281/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionDensePacks.cpp.o
+[1282/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/compilation/TestKpackModuleCache.cpp.o
+[1283/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified3DCatalogTiles.cpp.o
+[1284/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified2DPacks.cpp.o
+[1285/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified2DCatalogTiles.cpp.o
+[1286/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx1250ConvDgradAotPacks.cpp.o
+[1287/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950AttentionUnified3DPacks.cpp.o
+[1288/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionDenseCatalogTiles.cpp.o
+[1289/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/compilation/TestKpackCodeObjectRead.cpp.o
+[1290/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx942AttentionUnified3dModelBinding.cpp.o
+[1291/1326] Building CXX object dnn-providers/hip-kernel-provider/src/integration_tests/CMakeFiles/hip_kernel_provider_integration_tests.dir/__/tests/engines/asm_sdpa_engine/AsmSdpaConfigHelpers.cpp.o
+[1292/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950ConvDgradAotPacks.cpp.o
+[1293/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx1151WmmaAttentionPacks.cpp.o
+[1294/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx1151WmmaAttentionDecodePacks.cpp.o
+[1295/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/TestIngestorPlanRoundTrip.cpp.o
+[1296/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/asm_sdpa_engine/TestSdpaBwdPlanBuilder.cpp.o
+[1297/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/__/src/harness/CpuReferenceGraphExecutorAdapter.cpp.o
+[1298/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/core/TestPluginSerialization.cpp.o
+[1299/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuSdpaFwdPlanZeroDropout.cpp.o
+[1300/1326] Building CXX object dnn-providers/hip-kernel-provider/src/integration_tests/CMakeFiles/hip_kernel_provider_integration_tests.dir/kernel_ingestor_engine/IntegrationGpuMegakernel.cpp.o
+[1301/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuRaggedSdpaDensify.cpp.o
+[1302/1326] Building CXX object dnn-providers/hip-kernel-provider/src/integration_tests/CMakeFiles/hip_kernel_provider_integration_tests.dir/hip_mlops_engine/IntegrationGpuPassByValue.cpp.o
+[1303/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/TestIngestorPlanCapture.cpp.o
+[1304/1326] Building CXX object dnn-providers/hip-kernel-provider/src/integration_tests/CMakeFiles/hip_kernel_provider_integration_tests.dir/asm_sdpa_engine/IntegrationGpuSdpaBackward.cpp.o
+[1305/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuSdpaPagedFwdPlan.cpp.o
+[1306/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuSdpaBwdPlan.cpp.o
+[1307/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_census_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx1250ConvDgradAotModelBinding.cpp.o
+[1308/1326] Linking CXX executable bin/hip_kernel_provider_census_tests
+[1309/1326] Building CXX object dnn-providers/hip-kernel-provider/src/integration_tests/CMakeFiles/hip_kernel_provider_integration_tests.dir/kernel_ingestor_engine/IntegrationGraphVerificationContext.cpp.o
+[1310/1326] Building CXX object dnn-providers/hip-kernel-provider/src/integration_tests/CMakeFiles/hip_kernel_provider_integration_tests.dir/asm_sdpa_engine/IntegrationGpuSdpaForward.cpp.o
+[1311/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/ingestor/TestPackedDescriptorLoad.cpp.o
+[1312/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx1250ConvDgradMatchers.cpp.o
+[1313/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestPointwiseKpackDispatch.cpp.o
+[1314/1326] Building CXX object dnn-providers/hip-kernel-provider/src/integration_tests/CMakeFiles/hip_kernel_provider_integration_tests.dir/kernel_ingestor_engine/IntegrationGpuKernelIngestorKpack.cpp.o
+[1315/1326] Building CXX object dnn-providers/hip-kernel-provider/src/integration_tests/CMakeFiles/hip_kernel_provider_integration_tests.dir/asm_sdpa_engine/IntegrationGpuSdpaForwardRagged.cpp.o
+[1316/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/TestMultiLaunchEndToEnd.cpp.o
+[1317/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuSdpaFwdPlanSeqLenKvOnly.cpp.o
+[1318/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuSdpaFwdPlan.cpp.o
+[1319/1326] Building CXX object dnn-providers/hip-kernel-provider/src/tests/CMakeFiles/hip_kernel_provider_tests.dir/engines/kernel_ingestor_engine/packs/TestGfx950ConvDgradMatchers.cpp.o
+[1320/1326] Linking CXX executable bin/hip_kernel_provider_tests
+[1321/1326] Building CXX object dnn-providers/hip-kernel-provider/src/integration_tests/CMakeFiles/hip_kernel_provider_integration_tests.dir/kernel_ingestor_engine/IntegrationGpuKernelIngestor.cpp.o
+[1322/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuConvolutionWrwPlan.cpp.o
+[1323/1326] Building CXX object dnn-providers/integration-tests/tests/CMakeFiles/hipdnn_integration_tests_unit_tests.dir/TestGpuConvolutionBwdPlan.cpp.o
+[1324/1326] Linking CXX executable bin/hipdnn_integration_tests_unit_tests
+[1325/1326] Building CXX object dnn-providers/hip-kernel-provider/src/integration_tests/CMakeFiles/hip_kernel_provider_integration_tests.dir/IntegrationGraphVerificationReference.cpp.o
+[1326/1326] Linking CXX executable bin/hip_kernel_provider_integration_tests

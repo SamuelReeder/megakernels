@@ -1,0 +1,14 @@
+head=bf3255d71ebe532d4a5f070f2d7a49eb38e05e13 kind=main mode=ON 2026-11-12T15:24:51-05:00
+Note: Google Test filter = IntegrationGpuMegakernel.*
+[==========] Running 2 tests from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 2 tests from IntegrationGpuMegakernel
+[ RUN      ] IntegrationGpuMegakernel.ExecutesThePackedObjectWithItsGridBlockAndArguments
+[       OK ] IntegrationGpuMegakernel.ExecutesThePackedObjectWithItsGridBlockAndArguments (346 ms)
+[ RUN      ] IntegrationGpuMegakernel.DeclinesAPayloadWhoseSrcNoObjectCarries
+[       OK ] IntegrationGpuMegakernel.DeclinesAPayloadWhoseSrcNoObjectCarries (20 ms)
+[----------] 2 tests from IntegrationGpuMegakernel (366 ms total)
+
+[----------] Global test environment tear-down
+[==========] 2 tests from 1 test suite ran. (366 ms total)
+[  PASSED  ] 2 tests.
