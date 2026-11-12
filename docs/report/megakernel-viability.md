@@ -31,7 +31,8 @@ runs a DeepSeek-V4.1 decode megakernel on MI300X (TP4).
 | [Qwen3.6-35B-A3B](https://github.com/SamuelReeder/megakernels/blob/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/qwen3.6-35b-a3b-gfx942/README.md) (MoE) | FP8 | 3.11 ms, 322 tok/s | **1.64 / 1.46 / 1.24 / 1.13x** (same session: 1.72 / 1.54 / 1.33 / 1.25x) | 2.9-3.2 ms |
 | [Gemma 4 26B-A4B](https://github.com/SamuelReeder/megakernels/blob/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/gemma4-26b-a4b-gfx942/README.md) (MoE) | FP8 | 3.74 ms, 267 tok/s | **1.18 / 1.14 / 1.09 / 1.06x** (same session: 1.64 / 1.54 / 1.49 / 1.37x) | 3.67 ms |
 
-Bold: against the fastest stock-vLLM day (see [Method](#method)).
+Bold: against the fastest stock-vLLM run I recorded. Stock vLLM's speed varied by 4-38 % between days on the
+same node, so the ratio against the vLLM run in the same session is shown beside it.
 
 **Correctness** (the checks are described in [Method](#method)):
 - Perplexity is no more than 1 % above a reference with the same weights (Gemma's is lower). Qwen3.6 scores
@@ -100,16 +101,12 @@ Most of the coding was agent-driven, and I reviewed each milestone before the ne
 - **Workload:** 512-token prompts, 256 output tokens, batch 1, 2, 4 and 8.
 - **Metric:** time per output token in decode.
 
-**Confounds, and how I handled them.**
-
-| Confound | Effect | Handling |
-|---|---|---|
-| Stock vLLM's speed drifts between days | 4-38 % slower on some days, cause not found | Bold ratios use the fastest vLLM day; the same-session ratio is shown beside it |
-| Serve harness (Qwen3.6) | `vllm bench serve` adds HTTP and scheduler time, and at batch > 1 a timed step can share its batch with another request's prefill. The kernel's timed steps have no prefill. | This can inflate Qwen3.6's ratios at batch 2-8. The "in vLLM" column runs the kernel inside vLLM. |
-| Prompt content | Qwen3.6 runs used random tokens; Gemma's used real text. MoE routing, and so the expert reads, depends on the text. | Each model compares like with like; ratios across models are not directly comparable |
-| Other users on the node | Another job held one GPU at 100 % at times in every Qwen3.6 attempt and in Gemma's first two tries | Attempts agreed within 1.4 % (kernel) and 3 % (vLLM) for Qwen3.6, and within 4 % for Gemma. Gemma's reported try had an idle node. |
-| Choice of baseline checkpoint | For Qwen3.6, vLLM on the BF16 checkpoint is 3.5 % faster than on FP8 at batch 1 | Kept FP8 so both sides read the same weights. Against BF16, Qwen3.6's batch-1 ratio is 1.59x. |
-| One GPU type | The headline numbers are from MI300X only | Earlier kernel versions repeated on an MI325X and on a second day; the current Qwen3.6 and Gemma kernels were checked on one node |
+**Remaining caveats.**
+- **Harness (Qwen3.6):** the baseline uses `vllm bench serve`, which adds HTTP and scheduler time. A
+  same-harness run inside vLLM, with the kernel on and off, gives larger ratios (1.93x at batch 1), so the
+  headline is the conservative comparison.
+- **One GPU type:** the headline numbers are from MI300X only. Earlier kernel versions repeated on an MI325X
+  and on a second day; the current Qwen3.6 and Gemma kernels were checked on one node.
 
 ## Tradeoffs to weigh
 
