@@ -119,14 +119,23 @@ Most of the coding was agent-driven, and I reviewed each milestone before the ne
 2. **Strict deployment needs.**
    - The kernel must have every compute unit to itself. A partitioned GPU, or other work on the same GPU,
      can make it hang.
-   - A refusal check exists on the hipDNN route but is untested; the default vLLM path has none.
+   - The hipDNN route refuses a launch when the GPU's CU count or occupancy does not fit (unit-tested, not
+     yet tried on a partitioned GPU). The direct vLLM route has no such check.
    - Each model needs one binary per batch width (1, 2, 4, 8) for each GPU model, KV layout and TP size
      (Gemma and TP2 also for each max_model_len).
    - The tuning is for gfx942; MI355X would need a port.
-3. **Upstream dependency.**
-   - #61311 is open, not merged. After it lands, each model needs its own upstream PR.
-   - A hipDNN route for shipping precompiled kernels works end to end (same bits, speed within 0.8 %), but
-     it waits on the draft [ROCm/rocm-libraries#14255](https://github.com/ROCm/rocm-libraries/pull/14255).
+3. **Upstream dependency.** Both routes in the next section wait on PRs that are not merged.
+
+## How the kernels reach vLLM
+
+There are two routes. I tested both end to end on MI300X, and they give the same output bits.
+
+| Route | How it works | Status |
+|---|---|---|
+| **vLLM direct** | A per-model DecodeSpec in vLLM compiles the kernel with FlyDSL at startup and launches it | Works on my vLLM branches; waits on vLLM [#61311](https://github.com/vllm-project/vllm/pull/61311). After that, each model needs its own upstream PR. |
+| **Through hipDNN** | The same DecodeSpec calls a hipDNN custom op. A hipDNN engine matches a precompiled code object and launches it, with no compiler at run time. | Speed within 0.8 % of the direct route. The engine, behind a default-OFF flag, is ready for review. The vLLM bridge waits on [ROCm/rocm-libraries#14255](https://github.com/ROCm/rocm-libraries/pull/14255). The binaries need an upload to hipDNN's DVC store. |
+
+Either way, each model keeps its own vLLM-side code: step checks, cache binding and weight packing.
 
 ## Supplementary: Qwen3.8-27B (MXFP4)
 
