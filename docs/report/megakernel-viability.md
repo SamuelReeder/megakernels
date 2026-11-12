@@ -27,12 +27,12 @@ runs a DeepSeek-V4.1 decode megakernel on MI300X (TP4); #61311 moves it onto sha
 
 ## Results: same weights on both sides
 
-![Speedup per batch size](IMG_SPEEDUP)
+![Speedup per batch size](https://raw.githubusercontent.com/SamuelReeder/megakernels/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/docs/report/speedup.png)
 
 | Model | Weights | Batch 1, per user | Speedup vs stock vLLM, batch 1 / 2 / 4 / 8 | In vLLM, kernel on, batch 1 |
 |---|---|---|---|---|
-| [Qwen3.6-35B-A3B](LINK_Q6) (MoE) | FP8 | 3.11 ms, 322 tok/s | **1.64 / 1.46 / 1.24 / 1.13x** (same session: 1.72 / 1.54 / 1.33 / 1.25x) | 2.9-3.2 ms |
-| [Gemma 4 26B-A4B](LINK_G) (MoE) | FP8 | 3.74 ms, 267 tok/s | **1.18 / 1.14 / 1.09 / 1.06x** (same session: 1.64 / 1.54 / 1.49 / 1.37x) | 3.67 ms |
+| [Qwen3.6-35B-A3B](https://github.com/SamuelReeder/megakernels/blob/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/qwen3.6-35b-a3b-gfx942/README.md) (MoE) | FP8 | 3.11 ms, 322 tok/s | **1.64 / 1.46 / 1.24 / 1.13x** (same session: 1.72 / 1.54 / 1.33 / 1.25x) | 2.9-3.2 ms |
+| [Gemma 4 26B-A4B](https://github.com/SamuelReeder/megakernels/blob/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/gemma4-26b-a4b-gfx942/README.md) (MoE) | FP8 | 3.74 ms, 267 tok/s | **1.18 / 1.14 / 1.09 / 1.06x** (same session: 1.64 / 1.54 / 1.49 / 1.37x) | 3.67 ms |
 
 Bold ratios use the fastest stock-vLLM day I measured; the [Method](#method) section explains the two baselines.
 
@@ -133,7 +133,7 @@ Most of the coding was agent-driven, and I reviewed each milestone before the ne
 
 ## Supplementary: Qwen3.8-27B (MXFP4)
 
-**Why it is separate.** The [Qwen3.8 kernel](LINK_Q8) runs the MXFP4 checkpoint
+**Why it is separate.** The [Qwen3.8 kernel](https://github.com/SamuelReeder/megakernels/blob/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/qwen3.8-27b-gfx942/README.md) runs the MXFP4 checkpoint
 (`amd/Qwen3.8-27B-Quark-AWQ-MXFP4`). I did not build an FP8 version of it. Stock vLLM has no fair MXFP4
 baseline on gfx942, because the GPU has no native MXFP4: vLLM emulates it (`EmulationMxfp4LinearKernel`). Each
 available comparison is therefore biased:
@@ -165,6 +165,6 @@ A clean dense-model comparison would need an FP8 build of this kernel, which the
 
 ## Links
 
-- Per-model results, every run and log: [Qwen3.6](LINK_Q6) · [Gemma 4](LINK_G) · [Qwen3.8](LINK_Q8) · [Qwen3.8 TP2 design](LINK_TP2D)
-- hipDNN distribution route (design and results): [docs/hipdnn-route.md](LINK_HIPDNN)
-- Chart data and sources: [docs/report/plot_speedup.py](LINK_PLOT)
+- Per-model results, every run and log: [Qwen3.6](https://github.com/SamuelReeder/megakernels/blob/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/qwen3.6-35b-a3b-gfx942/README.md) · [Gemma 4](https://github.com/SamuelReeder/megakernels/blob/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/gemma4-26b-a4b-gfx942/README.md) · [Qwen3.8](https://github.com/SamuelReeder/megakernels/blob/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/qwen3.8-27b-gfx942/README.md) · [Qwen3.8 TP2 design](https://github.com/SamuelReeder/megakernels/blob/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/qwen3.8-27b-gfx942/docs/DESIGN-TP2.md)
+- hipDNN distribution route (design and results): [docs/hipdnn-route.md](https://github.com/SamuelReeder/megakernels/blob/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/docs/hipdnn-route.md)
+- Chart data and sources: [docs/report/plot_speedup.py](https://github.com/SamuelReeder/megakernels/blob/4ebfb50dc45305a8889b614a7b05cc0b978f5b53/docs/report/plot_speedup.py)
