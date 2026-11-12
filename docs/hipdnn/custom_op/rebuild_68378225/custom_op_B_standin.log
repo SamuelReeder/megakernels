@@ -1,0 +1,17 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0 -- /usr/bin/python3.12
+rootdir: /tmp/hvco_rb_68378225_1302839/tB
+plugins: anyio-4.15.1, asyncio-1.4.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 10 items / 8 deselected / 2 selected
+
+tests/gpu/test_custom_op.py::test_megakernel_capture_replays PASSED      [ 50%]
+tests/gpu/test_custom_op.py::test_megakernel_key_mismatch_declines PASSED [100%]
+
+=============================== warnings summary ===============================
+tests/gpu/conftest.py:30
+  /tmp/hvco_rb_68378225_1302839/tB/tests/gpu/conftest.py:30: PytestUnknownMarkWarning: Unknown pytest.mark.gpu - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    item.add_marker(pytest.mark.gpu)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================== 2 passed, 8 deselected, 1 warning in 0.51s ==================

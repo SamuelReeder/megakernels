@@ -1,0 +1,37 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0 -- /usr/bin/python3.12
+rootdir: /tmp/hvco_rb_68378225_1302839/tA
+plugins: anyio-4.15.1, asyncio-1.4.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 10 items
+
+tests/gpu/test_custom_op.py::test_prepare_returns_reason_for_unknown_op_id PASSED [ 10%]
+tests/gpu/test_custom_op.py::test_exec_strict_raises_and_non_strict_counts_fallback PASSED [ 20%]
+tests/gpu/test_custom_op.py::test_plan_cache_keyed_by_shape_and_payload_not_address PASSED [ 30%]
+tests/gpu/test_custom_op.py::test_plan_key_keeps_payload_bytes_after_nul PASSED [ 40%]
+tests/gpu/test_custom_op.py::test_exec_runs_under_torch_compile PASSED   [ 50%]
+tests/gpu/test_custom_op.py::test_disabled_declines_without_building PASSED [ 60%]
+tests/gpu/test_custom_op.py::test_capture_miss_strict_raises_non_strict_records PASSED [ 70%]
+tests/gpu/test_custom_op.py::test_engine_untouched_unless_opted_in_h6 SKIPPED [ 80%]
+tests/gpu/test_custom_op.py::test_megakernel_capture_replays SKIPPED     [ 90%]
+tests/gpu/test_custom_op.py::test_megakernel_key_mismatch_declines SKIPPED [100%]
+
+=============================== warnings summary ===============================
+tests/gpu/conftest.py:30
+  /tmp/hvco_rb_68378225_1302839/tA/tests/gpu/conftest.py:30: PytestUnknownMarkWarning: Unknown pytest.mark.gpu - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    item.add_marker(pytest.mark.gpu)
+
+tests/gpu/test_custom_op.py: 14 warnings
+  /usr/local/lib/python3.12/dist-packages/torch/jit/_script.py:365: DeprecationWarning: `torch.jit.script_method` is deprecated. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+tests/gpu/test_custom_op.py::test_capture_miss_strict_raises_non_strict_records
+  /usr/local/lib/python3.12/dist-packages/torch/cuda/graphs.py:169: UserWarning: The CUDA Graph is empty. This usually means that the graph was attempted to be captured on wrong device or stream. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/hip/HIPGraph.cpp:219.)
+    super().capture_end()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/gpu/test_custom_op.py:190: megakernel engine not in this build
+SKIPPED [1] tests/gpu/test_custom_op.py:243: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+SKIPPED [1] tests/gpu/test_custom_op.py:283: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+================== 7 passed, 3 skipped, 16 warnings in 6.73s ===================

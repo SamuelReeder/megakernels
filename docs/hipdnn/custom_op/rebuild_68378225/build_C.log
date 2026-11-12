@@ -1,0 +1,1216 @@
+host=banff-cyxtera-s70-4.adc.amd.com nproc=32 family=gfx950 src=/tmp/hvco_rb_68378225_1302839/src date=2026-11-12T11:52:55-05:00
+gpu targets: gfx950
+provider flags: -DHIPKERNELPROVIDER_ENABLE_ROCKE=ON -DHIPDNN_ENABLE_SDPA=ON -DHIPDNN_ENABLE_KERNEL_INGESTOR=ON -DHIPDNN_ENABLE_CUDNN_COMPATIBILITY=ON -DHIPKERNELPROVIDER_ENABLE_TESTS=OFF -DHIPDNN_SKIP_TESTS=ON -DROCKE_INSTALL_TESTS=OFF -DHIPKERNELPROVIDER_REQUIRE_DVC_DESCRIPTORS=ON
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: /tmp/hvco_rb_68378225_1302839/tools/bin/python3.12 -m pip install --upgrade pip
+Everything is up to date.
+CMake Warning at cmake/toolchains/rocm-clang.cmake:28 (message):
+
+
+  ROCM_PATH is set in the environment and may interfere with toolchain
+  detection.
+
+  Remove ROCM_PATH from the environment and use the following instead:
+
+    cmake -DROCM_PATH=/usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel
+
+Call Stack (most recent call first):
+  /tmp/hvco_rb_68378225_1302839/tools/lib/python3.12/site-packages/cmake/data/share/cmake-4.4/Modules/CMakeDetermineSystem.cmake:152 (include)
+  CMakeLists.txt:5 (project)
+
+
+-- The C compiler identification is Clang 23.0.0
+-- The CXX compiler identification is Clang 23.0.0
+-- The ASM compiler identification is Clang with GNU-like command-line
+-- Found assembler: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin/clang
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin/clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Looking for a Fortran compiler
+-- Looking for a Fortran compiler - NOTFOUND
+-- Fortran compiler not found - Fortran support disabled
+-- Enabling components:
+--   hipdnn (supported)
+--   hip-kernel-provider (supported)
+--   miopen-provider (supported)
+--   hipblaslt-provider (supported)
+-- Using the multi-header code from /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/_deps/nlohmann_json-src/include/
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- [hipdnn] hipDNN: JSON serialization enabled in SDK public headers (requires nlohmann_json)
+-- [hipdnn] hipDNN: SDPA support enabled
+-- [hipdnn] hipDNN: kernel ingestor enabled
+-- [hipdnn] hipDNN: cuDNN compatibility shim enabled
+CMake Warning at projects/hipdnn/cmake/CheckPreCommit.cmake:32 (message):
+
+
+  Pre-commit hooks are NOT installed at
+  /tmp/hvco_rb_68378225_1302839/src/.git/hooks/pre-commit
+
+  Please run:
+
+    cd /tmp/hvco_rb_68378225_1302839/src
+    pre-commit install
+
+Call Stack (most recent call first):
+  projects/hipdnn/CMakeLists.txt:87 (include)
+
+
+-- [hipdnn] The CMake generator is Ninja.
+-- [hipdnn] CMAKE_INSTALL_PREFIX set to default: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/stage
+CMake Warning at projects/hipdnn/CMakeLists.txt:236 (message):
+  Clang-Tidy is disabled - some build issues may be missed.
+
+
+-- [hipdnn] ✓ Confirmed AMD/ROCm type C++ compiler
+CMake Warning at projects/hipdnn/cmake/CheckToolVersion.cmake:73 (message):
+  clang-tidy version mismatch! Expected: 20, Found: 23, Path:
+  /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin/clang-tidy,
+  Full version: AMD LLVM version 23.0.0git
+
+    Optimized build.
+Call Stack (most recent call first):
+  projects/hipdnn/cmake/CheckToolVersion.cmake:156 (checktoolversion)
+  projects/hipdnn/cmake/CheckToolVersion.cmake:202 (findandchecktool)
+  projects/hipdnn/cmake/ClangTidy.cmake:7 (findandcheckclangtidy)
+  projects/hipdnn/CMakeLists.txt:247 (include)
+
+
+CMake Warning at projects/hipdnn/cmake/CheckToolVersion.cmake:162 (message):
+  clang-tidy disabled due to version mismatch (expected 20).  Update your
+  environment and perform a fresh cmake configure to set CLANG_TIDY_EXE to
+  the needed version.
+Call Stack (most recent call first):
+  projects/hipdnn/cmake/CheckToolVersion.cmake:202 (findandchecktool)
+  projects/hipdnn/cmake/ClangTidy.cmake:7 (findandcheckclangtidy)
+  projects/hipdnn/CMakeLists.txt:247 (include)
+
+
+-- [hipdnn] Found run-clang-tidy at /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin/run-clang-tidy
+-- [hipdnn] hipdnn_data_sdk version: 0.2.0.95b75175
+-- [hipdnn] Skipping Data SDK tests
+-- [hipdnn] hipdnn_flatbuffers_sdk version: 0.2.0.95b75175
+-- [hipdnn] Found flatbuffers: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/cmake/flatbuffers (found version "25.9.23")
+-- [hipdnn] Found Python3: /tmp/hvco_rb_68378225_1302839/tools/bin/python (found version "3.12.15") found components: Interpreter
+-- [hipdnn] Skipping Flatbuffers SDK tests
+-- [hipdnn] hipdnn_backend version: 0.4.0.95b75175
+-- [hipdnn] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hipdnn] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [hipdnn] Performing Test HIP_CLANG_SUPPORTS_PARALLEL_JOBS
+-- [hipdnn] Performing Test HIP_CLANG_SUPPORTS_PARALLEL_JOBS - Success
+-- [hipdnn] Did not find spdlog, it will be built locally
+-- [hipdnn] [spdlog] Build spdlog: 1.15.3
+-- [hipdnn] [spdlog] Build type: Release
+-- [hipdnn] [spdlog] Looking for fwrite_unlocked
+-- [hipdnn] [spdlog] Looking for fwrite_unlocked - found
+-- [hipdnn] hipdnn_enable_spdlog: Enabled spdlog for target hipdnn_backend_private
+-- [hipdnn] Configured clang-tidy HIP arguments with include directory: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/include
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_VISIBILITY
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_VISIBILITY - Success
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY - Success
+-- [hipdnn] Performing Test COMPILER_HAS_DEPRECATED_ATTR
+-- [hipdnn] Performing Test COMPILER_HAS_DEPRECATED_ATTR - Success
+-- [hipdnn] Skipping HIP-DNN Backend Unit tests
+-- [hipdnn] hipdnn_frontend version: 0.4.0.95b75175
+-- [hipdnn] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hipdnn] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [hipdnn] Skipping HIP-DNN Frontend Unit tests
+-- [hipdnn] hipdnn_test_sdk version: 0.2.0.95b75175
+-- [hipdnn] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hipdnn] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [hipdnn] Skipping Test SDK tests
+-- [hipdnn] hipdnn_plugin_sdk version: 1.1.0.95b75175
+-- [hipdnn] Skipping Plugin SDK tests
+-- [hipdnn] Skipping HIP-DNN Integration tests
+-- [hipdnn] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hipdnn] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [miopen-provider] Building miopen provider plugin standalone
+-- [miopen-provider] miopen_provider version: 0.2.0.95b75175
+CMake Warning at dnn-providers/miopen-provider/cmake/CheckPreCommit.cmake:32 (message):
+
+
+  Pre-commit hooks are NOT installed at
+  /tmp/hvco_rb_68378225_1302839/src/.git/hooks/pre-commit
+
+  Please run:
+
+    cd /tmp/hvco_rb_68378225_1302839/src
+    pre-commit install
+
+Call Stack (most recent call first):
+  dnn-providers/miopen-provider/CMakeLists.txt:31 (include)
+
+
+-- [miopen-provider] Setting CMAKE_INSTALL_PREFIX to /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/stage
+CMake Warning at dnn-providers/miopen-provider/CMakeLists.txt:69 (message):
+  Clang-Format checks are disabled.  CI requires passing clang-format checks.
+
+
+CMake Warning at dnn-providers/miopen-provider/CMakeLists.txt:79 (message):
+  Clang-Tidy checks are disabled.  CI requires passing clang-tidy checks.
+
+
+-- [miopen-provider] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [miopen-provider] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [miopen-provider] ✓ Confirmed AMD/ROCm type C++ compiler
+CMake Warning at cmake/modules/CheckToolVersion.cmake:64 (message):
+  clang-tidy version mismatch! Expected: 20, Found: 23, Path:
+  /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/llvm/bin/clang-tidy,
+  Full version: AMD LLVM version 23.0.0git
+
+    Optimized build.
+Call Stack (most recent call first):
+  cmake/modules/CheckToolVersion.cmake:135 (checktoolversion)
+  cmake/modules/CheckToolVersion.cmake:178 (findandchecktool)
+  cmake/modules/ClangTidy.cmake:23 (findandcheckclangtidy)
+  dnn-providers/miopen-provider/CMakeLists.txt:137 (include)
+
+
+CMake Warning at cmake/modules/CheckToolVersion.cmake:141 (message):
+  clang-tidy disabled due to version mismatch (expected 20).  Update your
+  environment and perform a fresh cmake configure to set CLANG_TIDY_EXE to
+  the needed version.
+Call Stack (most recent call first):
+  cmake/modules/CheckToolVersion.cmake:178 (findandchecktool)
+  cmake/modules/ClangTidy.cmake:23 (findandcheckclangtidy)
+  dnn-providers/miopen-provider/CMakeLists.txt:137 (include)
+
+
+-- [miopen-provider] Found run-clang-tidy at /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin/run-clang-tidy
+-- [miopen-provider] Found system GTest
+CMake Warning at cmake/modules/CheckToolVersion.cmake:64 (message):
+  llvm-symbolizer version mismatch! Expected: 20, Found: 23, Path:
+  /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/llvm/bin/llvm-symbolizer,
+  Full version: llvm-symbolizer
+
+  AMD LLVM version 23.0.0git
+
+    Optimized build.
+Call Stack (most recent call first):
+  cmake/modules/CheckToolVersion.cmake:135 (checktoolversion)
+  projects/hipdnn/cmake/CheckToolVersion.cmake:249 (findandchecktool)
+  dnn-providers/cmake/Tests.cmake:9 (findandcheckllvmsymbolizer)
+  dnn-providers/miopen-provider/CMakeLists.txt:145 (include)
+
+
+CMake Warning at cmake/modules/CheckToolVersion.cmake:141 (message):
+  llvm-symbolizer disabled due to version mismatch (expected 20).  Update
+  your environment and perform a fresh cmake configure to set
+  LLVM_SYMBOLIZER_EXE to the needed version.
+Call Stack (most recent call first):
+  projects/hipdnn/cmake/CheckToolVersion.cmake:249 (findandchecktool)
+  dnn-providers/cmake/Tests.cmake:9 (findandcheckllvmsymbolizer)
+  dnn-providers/miopen-provider/CMakeLists.txt:145 (include)
+
+
+CMake Warning at projects/hipdnn/cmake/CheckToolVersion.cmake:259 (message):
+  ASAN tests will be missing symbolized stack traces.
+Call Stack (most recent call first):
+  dnn-providers/cmake/Tests.cmake:9 (findandcheckllvmsymbolizer)
+  dnn-providers/miopen-provider/CMakeLists.txt:145 (include)
+
+
+-- [miopen-provider] Plugin build directory: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/lib/hipdnn_plugins/engines
+-- [miopen-provider] Plugin install directory: 
+-- [miopen-provider] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [miopen-provider] miopen-provider: linking MIOpen library target 'MIOpen'
+-- [miopen-provider] miopen-provider: YAML-based CTest categorization enabled
+-- [miopen-provider] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [miopen-provider] Registering unit_test test target: miopen_plugin_tests -> miopen_plugin_tests in working directory: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/dnn-providers/miopen-provider/tests
+-- [miopen-provider] Registering integration_test test target: miopen_plugin_integration_tests -> miopen_plugin_integration_tests in working directory: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/dnn-providers/miopen-provider/integration_tests
+-- [miopen-provider] Generated test category configuration: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/dnn-providers/miopen-provider/test_categories.cmake
+-- [miopen-provider] Generated test category configuration: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/dnn-providers/miopen-provider/test_categories.cmake
+-- [miopen-provider] Generated test category configuration: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/dnn-providers/miopen-provider/test_categories.cmake
+-- [miopen-provider] hipdnn_integration_tests not found - skipping external-integration-check
+-- [hipblaslt-provider] hipblaslt_provider version: 0.2.0.95b75175
+-- [hipblaslt-provider] hipblaslt-provider: MX GEMM support disabled
+-- [hipblaslt-provider] Setting CMAKE_INSTALL_PREFIX to /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/stage
+CMake Warning at dnn-providers/hipblaslt-provider/CMakeLists.txt:73 (message):
+  Clang-Format checks are disabled.  CI requires passing clang-format checks.
+
+
+-- [hipblaslt-provider] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hipblaslt-provider] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+CMake Warning at cmake/modules/CheckToolVersion.cmake:64 (message):
+  clang-tidy version mismatch! Expected: 20, Found: 23, Path:
+  /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/llvm/bin/clang-tidy,
+  Full version: AMD LLVM version 23.0.0git
+
+    Optimized build.
+Call Stack (most recent call first):
+  cmake/modules/CheckToolVersion.cmake:135 (checktoolversion)
+  cmake/modules/CheckToolVersion.cmake:178 (findandchecktool)
+  cmake/modules/ClangTidy.cmake:23 (findandcheckclangtidy)
+  dnn-providers/hipblaslt-provider/CMakeLists.txt:125 (include)
+
+
+CMake Warning at cmake/modules/CheckToolVersion.cmake:141 (message):
+  clang-tidy disabled due to version mismatch (expected 20).  Update your
+  environment and perform a fresh cmake configure to set CLANG_TIDY_EXE to
+  the needed version.
+Call Stack (most recent call first):
+  cmake/modules/CheckToolVersion.cmake:178 (findandchecktool)
+  cmake/modules/ClangTidy.cmake:23 (findandcheckclangtidy)
+  dnn-providers/hipblaslt-provider/CMakeLists.txt:125 (include)
+
+
+-- [hipblaslt-provider] Found run-clang-tidy at /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin/run-clang-tidy
+-- [hipblaslt-provider] Plugin build directory: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/lib/hipdnn_plugins/engines
+-- [hipblaslt-provider] Plugin install directory: 
+-- [hip-kernel-provider] hip_kernel_provider version: 0.2.0.95b75175
+-- [hip-kernel-provider] Setting CMAKE_INSTALL_PREFIX to /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/stage
+-- [hip-kernel-provider] ASM SDPA engine enabled
+-- [hip-kernel-provider] HIP Flash2 SDPA engine disabled
+-- [hip-kernel-provider] HIP kernel engine enabled
+-- [hip-kernel-provider] HIP: Using hipcc from relative path: /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/bin/hipcc
+-- [hip-kernel-provider] HIP_PLATFORM using hip_HIPCONFIG_EXECUTABLE: amd
+-- [hip-kernel-provider] ✓ Confirmed AMD/ROCm type C++ compiler
+CMake Warning at cmake/modules/CheckToolVersion.cmake:64 (message):
+  clang-tidy version mismatch! Expected: 20, Found: 23, Path:
+  /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/llvm/bin/clang-tidy,
+  Full version: AMD LLVM version 23.0.0git
+
+    Optimized build.
+Call Stack (most recent call first):
+  cmake/modules/CheckToolVersion.cmake:135 (checktoolversion)
+  cmake/modules/CheckToolVersion.cmake:178 (findandchecktool)
+  cmake/modules/ClangTidy.cmake:23 (findandcheckclangtidy)
+  dnn-providers/hip-kernel-provider/CMakeLists.txt:260 (include)
+
+
+CMake Warning at cmake/modules/CheckToolVersion.cmake:141 (message):
+  clang-tidy disabled due to version mismatch (expected 20).  Update your
+  environment and perform a fresh cmake configure to set CLANG_TIDY_EXE to
+  the needed version.
+Call Stack (most recent call first):
+  cmake/modules/CheckToolVersion.cmake:178 (findandchecktool)
+  cmake/modules/ClangTidy.cmake:23 (findandcheckclangtidy)
+  dnn-providers/hip-kernel-provider/CMakeLists.txt:260 (include)
+
+
+-- [hip-kernel-provider] Found run-clang-tidy at /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/lib/llvm/bin/run-clang-tidy
+CMake Warning at cmake/modules/CheckToolVersion.cmake:64 (message):
+  llvm-symbolizer version mismatch! Expected: 20, Found: 23, Path:
+  /usr/local/lib/python3.12/dist-packages/_rocm_sdk_devel/llvm/bin/llvm-symbolizer,
+  Full version: llvm-symbolizer
+
+  AMD LLVM version 23.0.0git
+
+    Optimized build.
+Call Stack (most recent call first):
+  cmake/modules/CheckToolVersion.cmake:135 (checktoolversion)
+  projects/hipdnn/cmake/CheckToolVersion.cmake:249 (findandchecktool)
+  dnn-providers/cmake/Tests.cmake:9 (findandcheckllvmsymbolizer)
+  dnn-providers/hip-kernel-provider/CMakeLists.txt:269 (include)
+
+
+CMake Warning at cmake/modules/CheckToolVersion.cmake:141 (message):
+  llvm-symbolizer disabled due to version mismatch (expected 20).  Update
+  your environment and perform a fresh cmake configure to set
+  LLVM_SYMBOLIZER_EXE to the needed version.
+Call Stack (most recent call first):
+  projects/hipdnn/cmake/CheckToolVersion.cmake:249 (findandchecktool)
+  dnn-providers/cmake/Tests.cmake:9 (findandcheckllvmsymbolizer)
+  dnn-providers/hip-kernel-provider/CMakeLists.txt:269 (include)
+
+
+CMake Warning at projects/hipdnn/cmake/CheckToolVersion.cmake:259 (message):
+  ASAN tests will be missing symbolized stack traces.
+Call Stack (most recent call first):
+  dnn-providers/cmake/Tests.cmake:9 (findandcheckllvmsymbolizer)
+  dnn-providers/hip-kernel-provider/CMakeLists.txt:269 (include)
+
+
+-- [hip-kernel-provider] Plugin build directory: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/lib/hipdnn_plugins/engines
+-- [hip-kernel-provider] Plugin install directory (relative): lib/hipdnn_plugins/engines
+-- [hip-kernel-provider] Kernel ingestor enabled. Descriptors build into:
+-- [hip-kernel-provider]   production: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider
+-- [hip-kernel-provider]   test:       /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider
+-- [hip-kernel-provider] rocKE features enabled
+-- [hip-kernel-provider] portable-IR build-id: dd3d91c1753adbe6  version: 1.0.0+20261112
+-- [hip-kernel-provider] kpack: using rocm_kpack from /tmp/hvco_rb_68378225_1302839/kp/shared/kpack/python
+-- [hip-kernel-provider] kpack: using rocm_kpack from /tmp/hvco_rb_68378225_1302839/kp/shared/kpack/python
+-- Configuring done (12.2s)
+-- Generating done (0.2s)
+CMake Warning (unused-cli):
+  Manually-specified variables were not used by the project:
+
+    Python_EXECUTABLE
+
+
+-- Build files have been written to: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build
+hipdnn build start 2026-11-12T11:53:12-05:00
+building rocke-pyenv rocke-wheels under /tmp/hvco_rb_68378225_1302839/src/.git/hipdnn_vllm-build.lock
+[0/2] Re-checking globbed directories...
+[1/4] rocke-pyenv: editable-installing platform + library
+  /tmp/pip-build-env-nraqhj4j/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+  /tmp/pip-build-env-nraqhj4j/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+  /tmp/pip-build-env-nraqhj4j/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+  /tmp/pip-build-env-nraqhj4j/overlay/lib/python3.12/site-packages/setuptools/command/editable_wheel.py:375: BuildBackendWarning: Compat editable installs
+  !!
+  
+          ********************************************************************************
+          The 'compat' editable mode is transitional and will be removed
+          in future versions of `setuptools`.
+          Please adapt your code accordingly to use either the 'strict' or the
+          'lenient' modes.
+  
+          See https://setuptools.pypa.io/en/latest/userguide/development_mode.html for details.
+          ********************************************************************************
+  
+  !!
+    mode = _EditableMode.convert(self.mode)
+  /tmp/pip-build-env-jdpiih4_/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+  /tmp/pip-build-env-jdpiih4_/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+  /tmp/pip-build-env-jdpiih4_/overlay/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+  /tmp/pip-build-env-jdpiih4_/overlay/lib/python3.12/site-packages/setuptools/command/editable_wheel.py:375: BuildBackendWarning: Compat editable installs
+  !!
+  
+          ********************************************************************************
+          The 'compat' editable mode is transitional and will be removed
+          in future versions of `setuptools`.
+          Please adapt your code accordingly to use either the 'strict' or the
+          'lenient' modes.
+  
+          See https://setuptools.pypa.io/en/latest/userguide/development_mode.html for details.
+          ********************************************************************************
+  
+  !!
+    mode = _EditableMode.convert(self.mode)
+[2/4] Building rocke-library wheel
+Processing /tmp/rocke-library-wheel-h6u8fu97/library
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+  /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/rocke-pyenv/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+Building wheels for collected packages: rocke-library
+  Building wheel for rocke-library (pyproject.toml): started
+  Building wheel for rocke-library (pyproject.toml): finished with status 'done'
+  /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/rocke-pyenv/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+  Created wheel for rocke-library: filename=rocke_library-0.1.0-py3-none-any.whl size=2391448 sha256=794a83a1e8bab8c3f2a5bb53b480dad20e43318e2ded05fa45cae58d6a4c6527
+  Stored in directory: /tmp/pip-ephem-wheel-cache-e2tyr11u/wheels/1e/53/a7/ac95d3fa32caee5c40769508b31e7247867e6dd45095c0cdd5
+Successfully built rocke-library
+[3/4] Building rocke platform wheel
+Processing /tmp/hvco_rb_68378225_1302839/src/dnn-providers/hip-kernel-provider/rocke/platform
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+  /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/rocke-pyenv/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+Building wheels for collected packages: rocke
+  Building wheel for rocke (pyproject.toml): started
+  Building wheel for rocke (pyproject.toml): finished with status 'done'
+  /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/rocke-pyenv/lib/python3.12/site-packages/setuptools/config/_apply_pyprojecttoml.py:82: BuildBackendWarning: `project.license` as a TOML table is deprecated
+  !!
+  
+          ********************************************************************************
+          Please use a simple string containing a SPDX expression for `project.license`. You can also use `project.license-files`. (Both options available on setuptools>=77.0.0).
+  
+          By 2027-Feb-18, you need to update your project and remove deprecated calls
+          or your builds will no longer be supported.
+  
+          See https://packaging.python.org/en/latest/guides/writing-pyproject-toml/#license for details.
+          ********************************************************************************
+  
+  !!
+    corresp(dist, value, root_dir)
+  Created wheel for rocke: filename=rocke-0.1.0-py3-none-any.whl size=2652552 sha256=96c6ec68d46b413fdc58bbdc1570abe5e455ebac798a6bd3aa675fbef4e0f8c7
+  Stored in directory: /tmp/pip-ephem-wheel-cache-o1vy05ya/wheels/a5/01/97/fd611ffc82266a884927253abde941ea07352218cf1ca6c744
+Successfully built rocke
+[0/2] Re-checking globbed directories...
+[1/594] Generating batchnorm_attributes_generated.h
+[2/594] Generating batchnorm_backward_attributes_generated.h
+[3/594] Generating batchnorm_inference_attributes_generated.h
+[4/594] Generating block_scale_dequantize_attributes_generated.h
+[5/594] Generating block_scale_quantize_attributes_generated.h
+[6/594] Generating batchnorm_inference_attributes_variance_ext_generated.h
+[7/594] Generating convolution_bwd_attributes_generated.h
+[8/594] Generating convolution_common_generated.h
+[9/594] Generating convolution_fwd_attributes_generated.h
+[10/594] Generating convolution_wrw_attributes_generated.h
+[11/594] Generating custom_op_attributes_generated.h
+[12/594] Generating data_types_generated.h
+[13/594] Generating device_properties_generated.h
+[14/594] Generating engine_config_generated.h
+[15/594] Generating engine_details_generated.h
+[16/594] Generating engine_prediction_generated.h
+[17/594] Generating execution_plan_generated.h
+[18/594] Generating gbdt_model_generated.h
+[19/594] Generating gdn_attributes_generated.h
+[20/594] Generating kda_attributes_generated.h
+[21/594] Generating layernorm_backward_attributes_generated.h
+[22/594] Generating linear_attention_common_generated.h
+[23/594] Generating pointwise_attributes_generated.h
+[24/594] Generating reduction_attributes_generated.h
+[25/594] Generating graph_generated.h
+[26/594] Generating knob_value_generated.h
+[27/594] Generating layernorm_attributes_generated.h
+[28/594] Generating matmul_attributes_generated.h
+[29/594] Generating moe_grouped_matmul_attributes_generated.h
+[30/594] Generating moe_grouped_matmul_bwd_attributes_generated.h
+[31/594] Generating norm_common_generated.h
+[32/594] Generating resample_bwd_attributes_generated.h
+[33/594] Generating resample_common_generated.h
+[34/594] Generating resample_fwd_attributes_generated.h
+[35/594] Generating rmsnorm_attributes_generated.h
+[36/594] Generating rmsnorm_backward_attributes_generated.h
+[37/594] Generating sdpa_attributes_generated.h
+[38/594] Generating sdpa_backward_attributes_generated.h
+[39/594] Generating serialized_graph_and_plan_generated.h
+[40/594] Generating table_model_generated.h
+[41/594] Generating tensor_attributes_generated.h
+[42/594] hkp: digesting rocke wheels
+hkp_wheel_digest: created (77a64648e6a3)
+[43/594] Generating ASM bwd kernel configuration header for gfx942;gfx950
+[44/594] Generating ASM fwd kernel configuration header for gfx942;gfx950
+[45/594] Generating cachekey_generated.h from the FlatBuffers schemas
+[46/594] Refreshing rocKE portable-IR bundle build-id
+[47/594] Generating node_operands_generated.h from the FlatBuffers schemas
+[48/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/arch/helpers.cpp.o
+[49/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_hip/lower_hip_cast.cpp.o
+[50/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/isa/backend.cpp.o
+[51/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/ir/print.cpp.o
+[52/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_cktile.cpp.o
+[53/594] Packing ASM SDPA kernels for gfx950 into .kpack
+Packing 126 .co files for gfx950...
+Written: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/dnn-providers/hip-kernel-provider/src/engines/asm_sdpa_engine/.kpack/hip_kernel_provider_sdpa_gfx950.kpack (953307 bytes)
+Round-trip verification passed for all 126 kernels.
+[54/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_llvm/arith.cpp.o
+[55/594] Packing ASM SDPA kernels for gfx942 into .kpack
+Packing 168 .co files for gfx942...
+Written: /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/dnn-providers/hip-kernel-provider/src/engines/asm_sdpa_engine/.kpack/hip_kernel_provider_sdpa_gfx942.kpack (1298419 bytes)
+Round-trip verification passed for all 168 kernels.
+[56/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_hip/lower_hip_arith.cpp.o
+[57/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_llvm/convert.cpp.o
+[58/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/ir/ir_mem.cpp.o
+[59/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_hip/lower_hip_mem.cpp.o
+[60/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/dtypes.cpp.o
+[61/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/ir/ir_flow.cpp.o
+[62/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/ir/core_types.cpp.o
+[63/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/arch/query.cpp.o
+[64/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/ir/ir_tile.cpp.o
+[65/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_llvm/control.cpp.o
+[66/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_hip/lower_hip_mma.cpp.o
+[67/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/ir/core_builder.cpp.o
+[68/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_hip/core.cpp.o
+[69/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/ir/ir_arith.cpp.o
+[70/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/arch/data.cpp.o
+[71/594] Building CXX object _deps/gtest-build/googletest/CMakeFiles/gtest_main.dir/src/gtest_main.cc.o
+[72/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_llvm/core.cpp.o
+[73/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DataTypeConversion.cpp.o
+[74/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/ir/serialize.cpp.o
+[75/594] Building CXX object _deps/gtest-build/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o
+[76/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BackendDescriptor.cpp.o
+[77/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_llvm/compiler_version.cpp.o
+[78/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/KnobSettingDescriptor.cpp.o
+[79/594] Building CXX object _deps/gtest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
+[80/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormInferenceVarianceExtOperationDescriptor.cpp.o
+[81/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DescriptorAttributeUtils.cpp.o
+[82/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormInferenceOperationDescriptor.cpp.o
+[83/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BlockScaleDequantizeOperationDescriptor.cpp.o
+[84/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BlockScaleQuantizeOperationDescriptor.cpp.o
+[85/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormBackwardOperationDescriptor.cpp.o
+[86/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionWrwOperationDescriptor.cpp.o
+[87/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionFwdOperationDescriptor.cpp.o
+[88/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/CustomOpOperationDescriptor.cpp.o
+[89/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionBwdOperationDescriptor.cpp.o
+[90/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MatmulOperationDescriptor.cpp.o
+[91/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormOperationDescriptor.cpp.o
+[92/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/LayernormOperationDescriptor.cpp.o
+[93/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/LayernormBackwardOperationDescriptor.cpp.o
+[94/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MoeGroupedMatmulBwdOperationDescriptor.cpp.o
+[95/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MoeGroupedMatmulOperationDescriptor.cpp.o
+[96/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/PointwiseOperationDescriptor.cpp.o
+[97/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ResampleBwdOperationDescriptor.cpp.o
+[98/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ResampleFwdOperationDescriptor.cpp.o
+[99/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ReductionOperationDescriptor.cpp.o
+[100/594] hkp: installing local rocke wheels into the private import directory
+Processing /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/dnn-providers/hip-kernel-provider/rocke/wheels/rocke-0.1.0-py3-none-any.whl
+Processing /tmp/hvco_rb_68378225_1302839/work/hipdnn-gfx950/build/dnn-providers/hip-kernel-provider/rocke/wheels/rocke_library-0.1.0-py3-none-any.whl
+Installing collected packages: rocke-library, rocke
+
+Successfully installed rocke-0.1.0 rocke-library-0.1.0
+[101/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineConfigDescriptor.cpp.o
+[102/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/TensorDescriptor.cpp.o
+[103/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/RMSNormBackwardOperationDescriptor.cpp.o
+[104/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/RMSNormOperationDescriptor.cpp.o
+[105/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/NodeFactory.cpp.o
+[106/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/BuiltInHeuristics.cpp.o
+[107/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/KnobDescriptor.cpp.o
+[108/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/SdpaBwdOperationDescriptor.cpp.o
+[109/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/prediction/PredictionBuiltIn.cpp.o
+[110/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/DeviceProperties.cpp.o
+[111/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/SdpaFwdOperationDescriptor.cpp.o
+[112/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/static_ordering/StaticOrderingBuiltIn.cpp.o
+[113/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ProfilingControlDescriptor.cpp.o
+[114/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/FlatbufferUtilities.cpp.o
+[115/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/utilities/EngineOrdering.cpp.o
+[116/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/HeuristicPlugin.cpp.o
+[117/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DescriptorFactory.cpp.o
+[118/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ExecutionPlanDescriptor.cpp.o
+[119/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineHeuristicDescriptor.cpp.o
+[120/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/handle/Handle.cpp.o
+[121/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/prediction/PredictionPolicy.cpp.o
+[122/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/PlatformUtils.linux.cpp.o
+[123/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineDescriptor.cpp.o
+[124/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/EnginePlugin.cpp.o
+[125/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenBatchnormApplicabilityChecks.cpp.o
+[126/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenBatchnormBwdPlan.cpp.o
+[127/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenBatchnormFwdInferencePlan.cpp.o
+[128/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/VariantDescriptor.cpp.o
+[129/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/SelectionHeuristic.cpp.o
+[130/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/PluginCore.cpp.o
+[131/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenBinaryPointwiseChecks.cpp.o
+[132/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenPointwiseTensorChecks.cpp.o
+[133/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/handle/HandleFactory.cpp.o
+[134/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/SharedLibrary.cpp.o
+[135/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenBatchnormFwdTrainingPlanBuilder.cpp.o
+[136/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenBinaryPointwisePlan.cpp.o
+[137/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenBatchnormFwdTrainingPlan.cpp.o
+[138/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenBatchnormFwdInferenceWithVariancePlan.cpp.o
+[139/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenBinaryPointwisePlanBuilder.cpp.o
+[140/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/LastErrorManager.cpp.o
+[141/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenConvFwdBiasActivPlan.cpp.o
+[142/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenConvBwdPlan.cpp.o
+[143/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/MiopenActivationDescriptor.cpp.o
+[144/594] Building CXX object _deps/gtest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+[145/594] Linking CXX static library lib/libgtest.a
+[146/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenConvFwdPlan.cpp.o
+[147/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenConvFwdBiasActivPlanBuilder.cpp.o
+[148/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/MiopenEngine.cpp.o
+[149/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/MiopenConvDescriptor.cpp.o
+[150/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_llvm/crosslane.cpp.o
+[151/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_llvm/data.cpp.o
+[152/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenUnaryActivationChecks.cpp.o
+[153/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/MiopenTensor.cpp.o
+[154/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/HipdnnMiopenHandle.cpp.o
+[155/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenConvWrwPlan.cpp.o
+[156/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenBatchnormPlanBuilder.cpp.o
+[157/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/rocke_build_id.cpp.o
+[158/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/rocke_abi.cpp.o
+[159/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_llvm/mem.cpp.o
+[160/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_llvm/debug.cpp.o
+[161/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin_private.dir/HipblasltHandleFactory.cpp.o
+[162/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenUnaryActivationPlan.cpp.o
+[163/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/passes.cpp.o
+[164/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/tf32.cpp.o
+[165/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/activations.cpp.o
+[166/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/atoms.cpp.o
+[167/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/asm.cpp.o
+[168/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/mma_operand.cpp.o
+[169/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/epilogues.cpp.o
+[170/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/lower_llvm/mma.cpp.o
+[171/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenConvPlanBuilder.cpp.o
+[172/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/gather_scatter.cpp.o
+[173/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/fused_moe_e2e_orchestrator.cpp.o
+[174/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/fused_moe_e2e_spec.cpp.o
+[175/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/attention.cpp.o
+[176/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/io.cpp.o
+[177/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/grid.cpp.o
+[178/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/fuse.cpp.o
+[179/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/i4_dequant.cpp.o
+[180/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/MiopenContainer.cpp.o
+[181/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/attention_ext.cpp.o
+[182/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/mx_scale.cpp.o
+[183/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/HeuristicPluginResourceManager.cpp.o
+[184/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/persistent.cpp.o
+[185/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/mfma_gemm_inner.cpp.o
+[186/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/quant.cpp.o
+[187/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/loads.cpp.o
+[188/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/preshuffle.cpp.o
+[189/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/qk_scale.cpp.o
+[190/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/distribution.cpp.o
+[191/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/rotary.cpp.o
+[192/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/MiopenUtils.cpp.o
+[193/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/storage.cpp.o
+[194/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/spec_ext.cpp.o
+[195/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/engines/plans/MiopenUnaryActivationPlanBuilder.cpp.o
+[196/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/schedule.cpp.o
+[197/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/layouts.cpp.o
+[198/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/core/verify.cpp.o
+[199/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin_private.dir/engines/HipblasltEngine.cpp.o
+[200/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/pipeline.cpp.o
+[201/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/sweep.cpp.o
+[202/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/streamk.cpp.o
+[203/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/_fmha_warp_body.cpp.o
+[204/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/_matmul_nbits_decode_gemv.cpp.o
+[205/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/_matmul_nbits_large_n.cpp.o
+[206/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/spec.cpp.o
+[207/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin_private.dir/HipblasltMatrixTransformDesc.cpp.o
+[208/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/_fmha_common.cpp.o
+[209/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/tensor_view.cpp.o
+[210/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin_private.dir/HipblasltMatmulDesc.cpp.o
+[211/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/_matmul_nbits_common.cpp.o
+[212/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/scan.cpp.o
+[213/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/_moe_fused_mega_lds.cpp.o
+[214/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/mfma_attention.cpp.o
+[215/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/mma_io.cpp.o
+[216/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/attention_unified_2d.cpp.o
+[217/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin_private.dir/EngineManager.cpp.o
+[218/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/wmma_swapqk.cpp.o
+[219/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/reduction.cpp.o
+[220/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_16c_loop_closures.cpp.o
+[221/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_16c_phases.cpp.o
+[222/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_abi.cpp.o
+[223/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin_private.dir/HipblasltMatrixLayout.cpp.o
+[224/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/attention_unified_selectors.cpp.o
+[225/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/attention_unified_prologue.cpp.o
+[226/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/transforms.cpp.o
+[227/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_4c_phases_and_loop.cpp.o
+[228/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/attention_unified_3d_reduce.cpp.o
+[229/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/_matmul_nbits_large_n_opt.cpp.o
+[230/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_depthwise_col.cpp.o
+[231/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_8c.cpp.o
+[232/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/block_scale_gemm.cpp.o
+[233/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_depthwise.cpp.o
+[234/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/add_rmsnorm2d_bf16.cpp.o
+[235/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_common.cpp.o
+[236/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_32c.cpp.o
+[237/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_implicit_gemm.cpp.o
+[238/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_wgrad.cpp.o
+[239/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin_private.dir/HipblasltUtils.cpp.o
+[240/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_dgrad.cpp.o
+[241/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/batched_gemm.cpp.o
+[242/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_implicit_gemm_conv_compute_phase.cpp.o
+[243/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin_private.dir/HipblasltContainer.cpp.o
+[244/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/add_rmsnorm2d_rdquant.cpp.o
+[245/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_implicit_gemm_conv_epilogue.cpp.o
+[246/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_generic.cpp.o
+[247/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_implicit_gemm_conv_kloop_drivers.cpp.o
+[248/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_implicit_gemm_conv_load_phase.cpp.o
+[249/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_dgrad_transforms.cpp.o
+[250/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_depthwise_tiled.cpp.o
+[251/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/deep_fused_conv_pool_conv1_gemm_and_lds_staging.cpp.o
+[252/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/deep_fused_conv_pool_epilogue_predicates_and_loaders.cpp.o
+[253/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/deep_fused_conv_pool_maxpool_gates_and_emitters.cpp.o
+[254/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_implicit_gemm_conv_spec_descriptors.cpp.o
+[255/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_build_depthwise_spatial.cpp.o
+[256/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_public_entry_glue.cpp.o
+[257/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_grouped_spec_and_validate.cpp.o
+[258/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fmha_arch.cpp.o
+[259/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/attention_unified_entry.cpp.o
+[260/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/deep_fused_conv_pool_value_types_and_spec.cpp.o
+[261/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_implicit_gemm_conv_build_glue.cpp.o
+[262/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_wgrad_workspace_reduce.cpp.o
+[263/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fused_moe_common.cpp.o
+[264/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fused_moe_e2e_ctx_init.cpp.o
+[265/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fused_moe_e2e_forward_dynamic.cpp.o
+[266/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/elementwise.cpp.o
+[267/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fused_moe_e2e_forward_static.cpp.o
+[268/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fused_moe_e2e_glue.cpp.o
+[269/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fused_moe_gather.cpp.o
+[270/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/flatmm.cpp.o
+[271/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fused_moe_e2e_host_helpers.cpp.o
+[272/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/deep_fused_conv_pool_build_entry_and_closures.cpp.o
+[273/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fmha_bwd.cpp.o
+[274/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fmha_varlen.cpp.o
+[275/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fused_moe_e2e_launchers.cpp.o
+[276/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fmha_mfma.cpp.o
+[277/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fmha_appendkv.cpp.o
+[278/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fused_moe_scatter_reduce.cpp.o
+[279/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fmha_head_grouping.cpp.o
+[280/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/logging/Logging.cpp.o
+[281/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin_private.dir/engines/plans/HipblasltMatmulPlanBuilder.cpp.o
+[282/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/gemm_mma.cpp.o
+[283/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/gemm_build_compute.cpp.o
+[284/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fused_moe_silu.cpp.o
+[285/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fmha_fwd_fp8.cpp.o
+[286/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/gemm_multi_d_helpers.cpp.o
+[287/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fmha_splitkv_decode.cpp.o
+[288/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/gemm_spec.cpp.o
+[289/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin_private.dir/engines/plans/HipblasltMatmulPlan.cpp.o
+[290/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/gemm_epilogue.cpp.o
+[291/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/img2col_helpers.cpp.o
+[292/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_fused_mega_body_stages.cpp.o
+[293/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/gemm_build_load.cpp.o
+[294/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_fused_mega_fp8_select_dispatch.cpp.o
+[295/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_fused_mega_ctx_prologue.cpp.o
+[296/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_implicit_gemm_wgrad.cpp.o
+[297/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_fused_mega_down_kloop_lds_a.cpp.o
+[298/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_fused_mega_fp8_stage2_down.cpp.o
+[299/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_fused_mega_fp8_loads_dtla.cpp.o
+[300/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fmha_paged_prefill.cpp.o
+[301/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_fused_mega_spec_grid_sig.cpp.o
+[302/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/fused_moe_public.cpp.o
+[303/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_gemm_fused_epilogue_closures.cpp.o
+[304/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_fused_mega_fp8_stage1_gateup.cpp.o
+[305/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/mfma_gemm.cpp.o
+[306/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_gemm_fused_down_body.cpp.o
+[307/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/matmul_nbits.cpp.o
+[308/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_gemm_fused_gate_up_body.cpp.o
+[309/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_gemm_fused_interleaved_body.cpp.o
+[310/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_sorting_histogram.cpp.o
+[311/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/layernorm2d.cpp.o
+[312/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/gemm_multi_d.cpp.o
+[313/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_sorting_scan.cpp.o
+[314/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/helpers/rdna_attention.cpp.o
+[315/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_sorting_persistent.cpp.o
+[316/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_wgrad_gather.cpp.o
+[317/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/img2col.cpp.o
+[318/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_sorting_scatter.cpp.o
+[319/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_implicit_gemm_dgrad.cpp.o
+[320/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/sage_attention_mfma.cpp.o
+[321/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_gemm_fused.cpp.o
+[322/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/sage_attention_warp.cpp.o
+[323/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/sparse_attention_inner_body_emit.cpp.o
+[324/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/sparse_attention_jenga_phases.cpp.o
+[325/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/gemm_multi_abd.cpp.o
+[326/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/sparse_attention.cpp.o
+[327/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/grouped_gemm.cpp.o
+[328/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/sage_attention_codebook.cpp.o
+[329/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_nongrouped.cpp.o
+[330/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/sparse_attention_vsa_phases.cpp.o
+[331/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/sparse_attention_spec_meta.cpp.o
+[332/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/deep_fused_conv_pool_body_sub_phase_drivers_persistent_single_tile.cpp.o
+[333/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/gemm_universal.cpp.o
+[334/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_fused_mega_fp8_glue.cpp.o
+[335/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/deep_fused_conv_pool_build_context_ctx_init_quant_primitives.cpp.o
+[336/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/deep_fused_conv_pool_staging_phases.cpp.o
+[337/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/mx_gemm.cpp.o
+[338/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/deep_fused_conv_pool_scatter_maxpool_finalization_phases.cpp.o
+[339/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_fused_mega_public_entry_glue.cpp.o
+[340/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_smoothquant.cpp.o
+[341/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/smoothquant.cpp.o
+[342/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/sparse_attention_public_entry_glue.cpp.o
+[343/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/sage_attention_glue.cpp.o
+[344/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_dw_wgrad.cpp.o
+[345/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/permute_nd.cpp.o
+[346/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1201/deep_fused_conv_pool_conv1_gemm_lds_staging.cpp.o
+[347/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1201/deep_fused_conv_pool_conv0_aload_closures.cpp.o
+[348/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1201/deep_fused_conv_pool_maxpool_gates_emitters.cpp.o
+[349/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/deep_fused_conv_pool_wmma_gemm_fragment_loaders_register_handoff.cpp.o
+[350/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/rmsnorm2d.cpp.o
+[351/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1201/deep_fused_conv_pool_epilogue_override_driver.cpp.o
+[352/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_gemm_fused_public_entry_glue.cpp.o
+[353/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/moe_sorting_spec_helpers_and_glue.cpp.o
+[354/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/reduce.cpp.o
+[355/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1201/deep_fused_conv_pool_value_types_and_spec.cpp.o
+[356/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/pooling.cpp.o
+[357/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/topk_softmax.cpp.o
+[358/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_2d_conflict_free_v.cpp.o
+[359/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/deep_fused_conv_pool_public_entry_glue_spec_factory_validity_grid_kernel_name_build_lower.cpp.o
+[360/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/streamk_gemm.cpp.o
+[361/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/transpose.cpp.o
+[362/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_2d_fp8_kv.cpp.o
+[363/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_2d_kv_body_pv.cpp.o
+[364/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_2d_epilogue.cpp.o
+[365/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/wmma_gemm_iu8.cpp.o
+[366/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_2d_kv_descriptors_loads.cpp.o
+[367/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_2d_fastkv_regp.cpp.o
+[368/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_3d_gfx942_attn_tiled_3d_segment_compute.cpp.o
+[369/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/wmma_gemm.cpp.o
+[370/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1201/wmma_gemm.cpp.o
+[371/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_3d_gfx942_attn_tiled_3d_reduce.cpp.o
+[372/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1201/deep_fused_conv_pool_public_entry_glue.cpp.o
+[373/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/wmma_gemm_int8.cpp.o
+[374/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/wmma_gemm_iu8_dequant.cpp.o
+[375/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/config/ConfigBuiltIn.cpp.o
+[376/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_2d_loop_scaffold.cpp.o
+[377/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_2d_fp8_kv.cpp.o
+[378/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/tf32_mma_probe.cpp.o
+[379/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_2d_kv_descriptors_loads.cpp.o
+[380/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_2d_public_entry_glue.cpp.o
+[381/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_2d_ctx_prologue.cpp.o
+[382/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/deep_fused_conv_pool_gfx950_dfcp_ctx_and_loaders.cpp.o
+[383/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/common/conv_direct_wgrad_tiled.cpp.o
+[384/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_2d_kv_body_qk_softmax.cpp.o
+[385/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_2d_q_load_gather.cpp.o
+[386/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/deep_fused_conv_pool_gfx950_dfcp_epilogue_override.cpp.o
+[387/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_2d_ctx_prologue.cpp.o
+[388/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_3d_segment_loop_epilogue.cpp.o
+[389/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/portable_ir/cbor_dom.cpp.o
+[390/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_2d.cpp.o
+[391/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/support/arena.cpp.o
+[392/594] Linking CXX static library lib/libgmock.a
+[393/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_3d_gfx942_attn_tiled_3d_segment_setup.cpp.o
+[394/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_2d_kv_body_pv_epilogue.cpp.o
+[395/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/wmma_fmha_fwd.cpp.o
+[396/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/support/strbuf.cpp.o
+[397/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx942/attention_tiled_3d_gfx942_attn_tiled_3d_public_glue.cpp.o
+[398/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/portable_ir/json_dom.cpp.o
+[399/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/portable_ir/online.cpp.o
+[400/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_3d_reduce.cpp.o
+[401/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/wmma_fmha_fwd_v2.cpp.o
+[402/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_3d_segment_prologue.cpp.o
+[403/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_2d_fastkv_regp_helpers.cpp.o
+[404/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_2d_q_load_gather.cpp.o
+[405/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_2d_kv_body_qk_softmax.cpp.o
+[406/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin_private.dir/HipblasltPlugin.cpp.o
+[407/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/block_scaled_gemm.cpp.o
+[408/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_3d_public_glue.cpp.o
+[409/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/deep_fused_conv_pool_gfx950_dfcp_public_entry_glue.cpp.o
+[410/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/portable_ir/recipe_vm.cpp.o
+[411/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx950/attention_tiled_2d_public_entry_glue.cpp.o
+[412/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/portable_ir/ir_import_json.cpp.o
+[413/594] Building CXX object dnn-providers/miopen-provider/CMakeFiles/miopen_plugin_impl.dir/MiopenPluginPublic.cpp.o
+[414/594] Linking CXX static library lib/libmiopen_plugin_private.a
+[415/594] Linking CXX shared library lib/hipdnn_plugins/engines/libmiopen_plugin.so
+[416/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/EnginePluginResourceManager.cpp.o
+[417/594] Building CXX object projects/hipdnn/tools/CMakeFiles/hipdnn_list_engines.dir/ListEngines.cpp.o
+[418/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/CMakeFiles/rocke_core_objects.dir/cpp/instances/gfx1151/wmma_fmha_decode.cpp.o
+[419/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/main.cpp.o
+[420/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/logging/GraphLogger.cpp.o
+[421/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenPointwiseTensorChecks.cpp.o
+[422/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/TestMiopenActivationDescriptor.cpp.o
+[423/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/TestMiopenConvDescriptor.cpp.o
+[424/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBinaryPointwisePlan.cpp.o
+[425/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBatchnormFwdInferencePlan.cpp.o
+[426/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBatchnormFwdTrainingActivPlan.cpp.o
+[427/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenConvWrwPlan.cpp.o
+[428/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenConvBwdPlan.cpp.o
+[429/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenConvFwdPlan.cpp.o
+[430/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBatchnormFwdTrainingPlan.cpp.o
+[431/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/TestMiopenUtils.cpp.o
+[432/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBatchnormFwdInferenceWithVariancePlan.cpp.o
+[433/594] Linking CXX static library lib/libhipblaslt_plugin_private.a
+[434/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/TestMiopenPluginPublic.cpp.o
+[435/594] Linking CXX static library lib/librocke_core.a
+[436/594] Building CXX object dnn-providers/hipblaslt-provider/CMakeFiles/hipblaslt_plugin.dir/HipblasltPluginPublic.cpp.o
+[437/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_smoke.dir/core/smoke.cpp.o
+[438/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_optimization_barrier.dir/core/test_optimization_barrier.cpp.o
+[439/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/TestMiopenHipdnnEnginePluginHandle.cpp.o
+[440/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_tf32.dir/core/test_tf32.cpp.o
+[441/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_fp8_scale_conversion_gate.dir/core/test_fp8_scale_conversion_gate.cpp.o
+[442/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_dtypes.dir/core/test_dtypes.cpp.o
+[443/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/TestMiopenTensor.cpp.o
+[444/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_storage.dir/core/test_storage.cpp.o
+[445/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_arch_target_identity.dir/core/test_arch_target_identity.cpp.o
+[446/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_ir_types.dir/core/test_ir_types.cpp.o
+[447/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBatchnormFwdTrainingPlanBuilder.cpp.o
+[448/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_ir_serialize_roundtrip.dir/core/ir_serialize_roundtrip.cpp.o
+[449/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBatchnormBwdPlan.cpp.o
+[450/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBinaryPointwiseChecks.cpp.o
+[451/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_tanh_lowering.dir/core/test_tanh_lowering.cpp.o
+[452/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_qk_scale_spec_validate.dir/core/test_qk_scale_spec_validate.cpp.o
+[453/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/common/TestWorkarounds.cpp.o
+[454/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_xf32_bf16x3_lowering.dir/core/test_xf32_bf16x3_lowering.cpp.o
+[455/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_flavor_datalayout_ssot.dir/core/flavor_datalayout_ssot.cpp.o
+[456/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_opcode_values.dir/core/test_opcode_values.cpp.o
+[457/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_nontemporal_hip.dir/core/test_nontemporal_hip.cpp.o
+[458/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_mma_frag_ssot.dir/core/mma_frag_ssot.cpp.o
+[459/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_barrier_fence.dir/core/test_barrier_fence.cpp.o
+[460/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/GraphDescriptor.cpp.o
+[461/594] Linking CXX static library lib/libhipdnn_backend_private.a
+[462/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_tiled_attention_2d_reentrancy.dir/instances/tiled_attention_2d_reentrancy.cpp.o
+[463/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_portable_ir_dom_decoders.dir/portable_ir/dom_decoders.cpp.o
+[464/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_unified_attention_scalar_lower_to_llvm.dir/instances/unified_attention_scalar_lower_to_llvm.cpp.o
+[465/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_streamk_iter_partition.dir/instances/streamk_iter_partition.cpp.o
+[466/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_moe_fused_mega_spec_guards.dir/instances/moe_fused_mega_spec_guards.cpp.o
+[467/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_wgrad_streamk_host.dir/instances/wgrad_streamk_host.cpp.o
+[468/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_wmma_fmha_decode_host.dir/instances/wmma_fmha_decode_host.cpp.o
+[469/594] Linking CXX static library lib/libgmock_main.a
+[470/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_mma_catalog_lookup.dir/core/test_mma_catalog_lookup.cpp.o
+[471/594] Linking CXX static library lib/libgtest_main.a
+[472/594] Linking CXX shared library lib/hipdnn_plugins/engines/libhipblaslt_plugin.so
+[473/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_f64_lowering.dir/core/test_f64_lowering.cpp.o
+[474/594] Linking CXX executable bin/rocke_smoke
+[475/594] Linking CXX executable bin/hip_kernel_provider_rocke_optimization_barrier_test
+[476/594] Linking CXX executable bin/hip_kernel_provider_rocke_tf32_test
+[477/594] Linking CXX executable bin/hip_kernel_provider_rocke_fp8_scale_conversion_gate_test
+[478/594] Linking CXX executable bin/hip_kernel_provider_rocke_dtypes_test
+[479/594] Linking CXX executable bin/hip_kernel_provider_rocke_storage_test
+[480/594] Linking CXX executable bin/hip_kernel_provider_rocke_ir_types_test
+[481/594] Linking CXX executable bin/hip_kernel_provider_rocke_arch_target_identity_test
+[482/594] Linking CXX executable bin/hip_kernel_provider_rocke_mma_catalog_lookup_test
+[483/594] Linking CXX executable bin/hip_kernel_provider_rocke_qk_scale_spec_validate_test
+[484/594] Linking CXX executable bin/hip_kernel_provider_rocke_ir_serialize_roundtrip_test
+[485/594] Linking CXX executable bin/hip_kernel_provider_rocke_nontemporal_hip_test
+[486/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_portable_ir_replay_cli.dir/portable_ir/replay_cli.cpp.o
+[487/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/TestMiopenHipdnnPluginExecutionContext.cpp.o
+[488/594] Linking CXX executable bin/hip_kernel_provider_rocke_tanh_lowering_test
+[489/594] Linking CXX executable bin/hip_kernel_provider_rocke_barrier_fence_test
+[490/594] Linking CXX executable bin/hip_kernel_provider_rocke_xf32_bf16x3_lowering_test
+[491/594] Linking CXX executable bin/hip_kernel_provider_rocke_f64_lowering_test
+[492/594] Linking CXX executable bin/hip_kernel_provider_rocke_opcode_values_test
+[493/594] Linking CXX executable bin/hip_kernel_provider_rocke_flavor_datalayout_ssot_test
+[494/594] Linking CXX executable bin/hip_kernel_provider_rocke_mma_frag_ssot_test
+[495/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_portable_ir_recipe_vm_replay.dir/portable_ir/recipe_vm_replay.cpp.o
+[496/594] Linking CXX executable bin/hip_kernel_provider_rocke_portable_ir_dom_decoders_test
+[497/594] Linking CXX executable bin/hip_kernel_provider_rocke_tiled_attention_2d_reentrancy_test
+[498/594] Linking CXX executable bin/rocke_portable_ir_replay_cli
+[499/594] Linking CXX executable bin/hip_kernel_provider_rocke_unified_attention_scalar_lower_to_llvm_test
+[500/594] Linking CXX executable bin/hip_kernel_provider_rocke_moe_fused_mega_spec_guards_test
+[501/594] Linking CXX executable bin/hip_kernel_provider_rocke_streamk_iter_partition_test
+[502/594] Linking CXX executable bin/hip_kernel_provider_rocke_wgrad_streamk_host_test
+[503/594] Linking CXX executable bin/hip_kernel_provider_rocke_wmma_fmha_decode_host_test
+[504/594] Linking CXX executable bin/hip_kernel_provider_rocke_portable_ir_recipe_vm_replay_test
+[505/594] Copying gfx942 .kpack to build dir; Copying gfx950 .kpack to build dir
+[506/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBinaryPointwisePlanBuilder.cpp.o
+[507/594] hkp: packing root 'unit' for gfx950
+UKD '2f8c17d6-4a90-4b53-9e18-c05a63b782d4' in pointwise_add.kdp.json: emitting kind 'embedded_source' as authored
+UKD 'a41b93e5-6d72-4f08-b3c9-15e847d0629f' in pointwise_add.kdp.json: emitting kind 'embedded_source' as authored
+standalone UKD pointwise_add_f16_block64.ukd.json: emitting kind 'embedded_source' as authored
+UKD '3acc760d-6286-438a-9e51-40561a127aab' in pointwise_mul.kdp.json: emitting kind 'embedded_source' as authored
+UKD 'f8e91362-ebe9-4d58-9a47-c51345c89ead' in pointwise_mul.kdp.json: emitting kind 'embedded_source' as authored
+UKD '02045f2e-f42b-47f3-a44c-a9abed808ea6' in pointwise_mul.kdp.json: emitting kind 'embedded_source' as authored
+UKD 'f8da0a47-fed7-453d-97ff-f5d3e0f382e1' in pointwise_sub.kdp.json: emitting kind 'embedded_source' as authored
+UKD '70cd25c3-f20c-4036-868f-ceffb938231f' in pointwise_sub.kdp.json: emitting kind 'embedded_source' as authored
+UKD '32c65a6b-06ec-4fab-aacc-75b00f531350' in pointwise_sub.kdp.json: emitting kind 'embedded_source' as authored
+[508/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_unsigned_int_ops.dir/core/test_unsigned_int_ops.cpp.o
+[509/594] Linking CXX executable bin/hip_kernel_provider_rocke_unsigned_int_ops_test
+[510/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenUnaryActivationPlanBuilder.cpp.o
+[511/594] Building CXX object dnn-providers/miopen-provider/integration_tests/CMakeFiles/miopen_plugin_integration_tests.dir/main.cpp.o
+[512/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBatchnormFwdTrainingActivPlanBuilder.cpp.o
+[513/594] Building CXX object dnn-providers/hip-kernel-provider/rocke/platform/tests/CMakeFiles/rocke_future_intrinsic_lowering.dir/core/future_intrinsic_lowering.cpp.o
+[514/594] Linking CXX executable bin/hip_kernel_provider_rocke_future_intrinsic_lowering_test
+[515/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/TestMiopenEngine.cpp.o
+[516/594] hkp: packing root 'archive_fixture' for gfx950
+[517/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBatchnormPlanBuilder.cpp.o
+[518/594] hkp: packing root 'unit_shared' for gfx950
+[519/594] hkp: packing root 'integration_shared' for gfx950
+[520/594] hkp: packing root 'integration' for gfx950
+hkp_pack: compiling 9 variants for gfx950 on 2 workers
+[521/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenConvFwdBiasActivPlan.cpp.o
+[522/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/TestMiopenEngineManager.cpp.o
+[523/594] Building CXX object dnn-providers/miopen-provider/integration_tests/CMakeFiles/miopen_plugin_integration_tests.dir/IntegrationGpuBatchnormUnsupportedDataTypes.cpp.o
+[524/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenConvPlanBuilder.cpp.o
+[525/594] Building CXX object dnn-providers/miopen-provider/integration_tests/CMakeFiles/miopen_plugin_integration_tests.dir/IntegrationGpuBatchnormUnhappyActivation.cpp.o
+[526/594] Building CXX object dnn-providers/miopen-provider/integration_tests/CMakeFiles/miopen_plugin_integration_tests.dir/IntegrationGpuBatchnormUnhappyLayouts.cpp.o
+[527/594] Building CXX object dnn-providers/miopen-provider/integration_tests/CMakeFiles/miopen_plugin_integration_tests.dir/IntegrationGpuBatchnormTrainingUnhappySpatial.cpp.o
+[528/594] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend.dir/HipdnnBackend.cpp.o
+[529/594] Linking CXX shared library lib/libhipdnn_backend.so
+[530/594] Linking CXX executable bin/hipdnn_list_engines
+[531/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenBatchnormApplicabilityChecks.cpp.o
+[532/594] Building CXX object dnn-providers/miopen-provider/integration_tests/CMakeFiles/miopen_plugin_integration_tests.dir/IntegrationGpuPassByValue.cpp.o
+[533/594] Building CXX object dnn-providers/miopen-provider/tests/CMakeFiles/miopen_plugin_tests.dir/engines/plans/TestMiopenConvFwdBiasActivPlanBuilder.cpp.o
+[534/594] Linking CXX executable bin/miopen_plugin_tests
+[535/594] Building CXX object dnn-providers/miopen-provider/integration_tests/CMakeFiles/miopen_plugin_integration_tests.dir/IntegrationGpuCudnnShimDeterministic.cpp.o
+[536/594] Building CXX object projects/hipdnn/tools/CMakeFiles/hipdnn_validate_descriptors.dir/IngestorGenerator/ValidateDescriptors.cpp.o
+[537/594] Linking CXX executable bin/hipdnn_validate_descriptors
+[538/594] Building CXX object dnn-providers/miopen-provider/integration_tests/CMakeFiles/miopen_plugin_integration_tests.dir/IntegrationGpuDeterministic.cpp.o
+[539/594] Building CXX object dnn-providers/miopen-provider/integration_tests/CMakeFiles/miopen_plugin_integration_tests.dir/IntegrationGpuBenchmarkingKnob.cpp.o
+[540/594] Linking CXX executable bin/miopen_plugin_integration_tests
+[541/594] hkp: packing root 'product' for gfx950
+hkp_pack: compiling 840 variants for gfx950 on 32 workers
+[542/594] hkp: verifying embedded kernel sources (hip_kernel_provider_impl)
+hkp_verify_embedded_sources: hip_kernel_provider_impl: 0 embedded_source descriptors checked against 9 table keys
+[543/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/utilities/sha256.cpp.o
+[544/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/utilities/Digest.cpp.o
+[545/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/asm/PluginModuleDir.cpp.o
+[546/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/Program.cpp.o
+[547/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/Kernel.cpp.o
+[548/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleApplicabilityChecks.cpp.o
+[549/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/Utils.cpp.o
+[550/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormApplicabilityChecks.cpp.o
+[551/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormUtilities.cpp.o
+[552/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormApplicabilityChecks.cpp.o
+[553/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormApplicabilityChecks.cpp.o
+[554/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/ApplicabilityChecks.cpp.o
+[555/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/Handle.cpp.o
+[556/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormPlanBuilder.cpp.o
+[557/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdTrainingPlanBuilder.cpp.o
+[558/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaFwdPlan.cpp.o
+[559/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormBwdPlanBuilder.cpp.o
+[560/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaBwdPlan.cpp.o
+[561/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormPlanBuilder.cpp.o
+[562/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormBwdPlan.cpp.o
+[563/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdInferencePlan.cpp.o
+[564/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/AsmSdpaEngine.cpp.o
+[565/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormPlanBuilder.cpp.o
+[566/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleFwdPlan.cpp.o
+[567/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/KpackArchive.cpp.o
+[568/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResamplePlanBuilder.cpp.o
+[569/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_sources.cpp.o
+[570/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormBwdPlan.cpp.o
+[571/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormFwdPlan.cpp.o
+[572/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdInferenceWithVariancePlan.cpp.o
+[573/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_includes.cpp.o
+[574/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormBwdPlan.cpp.o
+[575/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/HipMlopsEngine.cpp.o
+[576/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormFwdPlan.cpp.o
+[577/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/KpackProgram.cpp.o
+[578/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdTrainingPlan.cpp.o
+[579/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleBwdPlanBuilder.cpp.o
+[580/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleBwdPlan.cpp.o
+[581/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaFwdPlanBuilder.cpp.o
+[582/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/KpackKernelLoader.cpp.o
+[583/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/PluginPublic.cpp.o
+[584/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/IngestorPacks.cpp.o
+[585/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/ConvNative.cpp.o
+[586/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/PointwiseNative.cpp.o
+[587/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx950AttentionDenseNative.cpp.o
+[588/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx1151WmmaAttentionNative.cpp.o
+[589/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaBwdPlanBuilder.cpp.o
+[590/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/KernelIngestorEngine.cpp.o
+[591/594] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/Container.cpp.o
+[592/594] Linking CXX static library lib/libhip_kernel_provider_private.a
+[593/594] Linking CXX shared library lib/hipdnn_plugins/engines/libhip_kernel_provider.so
+hipdnn build done 2026-11-12T11:57:04-05:00
+deps ok: libhipdnn_backend.so
+deps ok: libhip_kernel_provider.so
+deps ok: libhipblaslt_plugin.so
+deps ok: libmiopen_plugin.so
+	libMIOpen.so.1 => /usr/local/lib/python3.12/dist-packages/_rocm_sdk_libraries/lib/libMIOpen.so.1 (0x00007418a8000000)
+	libhipblaslt.so.1 => /usr/local/lib/python3.12/dist-packages/_rocm_sdk_libraries/lib/libhipblaslt.so.1 (0x00007bb8d8000000)
+bundled backend version: 0.4.0.95b75175
+{
+  "family": "gfx950",
+  "gfx_targets": [
+    "gfx950"
+  ],
+  "hipdnn_commit": "95b7517548af8b02959b1055d1db9e4bc2c3cdc0",
+  "hipdnn_tree_dirty_files": 0,
+  "plugin_commit": "95b7517548af8b02959b1055d1db9e4bc2c3cdc0",
+  "plugin_tree_dirty_files": 0,
+  "backend_version": "0.4.0.95b75175",
+  "provider_cmake_flags": [
+    "-DHIPKERNELPROVIDER_ENABLE_ROCKE=ON",
+    "-DHIPDNN_ENABLE_SDPA=ON",
+    "-DHIPDNN_ENABLE_KERNEL_INGESTOR=ON",
+    "-DHIPDNN_ENABLE_CUDNN_COMPATIBILITY=ON",
+    "-DHIPKERNELPROVIDER_ENABLE_TESTS=OFF",
+    "-DHIPDNN_SKIP_TESTS=ON",
+    "-DROCKE_INSTALL_TESTS=OFF",
+    "-DHIPKERNELPROVIDER_REQUIRE_DVC_DESCRIPTORS=ON"
+  ],
+  "pins": {
+    "python": "3.12",
+    "vllm": "0.32.1rc1.dev117+gdf3bd094a.rocm100",
+    "vllm_commit": "df3bd094aeea829f27baa0a5282830464f601d9f",
+    "vllm_index": "https://wheels.vllm.ai/rocm/df3bd094aeea829f27baa0a5282830464f601d9f/rocm100",
+    "torch": "2.13.0+rocm10.0.0",
+    "rocm": "10.0.0"
+  },
+  "built_utc": "2026-11-12T16:57:05.286818+00:00"
+}
+Processing ./.
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: hipdnn-vllm
+  Building wheel for hipdnn-vllm (pyproject.toml): started
+  Building wheel for hipdnn-vllm (pyproject.toml): finished with status 'done'
+  Created wheel for hipdnn-vllm: filename=hipdnn_vllm-0.1.0+rocm10.0.0.gfx950-cp312-cp312-linux_x86_64.whl size=19777937 sha256=545fbbd33e026d8fff9bdfb3cf314eee2546784caa1975ce82b558f66ccd6021
+  Stored in directory: /tmp/pip-ephem-wheel-cache-7w9hjm4g/wheels/f5/5f/7f/17bfc84ce9a631e32c1f36ab5747250cf497463e514a4205c2
+Successfully built hipdnn-vllm
+
+[notice] A new release of pip is available: 26.2.2 -> 26.3
+[notice] To update, run: /usr/bin/python3.12 -m pip install --upgrade pip
+total 19315
+drwxr-sr-x 2 sareeder Domain Users        0 Nov 12 11:57 .
+drwxr-sr-x 4 sareeder Domain Users        0 Nov 12 11:57 ..
+-rw-r--r-- 1 sareeder Domain Users 19777937 Nov 12 11:57 hipdnn_vllm-0.1.0+rocm10.0.0.gfx950-cp312-cp312-linux_x86_64.whl
+WHEEL_OK gfx950 2026-11-12T11:57:34-05:00

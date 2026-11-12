@@ -1,0 +1,31 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0 -- /usr/bin/python3.12
+rootdir: /tmp/hvco_rb_68377779_516895/tA
+plugins: anyio-4.15.1, asyncio-1.4.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 8 items
+
+tests/gpu/test_custom_op.py::test_prepare_returns_reason_for_unknown_op_id PASSED [ 12%]
+tests/gpu/test_custom_op.py::test_exec_strict_raises_and_non_strict_counts_fallback PASSED [ 25%]
+tests/gpu/test_custom_op.py::test_plan_cache_keyed_by_shape_and_payload_not_address PASSED [ 37%]
+tests/gpu/test_custom_op.py::test_disabled_declines_without_building PASSED [ 50%]
+tests/gpu/test_custom_op.py::test_capture_miss_strict_raises_non_strict_records PASSED [ 62%]
+tests/gpu/test_custom_op.py::test_engine_untouched_unless_opted_in_h6 SKIPPED [ 75%]
+tests/gpu/test_custom_op.py::test_megakernel_capture_replays SKIPPED     [ 87%]
+tests/gpu/test_custom_op.py::test_megakernel_key_mismatch_declines SKIPPED [100%]
+
+=============================== warnings summary ===============================
+tests/gpu/conftest.py:30
+  /tmp/hvco_rb_68377779_516895/tA/tests/gpu/conftest.py:30: PytestUnknownMarkWarning: Unknown pytest.mark.gpu - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    item.add_marker(pytest.mark.gpu)
+
+tests/gpu/test_custom_op.py::test_capture_miss_strict_raises_non_strict_records
+  /usr/local/lib/python3.12/dist-packages/torch/cuda/graphs.py:169: UserWarning: The CUDA Graph is empty. This usually means that the graph was attempted to be captured on wrong device or stream. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/hip/HIPGraph.cpp:219.)
+    super().capture_end()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [1] tests/gpu/test_custom_op.py:156: megakernel engine not in this build
+SKIPPED [1] tests/gpu/test_custom_op.py:209: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+SKIPPED [1] tests/gpu/test_custom_op.py:249: megakernel stand-in not loaded (set HIPDNN_DESCRIPTOR_DIR to the integration set)
+=================== 5 passed, 3 skipped, 2 warnings in 5.63s ===================

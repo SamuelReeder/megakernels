@@ -1,0 +1,147 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.15, pytest-9.1.1, pluggy-1.7.0 -- /usr/bin/python3.12
+rootdir: /tmp/hvco_rb_68378225_1302839/tA
+plugins: anyio-4.15.1, asyncio-1.4.1
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 10 items / 8 deselected / 2 selected
+
+tests/gpu/test_custom_op.py::test_plan_key_keeps_payload_bytes_after_nul FAILED [ 50%]
+tests/gpu/test_custom_op.py::test_exec_runs_under_torch_compile FAILED   [100%]
+
+=================================== FAILURES ===================================
+_________________ test_plan_key_keeps_payload_bytes_after_nul __________________
+
+enabled = <module 'hipdnn_vllm._C' from '/usr/local/lib/python3.12/dist-packages/hipdnn_vllm/_C.cpython-312-x86_64-linux-gnu.so'>
+
+    def test_plan_key_keeps_payload_bytes_after_nul(enabled):
+        C = enabled
+        rt0 = C.stats_snapshot()["runtime"]
+        # Same length, different only after the NUL: two plans, not one cache hit.
+        torch.ops.hipdnn_vllm.custom_op_prepare(UNKNOWN, '{"n":"\x00a"}', _inputs())
+        torch.ops.hipdnn_vllm.custom_op_prepare(UNKNOWN, '{"n":"\x00b"}', _inputs())
+        rt1 = C.stats_snapshot()["runtime"]
+>       assert rt1["plan_builds"] == rt0["plan_builds"] + 2, (rt0, rt1)
+E       AssertionError: ({'plan_builds': 0, 'plan_build_declines': 0, 'plan_build_ns': 0, 'plan_cache_hits': 0, ...}, {'plan_builds': 1, 'plan_build_declines': 1, 'plan_build_ns': 179701, 'plan_cache_hits': 1, ...})
+E       assert 1 == (0 + 2)
+
+tests/gpu/test_custom_op.py:95: AssertionError
+---------------------------- Captured stderr setup -----------------------------
+W1112 11:49:22.935571 1341592 queue_controller.cpp:170] [queue-intercept] device-memory ring-buffer requested but profiling requires system-memory InterceptQueue; falling back to system-memory ring for agent 181070448 (priority and CU-mask from the descriptor are not preserved)
+______________________ test_exec_runs_under_torch_compile ______________________
+
+enabled = <module 'hipdnn_vllm._C' from '/usr/local/lib/python3.12/dist-packages/hipdnn_vllm/_C.cpython-312-x86_64-linux-gnu.so'>
+
+    def test_exec_runs_under_torch_compile(enabled):
+        """exec returns nothing; its effect is the write through its inputs. The
+        schema marks the inputs mutated, so a compiled graph must keep the call."""
+        C = enabled
+        torch._dynamo.reset()
+    
+        @torch.compile(fullgraph=True)
+        def f(a, b):
+            torch.ops.hipdnn_vllm.custom_op_exec(UNKNOWN, '{"compiled":1}', [a, b], False)
+    
+        stats.reset()
+        f(*_inputs())
+>       assert sum(_fallbacks(C).values()) == 1, _fallbacks(C)
+E       AssertionError: {}
+E       assert 0 == 1
+E        +  where 0 = sum(dict_values([]))
+E        +    where dict_values([]) = <built-in method values of dict object at 0x70f0bdfe9d00>()
+E        +      where <built-in method values of dict object at 0x70f0bdfe9d00> = {}.values
+E        +        where {} = _fallbacks(<module 'hipdnn_vllm._C' from '/usr/local/lib/python3.12/dist-packages/hipdnn_vllm/_C.cpython-312-x86_64-linux-gnu.so'>)
+
+tests/gpu/test_custom_op.py:110: AssertionError
+------------------------------ Captured log call -------------------------------
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:structured.py:28 
+DEBUG    torch.__trace:structured.py:28 
+DEBUG    torch.__trace:structured.py:28 
+DEBUG    torch.__trace:structured.py:28 
+DEBUG    torch.__trace:structured.py:28 
+DEBUG    torch.__trace:structured.py:28 
+DEBUG    torch.__trace:structured.py:28 
+DEBUG    torch.__trace:structured.py:28 
+DEBUG    torch.__trace:structured.py:28 
+DEBUG    torch.__trace:structured.py:28 
+DEBUG    torch.__trace:structured.py:28 
+DEBUG    torch.__trace:convert_frame.py:303 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:meta_utils.py:276 
+DEBUG    torch.__trace:meta_utils.py:514 
+DEBUG    torch.__trace:meta_utils.py:2271 
+DEBUG    torch.__trace:meta_utils.py:276 
+DEBUG    torch.__trace:meta_utils.py:514 
+DEBUG    torch.__trace:meta_utils.py:2271 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:output_graph.py:2841 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2389 
+DEBUG    torch.__trace:autograd_cache.py:1130 
+DEBUG    torch.__trace:compile_fx.py:2625 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:compile_fx.py:2656 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:graph_capture.py:426 
+DEBUG    torch.__trace:graph_capture.py:444 
+DEBUG    torch.__trace:graph_compile.py:381 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:compile_fx.py:2448 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:compile_fx.py:2474 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2389 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:subclass_codegen.py:333 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:guards.py:4552 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2350 
+DEBUG    torch.__trace:utils.py:2009 
+DEBUG    torch.__trace:utils.py:2350
+=============================== warnings summary ===============================
+tests/gpu/conftest.py:30
+  /tmp/hvco_rb_68378225_1302839/tA/tests/gpu/conftest.py:30: PytestUnknownMarkWarning: Unknown pytest.mark.gpu - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    item.add_marker(pytest.mark.gpu)
+
+tests/gpu/test_custom_op.py: 14 warnings
+  /usr/local/lib/python3.12/dist-packages/torch/jit/_script.py:365: DeprecationWarning: `torch.jit.script_method` is deprecated. Please switch to `torch.compile` or `torch.export`.
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/gpu/test_custom_op.py::test_plan_key_keeps_payload_bytes_after_nul
+FAILED tests/gpu/test_custom_op.py::test_exec_runs_under_torch_compile - Asse...
+================= 2 failed, 8 deselected, 15 warnings in 3.38s =================
