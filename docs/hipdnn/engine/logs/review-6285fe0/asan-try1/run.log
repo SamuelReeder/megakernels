@@ -1,0 +1,31 @@
+head=6285fe01629b83d70ae70aa788b2f523421baa0f kind=asan host=banff-cyxtera-s70-4.adc.amd.com nproc=48 date=2026-11-12T14:20:16-05:00
+gpu arch=gfx942
+py deps ok
+cmake version 3.28.3
+HIP version: 7.18.26443-3f917c0d61
+MODE=ON configure_rc=0 s=27
+MODE=ON build_rc=0 s=520
+MODE=ON megakernel files in the packed product root:
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/artifacts/hkp-packed.marker
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/artifacts/megakernel.kdp.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/artifacts/megakernel.kdp.provenance.json.gz
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/kernel_matches_payload.umd.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/megakernel.kmd.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/megakernel.udd.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/megakernel.ued.json
+MODE=ON unit_rc=1
+[  FAILED  ] TestKernel.LaunchesVectorAdd (677 ms)
+[  FAILED  ] TestKernelDeviceBinding.RejectsAConcreteStreamFromAnotherDevice (614 ms)
+[  FAILED  ] TestKernelDeviceBinding.RefusesALaunchItCannotBindTheDeviceFor (603 ms)
+[  FAILED  ] TestHandleDeviceResolver.ResolvesTheStreamsOwnDeviceWhenItDiffersFromCurrent (669 ms)
+[  FAILED  ] TestHandleDeviceResolver.FallsThroughToTheCurrentDeviceWhenTheStreamCannotBeResolved (603 ms)
+MODE=ON unit_megakernel_rc=0
+[  PASSED  ] 15 tests.
+MODE=ON integration_rc=1
+[  FAILED  ] IntegrationGpuMegakernel.ExecutesThePackedObjectWithItsGridBlockAndArguments (1216 ms)
+[  FAILED  ] IntegrationGpuMegakernel.DeclinesAPayloadWhoseSrcNoObjectCarries (784 ms)
+[  PASSED  ] 0 tests.
+[  FAILED  ] 2 tests, listed below:
+[  FAILED  ] IntegrationGpuMegakernel.ExecutesThePackedObjectWithItsGridBlockAndArguments
+[  FAILED  ] IntegrationGpuMegakernel.DeclinesAPayloadWhoseSrcNoObjectCarries
+done 2026-11-12T14:29:35-05:00

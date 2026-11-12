@@ -1,0 +1,42 @@
+=== branch users/sareeder/megakernel-engine head 6285fe01629b83d70ae70aa788b2f523421baa0f 2026-11-12T18:11:43+00:00
+dvc 3.62.0 (pathspec 0.12.1); AWS_* unset, HOME=/tmp/dvchome (no global config)
+pointers: 52, megakernel pointer: absent
++ dvc pull --recursive dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors
+/FlyDSL/rmsnorm_bwd/heuristics/e0f4eda1-e55b-5e1e-8923-27302152522b/predict_engi
+ne/gfx950/tflops/model.bin
+A       
+dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors
+/FlyDSL/rmsnorm_bwd/heuristics/e0f4eda1-e55b-5e1e-8923-27302152522b/predict_engi
+ne/gfx1100/tflops/model.bin
+A       
+dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors
+/FlyDSL/rmsnorm_bwd/heuristics/e0f4eda1-e55b-5e1e-8923-27302152522b/predict_engi
+ne/gfx1201/tflops/model.bin
+A       
+dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors
+/FlyDSL/rmsnorm_bwd/heuristics/e0f4eda1-e55b-5e1e-8923-27302152522b/predict_engi
+ne/gfx942/tflops/model.bin
+52 files added and 2807 files fetched
+dvc_pull_rc=0
+KDPs under artifacts: 13
+=== branch users/sareeder/megakernel-engine-dvc head caf017e6d2ee138a7317e840f14cb2159011d655 2026-11-12T18:12:46+00:00
+dvc 3.62.0 (pathspec 0.12.1); AWS_* unset, HOME=/tmp/dvchome (no global config)
+pointers: 53, megakernel pointer: dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/artifacts.dvc
++ dvc pull --recursive dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors
+/FlyDSL/rmsnorm/heuristics/43c4a81e-f427-56ec-b01f-688019b91f85/predict_engine/g
+fx950/tflops/model.bin
+A       
+dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors
+/FlyDSL/rmsnorm/heuristics/43c4a81e-f427-56ec-b01f-688019b91f85/predict_engine/g
+fx1151/tflops/model.bin
+A       
+dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors
+/FlyDSL/rmsnorm/heuristics/43c4a81e-f427-56ec-b01f-688019b91f85/predict_engine/g
+fx1100/tflops/model.bin
+52 files added and 2807 files fetched
+ERROR: failed to pull data from the cloud - Checkout failed for following targets:
+dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/artifacts
+Is your cache up to date?
+<https://error.dvc.org/missing-files>
+dvc_pull_rc=1
+KDPs under artifacts: 13

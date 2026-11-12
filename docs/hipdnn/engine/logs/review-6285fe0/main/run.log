@@ -1,0 +1,50 @@
+head=6285fe01629b83d70ae70aa788b2f523421baa0f kind=main host=banff-cyxtera-s70-4.adc.amd.com nproc=48 date=2026-11-12T13:19:49-05:00
+gpu arch=gfx942
+py deps ok
+cmake version 3.28.3
+HIP version: 7.18.26443-0000000
+MODE=OFF configure_rc=0 s=31
+MODE=OFF build_rc=0 s=429
+MODE=OFF megakernel files in the packed product root:
+find: ‘/tmp/mkeng3-main/build-OFF/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider’: No such file or directory
+MODE=OFF unit_rc=0
+[  PASSED  ] 1869 tests.
+[  SKIPPED ] 11 tests.
+MODE=OFF unit_megakernel_rc=0
+[  PASSED  ] 0 tests.
+MODE=ON configure_rc=0 s=25
+MODE=ON build_rc=0 s=469
+MODE=ON megakernel files in the packed product root:
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/artifacts/hkp-packed.marker
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/artifacts/megakernel.kdp.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/artifacts/megakernel.kdp.provenance.json.gz
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/kernel_matches_payload.umd.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/megakernel.kmd.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/megakernel.udd.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/megakernel.ued.json
+MODE=ON unit_rc=0
+[  PASSED  ] 1884 tests.
+[  SKIPPED ] 11 tests.
+MODE=ON unit_megakernel_rc=0
+[  PASSED  ] 15 tests.
+MODE=ON integration_rc=0
+[       OK ] IntegrationGpuMegakernel.ExecutesThePackedObjectWithItsGridBlockAndArguments (528 ms)
+[       OK ] IntegrationGpuMegakernel.DeclinesAPayloadWhoseSrcNoObjectCarries (28 ms)
+[  PASSED  ] 2 tests.
+MODE=ON-noobj configure_rc=0 s=25
+MODE=ON-noobj build_rc=0 s=402
+MODE=ON-noobj megakernel files in the packed product root:
+find: ‘/tmp/mkeng3-main/build-ON-noobj/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider’: No such file or directory
+MODE=ON-noobj unit_rc=0
+[  PASSED  ] 1884 tests.
+[  SKIPPED ] 11 tests.
+MODE=ON-noobj unit_megakernel_rc=0
+[  PASSED  ] 15 tests.
+clang_format_rc=0
+head=6285fe01629b83d70ae70aa788b2f523421baa0f kind=main mode=format 2026-11-12T13:43:12-05:00
+Ubuntu clang-format version 18.1.3 (1ubuntu1)
+clang_tidy_rc=0
+pytest_rc=0
+
+============================== 11 passed in 1.81s ==============================
+done 2026-11-12T13:51:49-05:00

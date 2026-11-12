@@ -1,7 +1,10 @@
 # Megakernel engine (ENABLE_MEGAKERNEL_ENGINE): build and test notes
 
 Design: megakernels `docs/hipdnn-route.md` (sections 3-5, decisions D3, D5, D6, D7).
-Branch `users/sareeder/megakernel-engine` from `origin/develop` 6a27c440ff9.
+PR branch `users/sareeder/megakernel-engine` on `origin/develop` 9e91949f8f8 (3 commits, head
+in "Current results" at the end). The DVC pointer is on `users/sareeder/megakernel-engine-dvc`,
+one commit on top, to land with the upload. Branch history: 6a27c440ff9 base, old head
+18c6ef46d60 (backup `-archive`), first rebase ee1c33bed13 (backup `-archive2`).
 
 ## What is here
 
@@ -9,9 +12,10 @@ Branch `users/sareeder/megakernel-engine` from `origin/develop` 6a27c440ff9.
 |---|---|
 | Option (default OFF), family entry, compile definition: one name `ENABLE_MEGAKERNEL_ENGINE` | `CMakeLists.txt`, `descriptor-packaging/cmake/HkpPackaging.cmake`, `src/engines/kernel_ingestor_engine/CMakeLists.txt` |
 | Native UMD (graph + kernel scope) and UDD | `src/engines/kernel_ingestor_engine/packs/MegakernelNative.cpp` |
-| Descriptors, lock, DVC pointer | `src/engines/kernel_ingestor_engine/descriptors/megakernel/` |
+| Descriptors, lock (DVC pointer on the `-dvc` branch) | `src/engines/kernel_ingestor_engine/descriptors/megakernel/` |
 | Lock check in the pack step | `descriptor-packaging/tools/hkp_megakernel_lock.py`, wired in `hkp_wire_pack_target` |
-| Configure DVC check per enabled family (rocKE, megakernel; size or file count) | `CMakeLists.txt` |
+| Configure DVC check for the megakernel folder (`-dvc` branch only) | `CMakeLists.txt` |
+| Co-residency rule (prepare and per launch device) | `packs/MegakernelCoResidency.hpp`, `packs/MegakernelNative.cpp` |
 | Unit tests: matcher declines | `src/tests/engines/kernel_ingestor_engine/packs/TestMegakernelMatchers.cpp` |
 | Tests: lock mismatch fails the tool and the build | `descriptor-packaging/tests/test_hkp_megakernel_lock.py` |
 | GPU integration test (stand-in object, Graph.custom_op + execute) | `src/integration_tests/kernel_ingestor_engine/IntegrationGpuMegakernel.cpp`, `test_descriptors/integration/megakernel/` |
@@ -43,7 +47,9 @@ CoExporter), args (tab addr i64, glob addr i64, nlayers i32) on the handle strea
   only, packed only with the option ON).
 - `Kernel::function()` accessor added so the pack can query occupancy of the loaded function.
 
-## Results (Alola CPU node ctr-smc-s22-17, hipdnn_latest_gfx942.sqsh, GPU_TARGETS=gfx942, ingestor ON)
+## Results before the rebase (history: base 6a27c440ff9, Alola CPU node ctr-smc-s22-17)
+
+These numbers are from the old base and are not current. See "Current results".
 
 Log: `logs/run-off-on.log` (job 68218157, head a90fe00804e).
 
@@ -115,3 +121,30 @@ megakernel cases ON 11 passed; `IntegrationGpuMegakernel.*` 2 passed; lock pytes
 clang-format and clang-tidy rc 0. The first try (job 68378708, `logs-try1` on Alola only)
 failed in `hipdnn_frontend_tests` (`TestSdpaFwdNode.cpp`: no `Graph::sdpa`) because
 `HIPDNN_ENABLE_SDPA` was OFF; develop does not build without it. CI sets it ON.
+
+## Review changes (2026-11-12, PR head 6285fe01629, `-dvc` head caf017e6d2e)
+
+Backup of the first rebase head ee1c33bed13: `users/sareeder/megakernel-engine-archive2`.
+
+| Finding | Change | Test |
+|---|---|---|
+| BLOCKING: pointer 404 on `ingestor`, every `dvc pull` of the folder fails | `artifacts.dvc` and the megakernel DVC configure check moved to `users/sareeder/megakernel-engine-dvc` (one commit on the PR head). README and lock-tool text say so. | Anonymous `dvc pull --recursive` of the descriptors folder, DVC 3.62.0: PR branch rc 0, `-dvc` branch rc 1 on the megakernel pointer (`logs/review-6285fe0/dvc-pull-anonymous.log`). ON build with no objects: rc 0, no megakernel file packed, lock verify passes (`main/run.log`, `main/build-ON-noobj.log`). |
+| IMPORTANT: launch device not re-checked | `launch()` resolves the device from the stream (`launchDeviceOrdinal`), then checks its CU count and occupancy once per device and plan before it launches. The rule is `packs/MegakernelCoResidency.hpp` (no HIP). | `TestMegakernelCoResidency.*` (3 cases). A second device was not available, so the launch path on another device is not exercised on hardware. |
+| SUGGESTION: occupancy query error read as NOT_APPLICABLE | A failed HIP query is INTERNAL_ERROR. | Code review only (no fault injection). |
+| SUGGESTION: tests | `nlayers` 0, -1, INT32_MAX + 1 decline, INT32_MAX passes; 0, 1, 3 inputs decline. | `TestMegakernelMatchers.*` (12 cases). |
+| Coverage: ASAN | ON build in `hipdnn_latest_gfx942_asan.sqsh`. | See below. |
+
+Current results (gfx942, `scripts/run-review.sh`, every log starts with the head):
+
+- main image (job 68379300, `logs/review-6285fe0/main/`): OFF, ON and ON with no objects build rc 0.
+  Unit OFF 1869 passed / 11 skipped; ON 1884 / 11; ON no objects 1884 / 11. Megakernel cases
+  (`TestMegakernel*`) ON 15 passed: 12 matcher, 3 co-residency. `IntegrationGpuMegakernel.*`
+  2 passed. Lock pytest 11 passed. clang-format 18 and clang-tidy 20 rc 0.
+- ASAN image (job 68380455, `logs/review-6285fe0/asan/`): ON build rc 0; unit 1884 / 11;
+  `IntegrationGpuMegakernel.*` 2 passed; no sanitizer report. The first ASAN run (job 68379807,
+  `logs/review-6285fe0/asan-try1/run.log`) ran the binaries without `HSA_XNACK=1`, which ctest
+  sets from `Sanitizers.cmake`; then `hipStreamCreate` failed and some HIP launches crashed in
+  `libamdhip64`, in megakernel and other tests alike.
+
+The `logs/rebase-ee1c33b/` logs do not record the head in the file; the folder name gives it.
+`scripts/run-rebase.sh` is the version that ran (with `HIPDNN_ENABLE_SDPA=ON`).

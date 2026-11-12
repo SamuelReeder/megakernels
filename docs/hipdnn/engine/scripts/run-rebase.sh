@@ -2,6 +2,8 @@
 # Megakernel engine rebuild (head ee1c33bed13 on develop 9e91949f8f8): build hipDNN +
 # hip-kernel-provider (ingestor ON) with ENABLE_MEGAKERNEL_ENGINE OFF and ON, unit tests,
 # lock pytest, clang-format and clang-tidy on the changed C++, GPU integration test.
+# HIPDNN_ENABLE_SDPA=ON as in hipdnn-superbuild-ci.yml: develop 9e91949f8f8 does not build the
+# frontend tests without it (TestSdpaFwdNode.cpp calls Graph::sdpa).
 # Runs inside hipdnn_latest_gfx942.sqsh on a gfx942 node; /tmp is node-local.
 set -uo pipefail
 export PATH=/opt/rocm/bin:/opt/rocm/lib/llvm/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -21,7 +23,7 @@ for MODE in OFF ON; do
   t0=$(date +%s)
   cmake --fresh --preset hip-kernel-provider -S src -B $B -G Ninja \
     -DROCM_LIBS_ENABLE_COMPONENTS="hipdnn;hipdnn-integration-tests;hip-kernel-provider" \
-    -DHIPDNN_ENABLE_KERNEL_INGESTOR=ON -DGPU_TARGETS=gfx942 \
+    -DHIPDNN_ENABLE_KERNEL_INGESTOR=ON -DHIPDNN_ENABLE_SDPA=ON -DGPU_TARGETS=gfx942 \
     -DENABLE_CLANG_FORMAT=ON -DENABLE_CLANG_TIDY=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
     -DENABLE_MEGAKERNEL_ENGINE=$MODE -DPython3_EXECUTABLE=/usr/bin/python3 \
     -DCMAKE_INSTALL_PREFIX=$W/install-$MODE > $LOG/configure-$MODE.log 2>&1
@@ -59,7 +61,7 @@ CT=$(command -v clang-tidy-20 || command -v clang-tidy); echo "clang-tidy: $($CT
 echo "clang_tidy_rc=$?"; grep -E "error:|warning:" $LOG/clang-tidy-ON.log | head -20
 ( cd $W/build-ON/bin && HIP_VISIBLE_DEVICES=0 ./hip_kernel_provider_integration_tests --gtest_filter='IntegrationGpuMegakernel.*' > $LOG/integration-gpu-megakernel-ON.log 2>&1; echo "integration_rc=$?" )
 grep -E "^\[ *(OK|PASSED|FAILED|SKIPPED|RUN) |tests ran" $LOG/integration-gpu-megakernel-ON.log | head -20
-( cd $P/descriptor-packaging && python3 -m pytest -v -p no:cacheprovider tests/test_hkp_megakernel_lock.py > $LOG/pytest-lock.log 2>&1; echo "pytest_rc=$?" )
+( cd $P/descriptor-packaging && PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 python3 -m pytest -v -p no:cacheprovider tests/test_hkp_megakernel_lock.py > $LOG/pytest-lock.log 2>&1; echo "pytest_rc=$?" )
 tail -3 $LOG/pytest-lock.log
 cd /; rm -rf $W
 echo "done $(date -Is)"
