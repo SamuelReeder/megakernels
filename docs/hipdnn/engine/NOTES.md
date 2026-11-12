@@ -148,3 +148,19 @@ Current results (gfx942, `scripts/run-review.sh`, every log starts with the head
 
 The `logs/rebase-ee1c33b/` logs do not record the head in the file; the folder name gives it.
 `scripts/run-rebase.sh` is the version that ran (with `HIPDNN_ENABLE_SDPA=ON`).
+
+## Rebase onto develop 11ae0945ecb (2026-11-12, PR head bf3255d71eb, `-dvc` head 4f484aef7d6)
+
+Backup of 6285fe01629: `users/sareeder/megakernel-engine-archive3`. Develop added the
+`hipkernel:Gfx1250ConvDgradAot` engine. One conflict: the pack table in `IngestorPacks.cpp`;
+both entries kept (Gfx1250ConvDgradAot, then the megakernel entry under its `#ifdef`). The
+other shared files (`IngestorPacks.hpp`, engine and test `CMakeLists.txt`,
+`TestKernelIngestorEngine.cpp`, integration `CMakeLists.txt`, `descriptors/README.md`) merged
+without conflict. The product +/- lines are the same as on 6285fe01629
+(`logs/rebase-bf3255d/diff-check.log`, empty diff). The `-dvc` commit rebased without conflict.
+
+Results (job 68380805, `logs/rebase-bf3255d/`): OFF, ON and ON with no objects build rc 0; unit
+OFF 1879 passed / 13 skipped, ON 1894 / 13, ON no objects 1894 / 13; `TestMegakernel*` 15
+passed; `IntegrationGpuMegakernel.*` 2 passed; lock pytest 11 passed; clang-format and
+clang-tidy rc 0. Anonymous `dvc pull --recursive` (DVC 3.62.0): PR branch rc 0, `-dvc` branch
+rc 1 on the megakernel pointer. ASAN not rerun: no megakernel code changed in the rebase.
