@@ -1,0 +1,43 @@
+[ schema   ] hipkernel:Pointwise 1.0.0
+[ schema   ] hipkernel:ConvFwd 1.0.0
+[ schema   ] ASM_SDPA_ENGINE 1.4.0
+[ schema   ] HIP_MLOPS_ENGINE 1.4.0
+/tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/compilation/TestProgramAndKernel.cpp:251: Skipped
+foreign-stream rejection requires two devices
+
+/tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/device/TestScopedDevice.cpp:58: Skipped
+needs two devices: with one, ScopedDevice never switches
+
+/tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/engines/asm_sdpa_engine/TestSdpaBwdPlanBuilder.cpp:1028: Skipped
+Test requires non-gfx942 device to assert rejection
+
+/tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/engines/kernel_ingestor_engine/packs/TestGfx950ConvDgradMatchers.cpp:1026: Skipped
+this configuration packed no gfx950 production tree, so the shipped hipkernel:Gfx950ConvDgradAot bundle is not staged beside this binary
+
+/tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/engines/kernel_ingestor_engine/packs/TestGfx950ConvDgradMatchers.cpp:1086: Skipped
+this configuration packed no gfx950 production tree, so the shipped hipkernel:Gfx950ConvDgradAot bundle is not staged beside this binary
+
+/tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/ingestor/TestPackedDescriptorLoad.cpp:764: Skipped
+the unit tree has no gfx950 shard under "/tmp/mkeng2/build-OFF/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider/unit/shared": this build does not pack for gfx950, and the 'slotted_hsaco' fixture is gfx950-only content.
+
+/tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/ingestor/TestPackedDescriptorLoad.cpp:810: Skipped
+the slotted multi-launch fixture is rocKE content and this build packs without rocKE (HIPKERNELPROVIDER_ENABLE_ROCKE=OFF)
+
+/tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/compilation/TestProgramAndKernel.cpp:203: Skipped
+cross-device launches require two devices
+
+/tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/compilation/TestProgramAndKernel.cpp:203: Skipped
+cross-device launches require two devices
+
+/tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/compilation/TestProgramAndKernel.cpp:203: Skipped
+cross-device launches require two devices
+
+/tmp/mkeng2/src/dnn-providers/hip-kernel-provider/src/tests/compilation/TestProgramAndKernel.cpp:203: Skipped
+cross-device launches require two devices
+
+[==========] 1880 tests from 220 test suites ran. (5523 ms total)
+[  PASSED  ] 1869 tests.
+[  SKIPPED ] 11 tests.
+
+  YOU HAVE 1 DISABLED TEST
+

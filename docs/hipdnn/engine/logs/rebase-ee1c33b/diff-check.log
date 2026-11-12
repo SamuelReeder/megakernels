@@ -1,0 +1,99 @@
+old: 6a27c440ff9..18c6ef46d60 minus megakernel-notes; new: origin/develop(9e91949f8f8)..HEAD
+ 28 files changed, 2086 insertions(+), 11 deletions(-)
+1,2c1,2
+< -option(HIPKERNELPROVIDER_REQUIRE_DVC_DESCRIPTORS "Fail configure, instead of warning, when a DVC-stored rocKE descriptor is not pulled" OFF)
+< +option(HIPKERNELPROVIDER_REQUIRE_DVC_DESCRIPTORS "Fail configure, instead of warning, when a DVC-stored descriptor of an enabled family is not pulled" OFF)
+---
+> -option(HIPKERNELPROVIDER_REQUIRE_DVC_DESCRIPTORS "Fail configure, instead of warning, when a DVC-stored rocKE or FlyDSL descriptor is not pulled" OFF)
+> +option(HIPKERNELPROVIDER_REQUIRE_DVC_DESCRIPTORS "Fail configure, instead of warning, when a DVC-stored rocKE, FlyDSL or megakernel descriptor is not pulled" OFF)
+10,29c10,28
+< -    # Large rocKE bundle files (KDPs, kernel objects, heuristic models) are DVC outputs,
+< -    # each a file with a <file>.dvc pointer or a folder with a <folder>.dvc pointer. With
+< -    # ENABLE_ROCKE ON, warn when one is missing or differs from its pointer (file size, or
+< +    # Large bundle files of a DVC-stored family (rocKE: KDPs, kernel objects, heuristic
+< +    # models; megakernel: KDP and code objects) are DVC outputs, each a file with a
+< +    # <file>.dvc pointer or a folder with a <folder>.dvc pointer. For each family this
+< +    # build enables, warn when one is missing or differs from its pointer (file size, or
+< -    # release builds. Only the root this build packs from is checked.
+< +    # release builds. Only the root this build packs from is checked. The megakernel pack
+< +    # step also checks each code object's sha256 against the family's committed lock.
+< +    set(_dvc_families "")
+< -        if(HIPKERNELPROVIDER_PRODUCTION_SOURCE_ROOT)
+< -            set(_rocke_root "${HIPKERNELPROVIDER_PRODUCTION_SOURCE_ROOT}")
+< -        else()
+< -            set(_rocke_root "${HIPKERNELPROVIDER_PRODUCTION_DESCRIPTOR_SOURCE_ROOT}")
+< -        endif()
+< -        file(GLOB_RECURSE _rocke_pointers "${_rocke_root}/rocKE/*.dvc")
+< -        foreach(_pointer IN LISTS _rocke_pointers)
+< +        list(APPEND _dvc_families rocKE)
+< +    endif()
+---
+> -    # Large rocKE bundle files (KDPs, kernel objects, heuristic models) and FlyDSL's
+> -    # per-target content directories (objects, manifest, KDP) are DVC outputs, each a file
+> -    # with a <file>.dvc pointer or a folder with a <folder>.dvc pointer. For each enabled
+> -    # producer, warn when one is missing or differs from its pointer (file size, or folder
+> -    # file count) so the shipped bundle is not silently left out; tests still configure
+> -    # and run. REQUIRE_DVC_DESCRIPTORS turns the warning into an error for release builds.
+> -    # Only the root this build packs from is checked.
+> +    # Large rocKE bundle files (KDPs, kernel objects, heuristic models), FlyDSL's
+> +    # per-target content directories (objects, manifest, KDP) and the megakernel code
+> +    # objects are DVC outputs, each a file with a <file>.dvc pointer or a folder with a
+> +    # <folder>.dvc pointer. For each enabled producer, warn when one is missing or differs
+> +    # from its pointer (file size, or folder file count) so the shipped bundle is not
+> +    # silently left out; tests still configure and run. REQUIRE_DVC_DESCRIPTORS turns the
+> +    # warning into an error for release builds. Only the root this build packs from is
+> +    # checked.
+> -    # refuses a dangling reference. FlyDSL's per-target directories are handled by
+> +    # refuses a dangling reference. The megakernel family is one bundle and is left out the
+> +    # same way; when present, its pack step also checks each code object's sha256 against
+> +    # the family's committed lock. FlyDSL's per-target directories are handled by
+31,36c30
+< +        list(APPEND _dvc_families megakernel)
+< +    endif()
+< +    if(HIPKERNELPROVIDER_PRODUCTION_SOURCE_ROOT)
+< +        set(_dvc_root "${HIPKERNELPROVIDER_PRODUCTION_SOURCE_ROOT}")
+< +    else()
+< +        set(_dvc_root "${HIPKERNELPROVIDER_PRODUCTION_DESCRIPTOR_SOURCE_ROOT}")
+---
+> +        list(APPEND _dvc_producers megakernel)
+38,49c32,37
+< +    foreach(_family IN LISTS _dvc_families)
+< +        file(GLOB_RECURSE _dvc_pointers "${_dvc_root}/${_family}/*.dvc")
+< +        foreach(_pointer IN LISTS _dvc_pointers)
+< -                    "hip-kernel-provider: rocKE DVC output ${_output} is missing or "
+< +                    "hip-kernel-provider: ${_family} DVC output ${_output} is missing or "
+< -                    "file, file count for a folder). The shipped rocKE bundle will NOT "
+< +                    "file, file count for a folder). The shipped ${_family} bundle will NOT "
+< -    endif()
+< +    endforeach()
+< -set(HKP_DESCRIPTOR_FAMILIES "rocKE=HIPKERNELPROVIDER_ENABLE_ROCKE")
+< +set(HKP_DESCRIPTOR_FAMILIES
+< +    "rocKE=HIPKERNELPROVIDER_ENABLE_ROCKE"
+---
+> +                elseif(_producer STREQUAL "megakernel")
+> +                    # One bundle: the family folder. Its KDP names the code objects.
+> +                    list(APPEND HKP_PRODUCT_EXCLUDED_BUNDLES megakernel)
+> +                    set(_skipped "The megakernel bundle will NOT be packed.")
+> -    "FlyDSL=HIPKERNELPROVIDER_ENABLE_FLYDSL")
+> +    "FlyDSL=HIPKERNELPROVIDER_ENABLE_FLYDSL"
+1855,1869d1842
+< -    constexpr std::array<std::string_view, 5> PACK_DISPATCH_SYMBOLS{
+< -        "hipkernel.pointwise.dispatch",
+< -        "hipkernel.conv_fwd.dispatch",
+< -        "hipkernel.gfx950_attention_dense.dispatch",
+< -        "hipkernel.gfx1151_wmma_attention.dispatch",
+< -        "hipkernel.gfx1151_wmma_attention_decode.dispatch"};
+< +    using namespace std::string_view_literals;
+< +    constexpr std::array PACK_DISPATCH_SYMBOLS{
+< +        "hipkernel.pointwise.dispatch"sv,
+< +        "hipkernel.conv_fwd.dispatch"sv,
+< +        "hipkernel.gfx950_attention_dense.dispatch"sv,
+< +        "hipkernel.gfx1151_wmma_attention.dispatch"sv,
+< +        "hipkernel.gfx1151_wmma_attention_decode.dispatch"sv,
+< +#ifdef ENABLE_MEGAKERNEL_ENGINE
+< +        "megakernel.dispatch"sv,
+1871c1844,1845
+< +    };
+---
+> +#ifdef ENABLE_MEGAKERNEL_ENGINE
+> +        "megakernel.dispatch",

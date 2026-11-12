@@ -78,9 +78,8 @@ passed above, so the ON build was not rerun for it.
 
 ## Not done
 
-- GPU integration test (`IntegrationGpuMegakernel.*`) not run yet: gfx942 nodes are held
-  until about 11-01 (Main's sharing rule). Run on a gfx942 node with the ON build:
-  `HIP_VISIBLE_DEVICES=0 bin/hip_kernel_provider_integration_tests --gtest_filter='IntegrationGpuMegakernel.*'`.
+- GPU integration test: done after the rebase (2 passed,
+  `logs/rebase-ee1c33b/integration-gpu-megakernel-ON.log`).
 
 ## DVC upload, once write access to the ingestor bucket exists
 
@@ -92,3 +91,27 @@ dvc push -r ingestor dnn-providers/hip-kernel-provider/src/engines/kernel_ingest
 
 Then check anonymously that `dvc pull -r ingestor <same pointer>` restores the files and that
 `python3 dnn-providers/hip-kernel-provider/descriptor-packaging/tools/hkp_megakernel_lock.py verify --lock <...>/megakernel/manifest.json` passes.
+
+## Rebase onto develop 9e91949f8f8 (2026-11-12)
+
+The branch was rebuilt as three linear commits on `origin/develop` 9e91949f8f8. Backup of the
+old head 18c6ef46d60: `users/sareeder/megakernel-engine-archive`. This folder
+(`megakernel-notes/`) moved here. The product diff is the same as the old head, except for the
+conflict resolutions below (`logs/rebase-ee1c33b/diff-check.log`).
+
+| File | Develop change since 6a27c440ff9 | Resolution |
+|---|---|---|
+| `CMakeLists.txt` (option text) | FlyDSL added to the `REQUIRE_DVC_DESCRIPTORS` text | Text names rocKE, FlyDSL and megakernel. |
+| `CMakeLists.txt` (DVC check) | Loop over producers (rocKE, FlyDSL); a missing rocKE output adds its bundle to `HKP_PRODUCT_EXCLUDED_BUNDLES` | Keep develop's loop. Add `megakernel` as a producer. A missing megakernel output adds `megakernel` to `HKP_PRODUCT_EXCLUDED_BUNDLES`, so the pack step skips the bundle and its lock check. The old branch had its own per-family loop; it is gone. |
+| `HkpPackaging.cmake` | `FlyDSL` family entry | Both entries. |
+| engine `CMakeLists.txt` | FlyDSL pack sources | Both blocks. |
+| `IngestorPacks.cpp/.hpp` | `hipkernel:Gfx950ConvDgradAot` pack | Both. |
+| tests `CMakeLists.txt` | gfx942 unified 3D table generation | Both. |
+| `TestKernelIngestorEngine.cpp` | Symbol list became a `std::vector` with an `#ifdef HIPDNN_ENGINE_FLYDSL` block | Keep develop's vector. Add `megakernel.dispatch` under `#ifdef ENABLE_MEGAKERNEL_ENGINE`. The old `std::array` with `sv` literals is gone. |
+
+Results on head ee1c33bed13 (gfx942 node banff-cyxtera-s70-4, job 68378885, `logs/rebase-ee1c33b/run.log`):
+OFF and ON builds rc 0; unit OFF 1869 passed / 11 skipped, ON 1879 passed / 11 skipped;
+megakernel cases ON 11 passed; `IntegrationGpuMegakernel.*` 2 passed; lock pytest 11 passed;
+clang-format and clang-tidy rc 0. The first try (job 68378708, `logs-try1` on Alola only)
+failed in `hipdnn_frontend_tests` (`TestSdpaFwdNode.cpp`: no `Graph::sdpa`) because
+`HIPDNN_ENABLE_SDPA` was OFF; develop does not build without it. CI sets it ON.
