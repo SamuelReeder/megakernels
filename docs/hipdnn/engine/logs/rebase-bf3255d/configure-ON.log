@@ -1,0 +1,367 @@
+head=bf3255d71ebe532d4a5f070f2d7a49eb38e05e13 kind=main mode=ON 2026-11-12T15:16:59-05:00
+Preset CMake variables:
+
+  CMAKE_BUILD_TYPE="Release"
+  CMAKE_TOOLCHAIN_FILE:FILEPATH="/tmp/mkeng3-main/src/cmake/toolchains/rocm-clang.cmake"
+
+-- The C compiler identification is Clang 24.0.0
+-- The CXX compiler identification is Clang 24.0.0
+-- The ASM compiler identification is Clang with GNU-like command-line
+-- Found assembler: /opt/rocm/lib/llvm/bin/clang
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/rocm/lib/llvm/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /opt/rocm/lib/llvm/bin/clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Looking for a Fortran compiler
+-- Looking for a Fortran compiler - /usr/bin/f95
+-- The Fortran compiler identification is GNU 13.3.0
+-- Detecting Fortran compiler ABI info
+-- Detecting Fortran compiler ABI info - done
+-- Check for working Fortran compiler: /usr/bin/f95 - skipped
+-- Enabling components:
+--   hipdnn (supported)
+--   hipdnn-integration-tests (supported)
+--   hip-kernel-provider (supported)
+-- Using the multi-header code from /tmp/mkeng3-main/build-ON/_deps/nlohmann_json-src/include/
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- [hipdnn] hipDNN: JSON serialization enabled in SDK public headers (requires nlohmann_json)
+-- [hipdnn] hipDNN: SDPA support enabled
+-- [hipdnn] hipDNN: kernel ingestor enabled
+-- [hipdnn] hipDNN: cuDNN compatibility shim disabled
+-- [hipdnn] The CMake generator is Ninja.
+-- [hipdnn] CMAKE_INSTALL_PREFIX set to default: /tmp/mkeng3-main/install-ON
+CMake Warning at projects/hipdnn/CMakeLists.txt:251 (message):
+  Clang-Tidy is disabled - some build issues may be missed.
+
+
+-- [hipdnn] ✓ Confirmed AMD/ROCm type C++ compiler
+-- [hipdnn] Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+-- [hipdnn] Found clang-format version 18 at /usr/bin/clang-format-18 -- Ubuntu clang-format version 18.1.3 (1ubuntu1)
+-- [hipdnn] Found clang-tidy version 20 at /usr/bin/clang-tidy-20 -- Ubuntu LLVM version 20.1.2
+[hipdnn]   Optimized build.
+-- [hipdnn] Found run-clang-tidy at /usr/bin/run-clang-tidy-20
+-- [hipdnn] Found llvm-symbolizer version 20 at /usr/bin/llvm-symbolizer-20 -- llvm-symbolizer
+[hipdnn] Ubuntu LLVM version 20.1.2
+[hipdnn]   Optimized build.
+-- [hipdnn] hipDNN: YAML-based CTest categorization enabled
+-- [hipdnn] hipdnn_data_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_data_sdk version: 0.2.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Performing Test HIP_CLANG_SUPPORTS_PARALLEL_JOBS
+-- [hipdnn] Performing Test HIP_CLANG_SUPPORTS_PARALLEL_JOBS - Success
+-- [hipdnn] Configured clang-tidy HIP arguments with include directory: /opt/rocm/include
+-- [hipdnn] Registering test target: hipdnn_data_sdk_tests -> hipdnn_data_sdk_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/data_sdk/tests
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/data_sdk/tests/test_categories.cmake
+-- [hipdnn] hipdnn_flatbuffers_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_flatbuffers_sdk version: 0.2.0.unknown
+-- [hipdnn] Did not find flatbuffers, it will be built locally
+-- [hipdnn] [flatbuffers] Proceeding with version: 25.9.23.0
+-- [hipdnn] [flatbuffers] Looking for strtof_l
+-- [hipdnn] [flatbuffers] Looking for strtof_l - found
+-- [hipdnn] [flatbuffers] Looking for strtoull_l
+-- [hipdnn] [flatbuffers] Looking for strtoull_l - found
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] *------------------------------- ROCMChecks WARNING --------------------------*
+[hipdnn] [flatbuffers]   Options and properties should be set on a cmake target where possible. The
+[hipdnn] [flatbuffers]   variable 'CMAKE_C_FLAGS' may be set by the cmake toolchain, either by
+[hipdnn] [flatbuffers]   calling 'cmake -DCMAKE_C_FLAGS=""'
+[hipdnn] [flatbuffers]   or set in a toolchain file and added with
+[hipdnn] [flatbuffers]   'cmake -DCMAKE_TOOLCHAIN_FILE=<toolchain-file>'. ROCMChecks now calling:
+CMake Warning at /opt/rocm/share/rocmcmakebuildtools/cmake/ROCMChecks.cmake:46 (message):
+  'CMAKE_C_FLAGS' is set at
+  /tmp/mkeng3-main/build-ON/_deps/flatbuffers-src/CMakeLists.txt:<line#>
+  shown below:
+Call Stack (most recent call first):
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:9223372036854775807 (rocm_check_toolchain_var)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:79 (string)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:65 (__CHECK_SYMBOL_EXISTS_FILTER_FLAGS)
+  /tmp/mkeng3-main/build-ON/_deps/flatbuffers-src/CMakeLists.txt:116 (check_symbol_exists)
+
+
+[hipdnn] [flatbuffers] *-----------------------------------------------------------------------------*
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] *------------------------------- ROCMChecks WARNING --------------------------*
+[hipdnn] [flatbuffers]   Options and properties should be set on a cmake target where possible. The
+[hipdnn] [flatbuffers]   variable 'CMAKE_C_FLAGS' may be set by the cmake toolchain, either by
+[hipdnn] [flatbuffers]   calling 'cmake -DCMAKE_C_FLAGS=""'
+[hipdnn] [flatbuffers]   or set in a toolchain file and added with
+[hipdnn] [flatbuffers]   'cmake -DCMAKE_TOOLCHAIN_FILE=<toolchain-file>'. ROCMChecks now calling:
+CMake Warning at /opt/rocm/share/rocmcmakebuildtools/cmake/ROCMChecks.cmake:46 (message):
+  'CMAKE_C_FLAGS' is set at
+  /tmp/mkeng3-main/build-ON/_deps/flatbuffers-src/CMakeLists.txt:<line#>
+  shown below:
+Call Stack (most recent call first):
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:9223372036854775807 (rocm_check_toolchain_var)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:80 (string)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:65 (__CHECK_SYMBOL_EXISTS_FILTER_FLAGS)
+  /tmp/mkeng3-main/build-ON/_deps/flatbuffers-src/CMakeLists.txt:116 (check_symbol_exists)
+
+
+[hipdnn] [flatbuffers] *-----------------------------------------------------------------------------*
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] 
+-- [hipdnn] [flatbuffers] Looking for realpath
+-- [hipdnn] [flatbuffers] Looking for realpath - found
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] *------------------------------- ROCMChecks WARNING --------------------------*
+[hipdnn] [flatbuffers]   Options and properties should be set on a cmake target where possible. The
+[hipdnn] [flatbuffers]   variable 'CMAKE_C_FLAGS' may be set by the cmake toolchain, either by
+[hipdnn] [flatbuffers]   calling 'cmake -DCMAKE_C_FLAGS=""'
+[hipdnn] [flatbuffers]   or set in a toolchain file and added with
+[hipdnn] [flatbuffers]   'cmake -DCMAKE_TOOLCHAIN_FILE=<toolchain-file>'. ROCMChecks now calling:
+CMake Warning at /opt/rocm/share/rocmcmakebuildtools/cmake/ROCMChecks.cmake:46 (message):
+  'CMAKE_C_FLAGS' is set at
+  /tmp/mkeng3-main/build-ON/_deps/flatbuffers-src/CMakeLists.txt:<line#>
+  shown below:
+Call Stack (most recent call first):
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:9223372036854775807 (rocm_check_toolchain_var)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:84 (set)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:67 (__CHECK_SYMBOL_EXISTS_RESTORE_FLAGS)
+  /tmp/mkeng3-main/build-ON/_deps/flatbuffers-src/CMakeLists.txt:116 (check_symbol_exists)
+
+
+[hipdnn] [flatbuffers] *-----------------------------------------------------------------------------*
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] 
+-- [hipdnn] [flatbuffers] CMAKE_CXX_FLAGS: 
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Registering test target: hipdnn_flatbuffers_sdk_tests -> hipdnn_flatbuffers_sdk_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/flatbuffers_sdk/tests
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/flatbuffers_sdk/tests/test_categories.cmake
+-- [hipdnn] hipdnn_backend: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_backend version: 0.4.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Found spdlog: /usr/local/lib/cmake/spdlog (found version "1.15.3")
+-- [hipdnn] hipdnn_enable_spdlog: Enabled spdlog for target hipdnn_backend_private
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_VISIBILITY
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_VISIBILITY - Success
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY - Success
+-- [hipdnn] Performing Test COMPILER_HAS_DEPRECATED_ATTR
+-- [hipdnn] Performing Test COMPILER_HAS_DEPRECATED_ATTR - Success
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Registering test target: hipdnn_backend_tests -> hipdnn_backend_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/backend/tests
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/backend/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/backend/tests/test_categories.cmake
+-- [hipdnn] hipdnn_frontend: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_frontend version: 0.5.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Registering test target: hipdnn_frontend_tests -> hipdnn_frontend_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/frontend/tests
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/frontend/tests/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_frontend_dynamic_load_tests -> hipdnn_frontend_dynamic_load_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/frontend/tests
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/frontend/tests/test_categories.cmake
+-- [hipdnn] hipdnn_test_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_test_sdk version: 0.3.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Registering test target: hipdnn_test_sdk_tests -> hipdnn_test_sdk_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/test_sdk/tests
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/test_sdk/tests/test_categories.cmake
+-- [hipdnn] hipdnn_plugin_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_plugin_sdk version: 1.1.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+CMake Warning at projects/hipdnn/plugin_sdk/tests/CMakeLists.txt:29 (message):
+  TestUhdGenArtifact NOT built: uhd_gen's dependencies are not importable by
+  /usr/bin/python3.  Nothing then checks that a real uhd_gen artifact loads
+  at run time.  Install projects/hipdnn/tools/uhd_gen/requirements.txt into
+  that interpreter.
+
+
+-- [hipdnn] Registering test target: hipdnn_plugin_sdk_tests -> hipdnn_plugin_sdk_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] hipdnn_enable_spdlog: Enabled spdlog for target hipdnn_public_backend_tests
+-- [hipdnn] Registering test target: hipdnn_public_backend_tests -> hipdnn_public_backend_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/tests/backend
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tests/backend/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_backend_logging_shutdown_tests -> hipdnn_backend_logging_shutdown_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/tests/backend_logging
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tests/backend_logging/test_categories.cmake
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Registering test target: hipdnn_public_frontend_tests -> hipdnn_public_frontend_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/tests/frontend
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tests/frontend/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_public_frontend_dynamic_load_tests -> hipdnn_public_frontend_dynamic_load_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/tests/frontend
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tests/frontend/test_categories.cmake
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_bench_tests -> hipdnn_bench_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/tests
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/bench/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_corpus_gen_tests -> hipdnn_corpus_gen_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/tests
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/tests/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_corpus_gen_frontend_tests -> hipdnn_corpus_gen_frontend_tests in working directory: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/tests
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/corpus_gen/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mkeng3-main/build-ON/projects/hipdnn/test_categories.cmake
+-- [integration-tests] CMAKE_INSTALL_PREFIX set to default: /tmp/mkeng3-main/install-ON
+CMake Warning at dnn-providers/integration-tests/CMakeLists.txt:55 (message):
+  Clang-Tidy checks are disabled.  CI requires passing clang-tidy checks.
+
+
+-- [integration-tests] Found clang-tidy version 20 at /usr/bin/clang-tidy-20 -- Ubuntu LLVM version 20.1.2
+[integration-tests]   Optimized build.
+-- [integration-tests] Found run-clang-tidy at /usr/bin/run-clang-tidy-20
+-- [integration-tests] ✓ Confirmed AMD/ROCm type C++ compiler
+-- [integration-tests] Found clang-format version 18 at /usr/bin/clang-format-18 : Ubuntu clang-format version 18.1.3 (1ubuntu1)
+-- [integration-tests] Found llvm-symbolizer version 20 at /usr/bin/llvm-symbolizer-20 -- llvm-symbolizer
+[integration-tests] Ubuntu LLVM version 20.1.2
+[integration-tests]   Optimized build.
+-- [integration-tests] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [integration-tests] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [integration-tests] Found system GTest
+-- [integration-tests] hipdnn-integration-tests: YAML-based CTest categorization enabled
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Registering integration_test test target: hipdnn_golden_data_tests -> hipdnn_golden_data_tests in working directory: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests
+-- [integration-tests] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [integration-tests] Registering unit_test test target: hipdnn_integration_tests_unit_tests -> hipdnn_integration_tests_unit_tests in working directory: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/tests
+-- [integration-tests] Registering integration_test test target: hipdnn_gpu_ref_tests -> hipdnn_gpu_ref_tests in working directory: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/tests
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [integration-tests] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/integration-tests/test_categories.cmake
+-- [hip-kernel-provider] hip_kernel_provider version: 0.2.0.unknown
+-- [hip-kernel-provider] Setting CMAKE_INSTALL_PREFIX to /tmp/mkeng3-main/install-ON
+-- [hip-kernel-provider] ASM SDPA engine enabled
+-- [hip-kernel-provider] HIP Flash2 SDPA engine disabled
+-- [hip-kernel-provider] HIP kernel engine enabled
+-- [hip-kernel-provider] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hip-kernel-provider] ✓ Confirmed AMD/ROCm type C++ compiler
+-- [hip-kernel-provider] Found clang-format version 18 at /usr/bin/clang-format-18 : Ubuntu clang-format version 18.1.3 (1ubuntu1)
+-- [hip-kernel-provider] Found clang-tidy version 20 at /usr/bin/clang-tidy-20 -- Ubuntu LLVM version 20.1.2
+[hip-kernel-provider]   Optimized build.
+-- [hip-kernel-provider] Found run-clang-tidy at /usr/bin/run-clang-tidy-20
+-- [hip-kernel-provider] Found system GTest
+-- [hip-kernel-provider] Found llvm-symbolizer version 20 at /usr/bin/llvm-symbolizer-20 -- llvm-symbolizer
+[hip-kernel-provider] Ubuntu LLVM version 20.1.2
+[hip-kernel-provider]   Optimized build.
+-- [hip-kernel-provider] Plugin build directory: /tmp/mkeng3-main/build-ON/lib/hipdnn_plugins/engines
+-- [hip-kernel-provider] Plugin install directory (relative): lib/hipdnn_plugins/engines
+-- [hip-kernel-provider] Kernel ingestor enabled. Descriptors build into:
+-- [hip-kernel-provider]   production: /tmp/mkeng3-main/build-ON/lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider
+-- [hip-kernel-provider]   test:       /tmp/mkeng3-main/build-ON/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider
+-- [hip-kernel-provider] hip-kernel-provider: YAML-based CTest categorization enabled
+-- [hip-kernel-provider] rocKE features disabled
+-- [hip-kernel-provider] kpack: using rocm_kpack from /opt/rocm-kpack/python (shipped by the build environment)
+-- [hip-kernel-provider] hkp: rocKE disabled (HIPKERNELPROVIDER_ENABLE_ROCKE=OFF); packing with the hip producer only
+-- [hip-kernel-provider] hkp: root 'slotted_hsaco' is authored for gfx950, not among this build's architectures (gfx942); slotted_hsaco packaging dormant.
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/descriptor-packaging/test_categories.cmake
+-- [hip-kernel-provider] kpack: using rocm_kpack from /opt/rocm-kpack/python (shipped by the build environment)
+-- [hip-kernel-provider] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/tests/test_categories.cmake
+-- [hip-kernel-provider] hkp: this configuration does not ship hipkernel:Gfx950AttentionDense for gfx950, so its census is not registered.
+-- [hip-kernel-provider] hkp: this configuration does not ship hipkernel:Gfx950AttentionUnified2D for gfx950, so its census is not registered.
+-- [hip-kernel-provider] hkp: this configuration does not ship hipkernel:Gfx950AttentionUnified3D for gfx950, so its census is not registered.
+-- [hip-kernel-provider] hkp: this configuration does not ship hipkernel:Gfx942AttentionUnified3d for gfx942, so its census is not registered.
+-- [hip-kernel-provider] hkp: this configuration does not ship hipkernel:Gfx942AttentionDense for gfx942, so its census is not registered.
+-- [hip-kernel-provider] hkp: this configuration does not ship hipkernel:Gfx1151WmmaAttention for any RDNA arch, so its census is not registered.
+-- [hip-kernel-provider] hkp: this configuration does not ship hipkernel:Gfx1151WmmaAttentionDecode for any RDNA arch, so its census is not registered.
+-- [hip-kernel-provider] hkp: this configuration does not ship hipkernel:Gfx950ConvDgradAot for gfx950, so its census is not registered.
+-- [hip-kernel-provider] hkp: this configuration does not ship hipkernel:Gfx1250ConvDgradAot for gfx1250, so its census is not registered.
+-- [hip-kernel-provider] Registering unit_test test target: hip_kernel_provider_tests -> hip_kernel_provider_tests in working directory: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/tests
+-- [hip-kernel-provider] Registering unit_test test target: hip_kernel_provider_census_tests -> hip_kernel_provider_census_tests in working directory: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/tests
+-- [hip-kernel-provider] Registering integration_test test target: hip_kernel_provider_integration_tests -> hip_kernel_provider_integration_tests in working directory: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/integration_tests
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/test_categories.cmake
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/test_categories.cmake
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/test_categories.cmake
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/test_categories.cmake
+-- [hip-kernel-provider] Created hip-kernel-provider-external-integration-check target
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/test_categories.cmake
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/test_categories.cmake
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/test_categories.cmake
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/test_categories.cmake
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/test_categories.cmake
+-- [hip-kernel-provider] Created hip-kernel-provider-asm-sdpa-external-integration-check target
+-- [hip-kernel-provider] Generated test category configuration: /tmp/mkeng3-main/build-ON/dnn-providers/hip-kernel-provider/src/test_categories.cmake
+-- [hip-kernel-provider] hipkernel:Gfx950AttentionDense is not shipped for gfx950 by this configuration - skipping hip-kernel-provider-gfx950-attention-dense-external-integration-check
+-- [hip-kernel-provider] hipkernel:Gfx950AttentionUnified2D is not shipped for gfx950 by this configuration - skipping hip-kernel-provider-gfx950-attention-unified-2d-external-integration-check
+-- [hip-kernel-provider] hipkernel:Gfx950AttentionUnified3D is not shipped for gfx950 by this configuration - skipping hip-kernel-provider-gfx950-attention-unified-3d-external-integration-check
+-- [hip-kernel-provider] hipkernel:Gfx942AttentionUnified3d is not shipped for gfx942 by this configuration - skipping hip-kernel-provider-gfx942-attention-unified-3d-external-integration-check
+-- [hip-kernel-provider] hipkernel:Gfx942AttentionDense is not shipped for gfx942 by this configuration - skipping hip-kernel-provider-gfx942-attention-dense-external-integration-check
+-- Configuring done (25.9s)
+-- Generating done (0.2s)
+-- Build files have been written to: /tmp/mkeng3-main/build-ON

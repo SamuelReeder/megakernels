@@ -1,0 +1,24 @@
+=== branch users/sareeder/megakernel-engine head=bf3255d71ebe532d4a5f070f2d7a49eb38e05e13 2026-11-12T20:08:46+00:00
+dvc 3.62.0 (pathspec 0.12.1); AWS_* unset, HOME=/tmp/dvchome (no global config)
+pointers: 54, megakernel pointer: absent
++ dvc pull --recursive dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors
+ne/gfx950/tflops/model.bin
+A       
+dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors
+/FlyDSL/rmsnorm_bwd/heuristics/e0f4eda1-e55b-5e1e-8923-27302152522b/predict_engi
+ne/gfx942/tflops/model.bin
+54 files added and 2817 files fetched
+dvc_pull_rc=0
+KDPs under artifacts: 19
+=== branch users/sareeder/megakernel-engine-dvc head=4f484aef7d6665bdc3db3e30cde4a910687a88ba 2026-11-12T20:09:35+00:00
+dvc 3.62.0 (pathspec 0.12.1); AWS_* unset, HOME=/tmp/dvchome (no global config)
+pointers: 55, megakernel pointer: dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/artifacts.dvc
++ dvc pull --recursive dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors
+eb/sort_kernel_catalog/gfx942/tflops/model.bin
+54 files added and 2817 files fetched
+ERROR: failed to pull data from the cloud - Checkout failed for following targets:
+dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/descriptors/megakernel/artifacts
+Is your cache up to date?
+<https://error.dvc.org/missing-files>
+dvc_pull_rc=1
+KDPs under artifacts: 19

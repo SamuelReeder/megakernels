@@ -1,5 +1,5 @@
 #!/bin/bash
-# Megakernel engine, PR branch users/sareeder/megakernel-engine on develop 9e91949f8f8.
+# Megakernel engine, PR branch users/sareeder/megakernel-engine (develop base and head in HEAD_SHA / logs).
 # Builds hipDNN + hip-kernel-provider (ingestor ON, HIPDNN_ENABLE_SDPA=ON as in
 # hipdnn-superbuild-ci.yml: develop does not build the frontend tests without it).
 #   KIND=main (hipdnn_latest_gfx942.sqsh):
@@ -24,7 +24,10 @@ D=$P/src/engines/kernel_ingestor_engine/descriptors/megakernel
 cmake --version | head -1; hipcc --version 2>/dev/null | grep -i "HIP version"
 stamp() { echo "head=$(cat $W/src/HEAD_SHA) kind=$KIND mode=$1 $(date -Is)"; }
 
-if [ $KIND = asan ]; then MODES="ON"; EXTRA="-DBUILD_ADDRESS_SANITIZER=ON"; else MODES="OFF ON ON-noobj"; EXTRA=""; fi
+if [ $KIND = asan ]; then MODES="ON"; EXTRA="-DBUILD_ADDRESS_SANITIZER=ON"
+  # As the provider tests get from Sanitizers.cmake TEST_ENVIRONMENT under ctest: device-side
+  # ASAN needs XNACK on. The first ASAN run (job 68379807) ran the binaries without it.
+  export HSA_XNACK=1 ASAN_SYMBOLIZER_PATH=$(command -v llvm-symbolizer || echo /opt/rocm/lib/llvm/bin/llvm-symbolizer); echo "HSA_XNACK=$HSA_XNACK"; else MODES="OFF ON ON-noobj"; EXTRA=""; fi
 for MODE in $MODES; do
   B=$W/build-$MODE
   rm -rf $D/artifacts
