@@ -1,0 +1,180 @@
+frontend=5449aeba62af0e67cc025cfd3585dfae5bc8a1f3
+This local ROCm Clang 18/libstdc++12 combination diagnoses existing AutotuneBenchmark std::stable_sort; this attempt keeps the diagnostic as a warning.
+Preset CMake variables:
+
+  CMAKE_BUILD_TYPE="Release"
+  CMAKE_INSTALL_PREFIX="/opt/rocm"
+  CMAKE_TOOLCHAIN_FILE:FILEPATH="/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/cmake/toolchains/rocm-clang.cmake"
+  ROCM_LIBS_ENABLE_COMPONENTS="hipdnn;hipdnn-python"
+
+-- Enabling components:
+--   hipdnn (supported)
+--   hipdnn-python (supported)
+-- Using the multi-header code from /dev/shm/hipdnn-mk-frontend/build/_deps/nlohmann_json-src/include/
+-- [hipdnn] hipDNN: JSON serialization enabled in SDK public headers (requires nlohmann_json)
+-- [hipdnn] hipDNN: SDPA support enabled
+-- [hipdnn] hipDNN: kernel ingestor disabled
+-- [hipdnn] hipDNN: cuDNN compatibility shim disabled
+CMake Warning at projects/hipdnn/cmake/CheckPreCommit.cmake:32 (message):
+  
+
+  Pre-commit hooks are NOT installed at
+  /home/sareeder/ROCm-workspace/repos/rocm-libraries/.git/hooks/pre-commit
+
+  Please run:
+
+    cd /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend
+    pre-commit install
+
+Call Stack (most recent call first):
+  projects/hipdnn/CMakeLists.txt:102 (include)
+
+
+-- [hipdnn] The CMake generator is Ninja.
+-- [hipdnn] CMAKE_INSTALL_PREFIX set to default: /opt/rocm
+CMake Warning at projects/hipdnn/CMakeLists.txt:251 (message):
+  Clang-Tidy is disabled - some build issues may be missed.
+
+
+-- [hipdnn] ✓ Confirmed AMD/ROCm type C++ compiler
+-- [hipdnn] Found clang-format version 18 at /home/sareeder/.local/bin/clang-format -- clang-format version 18.1.8
+-- [hipdnn] Found clang-tidy version 20 at /home/sareeder/.local/bin/clang-tidy -- LLVM (http://llvm.org/):
+[hipdnn]   LLVM version 20.1.0
+[hipdnn]   Optimized build.
+CMake Warning at projects/hipdnn/cmake/CheckToolVersion.cmake:139 (message):
+  llvm-symbolizer not found in searching PATH, CMake PROGRAM and PREFIX
+  paths, and LLVM_TOOLS_SEARCH_PREFIX derived paths
+Call Stack (most recent call first):
+  projects/hipdnn/cmake/CheckToolVersion.cmake:249 (findandchecktool)
+  projects/hipdnn/cmake/Tests.cmake:24 (findandcheckllvmsymbolizer)
+  projects/hipdnn/CMakeLists.txt:265 (include)
+
+
+CMake Warning at projects/hipdnn/cmake/CheckToolVersion.cmake:259 (message):
+  ASAN tests will be missing symbolized stack traces.
+Call Stack (most recent call first):
+  projects/hipdnn/cmake/Tests.cmake:24 (findandcheckllvmsymbolizer)
+  projects/hipdnn/CMakeLists.txt:265 (include)
+
+
+-- [hipdnn] hipDNN: YAML-based CTest categorization enabled
+-- [hipdnn] hipdnn_data_sdk version: 0.2.0.5449aeba62a
+-- [hipdnn] Registering test target: hipdnn_data_sdk_tests -> hipdnn_data_sdk_tests in working directory: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/data_sdk/tests
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/data_sdk/tests/test_categories.cmake
+-- [hipdnn] hipdnn_flatbuffers_sdk version: 0.2.0.5449aeba62a
+-- [hipdnn] Did not find flatbuffers, it will be built locally
+-- [hipdnn] [flatbuffers] Proceeding with version: 25.9.23.0
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] *------------------------------- ROCMChecks WARNING --------------------------*
+[hipdnn] [flatbuffers]   Options and properties should be set on a cmake target where possible. The
+[hipdnn] [flatbuffers]   variable 'CMAKE_C_FLAGS' may be set by the cmake toolchain, either by
+[hipdnn] [flatbuffers]   calling 'cmake -DCMAKE_C_FLAGS=""'
+[hipdnn] [flatbuffers]   or set in a toolchain file and added with
+[hipdnn] [flatbuffers]   'cmake -DCMAKE_TOOLCHAIN_FILE=<toolchain-file>'. ROCMChecks now calling:
+CMake Warning at /opt/rocm/share/rocmcmakebuildtools/cmake/ROCMChecks.cmake:46 (message):
+  'CMAKE_C_FLAGS' is set at
+  /dev/shm/hipdnn-mk-frontend/build/_deps/flatbuffers-src/CMakeLists.txt:<line#>
+  shown below:
+Call Stack (most recent call first):
+  /home/sareeder/.local/lib/python3.10/site-packages/cmake/data/share/cmake-3.28/Modules/CheckSymbolExists.cmake:9223372036854775807 (rocm_check_toolchain_var)
+  /home/sareeder/.local/lib/python3.10/site-packages/cmake/data/share/cmake-3.28/Modules/CheckSymbolExists.cmake:79 (string)
+  /home/sareeder/.local/lib/python3.10/site-packages/cmake/data/share/cmake-3.28/Modules/CheckSymbolExists.cmake:65 (__CHECK_SYMBOL_EXISTS_FILTER_FLAGS)
+  /dev/shm/hipdnn-mk-frontend/build/_deps/flatbuffers-src/CMakeLists.txt:116 (check_symbol_exists)
+
+
+[hipdnn] [flatbuffers] *-----------------------------------------------------------------------------*
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] *------------------------------- ROCMChecks WARNING --------------------------*
+[hipdnn] [flatbuffers]   Options and properties should be set on a cmake target where possible. The
+[hipdnn] [flatbuffers]   variable 'CMAKE_C_FLAGS' may be set by the cmake toolchain, either by
+[hipdnn] [flatbuffers]   calling 'cmake -DCMAKE_C_FLAGS=""'
+[hipdnn] [flatbuffers]   or set in a toolchain file and added with
+[hipdnn] [flatbuffers]   'cmake -DCMAKE_TOOLCHAIN_FILE=<toolchain-file>'. ROCMChecks now calling:
+CMake Warning at /opt/rocm/share/rocmcmakebuildtools/cmake/ROCMChecks.cmake:46 (message):
+  'CMAKE_C_FLAGS' is set at
+  /dev/shm/hipdnn-mk-frontend/build/_deps/flatbuffers-src/CMakeLists.txt:<line#>
+  shown below:
+Call Stack (most recent call first):
+  /home/sareeder/.local/lib/python3.10/site-packages/cmake/data/share/cmake-3.28/Modules/CheckSymbolExists.cmake:9223372036854775807 (rocm_check_toolchain_var)
+  /home/sareeder/.local/lib/python3.10/site-packages/cmake/data/share/cmake-3.28/Modules/CheckSymbolExists.cmake:80 (string)
+  /home/sareeder/.local/lib/python3.10/site-packages/cmake/data/share/cmake-3.28/Modules/CheckSymbolExists.cmake:65 (__CHECK_SYMBOL_EXISTS_FILTER_FLAGS)
+  /dev/shm/hipdnn-mk-frontend/build/_deps/flatbuffers-src/CMakeLists.txt:116 (check_symbol_exists)
+
+
+[hipdnn] [flatbuffers] *-----------------------------------------------------------------------------*
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] *------------------------------- ROCMChecks WARNING --------------------------*
+[hipdnn] [flatbuffers]   Options and properties should be set on a cmake target where possible. The
+[hipdnn] [flatbuffers]   variable 'CMAKE_C_FLAGS' may be set by the cmake toolchain, either by
+[hipdnn] [flatbuffers]   calling 'cmake -DCMAKE_C_FLAGS=""'
+[hipdnn] [flatbuffers]   or set in a toolchain file and added with
+[hipdnn] [flatbuffers]   'cmake -DCMAKE_TOOLCHAIN_FILE=<toolchain-file>'. ROCMChecks now calling:
+CMake Warning at /opt/rocm/share/rocmcmakebuildtools/cmake/ROCMChecks.cmake:46 (message):
+  'CMAKE_C_FLAGS' is set at
+  /dev/shm/hipdnn-mk-frontend/build/_deps/flatbuffers-src/CMakeLists.txt:<line#>
+  shown below:
+Call Stack (most recent call first):
+  /home/sareeder/.local/lib/python3.10/site-packages/cmake/data/share/cmake-3.28/Modules/CheckSymbolExists.cmake:9223372036854775807 (rocm_check_toolchain_var)
+  /home/sareeder/.local/lib/python3.10/site-packages/cmake/data/share/cmake-3.28/Modules/CheckSymbolExists.cmake:84 (set)
+  /home/sareeder/.local/lib/python3.10/site-packages/cmake/data/share/cmake-3.28/Modules/CheckSymbolExists.cmake:67 (__CHECK_SYMBOL_EXISTS_RESTORE_FLAGS)
+  /dev/shm/hipdnn-mk-frontend/build/_deps/flatbuffers-src/CMakeLists.txt:116 (check_symbol_exists)
+
+
+[hipdnn] [flatbuffers] *-----------------------------------------------------------------------------*
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] 
+-- [hipdnn] [flatbuffers] CMAKE_CXX_FLAGS: -Wno-error=deprecated-declarations
+-- [hipdnn] Registering test target: hipdnn_flatbuffers_sdk_tests -> hipdnn_flatbuffers_sdk_tests in working directory: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/flatbuffers_sdk/tests
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/flatbuffers_sdk/tests/test_categories.cmake
+-- [hipdnn] hipdnn_backend version: 0.5.0.5449aeba62a
+-- [hipdnn] Did not find spdlog, it will be built locally
+-- [hipdnn] [spdlog] Build spdlog: 1.15.3
+-- [hipdnn] [spdlog] Build type: Release
+-- [hipdnn] hipdnn_enable_spdlog: Enabled spdlog for target hipdnn_backend_private
+-- [hipdnn] Registering test target: hipdnn_backend_tests -> hipdnn_backend_tests in working directory: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/backend/tests
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/backend/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/backend/tests/test_categories.cmake
+-- [hipdnn] hipdnn_frontend version: 0.6.0.5449aeba62a
+-- [hipdnn] Registering test target: hipdnn_frontend_tests -> hipdnn_frontend_tests in working directory: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/frontend/tests
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/frontend/tests/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_frontend_dynamic_load_tests -> hipdnn_frontend_dynamic_load_tests in working directory: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/frontend/tests
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/frontend/tests/test_categories.cmake
+-- [hipdnn] hipdnn_test_sdk version: 0.3.0.5449aeba62a
+-- [hipdnn] Registering test target: hipdnn_test_sdk_tests -> hipdnn_test_sdk_tests in working directory: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/test_sdk/tests
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/test_sdk/tests/test_categories.cmake
+-- [hipdnn] hipdnn_plugin_sdk version: 1.1.0.5449aeba62a
+-- [hipdnn] Registering test target: hipdnn_plugin_sdk_tests -> hipdnn_plugin_sdk_tests in working directory: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/plugin_sdk/tests
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] hipdnn_enable_spdlog: Enabled spdlog for target hipdnn_public_backend_tests
+-- [hipdnn] Registering test target: hipdnn_public_backend_tests -> hipdnn_public_backend_tests in working directory: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/tests/backend
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/tests/backend/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_backend_logging_shutdown_tests -> hipdnn_backend_logging_shutdown_tests in working directory: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/tests/backend_logging
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/tests/backend_logging/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_public_frontend_tests -> hipdnn_public_frontend_tests in working directory: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/tests/frontend
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/tests/frontend/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/tests/frontend/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_public_frontend_dynamic_load_tests -> hipdnn_public_frontend_dynamic_load_tests in working directory: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/tests/frontend
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/tests/frontend/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/test_categories.cmake
+-- [hipdnn] run-clang-tidy-20 not found. The 'tidy' targets will not be available.
+-- [hipdnn] Generated test category configuration: /dev/shm/hipdnn-mk-frontend/build/projects/hipdnn/test_categories.cmake
+-- Configuring done (2.4s)
+-- Generating done (0.1s)
+-- Build files have been written to: /dev/shm/hipdnn-mk-frontend/build

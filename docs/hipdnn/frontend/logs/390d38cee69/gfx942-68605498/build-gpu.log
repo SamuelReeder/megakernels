@@ -1,0 +1,262 @@
++ cat source-revisions
+base=8e0433e4829cafa05ed6d425413e863aced7e9f3
+frontend=390d38cee69f86af96dda7f4b92b39ff38b4a637
+engine=3bb8d27b9db9186e68281fd14c0dc4dc0c063903
+merged_tree=661f35b7884f55373297c4a992348f6a161b83d1
++ set -x
++ cmake --build build -j 32 --target hipdnn_frontend_bindings hip_kernel_provider hkp_packaging_integration hkp_packaging_product
+[0/2] Re-checking globbed directories...
+[1/248] Generating ASM fwd kernel configuration header for gfx942;gfx950
+[2/248] Generating ASM bwd kernel configuration header for gfx942;gfx950
+[3/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/implicit.cpp.o
+[4/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_static_property.cpp.o
+[5/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/trampoline.cpp.o
+[6/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/error.cpp.o
+[7/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_internals.cpp.o
+[8/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/util.cpp.o
+[9/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_ndarray.cpp.o
+[10/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/common.cpp.o
+[11/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_func.cpp.o
+[12/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_enum.cpp.o
+[13/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_type.cpp.o
+[14/248] Linking CXX static library projects/hipdnn/python/frontend_bindings/libnanobind-static-abi3.a
+[15/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/cmake_pch.hxx.pch
+[16/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_binary.cpp.o
+[17/248] hkp: packing root 'product' for gfx942
+excluding folder FlyDSL/
+excluding folder rocKE/
+skipping non-descriptor file megakernel/manifest.json
+[18/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/file_name_saving_file_manager.cpp.o
+[19/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/include/codegen/python.cc.o
+[20/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/reflection.cpp.o
+[21/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/code_generators.cpp.o
+[22/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/file_binary_writer.cpp.o
+[23/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/file_writer.cpp.o
+[24/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_text.cpp.o
+[25/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/flatc_main.cpp.o
+[26/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/annotated_binary_text_gen.cpp.o
+[27/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_php.cpp.o
+[28/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/go_generator.cc.o
+[29/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_json_schema.cpp.o
+[30/248] hkp: verifying embedded kernel sources (hip_kernel_provider_impl)
+hkp_verify_embedded_sources: hip_kernel_provider_impl: 0 embedded_source descriptors checked against 9 table keys
+[31/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/swift_generator.cc.o
+[32/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_lobster.cpp.o
+[33/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/java_generator.cc.o
+[34/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/bfbs_gen_lua.cpp.o
+[35/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_go.cpp.o
+[36/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/binary_annotator.cpp.o
+[37/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/bfbs_gen_nim.cpp.o
+[38/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/flatc.cpp.o
+[39/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_swift.cpp.o
+[40/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_grpc.cpp.o
+[41/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/cpp_generator.cc.o
+[42/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_dart.cpp.o
+[43/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/ts_generator.cc.o
+[44/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_ts.cpp.o
+[45/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/python_generator.cc.o
+[46/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_kotlin_kmp.cpp.o
+[47/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_rust.cpp.o
+[48/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_fbs.cpp.o
+[49/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_python.cpp.o
+[50/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_kotlin.cpp.o
+[51/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_java.cpp.o
+[52/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_csharp.cpp.o
+[53/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_cpp.cpp.o
+[54/248] hkp: packing root 'integration' for gfx942
+excluding folder rocKE/
+hkp_pack: compiling 10 variants for gfx942 on 2 workers
+[55/248] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_parser.cpp.o
+[56/248] Linking CXX executable bin/flatc
+[57/248] Generating batchnorm_attributes_generated.h
+[58/248] Generating batchnorm_backward_attributes_generated.h
+[59/248] Generating batchnorm_inference_attributes_generated.h
+[60/248] Generating batchnorm_inference_attributes_variance_ext_generated.h
+[61/248] Generating block_scale_dequantize_attributes_generated.h
+[62/248] Generating block_scale_quantize_attributes_generated.h
+[63/248] Generating convolution_bwd_attributes_generated.h
+[64/248] Generating convolution_common_generated.h
+[65/248] Generating convolution_fwd_attributes_generated.h
+[66/248] Generating convolution_wrw_attributes_generated.h
+[67/248] Generating custom_op_attributes_generated.h
+[68/248] Generating data_types_generated.h
+[69/248] Generating device_properties_generated.h
+[70/248] Generating engine_config_generated.h
+[71/248] Generating engine_details_generated.h
+[72/248] Generating engine_prediction_generated.h
+[73/248] Generating execution_plan_generated.h
+[74/248] Generating gdn_attributes_generated.h
+[75/248] Generating gbdt_model_generated.h
+[76/248] Generating graph_generated.h
+[77/248] Generating kda_attributes_generated.h
+[78/248] Generating knob_value_generated.h
+[79/248] Generating layernorm_attributes_generated.h
+[80/248] Generating layernorm_backward_attributes_generated.h
+[81/248] Generating linear_attention_common_generated.h
+[82/248] Generating linear_model_generated.h
+[83/248] Generating matmul_attributes_generated.h
+[84/248] Generating mlp_model_generated.h
+[85/248] Generating moe_grouped_matmul_attributes_generated.h
+[86/248] Generating moe_grouped_matmul_bwd_attributes_generated.h
+[87/248] Generating norm_common_generated.h
+[88/248] Generating pointwise_attributes_generated.h
+[89/248] Generating reduction_attributes_generated.h
+[90/248] Generating resample_common_generated.h
+[91/248] Generating resample_fwd_attributes_generated.h
+[92/248] Generating rmsnorm_attributes_generated.h
+[93/248] Generating resample_bwd_attributes_generated.h
+[94/248] Generating ingestor_plan_generated.h
+[95/248] Generating rmsnorm_backward_attributes_generated.h
+[96/248] Generating sdpa_backward_attributes_generated.h
+[97/248] Generating table_model_generated.h
+[98/248] Generating sdpa_attributes_generated.h
+[99/248] Generating serialized_graph_and_plan_generated.h
+[100/248] Generating tensor_attributes_generated.h
+[101/248] Generating uhd_gen FlatBuffers Python bindings
+[102/248] Generating node_operands_generated.h and node_operand_table_generated.h
+[103/248] Generating cachekey_generated.h from the FlatBuffers schemas
+[104/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BackendDescriptor.cpp.o
+[105/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DataTypeConversion.cpp.o
+[106/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/LayernormOperationDescriptor.cpp.o
+[107/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/KnobSettingDescriptor.cpp.o
+[108/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionWrwOperationDescriptor.cpp.o
+[109/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormInferenceOperationDescriptor.cpp.o
+[110/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BlockScaleQuantizeOperationDescriptor.cpp.o
+[111/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormInferenceVarianceExtOperationDescriptor.cpp.o
+[112/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BlockScaleDequantizeOperationDescriptor.cpp.o
+[113/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DescriptorAttributeUtils.cpp.o
+[114/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ReductionOperationDescriptor.cpp.o
+[115/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormOperationDescriptor.cpp.o
+[116/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MoeGroupedMatmulBwdOperationDescriptor.cpp.o
+[117/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/CustomOpOperationDescriptor.cpp.o
+[118/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/RMSNormBackwardOperationDescriptor.cpp.o
+[119/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/PointwiseOperationDescriptor.cpp.o
+[120/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionFwdOperationDescriptor.cpp.o
+[121/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/LayernormBackwardOperationDescriptor.cpp.o
+[122/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionBwdOperationDescriptor.cpp.o
+[123/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MoeGroupedMatmulOperationDescriptor.cpp.o
+[124/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ResampleFwdOperationDescriptor.cpp.o
+[125/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormBackwardOperationDescriptor.cpp.o
+[126/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ResampleBwdOperationDescriptor.cpp.o
+[127/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/KnobDescriptor.cpp.o
+[128/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/NodeFactory.cpp.o
+[129/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/prediction/PredictionBuiltIn.cpp.o
+[130/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/SdpaFwdOperationDescriptor.cpp.o
+[131/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineConfigDescriptor.cpp.o
+[132/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/DeviceProperties.cpp.o
+[133/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ProfilingControlDescriptor.cpp.o
+[134/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ExecutionPlanDescriptor.cpp.o
+[135/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DescriptorFactory.cpp.o
+[136/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/VariantDescriptor.cpp.o
+[137/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineHeuristicDescriptor.cpp.o
+[138/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/handle/HandleFactory.cpp.o
+[139/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineDescriptor.cpp.o
+[140/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/BuiltInHeuristics.cpp.o
+[141/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/module.cpp.o
+[142/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/PluginCore.cpp.o
+[143/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/static_ordering/StaticOrderingBuiltIn.cpp.o
+[144/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/HeuristicPlugin.cpp.o
+[145/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/SharedLibrary.cpp.o
+[146/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/PlatformUtils.linux.cpp.o
+[147/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MatmulOperationDescriptor.cpp.o
+[148/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/SdpaBwdOperationDescriptor.cpp.o
+[149/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/HeuristicPluginResourceManager.cpp.o
+[150/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/TensorDescriptor.cpp.o
+[151/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/cudnn_compat.cpp.o
+[152/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/prediction/PredictionPolicy.cpp.o
+[153/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/RMSNormOperationDescriptor.cpp.o
+[154/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/FlatbufferUtilities.cpp.o
+[155/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/SelectionHeuristic.cpp.o
+[156/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/memory_bindings.cpp.o
+[157/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/EnginePlugin.cpp.o
+[158/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/ApplicabilityPool.cpp.o
+[159/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/dlpack_adapter.cpp.o
+[160/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/logging/Logging.cpp.o
+[161/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/utilities/Digest.cpp.o
+[162/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/tensor_bindings.cpp.o
+[163/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/utilities/sha256.cpp.o
+[164/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/LastErrorManager.cpp.o
+[165/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/GraphDescriptor.cpp.o
+[166/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/utilities/EngineOrdering.cpp.o
+[167/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/asm/PluginModuleDir.cpp.o
+[168/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/types_bindings.cpp.o
+[169/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/hip_bindings.cpp.o
+[170/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/Kernel.cpp.o
+[171/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/Program.cpp.o
+[172/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/EnginePluginResourceManager.cpp.o
+[173/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/logging/GraphLogger.cpp.o
+[174/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/handle_bindings.cpp.o
+[175/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/autotune_bindings.cpp.o
+[176/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/handle/Handle.cpp.o
+[177/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/ApplicabilityManager.cpp.o
+[178/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/Handle.cpp.o
+[179/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/Utils.cpp.o
+[180/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend.dir/HipdnnBackend.cpp.o
+[181/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormPlanBuilder.cpp.o
+[182/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdInferenceWithVariancePlan.cpp.o
+[183/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormPlanBuilder.cpp.o
+[184/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaBwdPlan.cpp.o
+[185/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdInferencePlan.cpp.o
+[186/248] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/config/ConfigBuiltIn.cpp.o
+[187/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/attributes_bindings.cpp.o
+[188/248] Linking CXX static library lib/libhipdnn_backend_private.a
+[189/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdTrainingPlanBuilder.cpp.o
+[190/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaFwdPlan.cpp.o
+[191/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormBwdPlan.cpp.o
+[192/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormFwdPlan.cpp.o
+[193/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormFwdTrainingPlan.cpp.o
+[194/248] Linking CXX shared library lib/libhipdnn_backend.so
+[195/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormApplicabilityChecks.cpp.o
+[196/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/pointwise_bindings.cpp.o
+[197/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormBwdPlanBuilder.cpp.o
+[198/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/batchnorm/BatchnormApplicabilityChecks.cpp.o
+[199/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/RMSnorm/RMSnormBwdPlan.cpp.o
+[200/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormApplicabilityChecks.cpp.o
+[201/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/HipMlopsEngine.cpp.o
+[202/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaFwdPlanBuilder.cpp.o
+[203/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/PluginPublic.cpp.o
+[204/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleApplicabilityChecks.cpp.o
+[205/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormPlanBuilder.cpp.o
+[206/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormUtilities.cpp.o
+[207/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResamplePlanBuilder.cpp.o
+[208/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/graph_kwargs_bindings.cpp.o
+[209/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/ApplicabilityChecks.cpp.o
+[210/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx942AttentionDenseNative.cpp.o
+[211/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/KpackArchive.cpp.o
+[212/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleBwdPlan.cpp.o
+[213/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleFwdPlan.cpp.o
+[214/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormBwdPlan.cpp.o
+[215/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/CodeObjectLoad.cpp.o
+[216/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/pygraph_bindings.cpp.o
+[217/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_sources.cpp.o
+[218/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx950AttentionDenseNative.cpp.o
+[219/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/IngestorPacks.cpp.o
+[220/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/KpackKernelLoader.cpp.o
+[221/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/PointwiseNative.cpp.o
+[222/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/compilation/KpackProgram.cpp.o
+[223/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/serialization/IngestorPlanHeader.cpp.o
+[224/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_includes.cpp.o
+[225/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/AsmSdpaEngine.cpp.o
+[226/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/ConvNative.cpp.o
+[227/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx950AttentionUnified3DNative.cpp.o
+[228/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/resample/ResampleBwdPlanBuilder.cpp.o
+[229/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/StandalonePointwiseNative.cpp.o
+[230/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/IngestorPlanRestore.cpp.o
+[231/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/serialization/IngestorPlanCodec.cpp.o
+[232/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/AttentionDenseNative.cpp.o
+[233/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx942AttentionUnified2DNative.cpp.o
+[234/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/hip_mlops_engine/plans/layernorm/LayernormFwdPlan.cpp.o
+[235/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx1151WmmaAttentionNative.cpp.o
+[236/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/MegakernelNative.cpp.o
+[237/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx950AttentionUnified2DNative.cpp.o
+[238/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/IngestorPlanCapture.cpp.o
+[239/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/PluginSerialization.cpp.o
+[240/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/ConvDgradAotNative.cpp.o
+[241/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx950ConvFwdNative.cpp.o
+[242/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/packs/Gfx942AttentionUnified3dNative.cpp.o
+[243/248] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/graph_bindings.cpp.o
+[244/248] Linking CXX shared module projects/hipdnn/python/frontend_bindings/hipdnn_frontend_python.abi3.so
+[245/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/asm_sdpa_engine/plans/SdpaBwdPlanBuilder.cpp.o
+[246/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/core/Container.cpp.o
+[247/248] Building CXX object dnn-providers/hip-kernel-provider/src/CMakeFiles/hip_kernel_provider_impl.dir/engines/kernel_ingestor_engine/KernelIngestorEngine.cpp.o
+[248/248] Linking CXX shared library lib/hipdnn_plugins/engines/libhip_kernel_provider.so
