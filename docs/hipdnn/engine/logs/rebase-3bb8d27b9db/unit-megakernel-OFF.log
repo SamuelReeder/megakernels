@@ -1,0 +1,6 @@
+head=3bb8d27b9db9186e68281fd14c0dc4dc0c063903 kind=main mode=OFF 2026-11-27T17:35:19+00:00
+Note: Google Test filter = TestMegakernel*
+[==========] Running 0 tests from 0 test suites.
+[==========] 0 tests from 0 test suites ran. (0 ms total)
+[  PASSED  ] 0 tests.
+WARNING: filter "TestMegakernel*" did not match any test; no tests were run

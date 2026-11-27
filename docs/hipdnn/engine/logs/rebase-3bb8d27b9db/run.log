@@ -1,0 +1,48 @@
+head=3bb8d27b9db9186e68281fd14c0dc4dc0c063903 kind=main host=quanta-ccs-aus-j07-45.adc.amd.com nproc=48 date=2026-11-27T17:26:58+00:00
+gpu arch=gfx942
+py deps ok
+cmake version 3.28.3
+HIP version: 7.18.26465-0000000
+MODE=OFF configure_rc=0 s=11
+MODE=OFF build_rc=0 s=486
+MODE=OFF megakernel files in the packed product root:
+MODE=OFF unit_rc=0
+[  PASSED  ] 2530 tests.
+[  SKIPPED ] 13 tests.
+MODE=OFF unit_megakernel_rc=0
+[  PASSED  ] 0 tests.
+MODE=ON configure_rc=0 s=11
+MODE=ON build_rc=0 s=485
+MODE=ON megakernel files in the packed product root:
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/artifacts/hkp-packed.marker
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/artifacts/megakernel.kdp.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/artifacts/megakernel.kdp.provenance.json.gz
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/kernel_matches_payload.umd.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/megakernel.kmd.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/megakernel.udd.json
+lib/hipdnn_plugins/engines/arch_content/hip-kernel-provider/gfx942/megakernel/megakernel.ued.json
+MODE=ON unit_rc=0
+[  PASSED  ] 2545 tests.
+[  SKIPPED ] 13 tests.
+MODE=ON unit_megakernel_rc=0
+[  PASSED  ] 15 tests.
+MODE=ON integration_rc=0
+[       OK ] IntegrationGpuMegakernel.ExecutesThePackedObjectWithItsGridBlockAndArguments (230 ms)
+[       OK ] IntegrationGpuMegakernel.DeclinesAPayloadWhoseSrcNoObjectCarries (10 ms)
+[  PASSED  ] 2 tests.
+MODE=ON-noobj configure_rc=0 s=10
+MODE=ON-noobj build_rc=0 s=470
+MODE=ON-noobj megakernel files in the packed product root:
+MODE=ON-noobj unit_rc=0
+[  PASSED  ] 2545 tests.
+[  SKIPPED ] 13 tests.
+MODE=ON-noobj unit_megakernel_rc=0
+[  PASSED  ] 15 tests.
+clang_format_rc=0
+head=3bb8d27b9db9186e68281fd14c0dc4dc0c063903 kind=main mode=format 2026-11-27T17:51:44+00:00
+Ubuntu clang-format version 18.1.3 (1ubuntu1)
+clang_tidy_rc=0
+pytest_rc=0
+
+============================== 11 passed in 0.76s ==============================
+done 2026-11-27T18:00:28+00:00

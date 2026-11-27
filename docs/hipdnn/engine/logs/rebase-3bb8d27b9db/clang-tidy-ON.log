@@ -1,0 +1,14 @@
+head=3bb8d27b9db9186e68281fd14c0dc4dc0c063903 kind=main mode=tidy 2026-11-27T17:51:44+00:00
+Ubuntu LLVM version 20.1.2
+[1/5] Processing file /tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/packs/MegakernelNative.cpp.
+96931 warnings generated.
+[2/5] Processing file /tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/engines/kernel_ingestor_engine/IngestorPacks.cpp.
+193224 warnings generated.
+[3/5] Processing file /tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/engines/kernel_ingestor_engine/packs/TestMegakernelMatchers.cpp.
+295563 warnings generated.
+[4/5] Processing file /tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/tests/engines/kernel_ingestor_engine/TestKernelIngestorEngine.cpp.
+405496 warnings generated.
+[5/5] Processing file /tmp/mkeng3-main/src/dnn-providers/hip-kernel-provider/src/integration_tests/kernel_ingestor_engine/IntegrationGpuMegakernel.cpp.
+493468 warnings generated.
+Suppressed 496435 warnings (493468 in non-user code, 2967 NOLINT).
+Use -header-filter=.* to display errors from all non-system headers. Use -system-headers to display errors from system headers as well.
