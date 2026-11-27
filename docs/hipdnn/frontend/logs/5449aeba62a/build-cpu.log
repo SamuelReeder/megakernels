@@ -1,0 +1,634 @@
+frontend=5449aeba62af0e67cc025cfd3585dfae5bc8a1f3
+[1/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_static_property.cpp.o
+[2/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/implicit.cpp.o
+[3/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/trampoline.cpp.o
+[4/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/error.cpp.o
+[5/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_internals.cpp.o
+[6/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/util.cpp.o
+[7/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_ndarray.cpp.o
+[8/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/common.cpp.o
+[9/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_func.cpp.o
+[10/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_enum.cpp.o
+[11/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/nanobind-static-abi3.dir/__/__/__/__/_deps/nanobind-src/src/nb_type.cpp.o
+[12/265] Linking CXX static library projects/hipdnn/python/frontend_bindings/libnanobind-static-abi3.a
+[13/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/cmake_pch.hxx.pch
+[14/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/file_binary_writer.cpp.o
+[15/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/file_writer.cpp.o
+[16/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/file_name_saving_file_manager.cpp.o
+[17/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_binary.cpp.o
+[18/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/code_generators.cpp.o
+[19/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/flatc_main.cpp.o
+[20/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/include/codegen/python.cc.o
+[21/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/swift_generator.cc.o
+[22/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_grpc.cpp.o
+[23/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/go_generator.cc.o
+[24/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/annotated_binary_text_gen.cpp.o
+[25/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/ts_generator.cc.o
+[26/265] Building CXX object _deps/gtest-build/googlemock/CMakeFiles/gmock.dir/src/gmock-all.cc.o
+[27/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/python_generator.cc.o
+[28/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/reflection.cpp.o
+[29/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_lobster.cpp.o
+[30/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_json_schema.cpp.o
+[31/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_fbs.cpp.o
+[32/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_text.cpp.o
+[33/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/java_generator.cc.o
+[34/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/grpc/src/compiler/cpp_generator.cc.o
+[35/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_php.cpp.o
+[36/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/bfbs_gen_lua.cpp.o
+[37/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_dart.cpp.o
+[38/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/flatc.cpp.o
+[39/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_kotlin_kmp.cpp.o
+[40/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_kotlin.cpp.o
+[41/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/bfbs_gen_nim.cpp.o
+[42/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_go.cpp.o
+[43/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/binary_annotator.cpp.o
+[44/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_swift.cpp.o
+[45/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_rust.cpp.o
+[46/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_csharp.cpp.o
+[47/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_java.cpp.o
+[48/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_python.cpp.o
+[49/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_ts.cpp.o
+[50/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_gen_cpp.cpp.o
+[51/265] Building CXX object _deps/gtest-build/googletest/CMakeFiles/gtest.dir/src/gtest-all.cc.o
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/src/gtest-all.cc:38:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<testing::TestInfo *>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<testing::TestInfo **, std::vector<testing::TestInfo *>>, testing::TestInfo *>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<testing::TestInfo **, std::vector<testing::TestInfo *>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/src/gtest.cc:3035:20)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/src/gtest.cc:3034:8: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<testing::TestInfo **, std::vector<testing::TestInfo *>>, (lambda at /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/src/gtest.cc:3035:20)>' requested here
+ 3034 |   std::stable_sort(test_info_list_.begin(), test_info_list_.end(),
+      |        ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<testing::TestInfo *>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[52/265] Linking CXX static library lib/libgtest.a
+[53/265] Linking CXX static library lib/libgmock.a
+[54/265] Building CXX object _deps/flatbuffers-build/CMakeFiles/flatc.dir/src/idl_parser.cpp.o
+[55/265] Linking CXX executable bin/flatc
+[56/265] Generating batchnorm_attributes_generated.h
+[57/265] Generating batchnorm_backward_attributes_generated.h
+[58/265] Generating batchnorm_inference_attributes_generated.h
+[59/265] Generating block_scale_dequantize_attributes_generated.h
+[60/265] Generating convolution_common_generated.h
+[61/265] Generating convolution_fwd_attributes_generated.h
+[62/265] Generating convolution_wrw_attributes_generated.h
+[63/265] Generating custom_op_attributes_generated.h
+[64/265] Generating batchnorm_inference_attributes_variance_ext_generated.h
+[65/265] Generating convolution_bwd_attributes_generated.h
+[66/265] Generating device_properties_generated.h
+[67/265] Generating block_scale_quantize_attributes_generated.h
+[68/265] Generating engine_config_generated.h
+[69/265] Generating execution_plan_generated.h
+[70/265] Generating data_types_generated.h
+[71/265] Generating gdn_attributes_generated.h
+[72/265] Generating linear_attention_common_generated.h
+[73/265] Generating engine_prediction_generated.h
+[74/265] Generating kda_attributes_generated.h
+[75/265] Generating layernorm_attributes_generated.h
+[76/265] Generating layernorm_backward_attributes_generated.h
+[77/265] Generating matmul_attributes_generated.h
+[78/265] Generating engine_details_generated.h
+[79/265] Generating gbdt_model_generated.h
+[80/265] Generating knob_value_generated.h
+[81/265] Generating linear_model_generated.h
+[82/265] Generating mlp_model_generated.h
+[83/265] Generating moe_grouped_matmul_attributes_generated.h
+[84/265] Generating norm_common_generated.h
+[85/265] Generating pointwise_attributes_generated.h
+[86/265] Generating reduction_attributes_generated.h
+[87/265] Generating resample_bwd_attributes_generated.h
+[88/265] Generating resample_common_generated.h
+[89/265] Generating moe_grouped_matmul_bwd_attributes_generated.h
+[90/265] Generating resample_fwd_attributes_generated.h
+[91/265] Generating rmsnorm_attributes_generated.h
+[92/265] Generating rmsnorm_backward_attributes_generated.h
+[93/265] Generating serialized_graph_and_plan_generated.h
+[94/265] Generating table_model_generated.h
+[95/265] Generating sdpa_attributes_generated.h
+[96/265] Generating sdpa_backward_attributes_generated.h
+[97/265] Generating graph_generated.h
+[98/265] Generating tensor_attributes_generated.h
+[99/265] Generating node_operands_generated.h and node_operand_table_generated.h
+[100/265] Generating cachekey_generated.h from the FlatBuffers schemas
+[101/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DataTypeConversion.cpp.o
+[102/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BackendDescriptor.cpp.o
+[103/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/KnobSettingDescriptor.cpp.o
+[104/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/TensorDescriptor.cpp.o
+[105/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DescriptorAttributeUtils.cpp.o
+[106/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/NodeFactory.cpp.o
+[107/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MatmulOperationDescriptor.cpp.o
+[108/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ReductionOperationDescriptor.cpp.o
+[109/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/DeviceProperties.cpp.o
+[110/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/RMSNormOperationDescriptor.cpp.o
+[111/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MoeGroupedMatmulBwdOperationDescriptor.cpp.o
+[112/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormInferenceOperationDescriptor.cpp.o
+[113/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/RMSNormBackwardOperationDescriptor.cpp.o
+[114/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormInferenceVarianceExtOperationDescriptor.cpp.o
+[115/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BlockScaleQuantizeOperationDescriptor.cpp.o
+[116/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/MoeGroupedMatmulOperationDescriptor.cpp.o
+[117/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/LayernormOperationDescriptor.cpp.o
+[118/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/LayernormBackwardOperationDescriptor.cpp.o
+[119/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/PointwiseOperationDescriptor.cpp.o
+[120/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ResampleBwdOperationDescriptor.cpp.o
+[121/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BlockScaleDequantizeOperationDescriptor.cpp.o
+[122/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/CustomOpOperationDescriptor.cpp.o
+[123/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/BuiltInHeuristics.cpp.o
+[124/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ResampleFwdOperationDescriptor.cpp.o
+[125/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionBwdOperationDescriptor.cpp.o
+[126/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormBackwardOperationDescriptor.cpp.o
+[127/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/FlatbufferUtilities.cpp.o
+[128/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionWrwOperationDescriptor.cpp.o
+[129/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ConvolutionFwdOperationDescriptor.cpp.o
+[130/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/BatchnormOperationDescriptor.cpp.o
+[131/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/SdpaBwdOperationDescriptor.cpp.o
+[132/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/SdpaFwdOperationDescriptor.cpp.o
+[133/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/utilities/EngineOrdering.cpp.o
+[134/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBackendLoggingHelpers.cpp.o
+[135/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/prediction/PredictionBuiltIn.cpp.o
+[136/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/handle/Handle.cpp.o
+[137/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/handle/HandleFactory.cpp.o
+[138/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineConfigDescriptor.cpp.o
+[139/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/KnobDescriptor.cpp.o
+[140/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/VariantDescriptor.cpp.o
+[141/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestAttributes.cpp.o
+[142/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/static_ordering/StaticOrderingBuiltIn.cpp.o
+[143/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ProfilingControlDescriptor.cpp.o
+[144/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/HeuristicPlugin.cpp.o
+[145/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBackendLibraryResolution.cpp.o
+[146/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBackendFactory.cpp.o
+[147/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBlockScaleQuantizeAttributes.cpp.o
+[148/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBlockScaleDequantizeAttributes.cpp.o
+[149/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/PlatformUtils.linux.cpp.o
+[150/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/SelectionHeuristic.cpp.o
+[151/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormInferenceAttributesVarianceExt.cpp.o
+[152/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestCheckedShapeMath.cpp.o
+[153/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/LastErrorManager.cpp.o
+[154/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormInferenceAttributes.cpp.o
+[155/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/SharedLibrary.cpp.o
+[156/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/DescriptorFactory.cpp.o
+[157/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormBackwardAttributes.cpp.o
+[158/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/prediction/PredictionPolicy.cpp.o
+[159/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormAttributes.cpp.o
+[160/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestCustomOpAttributes.cpp.o
+[161/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionDgradAttributes.cpp.o
+[162/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/EnginePlugin.cpp.o
+[163/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineHeuristicDescriptor.cpp.o
+[164/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/ExecutionPlanDescriptor.cpp.o
+[165/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestError.cpp.o
+[166/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/PluginCore.cpp.o
+[167/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/EngineDescriptor.cpp.o
+[168/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionFwdAttributes.cpp.o
+[169/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphAttributes.cpp.o
+[170/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionWgradAttributes.cpp.o
+[171/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/HeuristicPluginResourceManager.cpp.o
+[172/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestIncompatibleBackendWrapper.cpp.o
+[173/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestFrontendLogging.cpp.o
+[174/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBlockScaleDequantizeNode.cpp.o
+[175/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestINode.cpp.o
+[176/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestLayernormAttributes.cpp.o
+[177/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMatmulAttributes.cpp.o
+[178/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormInferenceNode.cpp.o
+[179/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMoeGroupedMatmulBwdAttributes.cpp.o
+[180/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMoeGroupedMatmulAttributes.cpp.o
+[181/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormInferenceNodeVarianceExt.cpp.o
+[182/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestLayernormBackwardAttributes.cpp.o
+[183/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBlockScaleQuantizeNode.cpp.o
+[184/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormBackwardNode.cpp.o
+[185/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/logging/Logging.cpp.o
+[186/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphOverrideValidation.cpp.o
+[187/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestCustomOpNode.cpp.o
+[188/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestNode.cpp.o
+[189/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/main.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/tests/main.cpp:6:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[190/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/logging/GraphLogger.cpp.o
+[191/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestReductionAttributes.cpp.o
+[192/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionDgradNode.cpp.o
+[193/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMatmulNode.cpp.o
+[194/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestResampleBwdAttributes.cpp.o
+[195/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSdpaBackwardAttributes.cpp.o
+[196/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSdpaAttributes.cpp.o
+[197/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestPointwiseAttributes.cpp.o
+[198/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestKnob.cpp.o
+[199/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestResampleFwdAttributes.cpp.o
+[200/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/heuristics/config/ConfigBuiltIn.cpp.o
+[201/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestRMSNormBackwardAttributes.cpp.o
+[202/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/plugin/EnginePluginResourceManager.cpp.o
+[203/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestRMSNormAttributes.cpp.o
+[204/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestVersion.cpp.o
+[205/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestLayernormBackwardNode.cpp.o
+[206/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSdkLogging.cpp.o
+[207/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestReductionNode.cpp.o
+[208/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestTopologicalSortingUtils.cpp.o
+[209/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/module.cpp.o
+[210/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestResampleBwdNode.cpp.o
+[211/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend.dir/HipdnnBackend.cpp.o
+[212/265] Building CXX object projects/hipdnn/backend/src/CMakeFiles/hipdnn_backend_private.dir/descriptors/GraphDescriptor.cpp.o
+[213/265] Linking CXX static library lib/libhipdnn_backend_private.a
+[214/265] Linking CXX shared library lib/libhipdnn_backend.so
+[215/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestTensorAttributes.cpp.o
+[216/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestLayerNormNode.cpp.o
+[217/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/types_bindings.cpp.o
+[218/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestTypes.cpp.o
+[219/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/memory_bindings.cpp.o
+[220/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/tensor_bindings.cpp.o
+[221/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/hip_bindings.cpp.o
+[222/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestUtilities.cpp.o
+[223/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/cudnn_compat.cpp.o
+[224/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestHeuristicPolicyInfo.cpp.o
+[225/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/dlpack_adapter.cpp.o
+[226/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestRMSNormBackwardNode.cpp.o
+[227/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphMoeGroupedMatmul.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/tests/TestGraphMoeGroupedMatmul.cpp:3:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[228/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSdpaBwdNode.cpp.o
+[229/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestAutotuneTypes.cpp.o
+[230/265] Building CXX object projects/hipdnn/tests/test_plugins/CMakeFiles/test_good_plugin.dir/TestGoodPlugin.cpp.o
+[231/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestHandle.cpp.o
+[232/265] Linking CXX shared library lib/test_plugins/custom/libtest_good_plugin.so
+[233/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestRMSNormNode.cpp.o
+[234/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphMoeGroupedMatmulBwd.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/tests/TestGraphMoeGroupedMatmulBwd.cpp:3:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[235/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphLayernormBackward.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/tests/TestGraphLayernormBackward.cpp:3:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[236/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/autotune_bindings.cpp.o
+[237/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestBatchnormNode.cpp.o
+[238/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphResampleBwd.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/tests/TestGraphResampleBwd.cpp:3:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[239/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMoeGroupedMatmulNode.cpp.o
+[240/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestTensorValueAttributes.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/tests/TestTensorValueAttributes.cpp:4:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[241/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestMoeGroupedMatmulBwdNode.cpp.o
+[242/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionNode.cpp.o
+[243/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestKnobUnpacker.cpp.o
+[244/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestConvolutionWgradNode.cpp.o
+[245/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestScopedHipdnnBackendDescriptor.cpp.o
+[246/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSetEnginePluginPaths.cpp.o
+[247/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestAutotuneFileWriter.cpp.o
+[248/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestDescriptorHelpers.cpp.o
+[249/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/handle_bindings.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/python/frontend_bindings/src/handle_bindings.cpp:5:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/python/frontend_bindings/src/handle_wrapper.hpp:7:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend.hpp:59:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/Graph.hpp:68:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/algorithm:61:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:61:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[250/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestEngineQueries.cpp.o
+[251/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestSdpaFwdNode.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/tests/TestSdpaFwdNode.cpp:4:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[252/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/attributes_bindings.cpp.o
+[253/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestResampleFwdNode.cpp.o
+[254/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestPointwiseNode.cpp.o
+[255/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/pointwise_bindings.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/python/frontend_bindings/src/pointwise_bindings.cpp:6:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/Graph.hpp:68:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/algorithm:61:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:61:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[256/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraphMatchKey.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/tests/TestGraphMatchKey.cpp:8:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[257/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestAutotune.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/tests/TestAutotune.cpp:4:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[258/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/graph_kwargs_bindings.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/python/frontend_bindings/src/graph_kwargs_bindings.cpp:11:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/python/frontend_bindings/src/cudnn_compat.hpp:8:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/Types.hpp:47:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/data_sdk/include/hipdnn_data_sdk/types.hpp:56:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/data_sdk/include/hipdnn_data_sdk/types/Double.hpp:18:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/algorithm:61:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:61:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[259/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestDescriptorUnpackHelpers.cpp.o
+[260/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestOperationUnpacker.cpp.o
+[261/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/pygraph_bindings.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/python/frontend_bindings/src/pygraph_bindings.cpp:5:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/python/frontend_bindings/src/cudnn_compat.hpp:8:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/Types.hpp:47:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/data_sdk/include/hipdnn_data_sdk/types.hpp:56:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/data_sdk/include/hipdnn_data_sdk/types/Double.hpp:18:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/algorithm:61:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:61:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[262/265] Building CXX object projects/hipdnn/python/frontend_bindings/CMakeFiles/hipdnn_frontend_bindings.dir/src/graph_bindings.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/python/frontend_bindings/src/graph_bindings.cpp:5:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/python/frontend_bindings/src/cudnn_compat.hpp:8:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/Types.hpp:47:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/data_sdk/include/hipdnn_data_sdk/types.hpp:56:
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/data_sdk/include/hipdnn_data_sdk/types/Double.hpp:18:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/algorithm:61:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:61:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[263/265] Linking CXX shared module projects/hipdnn/python/frontend_bindings/hipdnn_frontend_python.abi3.so
+[264/265] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraph.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/tests/TestGraph.cpp:4:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[265/265] Linking CXX executable bin/hipdnn_frontend_tests

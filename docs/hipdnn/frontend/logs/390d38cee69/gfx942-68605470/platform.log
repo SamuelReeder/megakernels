@@ -1,0 +1,10 @@
+base=8e0433e4829cafa05ed6d425413e863aced7e9f3
+frontend=390d38cee69f86af96dda7f4b92b39ff38b4a637
+engine=3bb8d27b9db9186e68281fd14c0dc4dc0c063903
+merged_tree=661f35b7884f55373297c4a992348f6a161b83d1
+host=quanta-ccs-aus-f01-19.adc.amd.com job=68605470 cpus=32 date=2026-11-27T12:28:23-05:00
+  Name:                    gfx942                             
+cmake version 3.28.3
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+Python 3.12.3

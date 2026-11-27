@@ -1,0 +1,27 @@
+frontend=1aa7c7b1cd58450027cc95eeaa3c43f732b4caaa
+Trim Trailing Whitespace..............................................................Passed
+Fix End of Files......................................................................Passed
+Check Yaml........................................................(no files to check)Skipped
+Check for added large files...........................................................Passed
+black.................................................................................Passed
+clang-format (C/C++/ObjC).............................................................Passed
+bandit (unsafe yaml.load / B506)......................................................Passed
+flatc (hipDNN)....................................................(no files to check)Skipped
+cache key codegen (hipDNN)........................................(no files to check)Skipped
+node operand visitor codegen (hipDNN).............................(no files to check)Skipped
+Verify hipDNN support-claim sidecars (RFC 0015)...................(no files to check)Skipped
+Support matrix renders without errors (RFC 0015)..................(no files to check)Skipped
+Support matrix overview renders without errors (RFC 0015).........(no files to check)Skipped
+GTest naming conventions (MIOpen).................................(no files to check)Skipped
+TensileLite - no new absolute tensilelite imports.................(no files to check)Skipped
+TensileLite - no py.path pytest hook args (removed in pytest 9)...(no files to check)Skipped
+MIOpen public/private header consistency..........................(no files to check)Skipped
+MIOpen wrapper sources match miopen.h and miopen_internal.h.......(no files to check)Skipped
+MIOpen public/private header check self-tests.....................(no files to check)Skipped
+rocm_kpack pin is consistent (hipDNN).............................(no files to check)Skipped
+hipSPARSE grouped documentation is in sync........................(no files to check)Skipped
+hipSPARSE documentation script self-tests.........................(no files to check)Skipped
+rocSPARSE coverage merge self-tests...............................(no files to check)Skipped
+rocKE platform -> library imports only shrink.....................(no files to check)Skipped
+split-to-stack skill tests........................................(no files to check)Skipped
+cmake-lint........................................................(no files to check)Skipped

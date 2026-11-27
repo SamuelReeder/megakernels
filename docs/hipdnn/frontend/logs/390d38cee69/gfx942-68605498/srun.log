@@ -1,0 +1,33 @@
+2026-11-27T12:30:41-05:00
+job=68605498 state=RUNNING start=2026-11-27T12:30:23 reason=quanta-ccs-aus-f01-19 limit=35:00
+srun: job 68605498 queued and waiting for resources
+srun: job 68605498 has been allocated resources
+slurmstepd: error: couldn't chdir to `/home/AMD/sareeder/work/mkfrontend/390d38cee6': No such file or directory: going to /tmp instead
+slurmstepd: error: couldn't chdir to `/home/AMD/sareeder/work/mkfrontend/390d38cee6': No such file or directory: going to /tmp instead
+base=8e0433e4829cafa05ed6d425413e863aced7e9f3
+frontend=390d38cee69f86af96dda7f4b92b39ff38b4a637
+engine=3bb8d27b9db9186e68281fd14c0dc4dc0c063903
+merged_tree=661f35b7884f55373297c4a992348f6a161b83d1
+host=quanta-ccs-aus-f01-19.adc.amd.com job=68605498 cpus=32 date=2026-11-27T12:31:36-05:00
+  Name:                    gfx942                             
+cmake version 3.28.3
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+Python 3.12.3
++ set +x
+base=8e0433e4829cafa05ed6d425413e863aced7e9f3
+frontend=390d38cee69f86af96dda7f4b92b39ff38b4a637
+engine=3bb8d27b9db9186e68281fd14c0dc4dc0c063903
+merged_tree=661f35b7884f55373297c4a992348f6a161b83d1
+descriptor root: /tmp/mk-frontend.XccYO9/build/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider/integration
+/tmp/mk-frontend.XccYO9/build/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider/integration/integration/gfx942/megakernel
+/tmp/mk-frontend.XccYO9/build/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider/integration/integration/gfx942/megakernel/megakernel_standin.kdp.provenance.json.gz
+/tmp/mk-frontend.XccYO9/build/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider/integration/integration/gfx942/megakernel/megakernel_standin.kdp.json
+/tmp/mk-frontend.XccYO9/build/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider/integration/integration/gfx942/megakernel/megakernel_standin.kmd.json
+/tmp/mk-frontend.XccYO9/build/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider/integration/integration/gfx942/megakernel/megakernel_standin.udd.json
+/tmp/mk-frontend.XccYO9/build/lib/hipdnn_plugins/engines/test_arch_content/hip-kernel-provider/integration/integration/gfx942/megakernel/megakernel_standin.ued.json
+stand-in bytes: 622600, one word per 77824 threads and one tab word
+expected SHA-256: 19c61f5fddd3f9e4b3938147e4dd7e9d3cc246fa5703cad06ca8528d1333f817
+actual   SHA-256: 19c61f5fddd3f9e4b3938147e4dd7e9d3cc246fa5703cad06ca8528d1333f817
+GPU run exit=0 2026-11-27T12:32:38-05:00
+srun_exit=0 2026-11-27T12:32:43-05:00

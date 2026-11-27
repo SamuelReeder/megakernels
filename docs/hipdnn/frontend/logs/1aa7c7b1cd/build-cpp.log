@@ -1,0 +1,26 @@
+frontend=1aa7c7b1cd58450027cc95eeaa3c43f732b4caaa
++ /home/sareeder/.local/lib/python3.10/site-packages/cmake/data/bin/cmake --build /dev/shm/hipdnn-mk-frontend/build --target hipdnn_frontend_tests --parallel 44
+[1/2] Building CXX object projects/hipdnn/frontend/tests/CMakeFiles/hipdnn_frontend_tests.dir/TestGraph.cpp.o
+In file included from /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/tests/TestGraph.cpp:4:
+In file included from /dev/shm/hipdnn-mk-frontend/build/_deps/gtest-src/googletest/include/gtest/gtest.h:55:
+In file included from /usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/memory:66:
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:263:8: warning: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' is deprecated [-Wdeprecated-declarations]
+  263 |                 std::get_temporary_buffer<value_type>(_M_original_len));
+      |                      ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:4996:15: note: in instantiation of member function 'std::_Temporary_buffer<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, hipdnn_frontend::AutotuneResult>::_Temporary_buffer' requested here
+ 4996 |       _TmpBuf __buf(__first, (__last - __first + 1) / 2);
+      |               ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_algo.h:5070:23: note: in instantiation of function template specialization 'std::__stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, __gnu_cxx::__ops::_Iter_comp_iter<(lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>>' requested here
+ 5070 |       _GLIBCXX_STD_A::__stable_sort(__first, __last,
+      |                       ^
+/home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:266:10: note: in instantiation of function template specialization 'std::stable_sort<__gnu_cxx::__normal_iterator<hipdnn_frontend::AutotuneResult *, std::vector<hipdnn_frontend::AutotuneResult>>, (lambda at /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/frontend/include/hipdnn_frontend/autotune/AutotuneBenchmark.hpp:267:45)>' requested here
+  266 |     std::stable_sort(
+      |          ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/c++/12/bits/stl_tempbuf.h:99:5: note: 'get_temporary_buffer<hipdnn_frontend::AutotuneResult>' has been explicitly marked deprecated here
+   99 |     _GLIBCXX17_DEPRECATED
+      |     ^
+/usr/lib/gcc/x86_64-linux-gnu/12/../../../../include/x86_64-linux-gnu/c++/12/bits/c++config.h:119:34: note: expanded from macro '_GLIBCXX17_DEPRECATED'
+  119 | # define _GLIBCXX17_DEPRECATED [[__deprecated__]]
+      |                                  ^
+1 warning generated.
+[2/2] Linking CXX executable bin/hipdnn_frontend_tests

@@ -1,0 +1,345 @@
+base=8e0433e4829cafa05ed6d425413e863aced7e9f3
+frontend=390d38cee69f86af96dda7f4b92b39ff38b4a637
+engine=3bb8d27b9db9186e68281fd14c0dc4dc0c063903
+merged_tree=661f35b7884f55373297c4a992348f6a161b83d1
+++ command -v python3
+++ command -v python3
++ cmake --preset hip-kernel-provider -S src -B build -G Ninja '-DROCM_LIBS_ENABLE_COMPONENTS=hipdnn;hipdnn-integration-tests;hip-kernel-provider;hipdnn-python' -DROCM_PATH=/opt/rocm -DGPU_TARGETS=gfx942 -DHIPDNN_ENABLE_SDPA=ON -DENABLE_CLANG_TIDY=OFF -DHIPDNN_ENABLE_KERNEL_INGESTOR=ON -DENABLE_MEGAKERNEL_ENGINE=ON -DPython_EXECUTABLE=/usr/bin/python3 -DPython3_EXECUTABLE=/usr/bin/python3
+Preset CMake variables:
+
+  CMAKE_BUILD_TYPE="Release"
+  CMAKE_INSTALL_PREFIX="/opt/rocm"
+  CMAKE_TOOLCHAIN_FILE:FILEPATH="/tmp/mk-frontend.b4bPaQ/src/cmake/toolchains/rocm-clang.cmake"
+
+-- The C compiler identification is Clang 24.0.0
+-- The CXX compiler identification is Clang 24.0.0
+-- The ASM compiler identification is Clang with GNU-like command-line
+-- Found assembler: /opt/rocm/lib/llvm/bin/clang
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /opt/rocm/lib/llvm/bin/clang - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /opt/rocm/lib/llvm/bin/clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Looking for a Fortran compiler
+-- Looking for a Fortran compiler - /usr/bin/f95
+-- The Fortran compiler identification is GNU 13.3.0
+-- Detecting Fortran compiler ABI info
+-- Detecting Fortran compiler ABI info - done
+-- Check for working Fortran compiler: /usr/bin/f95 - skipped
+-- Enabling components:
+--   hipdnn (supported)
+--   hipdnn-integration-tests (supported)
+--   hip-kernel-provider (supported)
+--   hipdnn-python (supported)
+-- Using the multi-header code from /tmp/mk-frontend.b4bPaQ/build/_deps/nlohmann_json-src/include/
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE  
+-- [hipdnn] hipDNN: JSON serialization enabled in SDK public headers (requires nlohmann_json)
+-- [hipdnn] hipDNN: SDPA support enabled
+-- [hipdnn] hipDNN: kernel ingestor enabled
+-- [hipdnn] hipDNN: cuDNN compatibility shim disabled
+-- [hipdnn] The CMake generator is Ninja.
+-- [hipdnn] CMAKE_INSTALL_PREFIX set to default: /opt/rocm
+CMake Warning at projects/hipdnn/CMakeLists.txt:251 (message):
+  Clang-Tidy is disabled - some build issues may be missed.
+
+
+-- [hipdnn] ✓ Confirmed AMD/ROCm type C++ compiler
+-- [hipdnn] Found Python3: /usr/bin/python3 (found version "3.12.3") found components: Interpreter 
+-- [hipdnn] Found clang-format version 18 at /usr/bin/clang-format-18 -- Ubuntu clang-format version 18.1.3 (1ubuntu1)
+-- [hipdnn] Found clang-tidy version 20 at /usr/bin/clang-tidy-20 -- Ubuntu LLVM version 20.1.2
+[hipdnn]   Optimized build.
+-- [hipdnn] Found run-clang-tidy at /usr/bin/run-clang-tidy-20
+-- [hipdnn] Found llvm-symbolizer version 20 at /usr/bin/llvm-symbolizer-20 -- llvm-symbolizer
+[hipdnn] Ubuntu LLVM version 20.1.2
+[hipdnn]   Optimized build.
+-- [hipdnn] hipDNN: YAML-based CTest categorization enabled
+-- [hipdnn] hipdnn_data_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_data_sdk version: 0.2.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Performing Test HIP_CLANG_SUPPORTS_PARALLEL_JOBS
+-- [hipdnn] Performing Test HIP_CLANG_SUPPORTS_PARALLEL_JOBS - Success
+-- [hipdnn] Configured clang-tidy HIP arguments with include directory: /opt/rocm/include
+-- [hipdnn] Registering test target: hipdnn_data_sdk_tests -> hipdnn_data_sdk_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/data_sdk/tests
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/data_sdk/tests/test_categories.cmake
+-- [hipdnn] hipdnn_flatbuffers_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_flatbuffers_sdk version: 0.2.0.unknown
+-- [hipdnn] Did not find flatbuffers, it will be built locally
+-- [hipdnn] [flatbuffers] Proceeding with version: 25.9.23.0
+-- [hipdnn] [flatbuffers] Looking for strtof_l
+-- [hipdnn] [flatbuffers] Looking for strtof_l - found
+-- [hipdnn] [flatbuffers] Looking for strtoull_l
+-- [hipdnn] [flatbuffers] Looking for strtoull_l - found
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] *------------------------------- ROCMChecks WARNING --------------------------*
+[hipdnn] [flatbuffers]   Options and properties should be set on a cmake target where possible. The
+[hipdnn] [flatbuffers]   variable 'CMAKE_C_FLAGS' may be set by the cmake toolchain, either by
+[hipdnn] [flatbuffers]   calling 'cmake -DCMAKE_C_FLAGS=""'
+[hipdnn] [flatbuffers]   or set in a toolchain file and added with
+[hipdnn] [flatbuffers]   'cmake -DCMAKE_TOOLCHAIN_FILE=<toolchain-file>'. ROCMChecks now calling:
+CMake Warning at /opt/rocm/share/rocmcmakebuildtools/cmake/ROCMChecks.cmake:46 (message):
+  'CMAKE_C_FLAGS' is set at
+  /tmp/mk-frontend.b4bPaQ/build/_deps/flatbuffers-src/CMakeLists.txt:<line#>
+  shown below:
+Call Stack (most recent call first):
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:9223372036854775807 (rocm_check_toolchain_var)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:79 (string)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:65 (__CHECK_SYMBOL_EXISTS_FILTER_FLAGS)
+  /tmp/mk-frontend.b4bPaQ/build/_deps/flatbuffers-src/CMakeLists.txt:116 (check_symbol_exists)
+
+
+[hipdnn] [flatbuffers] *-----------------------------------------------------------------------------*
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] *------------------------------- ROCMChecks WARNING --------------------------*
+[hipdnn] [flatbuffers]   Options and properties should be set on a cmake target where possible. The
+[hipdnn] [flatbuffers]   variable 'CMAKE_C_FLAGS' may be set by the cmake toolchain, either by
+[hipdnn] [flatbuffers]   calling 'cmake -DCMAKE_C_FLAGS=""'
+[hipdnn] [flatbuffers]   or set in a toolchain file and added with
+[hipdnn] [flatbuffers]   'cmake -DCMAKE_TOOLCHAIN_FILE=<toolchain-file>'. ROCMChecks now calling:
+CMake Warning at /opt/rocm/share/rocmcmakebuildtools/cmake/ROCMChecks.cmake:46 (message):
+  'CMAKE_C_FLAGS' is set at
+  /tmp/mk-frontend.b4bPaQ/build/_deps/flatbuffers-src/CMakeLists.txt:<line#>
+  shown below:
+Call Stack (most recent call first):
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:9223372036854775807 (rocm_check_toolchain_var)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:80 (string)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:65 (__CHECK_SYMBOL_EXISTS_FILTER_FLAGS)
+  /tmp/mk-frontend.b4bPaQ/build/_deps/flatbuffers-src/CMakeLists.txt:116 (check_symbol_exists)
+
+
+[hipdnn] [flatbuffers] *-----------------------------------------------------------------------------*
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] 
+-- [hipdnn] [flatbuffers] Looking for realpath
+-- [hipdnn] [flatbuffers] Looking for realpath - found
+[hipdnn] [flatbuffers] 
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] *------------------------------- ROCMChecks WARNING --------------------------*
+[hipdnn] [flatbuffers]   Options and properties should be set on a cmake target where possible. The
+[hipdnn] [flatbuffers]   variable 'CMAKE_C_FLAGS' may be set by the cmake toolchain, either by
+[hipdnn] [flatbuffers]   calling 'cmake -DCMAKE_C_FLAGS=""'
+[hipdnn] [flatbuffers]   or set in a toolchain file and added with
+[hipdnn] [flatbuffers]   'cmake -DCMAKE_TOOLCHAIN_FILE=<toolchain-file>'. ROCMChecks now calling:
+CMake Warning at /opt/rocm/share/rocmcmakebuildtools/cmake/ROCMChecks.cmake:46 (message):
+  'CMAKE_C_FLAGS' is set at
+  /tmp/mk-frontend.b4bPaQ/build/_deps/flatbuffers-src/CMakeLists.txt:<line#>
+  shown below:
+Call Stack (most recent call first):
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:9223372036854775807 (rocm_check_toolchain_var)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:84 (set)
+  /usr/share/cmake-3.28/Modules/CheckSymbolExists.cmake:67 (__CHECK_SYMBOL_EXISTS_RESTORE_FLAGS)
+  /tmp/mk-frontend.b4bPaQ/build/_deps/flatbuffers-src/CMakeLists.txt:116 (check_symbol_exists)
+
+
+[hipdnn] [flatbuffers] *-----------------------------------------------------------------------------*
+[hipdnn] [flatbuffers] *******************************************************************************
+[hipdnn] [flatbuffers] 
+-- [hipdnn] [flatbuffers] CMAKE_CXX_FLAGS: 
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Registering test target: hipdnn_flatbuffers_sdk_tests -> hipdnn_flatbuffers_sdk_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/flatbuffers_sdk/tests
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/flatbuffers_sdk/tests/test_categories.cmake
+-- [hipdnn] hipdnn_backend: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_backend version: 0.5.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Found spdlog: /usr/local/lib/cmake/spdlog (found version "1.15.3")
+-- [hipdnn] hipdnn_enable_spdlog: Enabled spdlog for target hipdnn_backend_private
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_VISIBILITY
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_VISIBILITY - Success
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY
+-- [hipdnn] Performing Test COMPILER_HAS_HIDDEN_INLINE_VISIBILITY - Success
+-- [hipdnn] Performing Test COMPILER_HAS_DEPRECATED_ATTR
+-- [hipdnn] Performing Test COMPILER_HAS_DEPRECATED_ATTR - Success
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Registering test target: hipdnn_backend_tests -> hipdnn_backend_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/backend/tests
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/backend/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/backend/tests/test_categories.cmake
+-- [hipdnn] hipdnn_frontend: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_frontend version: 0.6.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Registering test target: hipdnn_frontend_tests -> hipdnn_frontend_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/frontend/tests
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/frontend/tests/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_frontend_dynamic_load_tests -> hipdnn_frontend_dynamic_load_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/frontend/tests
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/frontend/tests/test_categories.cmake
+-- [hipdnn] hipdnn_test_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_test_sdk version: 0.3.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Registering test target: hipdnn_test_sdk_tests -> hipdnn_test_sdk_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/test_sdk/tests
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/test_sdk/tests/test_categories.cmake
+-- [hipdnn] hipdnn_plugin_sdk: could not resolve a git commit hash (no .git directory, git not installed, or not a git checkout) -- version tweak falls back to 'unknown', so on-disk caches keyed by this version string stop distinguishing commits.
+-- [hipdnn] hipdnn_plugin_sdk version: 1.1.0.unknown
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+CMake Warning at projects/hipdnn/plugin_sdk/tests/CMakeLists.txt:29 (message):
+  TestUhdGenArtifact NOT built: uhd_gen's dependencies are not importable by
+  /usr/bin/python3.  Nothing then checks that a real uhd_gen artifact loads
+  at run time.  Install projects/hipdnn/tools/uhd_gen/requirements.txt into
+  that interpreter.
+
+
+-- [hipdnn] Registering test target: hipdnn_plugin_sdk_tests -> hipdnn_plugin_sdk_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/plugin_sdk/tests/test_categories.cmake
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] hipdnn_enable_spdlog: Enabled spdlog for target hipdnn_public_backend_tests
+-- [hipdnn] Registering test target: hipdnn_public_backend_tests -> hipdnn_public_backend_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tests/backend
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tests/backend/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_backend_logging_shutdown_tests -> hipdnn_backend_logging_shutdown_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tests/backend_logging
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tests/backend_logging/test_categories.cmake
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Registering test target: hipdnn_public_frontend_tests -> hipdnn_public_frontend_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tests/frontend
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tests/frontend/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tests/frontend/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_public_frontend_dynamic_load_tests -> hipdnn_public_frontend_dynamic_load_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tests/frontend
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tests/frontend/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_tools_common_tests -> hipdnn_tools_common_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/common/tests
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/common/tests/test_categories.cmake
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_bench_tests -> hipdnn_bench_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/tests
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/bench/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_corpus_gen_tests -> hipdnn_corpus_gen_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/tests
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/tests/test_categories.cmake
+-- [hipdnn] Registering test target: hipdnn_corpus_gen_frontend_tests -> hipdnn_corpus_gen_frontend_tests in working directory: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/tests
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/corpus_gen/tests/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/tools/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/test_categories.cmake
+-- [hipdnn] Generated test category configuration: /tmp/mk-frontend.b4bPaQ/build/projects/hipdnn/test_categories.cmake
+-- [frontend_bindings] Found Python: /usr/bin/python3 (found suitable version "3.12.3", minimum required is "3.12") found components: Interpreter Development.Module Development.SABIModule 
+-- [frontend_bindings] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [integration-tests] CMAKE_INSTALL_PREFIX set to default: /opt/rocm
+CMake Warning at dnn-providers/integration-tests/CMakeLists.txt:55 (message):
+  Clang-Tidy checks are disabled.  CI requires passing clang-tidy checks.
+
+
+-- [integration-tests] Found clang-tidy version 20 at /usr/bin/clang-tidy-20 -- Ubuntu LLVM version 20.1.2
+[integration-tests]   Optimized build.
+-- [integration-tests] Found run-clang-tidy at /usr/bin/run-clang-tidy-20
+CMake Error at dnn-providers/integration-tests/CMakeLists.txt:72 (include):
+  include could not find requested file:
+
+    ClangCheck
+
+
+CMake Error at dnn-providers/integration-tests/CMakeLists.txt:73 (include):
+  include could not find requested file:
+
+    Sanitizers
+
+
+CMake Error at dnn-providers/integration-tests/CMakeLists.txt:74 (include):
+  include could not find requested file:
+
+    WindowsDllStaging
+
+
+CMake Error at dnn-providers/integration-tests/CMakeLists.txt:75 (include):
+  include could not find requested file:
+
+    Tests
+
+
+CMake Error at dnn-providers/integration-tests/CMakeLists.txt:76 (include):
+  include could not find requested file:
+
+    LongPathManifest
+
+
+-- [integration-tests] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+-- [integration-tests] HIP: Using hipcc from relative path: /opt/rocm/bin/hipcc
+CMake Error at dnn-providers/integration-tests/CMakeLists.txt:134 (include):
+  include could not find requested file:
+
+    Dependencies
+
+
+CMake Error at dnn-providers/integration-tests/CMakeLists.txt:135 (fetch_gtest_dependency):
+  Unknown CMake command "fetch_gtest_dependency".
+
+
+-- Configuring incomplete, errors occurred!
+++ date -Is
++ echo 'GPU run exit=1 2026-11-27T12:28:34-05:00'
+GPU run exit=1 2026-11-27T12:28:34-05:00

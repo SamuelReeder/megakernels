@@ -1,0 +1,75 @@
+........................................................................ [  8%]
+....ssssssss...s.......sssssssssssssssssssss..ss..s..s..s............... [ 17%]
+......................ss...ss.sssss..................sssssss.........sss [ 25%]
+ssssss..........ssss.............ss.....ssss...sssssssssssssssssss...... [ 34%]
+.ssssss................................................................. [ 43%]
+........................................................................ [ 51%]
+....................ssssss..s..........sssssssssss.ss...s............... [ 60%]
+........................................................................ [ 68%]
+.....................................s.................................. [ 77%]
+............................ssssssssss.ssss..ss...ss.....ss............. [ 86%]
+.....................................................ss................. [ 94%]
+............................................                             [100%]
+=============================== warnings summary ===============================
+projects/hipdnn/python/frontend_wheel_package/tests/conftest.py:30
+  /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/python/frontend_wheel_package/tests/conftest.py:30: UserWarning: HIP device probe reported 0 visible device(s).
+    warnings.warn(
+
+projects/hipdnn/python/frontend_wheel_package/tests/conftest.py:123
+  /home/sareeder/ROCm-workspace/worktrees/rocm-libraries/megakernel-frontend/projects/hipdnn/python/frontend_wheel_package/tests/conftest.py:123: UserWarning: No ROCm-capable GPU available; skipping 129 gpu test(s).
+    warnings.warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+SKIPPED [8] projects/hipdnn/python/frontend_wheel_package/tests/test_autotune.py:428: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_autotune.py:531: no ROCm-capable GPU available
+SKIPPED [13] projects/hipdnn/python/frontend_wheel_package/tests/test_autotune.py: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_autotune.py:971: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_autotune.py:1081: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_autotune.py:1111: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_autotune.py:1149: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_autotune.py:1195: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_batchnorm.py: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_block_scale.py: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_conv_dgrad.py: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_conv_fprop.py: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_conv_wgrad.py: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_cudnn_names.py:142: could not import 'torch': No module named 'torch'
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_custom_op.py: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_data_types.py:66: no ROCm-capable GPU available
+SKIPPED [5] projects/hipdnn/python/frontend_wheel_package/tests/test_device_buffer.py: no ROCm-capable GPU available
+SKIPPED [6] projects/hipdnn/python/frontend_wheel_package/tests/test_dlpack.py:232: could not import 'torch': No module named 'torch'
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_dlpack.py:241: could not import 'torch': No module named 'torch'
+SKIPPED [9] projects/hipdnn/python/frontend_wheel_package/tests/test_dlpack.py: no ROCm-capable GPU available
+SKIPPED [3] projects/hipdnn/python/frontend_wheel_package/tests/test_error_paths.py: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_fusion.py: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_graph_api.py:191: no ROCm-capable GPU available
+SKIPPED [7] projects/hipdnn/python/frontend_wheel_package/tests/test_graph_api.py: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_handle.py:18: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_handle.py:24: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_handle.py:30: no ROCm-capable GPU available
+SKIPPED [11] projects/hipdnn/python/frontend_wheel_package/tests/test_handle.py: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_hip_event_bindings.py:25: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_hip_event_bindings.py:42: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_hip_event_bindings.py:63: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_hip_event_bindings.py:85: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_hip_event_bindings.py:104: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_hip_event_bindings.py:147: no ROCm-capable GPU available
+SKIPPED [4] projects/hipdnn/python/frontend_wheel_package/tests/test_kwargs_overloads.py: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_layernorm.py: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_matmul.py: no ROCm-capable GPU available
+SKIPPED [4] projects/hipdnn/python/frontend_wheel_package/tests/test_memory_edges.py: no ROCm-capable GPU available
+SKIPPED [6] projects/hipdnn/python/frontend_wheel_package/tests/test_memory_edges.py:69: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_moe_grouped_matmul.py: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_normalization.py: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_pointwise.py: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_pointwise_named.py: no ROCm-capable GPU available
+SKIPPED [7] projects/hipdnn/python/frontend_wheel_package/tests/test_pygraph.py: no ROCm-capable GPU available
+SKIPPED [1] projects/hipdnn/python/frontend_wheel_package/tests/test_pygraph.py:574: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_reduction.py: no ROCm-capable GPU available
+SKIPPED [4] projects/hipdnn/python/frontend_wheel_package/tests/test_resample.py: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_rmsnorm.py: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_sdpa.py: no ROCm-capable GPU available
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_sdpa_ragged.py:209: HIPDNN_REF_CAPI_LIB is not set (dnn-benchmarking tools/hipdnn_ref)
+SKIPPED [2] projects/hipdnn/python/frontend_wheel_package/tests/test_serialization.py: no ROCm-capable GPU available
+697 passed, 139 skipped, 2 warnings in 1.00s
